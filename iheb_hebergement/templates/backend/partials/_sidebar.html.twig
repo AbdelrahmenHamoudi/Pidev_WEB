@@ -1,0 +1,208 @@
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme" style="background: linear-gradient(180deg, #f8f9fa 0%, #fff 100%);">
+    
+    <!-- App Brand RE7LA -->
+    <div class="app-brand demo mb-3" style="padding: 20px 15px; border-bottom: 1px solid rgba(135, 206, 235, 0.2);">
+        <a href="{{ path('app_admin') }}" class="app-brand-link gap-2">
+            <span class="app-brand-logo" style="background: linear-gradient(135deg, #87CEEB, #93C572); border-radius: 12px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L2 7.5V18.5L13 24L24 18.5V7.5L13 2Z" fill="white" fill-opacity="0.3"/>
+                    <path d="M13 2L2 7.5V18.5L13 24L24 18.5V7.5L13 2Z" stroke="white" stroke-width="2"/>
+                    <path d="M13 10L10 15L13 18L16 15L13 10Z" fill="white"/>
+                </svg>
+            </span>
+            <span class="app-brand-text demo fw-bold fs-4" style="font-size: 1.6rem !important; background: linear-gradient(135deg, #87CEEB, #93C572); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800 !important;">RE<span style="color: #e74c3c; -webkit-text-fill-color: #e74c3c;">7</span>LA</span>
+        </a>
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">
+            <i class="bx bx-chevron-left bx-sm" style="color: #87CEEB;"></i>
+        </a>
+    </div>
+
+    <!-- Menu Container -->
+    <div class="menu-inner-shadow"></div>
+    
+    <ul class="menu-inner py-3" style="padding: 0 12px;">
+        
+        <!-- Dashboard -->
+        <li class="menu-item {% if app.request.get('_route') == 'app_admin' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden; transition: all 0.3s ease;">
+            <a href="{{ path('app_admin') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') == 'app_admin' %}background: linear-gradient(135deg, rgba(135, 206, 235, 0.15), rgba(147, 197, 114, 0.15)); border-left: 3px solid #87CEEB;{% endif %}">
+                <i class="menu-icon tf-icons bx bx-home-circle" style="{% if app.request.get('_route') == 'app_admin' %}color: #87CEEB;{% else %}color: #6c757d;{% endif %} font-size: 1.3rem;"></i>
+                <div style="{% if app.request.get('_route') == 'app_admin' %}color: #2c3e50; font-weight: 600;{% else %}color: #6c757d;{% endif %}">Dashboard</div>
+                {% if app.request.get('_route') == 'app_admin' %}
+                <span class="badge rounded-pill ms-auto" style="background: linear-gradient(135deg, #87CEEB, #93C572);">●</span>
+                {% endif %}
+            </a>
+        </li>
+
+        <!-- Go To Front -->
+        <li class="menu-item {% if app.request.get('_route') == 'app_home' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden; transition: all 0.3s ease;">
+            <a href="{{ path('app_home') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
+                <i class="menu-icon tf-icons bx bx-world" style="color: #93C572; font-size: 1.3rem;"></i>
+                <div style="color: #6c757d;">Front Office</div>
+                <span class="badge rounded-pill ms-auto" style="background: #93C572; font-size: 0.7rem;">LIVE</span>
+            </a>
+        </li>
+
+        <!-- Divider -->
+        <li class="menu-header small text-uppercase" style="margin: 20px 0 10px 0; padding: 0 15px;">
+            <span class="menu-header-text" style="color: #87CEEB; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Gestion</span>
+        </li>
+
+        <!-- Hébergements -->
+        <li class="menu-item {% if app.request.get('_route') starts with 'app_admin_hebergement' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="{{ path('app_admin_hebergement_list') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') starts with 'app_admin_hebergement' %}background: linear-gradient(135deg, rgba(135, 206, 235, 0.15), rgba(147, 197, 114, 0.15)); border-left: 3px solid #87CEEB;{% endif %}">
+                <i class="menu-icon tf-icons bx bx-building-house" style="{% if app.request.get('_route') starts with 'app_admin_hebergement' %}color: #87CEEB;{% else %}color: #6c757d;{% endif %} font-size: 1.3rem;"></i>
+                <div style="{% if app.request.get('_route') starts with 'app_admin_hebergement' %}color: #2c3e50; font-weight: 600;{% else %}color: #6c757d;{% endif %}">Hébergements</div>
+            </a>
+        </li>
+
+        <!-- Réservations -->
+        <li class="menu-item {% if app.request.get('_route') starts with 'app_admin_reservation' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="{{ path('app_admin_reservation_list') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') starts with 'app_admin_reservation' %}background: linear-gradient(135deg, rgba(135, 206, 235, 0.15), rgba(147, 197, 114, 0.15)); border-left: 3px solid #87CEEB;{% endif %}">
+                <i class="menu-icon tf-icons bx bx-calendar-check" style="{% if app.request.get('_route') starts with 'app_admin_reservation' %}color: #87CEEB;{% else %}color: #6c757d;{% endif %} font-size: 1.3rem;"></i>
+                <div style="{% if app.request.get('_route') starts with 'app_admin_reservation' %}color: #2c3e50; font-weight: 600;{% else %}color: #6c757d;{% endif %}">Réservations</div>
+                <span class="badge rounded-pill ms-auto" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">NEW</span>
+            </a>
+        </li>
+
+        <!-- Utilisateurs -->
+        <li class="menu-item" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="#" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
+                <i class="menu-icon tf-icons bx bx-user" style="color: #6c757d; font-size: 1.3rem;"></i>
+                <div style="color: #6c757d;">Utilisateurs</div>
+                <span class="badge rounded-pill ms-auto" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white;">24</span>
+            </a>
+        </li>
+
+        <!-- Projets -->
+        <li class="menu-item" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="javascript:void(0);" class="menu-link menu-toggle" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
+                <i class="menu-icon tf-icons bx bx-briefcase" style="color: #6c757d; font-size: 1.3rem;"></i>
+                <div style="color: #6c757d;">Projets</div>
+            </a>
+            <ul class="menu-sub" style="padding-left: 15px;">
+                <li class="menu-item" style="margin-bottom: 5px;">
+                    <a href="#" class="menu-link" style="border-radius: 10px; padding: 10px 15px;">
+                        <div class="d-flex align-items-center">
+                            <i class="bx bx-circle me-2 fs-6" style="color: #87CEEB;"></i>
+                            <div style="color: #6c757d; font-size: 0.9rem;">Tous les projets</div>
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-item" style="margin-bottom: 5px;">
+                    <a href="#" class="menu-link" style="border-radius: 10px; padding: 10px 15px;">
+                        <div class="d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-circle me-2 fs-6" style="color: #f39c12;"></i>
+                                <div style="color: #6c757d; font-size: 0.9rem;">En cours</div>
+                            </div>
+                            <span class="badge rounded-pill" style="background: rgba(243, 156, 18, 0.2); color: #f39c12;">12</span>
+                        </div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" style="border-radius: 10px; padding: 10px 15px;">
+                        <div class="d-flex align-items-center justify-content-between w-100">
+                            <div class="d-flex align-items-center">
+                                <i class="bx bx-circle me-2 fs-6" style="color: #93C572;"></i>
+                                <div style="color: #6c757d; font-size: 0.9rem;">Terminés</div>
+                            </div>
+                            <span class="badge rounded-pill" style="background: rgba(147, 197, 114, 0.2); color: #93C572;">8</span>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Commandes -->
+        <li class="menu-item" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="#" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
+                <i class="menu-icon tf-icons bx bx-cart" style="color: #6c757d; font-size: 1.3rem;"></i>
+                <div style="color: #6c757d;">Commandes</div>
+                <span class="badge rounded-pill ms-auto" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c;">3</span>
+            </a>
+        </li>
+
+        <!-- Analytics -->
+        <li class="menu-item" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="#" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
+                <i class="menu-icon tf-icons bx bx-chart" style="color: #6c757d; font-size: 1.3rem;"></i>
+                <div style="color: #6c757d;">Analytics</div>
+                <span class="badge rounded-pill ms-auto" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white;">
+                    <i class="bx bx-up-arrow-alt me-1"></i>24%
+                </span>
+            </a>
+        </li>
+
+        <!-- Messagerie -->
+        <li class="menu-item" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="#" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
+                <i class="menu-icon tf-icons bx bx-message-square-dots" style="color: #6c757d; font-size: 1.3rem;"></i>
+                <div style="color: #6c757d;">Messagerie</div>
+            </a>
+        </li>
+
+        <!-- Divider -->
+        <li class="menu-header small text-uppercase" style="margin: 20px 0 10px 0; padding: 0 15px;">
+            <span class="menu-header-text" style="color: #e74c3c; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Configuration</span>
+        </li>
+
+        <!-- Paramètres -->
+        <li class="menu-item" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="#" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
+                <i class="menu-icon tf-icons bx bx-cog" style="color: #6c757d; font-size: 1.3rem;"></i>
+                <div style="color: #6c757d;">Paramètres</div>
+            </a>
+        </li>
+
+        <!-- Support -->
+        <li class="menu-item" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="#" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
+                <i class="menu-icon tf-icons bx bx-help-circle" style="color: #6c757d; font-size: 1.3rem;"></i>
+                <div style="color: #6c757d;">Aide & Support</div>
+                <span class="badge rounded-pill ms-auto" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; font-size: 0.7rem;">NEW</span>
+            </a>
+        </li>
+
+    </ul>
+
+    <!-- Bottom Info -->
+    <div style="position: absolute; bottom: 20px; left: 15px; right: 15px; padding: 15px; background: linear-gradient(135deg, rgba(135, 206, 235, 0.1), rgba(147, 197, 114, 0.1)); border-radius: 15px; text-align: center;">
+        <small style="color: #87CEEB; font-weight: 600;">RE7LA Admin v1.0</small>
+    </div>
+
+</aside>
+
+<style>
+    /* Sidebar hover effects */
+    .menu-item:not(.active):hover .menu-link {
+        background: rgba(135, 206, 235, 0.08) !important;
+        transform: translateX(5px);
+    }
+    
+    .menu-item:not(.active):hover .menu-link i {
+        color: #87CEEB !important;
+    }
+    
+    .menu-item:not(.active):hover .menu-link div {
+        color: #2c3e50 !important;
+    }
+    
+    /* Submenu styling */
+    .menu-sub .menu-item:hover .menu-link {
+        background: rgba(135, 206, 235, 0.1) !important;
+    }
+    
+    /* Scrollbar styling */
+    .layout-menu::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .layout-menu::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    .layout-menu::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #87CEEB, #93C572);
+        border-radius: 3px;
+    }
+</style>
