@@ -3,6 +3,12 @@
 * File include item demo only specific css only
 ******************************************************************************/
 
+/* Import Backend Color Palette */
+@import url('backend-colors.css');
+
+/* Import Hebergement Page Recoloration */
+@import url('hebergement-recolor.css');
+
 .menu .app-brand.demo {
   height: 64px;
   margin-top: 12px;

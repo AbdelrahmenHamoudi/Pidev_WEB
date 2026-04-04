@@ -14,45 +14,46 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#2C3E50;line-height
 /* ===== SIDEBAR ===== */
 .sidebar{width:260px;background:#fff;border-right:1px solid #e8ecf0;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
 .sidebar-brand{padding:20px 24px;border-bottom:1px solid #f0f2f5;display:flex;align-items:center;gap:10px;}
-.brand-logo{width:38px;height:38px;background:#1ABC9C;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;}
+.brand-logo{width:64px;height:64px;background:white;border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.brand-logo img{width:40px;height:40px;object-fit:contain;}
 .brand-name{font-size:18px;font-weight:700;color:#2C3E50;}
-.brand-name span{color:#1ABC9C;}
+.brand-name span{color:#F7B731;}
 
 .sidebar-nav{padding:16px 12px;flex:1;}
 .nav-section-title{font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:8px 12px 6px;margin-top:8px;}
 .nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:#64748b;font-weight:500;font-size:13px;cursor:pointer;margin-bottom:2px;transition:all 0.15s;text-decoration:none;}
 .nav-item i{width:20px;text-align:center;font-size:14px;}
 .nav-item:hover{background:#f8fafc;color:#2C3E50;}
-.nav-item.active{background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;box-shadow:0 4px 12px rgba(26,188,156,0.35);}
+.nav-item.active{background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;box-shadow:0 4px 12px rgba(255,209,102,0.35);}
 .nav-item.active i{color:#fff;}
-.nav-badge{margin-left:auto;background:#F39C12;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.nav-badge{margin-left:auto;background:#F7B731;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;}
 .nav-badge.new{background:#ef4444;}
 
 .sidebar-bottom{padding:16px 12px;border-top:1px solid #f0f2f5;}
-.help-box{background:linear-gradient(135deg,#1ABC9C,#16a085);border-radius:14px;padding:16px;color:#fff;text-align:center;}
+.help-box{background:linear-gradient(135deg,#F7B731,#E6C050);border-radius:14px;padding:16px;color:#fff;text-align:center;}
 .help-box .help-icon{font-size:28px;margin-bottom:8px;}
 .help-box p{font-size:11px;opacity:0.9;margin:4px 0 10px;}
-.help-btn{background:#fff;color:#1ABC9C;border:none;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;width:100%;}
+.help-btn{background:#fff;color:#F7B731;border:none;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;width:100%;}
 
 /* ===== MAIN ===== */
 .main{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;}
 
 /* ===== HEADER ===== */
-.header{background:linear-gradient(135deg,#1ABC9C 0%,#16a085 100%);padding-bottom:20px;flex-shrink:0;}
+.header{background:white;padding-bottom:20px;flex-shrink:0;}
 .header-top{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;}
-.header-breadcrumb{color:rgba(255,255,255,0.7);font-size:12px;margin-bottom:2px;}
-.header-breadcrumb span{color:#fff;font-weight:600;}
-.header-title{color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.3px;}
+.header-breadcrumb{color:#2C3E50;font-size:12px;margin-bottom:2px;}
+.header-breadcrumb span{color:#2C3E50;font-weight:600;}
+.header-title{color:#2C3E50;font-size:22px;font-weight:700;letter-spacing:-0.3px;}
 .header-actions{display:flex;align-items:center;gap:20px;}
-.search-box{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:30px;padding:8px 16px;display:flex;align-items:center;gap:8px;}
-.search-box input{background:transparent;border:none;outline:none;color:#fff;font-size:13px;width:160px;}
-.search-box input::placeholder{color:rgba(255,255,255,0.6);}
-.search-box i{color:rgba(255,255,255,0.7);font-size:13px;}
-.header-icon-btn{color:rgba(255,255,255,0.85);font-size:18px;cursor:pointer;position:relative;}
-.notif-dot{position:absolute;top:-4px;right:-5px;background:#F39C12;width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid transparent;}
-.user-chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.15);padding:6px 14px 6px 8px;border-radius:30px;cursor:pointer;}
-.user-avatar{width:32px;height:32px;background:#F39C12;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;}
-.user-chip span{color:#fff;font-size:13px;font-weight:500;}
+.search-box{background:#f0f2f5;border:1px solid #e8ecf0;border-radius:30px;padding:8px 16px;display:flex;align-items:center;gap:8px;}
+.search-box input{background:transparent;border:none;outline:none;color:#2C3E50;font-size:13px;width:160px;}
+.search-box input::placeholder{color:#6c757d;}
+.search-box i{color:#6c757d;font-size:13px;}
+.header-icon-btn{color:#6c757d;font-size:18px;cursor:pointer;position:relative;}
+.notif-dot{position:absolute;top:-4px;right:-5px;background:#F7B731;width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid white;}
+.user-chip{display:flex;align-items:center;gap:10px;background:#f0f2f5;padding:6px 14px 6px 8px;border-radius:30px;cursor:pointer;}
+.user-avatar{width:32px;height:32px;background:#F7B731;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;}
+.user-chip span{color:#2C3E50;font-size:13px;font-weight:500;}
 
 /* ===== CONTENT ===== */
 .content{padding:28px 28px 28px;}
@@ -140,8 +141,7 @@ tr:last-child td{border-bottom:none;}
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-logo">R</div>
-      <div class="brand-name">RE<span>7</span>LA</div>
+      <img src="/assets_backend/images/logo.png" alt="RE7LA Logo" style="width: 120px; height: 120px; object-fit: contain;">
     </div>
 
     <div class="sidebar-nav">

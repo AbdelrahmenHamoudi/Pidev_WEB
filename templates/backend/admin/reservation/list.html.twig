@@ -13,43 +13,43 @@
 
 <!-- Stats Cards (overlaps header) -->
 <div class="stat-cards-row">
-  <div class="stat-card">
+  <div class="stat-card" style="background:#F7B731;">
     <div class="stat-card-left">
-      <div class="label" style="color:#F39C12;">EN ATTENTE</div>
-      <div class="value">{{ pending }}</div>
+      <div class="label" style="color:#fff;">EN ATTENTE</div>
+      <div class="value" style="color:#fff;">{{ pending }}</div>
     </div>
-    <div class="stat-icon" style="background:#F39C12;">
-      <i class="fas fa-clock"></i>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-clock" style="color:#fff;"></i>
     </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" style="background:#1ABC9C;">
     <div class="stat-card-left">
-      <div class="label" style="color:#1ABC9C;">CONFIRMÉES</div>
-      <div class="value">{{ confirmed }}</div>
+      <div class="label" style="color:#fff;">CONFIRMÉES</div>
+      <div class="value" style="color:#fff;">{{ confirmed }}</div>
     </div>
-    <div class="stat-icon" style="background:#1ABC9C;">
-      <i class="fas fa-check-circle"></i>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-check-circle" style="color:#fff;"></i>
     </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" style="background:#e63946;">
     <div class="stat-card-left">
-      <div class="label" style="color:#e63946;">ANNULÉES</div>
-      <div class="value">{{ cancelled }}</div>
+      <div class="label" style="color:#fff;">ANNULÉES</div>
+      <div class="value" style="color:#fff;">{{ cancelled }}</div>
     </div>
-    <div class="stat-icon" style="background:#e63946;">
-      <i class="fas fa-times-circle"></i>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-times-circle" style="color:#fff;"></i>
     </div>
   </div>
 
-  <div class="stat-card">
+  <div class="stat-card" style="background:#1A3A4A;">
     <div class="stat-card-left">
-      <div class="label" style="color:#2C3E50;">REFUSÉES</div>
-      <div class="value">{{ refused }}</div>
+      <div class="label" style="color:#fff;">REFUSÉES</div>
+      <div class="value" style="color:#fff;">{{ refused }}</div>
     </div>
-    <div class="stat-icon" style="background:#2C3E50;">
-      <i class="fas fa-ban"></i>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-ban" style="color:#fff;"></i>
     </div>
   </div>
 </div>
@@ -97,8 +97,8 @@
                 <div style="font-size:16px;font-weight:700;color:#2C3E50;">#{{ reservation.id }}</div>
               </div>
               <span style="padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.5px;
-                background:{{ 'CONFIRM' in r_statut ? 'rgba(26,188,156,0.12)' : ('ATTENT' in r_statut or 'PEND' in r_statut) ? 'rgba(243,156,18,0.12)' : 'ANNUL' in r_statut ? 'rgba(230,57,70,0.12)' : 'rgba(44,62,80,0.1)' }};
-                color:{{ 'CONFIRM' in r_statut ? '#1ABC9C' : ('ATTENT' in r_statut or 'PEND' in r_statut) ? '#F39C12' : 'ANNUL' in r_statut ? '#e63946' : '#2C3E50' }};">
+                background:{{ 'CONFIRM' in r_statut ? 'rgba(26,188,156,0.12)' : ('ATTENT' in r_statut or 'PEND' in r_statut) ? 'rgba(247,183,49,0.12)' : 'ANNUL' in r_statut ? 'rgba(230,57,70,0.12)' : 'rgba(44,62,80,0.1)' }};
+                color:{{ 'CONFIRM' in r_statut ? '#1ABC9C' : ('ATTENT' in r_statut or 'PEND' in r_statut) ? '#F7B731' : 'ANNUL' in r_statut ? '#e63946' : '#2C3E50' }};">
                 {{ r_statut }}
               </span>
             </div>
@@ -132,7 +132,7 @@
             <!-- Total -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
               <span style="color:#2C3E50;font-size:13px;font-weight:600;">Total</span>
-              <span style="font-size:18px;font-weight:800;color:#F39C12;">{{ reservation.prixTotal }} DT</span>
+              <span style="font-size:18px;font-weight:800;color:#F7B731;">{{ reservation.prixTotal }} DT</span>
             </div>
 
             <!-- Action Buttons -->
