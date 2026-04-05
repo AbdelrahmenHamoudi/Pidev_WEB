@@ -33,13 +33,17 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 overflow-hidden" style="border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); transition: all 0.3s ease;">
                     <div class="position-relative">
-                        {% set firstImage = hebergement.images|length > 0 ? hebergement.images[0].filename : hebergement.image %}
-                        {% if firstImage %}
-                            <img src="{{ asset(firstImage) }}" class="w-100" style="height: 250px; object-fit: cover;" alt="{{ hebergement.titre }}">
+                        {% set imgName = '' %}
+                        {% if hebergement.images|length > 0 %}
+                            {% set imgName = hebergement.images[0].filename|split('/')|last|split('\\')|last %}
+                        {% elseif hebergement.image %}
+                            {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
+                        {% endif %}
+                        
+                        {% if imgName and '.' in imgName %}
+                            <img src="{{ asset('uploads/hebergements/' ~ imgName) }}" class="w-100" style="height: 250px; object-fit: cover;" alt="{{ hebergement.titre }}" onerror="this.src='https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400';">
                         {% else %}
-                            <div class="w-100 d-flex align-items-center justify-content-center" style="height: 250px; background: linear-gradient(135deg, #87CEEB, #93C572);">
-                                <i class="bx bx-building-house" style="font-size: 5rem; color: white;"></i>
-                            </div>
+                            <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400" class="w-100" style="height: 250px; object-fit: cover;" alt="{{ hebergement.titre }}">
                         {% endif %}
                         <span style="position: absolute; top: 20px; left: 20px; background: linear-gradient(135deg, #87CEEB, #93C572); color: white; padding: 8px 20px; border-radius: 25px; font-weight: 600; font-size: 0.85rem;">
                             {{ hebergement.typeHebergement }}

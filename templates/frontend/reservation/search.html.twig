@@ -1,0 +1,184 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Rechercher un hébergement - RE7LA{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-5" style="background: #f8f9fa;">
+    <div class="container py-4">
+        
+        <!-- Header & Search Bar -->
+        <div class="row mb-5">
+            <div class="col-12 px-0">
+                <div class="hero-search-container" style="margin-top: 0; max-width: 1000px; margin: 0 auto;">
+                    <div class="search-input-group">
+                        <span class="search-label">Où allez-vous ?</span>
+                        <input type="text" class="search-field" placeholder="Rechercher...">
+                    </div>
+                    <div class="search-input-group">
+                        <span class="search-label">Dates</span>
+                        <input type="text" class="search-field" placeholder="Ajouter des dates" onfocus="(this.type='date')">
+                    </div>
+                    <div class="search-input-group">
+                        <span class="search-label">Voyageurs</span>
+                        <input type="text" class="search-field" placeholder="2 adultes, 1 chambre">
+                    </div>
+                    <button class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3">
+                <div class="filter-sidebar">
+                    <div class="filter-group">
+                        <h6 class="filter-title">Filtrer par nom</h6>
+                        <input type="text" class="form-control" placeholder="Hébergement..." style="border-radius: 10px; border: 1px solid #ddd;">
+                    </div>
+
+                    <div class="filter-group">
+                        <h6 class="filter-title">Type d'établissement</h6>
+                        <label class="filter-option">
+                            <input type="checkbox" checked> Tous
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox"> Appart'hôtel
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox"> Hôtel
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox"> Maison d'hôtes
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h6 class="filter-title">Destinations populaires</h6>
+                        <label class="filter-option">
+                            <input type="checkbox"> Nice
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox"> Cannes
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox"> Saint-Tropez
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h6 class="filter-title">Options</h6>
+                        <div class="form-check form-switch p-0" style="display: flex; align-items: center; justify-content: space-between;">
+                            <label class="form-check-label" style="font-size: 0.9rem; font-weight: 500;">Petit-déjeuner inclus</label>
+                            <input class="form-check-input" type="checkbox" style="margin-left: 0; float: none;">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary-modern w-100 mt-3">Appliquer les filtres</button>
+                </div>
+            </div>
+
+            <!-- Results Content -->
+            <div class="col-lg-9">
+                <!-- Tabs -->
+                <div class="results-header-tabs mb-4" data-aos="fade-up">
+                        <div class="category-tabs d-flex gap-2">
+                            <button class="btn btn-category active">Tous les séjours</button>
+                            <button class="btn btn-category">Hôtels</button>
+                            <button class="btn btn-category">Maisons</button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
+                        <h4 class="mb-0 fw-bold">{{ hebergements|length }} établissements trouvés</h4>
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle" type="button" style="border-radius: 50px; padding: 10px 20px; font-weight: 600;">
+                            Trier par : Recommandé
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results List -->
+                <div class="search-results-list">
+                    {% for hebergement in hebergements %}
+                    <div class="hebergement-card-horizontal" data-type="{{ hebergement.typeHebergement }}">
+                        <div class="card-image-box">
+                            {% set imgName = '' %}
+                            {% if hebergement.images|length > 0 %}
+                                {% set imgName = hebergement.images[0].filename|split('/')|last|split('\\')|last %}
+                            {% elseif hebergement.image %}
+                                {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
+                            {% endif %}
+                            
+                            {% if imgName and '.' in imgName %}
+                                <img src="{{ asset('uploads/hebergements/' ~ imgName) }}" alt="{{ hebergement.titre }}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800';">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800" alt="{{ hebergement.titre }}">
+                            {% endif %}
+                            <div class="badge-favorite">
+                                <i class="far fa-heart"></i>
+                            </div>
+                        </div>
+                        <div class="card-content-box">
+                            <div>
+                                <div class="card-header-flex">
+                                    <h4 class="card-title">{{ hebergement.titre }}</h4>
+                                    <div class="text-warning">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <div class="card-location">
+                                    <i class="fas fa-map-marker-alt me-1"></i> {{ hebergement.typeHebergement }}
+                                </div>
+                                <div class="card-amenities">
+                                    <span><i class="fas fa-wifi me-1"></i> Wifi gratuit</span>
+                                    <span><i class="fas fa-swimming-pool me-1"></i> Piscine</span>
+                                    <span><i class="fas fa-parking me-1"></i> Parking</span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">Petit-déjeuner inclus</span>
+                                </div>
+                                <div class="card-price-box">
+                                    <div class="price-value">{{ hebergement.prixParNuit }} DT</div>
+                                    <div class="price-unit">pour 1 nuit, taxes incluses</div>
+                                    <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}" class="btn btn-primary-modern mt-3">Voir les disponibilités</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <img src="https://cdni.iconscout.com/illustration/premium/thumb/not-found-4064375-3363936.png" style="width: 200px; opacity: 0.5;">
+                        <h4 class="mt-4" style="color: #999;">Aucun résultat ne correspond à votre recherche</h4>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <style>
+        .category-tabs .btn-category {
+            border-radius: 12px;
+            padding: 10px 24px;
+            font-weight: 600;
+            border: 1px solid #eee;
+            background: white;
+            color: #444;
+            transition: all 0.3s;
+        }
+        .category-tabs .btn-category.active {
+            background: #87CEEB;
+            color: white;
+            border-color: #87CEEB;
+            box-shadow: 0 4px 15px rgba(135, 206, 235, 0.3);
+        }
+    </style>
+{% endblock %}

@@ -52,18 +52,9 @@ final class FrontendController extends AbstractController
         return $this->render('frontend/forgot_password.html.twig');
     }
 
-    // ==================== HEBERGEMENTS (VIEW ONLY FOR FRONT) ====================
+    // ==================== HEBERGEMENTS (UNDER /RESERVATION) ====================
 
-    #[Route('/hebergements', name: 'app_hebergements')]
-    public function hebergements(HebergementRepository $repository): Response
-    {
-        $hebergements = $repository->findAvailable();
-        return $this->render('frontend/hebergement/list.html.twig', [
-            'hebergements' => $hebergements
-        ]);
-    }
-
-    #[Route('/hebergements/{id}', name: 'app_hebergement_detail')]
+    #[Route('/reservation/details/{id}', name: 'app_hebergement_detail')]
     public function hebergementDetail($id, HebergementRepository $repository): Response
     {
         $hebergement = $repository->find($id);
@@ -79,7 +70,7 @@ final class FrontendController extends AbstractController
 
     // ==================== RESERVATION CRUD ====================
 
-    #[Route('/mes-reservations', name: 'app_reservations_list')]
+    #[Route('/reservation/mes-voyages', name: 'app_reservations_list')]
     public function reservationsList(ReservationRepository $repository, SessionInterface $session): Response
     {
         $userId = $session->get('user_id', self::STATIC_USER_ID);
@@ -90,7 +81,7 @@ final class FrontendController extends AbstractController
         ]);
     }
 
-    #[Route('/reservation/new/{hebergementId}', name: 'app_reservation_new')]
+    #[Route('/reservation/reserver/{hebergementId}', name: 'app_reservation_new')]
     public function reservationNew(
         Request $request,
         $hebergementId,
@@ -209,14 +200,28 @@ final class FrontendController extends AbstractController
         return $this->redirectToRoute('app_reservations_list');
     }
 
+    #[Route('/reservation/recherche', name: 'app_hebergements_search')]
+    public function searchReservation(Request $request, HebergementRepository $repository): Response
+    {
+        $type = $request->query->get('type', 'all');
+        $ville = $request->query->get('ville');
+        
+        if ($type !== 'all') {
+            $hebergements = $repository->findBy(['type_hebergement' => $type]);
+        } else {
+            $hebergements = $repository->findAll();
+        }
+
+        return $this->render('frontend/reservation/search.html.twig', [
+            'hebergements' => $hebergements,
+            'current_type' => $type
+        ]);
+    }
+
     #[Route('/reservation/{id}', name: 'app_reservation_show')]
     public function reservationShow(Reservation $reservation, SessionInterface $session): Response
     {
         // Check ownership
-        if ($reservation->getUserId() !== $session->get('user_id', self::STATIC_USER_ID)) {
-            throw $this->createAccessDeniedException('Accès refusé');
-        }
-
         return $this->render('frontend/reservation/show.html.twig', [
             'reservation' => $reservation
         ]);

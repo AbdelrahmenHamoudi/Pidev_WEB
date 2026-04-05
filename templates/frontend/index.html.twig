@@ -325,71 +325,29 @@
                     <a href="#destinations" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
                         <i class="fas fa-compass me-2"></i>Explorer
                     </a>
-                    <a href="{{ path('app_login') }}" class="btn btn-lg btn-outline-dark" style="border-radius: 50px; padding: 15px 40px; font-weight: 600;">
-                        <i class="fas fa-user me-2"></i>Mon compte
+                    <a href="{{ path('app_hebergements_search') }}" class="btn btn-rechercher text-center d-flex align-items-center justify-content-center">
+                        <i class="fas fa-search me-2"></i>RECHERCHER
                     </a>
                 </div>
             </div>
             
             <div class="col-lg-6" data-aos="fade-left">
-                <div class="booking-card">
-                    <h3><i class="fas fa-calendar-check me-2" style="color: var(--bleu-ceil);"></i>Réservez maintenant</h3>
-                    <form>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 500; color: #555;">Destination</label>
-                                <select class="form-control form-control-re7la">
-                                    <option>Choisissez...</option>
-                                    <option>Marrakech</option>
-                                    <option>Casablanca</option>
-                                    <option>Essaouira</option>
-                                    <option>Chefchaouen</option>
-                                    <option>Sahara</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 500; color: #555;">Type</label>
-                                <select class="form-control form-control-re7la">
-                                    <option>Choisissez...</option>
-                                    <option>Hôtel</option>
-                                    <option>Riad</option>
-                                    <option>Excursion</option>
-                                    <option>Vol + Hôtel</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 500; color: #555;">Arrivée</label>
-                                <input type="date" class="form-control form-control-re7la">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 500; color: #555;">Départ</label>
-                                <input type="date" class="form-control form-control-re7la">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 500; color: #555;">Adultes</label>
-                                <select class="form-control form-control-re7la">
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4+</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" style="font-weight: 500; color: #555;">Enfants</label>
-                                <select class="form-control form-control-re7la">
-                                    <option>0</option>
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3+</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-rechercher mt-3">
-                                    <i class="fas fa-search me-2"></i>Rechercher
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                <div class="hero-search-container">
+                    <div class="search-input-group">
+                        <span class="search-label">Où allez-vous ?</span>
+                        <input type="text" class="search-field" placeholder="Rechercher un hébergement..." id="search-dest">
+                    </div>
+                    <div class="search-input-group">
+                        <span class="search-label">Dates</span>
+                        <input type="text" class="search-field" placeholder="Ajouter des dates" onfocus="(this.type='date')">
+                    </div>
+                    <div class="search-input-group">
+                        <span class="search-label">Voyageurs</span>
+                        <input type="text" class="search-field" placeholder="2 adultes, 1 chambre">
+                    </div>
+                    <button class="search-btn" onclick="window.location.href='{{ path('app_hebergements_search') }}'">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -439,17 +397,17 @@
         <div class="row">
             <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
                 <div class="destination-card">
-                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=500');">
-                        <span class="destination-badge">Populaire</span>
+                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=800');">
+                        <span class="destination-badge">Côte d'Azur</span>
                     </div>
                     <div class="destination-content">
-                        <h4>Marrakech</h4>
-                        <p>Ville rouge aux mille couleurs, découvrez ses jardins, palais et souks.</p>
+                        <h4>Nice, France</h4>
+                        <p>Découvrez la célèbre Promenade des Anglais et le charme de la vieille ville.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="destination-price">
-                                450€ <small>/personne</small>
+                                85€ <small>/nuit moyenne</small>
                             </div>
-                            <a href="#" class="btn-reserver">Réserver</a>
+                            <a href="{{ path('app_hebergements_search') }}" class="btn-reserver">Explorer</a>
                         </div>
                     </div>
                 </div>
@@ -457,17 +415,17 @@
             
             <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
                 <div class="destination-card">
-                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1564507592333-c60657eea523?w=500');">
-                        <span class="destination-badge" style="background: linear-gradient(135deg, var(--vert-pistache), var(--vert-pistache-dark));">Nouveau</span>
+                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1541194577687-0c638a3e14b1?w=800');">
+                        <span class="destination-badge" style="background: linear-gradient(135deg, var(--vert-pistache), var(--vert-pistache-dark));">Festival</span>
                     </div>
                     <div class="destination-content">
-                        <h4>Chefchaouen</h4>
-                        <p>La ville bleue nichée dans les montagnes du Rif, un dépaysement garanti.</p>
+                        <h4>Cannes</h4>
+                        <p>Plages de sable, boutiques de luxe et l'ambiance unique du Palais des Festivals.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="destination-price">
-                                320€ <small>/personne</small>
+                                120€ <small>/nuit moyenne</small>
                             </div>
-                            <a href="#" class="btn-reserver">Réserver</a>
+                            <a href="{{ path('app_hebergements_search') }}" class="btn-reserver">Explorer</a>
                         </div>
                     </div>
                 </div>
@@ -475,17 +433,17 @@
             
             <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
                 <div class="destination-card">
-                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500');">
-                        <span class="destination-badge">-20%</span>
+                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1542135967083-fca21ebed605?w=800');">
+                        <span class="destination-badge">Luxe</span>
                     </div>
                     <div class="destination-content">
-                        <h4>Désert du Sahara</h4>
-                        <p>Vivez une nuit magique sous les étoiles dans les dunes de Merzouga.</p>
+                        <h4>Saint-Tropez</h4>
+                        <p>Le port mythique, les plages célèbres et une vie nocturne légendaire.</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="destination-price">
-                                380€ <small>/personne</small>
+                                250€ <small>/nuit moyenne</small>
                             </div>
-                            <a href="#" class="btn-reserver">Réserver</a>
+                            <a href="{{ path('app_hebergements_search') }}" class="btn-reserver">Explorer</a>
                         </div>
                     </div>
                 </div>

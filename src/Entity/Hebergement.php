@@ -2,189 +2,171 @@
 
 namespace App\Entity;
 
-use App\Repository\HebergementRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use App\Repository\HebergementRepository;
+use App\Entity\HebergementImage;
 
 #[ORM\Entity(repositoryClass: HebergementRepository::class)]
 #[ORM\Table(name: 'hebergement')]
+#[ORM\HasLifecycleCallbacks]
 class Hebergement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_hebergement', type: 'integer')]
-    private ?int $id = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $id_hebergement = null;
 
-    #[ORM\Column(name: 'titre', type: 'string', length: 255)]
-    #[Assert\NotBlank(message: 'Le titre est obligatoire')]
-    #[Assert\Length(min: 3, max: 255, minMessage: 'Le titre doit contenir au moins {{ limit }} caractères')]
+    public function getId_hebergement(): ?int
+    {
+        return $this->id_hebergement;
+    }
+
+    public function setId_hebergement(int $id_hebergement): self
+    {
+        $this->id_hebergement = $id_hebergement;
+        return $this;
+    }
+
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $titre = null;
-
-    #[ORM\Column(name: 'desc_hebergement', type: 'string', length: 255, nullable: true)]
-    #[Assert\Length(max: 255, maxMessage: 'La description ne doit pas dépasser {{ limit }} caractères')]
-    private ?string $descHebergement = null;
-
-    #[ORM\Column(name: 'capacite', type: 'integer')]
-    #[Assert\NotBlank(message: 'La capacité est obligatoire')]
-    #[Assert\Positive(message: 'La capacité doit être un nombre positif')]
-    #[Assert\LessThanOrEqual(value: 100, message: 'La capacité maximale est de {{ value }}')]
-    private ?int $capacite = null;
-
-    #[ORM\Column(name: 'type_hebergement', type: 'string', length: 100)]
-    #[Assert\NotBlank(message: 'Le type d\'hébergement est obligatoire')]
-    #[Assert\Choice(choices: ['Villa', 'Appartement', 'Maison', 'Hotel', 'Maison d\'hôte'], message: 'Veuillez sélectionner un type valide')]
-    private ?string $typeHebergement = null;
-
-    #[ORM\Column(name: 'disponible_heberg', type: 'boolean', options: ['default' => true])]
-    private bool $disponible = true;
-
-    #[ORM\Column(name: 'prixParNuit', type: 'float')]
-    #[Assert\NotBlank(message: 'Le prix par nuit est obligatoire')]
-    #[Assert\Positive(message: 'Le prix doit être positif')]
-    #[Assert\LessThanOrEqual(value: 10000, message: 'Le prix maximum est de {{ value }} DT')]
-    private ?float $prixParNuit = null;
-
-    #[ORM\Column(name: 'image', type: 'string', length: 255, nullable: true)]
-    private ?string $image = null;
-
-    #[ORM\OneToMany(mappedBy: 'hebergement', targetEntity: Reservation::class, cascade: ['remove'])]
-    private Collection $reservations;
-
-    #[ORM\OneToMany(mappedBy: 'hebergement', targetEntity: HebergementImage::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['ordre' => 'ASC'])]
-    private Collection $images;
-
-    public function __construct()
-    {
-        $this->reservations = new ArrayCollection();
-        $this->images = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getTitre(): ?string
     {
         return $this->titre;
     }
 
-    public function setTitre(string $titre): static
+    public function setTitre(?string $titre): self
     {
         $this->titre = $titre;
         return $this;
     }
 
-    public function getDescHebergement(): ?string
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $desc_hebergement = null;
+
+    public function getDesc_hebergement(): ?string
     {
-        return $this->descHebergement;
+        return $this->desc_hebergement;
     }
 
-    public function setDescHebergement(?string $descHebergement): static
+    public function setDesc_hebergement(?string $desc_hebergement): self
     {
-        $this->descHebergement = $descHebergement;
+        $this->desc_hebergement = $desc_hebergement;
         return $this;
     }
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $capacite = null;
 
     public function getCapacite(): ?int
     {
         return $this->capacite;
     }
 
-    public function setCapacite(int $capacite): static
+    public function setCapacite(?int $capacite): self
     {
         $this->capacite = $capacite;
         return $this;
     }
 
-    public function getTypeHebergement(): ?string
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $type_hebergement = null;
+
+    public function getType_hebergement(): ?string
     {
-        return $this->typeHebergement;
+        return $this->type_hebergement;
     }
 
-    public function setTypeHebergement(string $typeHebergement): static
+    public function setType_hebergement(?string $type_hebergement): self
     {
-        $this->typeHebergement = $typeHebergement;
+        $this->type_hebergement = $type_hebergement;
         return $this;
     }
 
-    public function isDisponible(): bool
+    #[ORM\Column(name: 'disponible_heberg', type: 'boolean', nullable: true)]
+    private ?bool $disponible = null;
+
+    public function isDisponible_heberg(): ?bool
     {
         return $this->disponible;
     }
 
-    public function setDisponible(bool $disponible): static
+    public function setDisponible_heberg(?bool $disponible_heberg): self
     {
-        $this->disponible = $disponible;
+        $this->disponible = $disponible_heberg;
         return $this;
     }
+
+    public function getDisponible_heberg(): ?bool
+    {
+        return $this->disponible;
+    }
+
+    #[ORM\Column(name: 'prixParNuit', type: 'float', nullable: true)]
+    private ?float $prixParNuit = null;
 
     public function getPrixParNuit(): ?float
     {
         return $this->prixParNuit;
     }
 
-    public function setPrixParNuit(float $prixParNuit): static
+    public function setPrixParNuit(?float $prixParNuit): self
     {
         $this->prixParNuit = $prixParNuit;
         return $this;
     }
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $image = null;
 
     public function getImage(): ?string
     {
         return $this->image;
     }
 
-    public function setImage(?string $image): static
+    public function setImage(?string $image): self
     {
         $this->image = $image;
         return $this;
     }
 
-    public function getReservations(): Collection
+    #[ORM\OneToMany(targetEntity: HebergementImage::class, mappedBy: 'hebergement', cascade: ['persist'])]
+    private Collection $images;
+
+    #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'hebergement')]
+    private Collection $reservations;
+
+    public function __construct()
     {
-        return $this->reservations;
+        $this->images = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
     }
 
-    public function addReservation(Reservation $reservation): static
-    {
-        if (!$this->reservations->contains($reservation)) {
-            $this->reservations->add($reservation);
-            $reservation->setHebergement($this);
-        }
-        return $this;
-    }
-
-    public function removeReservation(Reservation $reservation): static
-    {
-        if ($this->reservations->removeElement($reservation)) {
-            if ($reservation->getHebergement() === $this) {
-                $reservation->setHebergement(null);
-            }
-        }
-        return $this;
-    }
-
+    /**
+     * @return Collection<int, HebergementImage>
+     */
     public function getImages(): Collection
     {
+        if (!$this->images instanceof Collection) {
+            $this->images = new ArrayCollection();
+        }
         return $this->images;
     }
 
-    public function addImage(HebergementImage $image): static
+    public function addImage(HebergementImage $image): self
     {
-        if (!$this->images->contains($image)) {
-            $this->images->add($image);
+        if (!$this->getImages()->contains($image)) {
+            $this->getImages()->add($image);
             $image->setHebergement($this);
         }
         return $this;
     }
 
-    public function removeImage(HebergementImage $image): static
+    public function removeImage(HebergementImage $image): self
     {
-        if ($this->images->removeElement($image)) {
+        if ($this->getImages()->removeElement($image)) {
             if ($image->getHebergement() === $this) {
                 $image->setHebergement(null);
             }
@@ -192,9 +174,87 @@ class Hebergement
         return $this;
     }
 
-    public function getFirstImage(): ?string
+    /**
+     * @return Collection<int, Reservation>
+     */
+    public function getReservations(): Collection
     {
-        $firstImage = $this->images->first();
-        return $firstImage ? $firstImage->getFilename() : $this->image;
+        if (!$this->reservations instanceof Collection) {
+            $this->reservations = new ArrayCollection();
+        }
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): self
+    {
+        if (!$this->getReservations()->contains($reservation)) {
+            $this->getReservations()->add($reservation);
+        }
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): self
+    {
+        $this->getReservations()->removeElement($reservation);
+        return $this;
+    }
+
+    public function getIdHebergement(): ?int
+    {
+        return $this->id_hebergement;
+    }
+
+    public function getDescHebergement(): ?string
+    {
+        return $this->desc_hebergement;
+    }
+
+    public function setDescHebergement(?string $desc_hebergement): static
+    {
+        $this->desc_hebergement = $desc_hebergement;
+        return $this;
+    }
+
+    public function getTypeHebergement(): ?string
+    {
+        return $this->type_hebergement;
+    }
+
+    public function setTypeHebergement(?string $type_hebergement): static
+    {
+        $this->type_hebergement = $type_hebergement;
+        return $this;
+    }
+
+    public function isDisponibleHeberg(): ?bool
+    {
+        return $this->disponible;
+    }
+
+    public function setDisponibleHeberg(?bool $disponible_heberg): static
+    {
+        $this->disponible = $disponible_heberg;
+        return $this;
+    }
+
+    public function getDisponible(): ?bool
+    {
+        return $this->disponible;
+    }
+
+    public function isDisponible(): ?bool
+    {
+        return $this->getDisponible();
+    }
+
+    public function setDisponible(?bool $disponible): self
+    {
+        $this->disponible = $disponible;
+        return $this;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id_hebergement;
     }
 }

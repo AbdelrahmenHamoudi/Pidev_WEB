@@ -111,7 +111,7 @@
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">Accueil</a></li>
-                <li class="breadcrumb-item"><a href="{{ path('app_hebergements') }}" style="color: #87CEEB;">Hébergements</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_hebergements_search') }}" style="color: #87CEEB;">Hébergements</a></li>
                 <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">{{ hebergement.titre }}</li>
             </ol>
         </nav>
@@ -123,14 +123,24 @@
                 {% if images|length > 0 %}
                     <!-- Main Image -->
                     <div class="main-image-container" onclick="openLightbox(0)">
-                        <img id="main-image" src="{{ asset(images[0].filename) }}" class="main-image" alt="{{ hebergement.titre }}">
+                        {% set imgName = images[0].filename|split('/')|last|split('\\')|last %}
+                        {% if imgName and '.' in imgName %}
+                            <img id="main-image" src="{{ asset('uploads/hebergements/' ~ imgName) }}" class="main-image" alt="{{ hebergement.titre }}" onerror="this.src='https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800';">
+                        {% else %}
+                            <img id="main-image" src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800" class="main-image" alt="{{ hebergement.titre }}">
+                        {% endif %}
                     </div>
                     
                     <!-- Thumbnails -->
                     <div class="thumbnail-grid">
                         {% for image in images|slice(0, 4) %}
                             <div class="thumbnail-item {{ loop.first ? 'active' : '' }}" onclick="changeMainImage({{ loop.index0 }}, this)">
-                                <img src="{{ asset(image.filename) }}" alt="Photo {{ loop.index }}">
+                                {% set imgName = image.filename|split('/')|last|split('\\')|last %}
+                                {% if imgName and '.' in imgName %}
+                                    <img src="{{ asset('uploads/hebergements/' ~ imgName) }}" alt="Photo {{ loop.index0 + 1 }}" onerror="this.src='https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=100';">
+                                {% else %}
+                                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=100" alt="Photo {{ loop.index0 + 1 }}">
+                                {% endif %}
                                 {% if loop.last and images|length > 4 %}
                                     <div class="thumbnail-more">+{{ images|length - 4 }}</div>
                                 {% endif %}
@@ -185,7 +195,7 @@
                 </p>
 
                 <div class="d-flex gap-3">
-                    <a href="{{ path('app_hebergements') }}" class="btn" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+                    <a href="{{ path('app_hebergements_search') }}" class="btn" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
                         <i class="bx bx-arrow-back me-2"></i>Retour
                     </a>
                     <a href="{{ path('app_reservation_new', {hebergementId: hebergement.id}) }}" class="btn" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
@@ -200,7 +210,12 @@
 <script>
 const images = [
     {% for image in hebergement.images %}
-        '{{ asset(image.filename) }}'{% if not loop.last %},{% endif %}
+        {% set imgName = image.filename|split('/')|last|split('\\')|last %}
+        {% if imgName and '.' in imgName %}
+            '{{ asset('uploads/hebergements/' ~ imgName) }}'{% if not loop.last %},{% endif %}
+        {% else %}
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800'{% if not loop.last %},{% endif %}
+        {% endif %}
     {% endfor %}
 ];
 let currentImageIndex = 0;

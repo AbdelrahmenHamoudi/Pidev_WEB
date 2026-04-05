@@ -14,7 +14,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Modern Reservation Styles -->
+    <link rel="stylesheet" href="{{ asset('css/reservation_modern.css') }}">
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
@@ -273,6 +276,12 @@
                         <a class="nav-link" href="#services">Services</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_hebergements_search') }}">Réservation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_reservations_list') }}">Mes Voyages</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#contact">Contact</a>
                     </li>
                     <li class="nav-item ms-lg-3">
@@ -361,6 +370,8 @@
         });
     </script>
 
+    <!-- Modern Reservation JS -->
+    <script src="{{ asset('js/reservation_ui.js') }}"></script>
     {% block javascripts %}{% endblock %}
 </body>
 </html>
