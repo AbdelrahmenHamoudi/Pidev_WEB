@@ -12,6 +12,7 @@ class Voiture
 {
 
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
     private ?int $id_voiture = null;
 
