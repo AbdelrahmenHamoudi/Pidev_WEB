@@ -1,0 +1,292 @@
+<nav class="layout-navbar navbar navbar-expand-xl navbar-detached" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(135, 206, 235, 0.3); box-shadow: 0 4px 30px rgba(0,0,0,0.08); padding: 15px 30px; position: sticky; top: 0; z-index: 1000;">
+
+    <!-- Toggle -->
+    <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 d-xl-none">
+        <a class="nav-item nav-link px-0" href="javascript:void(0)" style="color: #87CEEB; font-size: 1.8rem; transition: all 0.3s ease;">
+            <i class="bx bx-menu bx-sm"></i>
+        </a>
+    </div>
+
+    <!-- Left Section: Breadcrumb & Title -->
+    <div class="navbar-nav align-items-center d-none d-md-flex">
+        <div class="nav-item">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="background: linear-gradient(135deg, #87CEEB, #93C572); border-radius: 12px; padding: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bx bx-home" style="color: white; font-size: 1.2rem;"></i>
+                </div>
+                <div>
+                    <span style="color: #999; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Tableau de bord</span>
+                    <h6 style="color: #2c3e50; font-weight: 700; margin: 0; font-size: 1.1rem;">Administration</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar - Centered -->
+    <div class="navbar-nav align-items-center flex-grow-1 mx-4">
+        <div class="nav-item w-100" style="max-width: 400px;">
+            <div style="background: rgba(135, 206, 235, 0.1); border-radius: 50px; padding: 12px 25px; transition: all 0.3s ease; border: 2px solid transparent; display: flex; align-items: center;" class="search-container">
+                <i class="bx bx-search" style="color: #87CEEB; font-size: 1.3rem;"></i>
+                <input type="text" class="form-control border-0 shadow-none bg-transparent" 
+                       placeholder="Rechercher dans l'admin..." aria-label="Search" 
+                       style="color: #2c3e50; margin-left: 15px; font-size: 0.95rem;">
+                <span style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-left: 10px;">
+                    ⌘K
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Section -->
+    <div class="navbar-nav-right d-flex align-items-center ms-auto gap-4">
+
+        <ul class="navbar-nav flex-row align-items-center gap-3">
+
+            <!-- Quick Actions -->
+            <li class="nav-item d-none d-lg-block">
+                <a href="{{ path('app_home') }}" target="_blank" style="background: rgba(147, 197, 114, 0.15); color: #93C572; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;" class="btn-view-site">
+                    <i class="bx bx-globe"></i>
+                    <span>Voir le site</span>
+                </a>
+            </li>
+
+            <!-- Messages -->
+            <li class="nav-item dropdown-message dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow position-relative" data-bs-toggle="dropdown" style="color: #6c757d; font-size: 1.4rem; padding: 12px; border-radius: 50%; transition: all 0.3s ease; background: rgba(135, 206, 235, 0.08);">
+                    <i class="bx bx-message-square-dots"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background: linear-gradient(135deg, #87CEEB, #5dade2); font-size: 0.6rem; padding: 5px 8px;">
+                        5
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-xl" style="border-radius: 20px; min-width: 320px; overflow: hidden;">
+                    <li class="dropdown-header" style="background: linear-gradient(135deg, #87CEEB, #93C572); padding: 20px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0" style="font-weight: 700; color: white;">
+                                <i class="bx bx-message-square-dots me-2"></i>Messages
+                            </h6>
+                            <span style="background: rgba(255,255,255,0.3); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem;">5 nouveaux</span>
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider my-0"></li>
+                    <li>
+                        <a class="dropdown-item py-3" href="#" style="border-left: 4px solid #87CEEB; background: rgba(135, 206, 235, 0.05);">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #87CEEB, #5dade2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                                        AM
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1" style="min-width: 0;">
+                                    <h6 class="mb-1" style="font-size: 0.9rem; font-weight: 600; color: #2c3e50;">Ahmed Mohammed</h6>
+                                    <p class="mb-0" style="color: #777; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Bonjour, j'ai une question sur...</p>
+                                </div>
+                                <small style="color: #87CEEB; font-size: 0.75rem; flex-shrink: 0;">2m</small>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-3" href="#" style="border-left: 4px solid transparent;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div style="width: 45px; height: 45px; background: rgba(147, 197, 114, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #93C572; font-weight: 700;">
+                                        SL
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1" style="min-width: 0;">
+                                    <h6 class="mb-1" style="font-size: 0.9rem; font-weight: 600; color: #2c3e50;">Sarah Lefebvre</h6>
+                                    <p class="mb-0" style="color: #777; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Merci pour votre réponse rapide !</p>
+                                </div>
+                                <small style="color: #aaa; font-size: 0.75rem; flex-shrink: 0;">1h</small>
+                            </div>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider my-0"></li>
+                    <li class="dropdown-footer" style="padding: 12px 20px; text-align: center; background: #f8f9fa;">
+                        <a href="#" style="color: #87CEEB; font-size: 0.85rem; text-decoration: none; font-weight: 600;">Voir tous les messages</a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Notifications -->
+            <li class="nav-item dropdown-notifications dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow position-relative" data-bs-toggle="dropdown" style="color: #6c757d; font-size: 1.4rem; padding: 12px; border-radius: 50%; transition: all 0.3s ease; background: rgba(135, 206, 235, 0.08);">
+                    <i class="bx bx-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background: linear-gradient(135deg, #e74c3c, #c0392b); font-size: 0.6rem; padding: 5px 8px; border: 2px solid white;">
+                        3
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-xl" style="border-radius: 20px; min-width: 320px; overflow: hidden;">
+                    <li class="dropdown-header" style="background: linear-gradient(135deg, #e74c3c, #c0392b); padding: 20px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0" style="font-weight: 700; color: white;">
+                                <i class="bx bx-bell me-2"></i>Notifications
+                            </h6>
+                            <span style="background: rgba(255,255,255,0.3); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem;">3 non lues</span>
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider my-0"></li>
+                    <li>
+                        <a class="dropdown-item py-3" href="#" style="border-left: 4px solid #87CEEB;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, rgba(135, 206, 235, 0.2), rgba(135, 206, 235, 0.1)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bx bx-user-plus" style="color: #87CEEB; font-size: 1.2rem;"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" style="font-size: 0.9rem; font-weight: 600; color: #2c3e50;">Nouvel utilisateur</h6>
+                                    <p class="mb-0" style="color: #777; font-size: 0.8rem;">Karim Benali vient de s'inscrire</p>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-3" href="#" style="border-left: 4px solid #93C572;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, rgba(147, 197, 114, 0.2), rgba(147, 197, 114, 0.1)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bx bx-check-circle" style="color: #93C572; font-size: 1.2rem;"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" style="font-size: 0.9rem; font-weight: 600; color: #2c3e50;">Réservation confirmée</h6>
+                                    <p class="mb-0" style="color: #777; font-size: 0.8rem;">Réservation #4521 validée</p>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-3" href="#" style="border-left: 4px solid #e74c3c;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(231, 76, 60, 0.1)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bx bx-error" style="color: #e74c3c; font-size: 1.2rem;"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" style="font-size: 0.9rem; font-weight: 600; color: #2c3e50;">Alerte système</h6>
+                                    <p class="mb-0" style="color: #777; font-size: 0.8rem;">Espace disque faible</p>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider my-0"></li>
+                    <li class="dropdown-footer" style="padding: 12px 20px; text-align: center; background: #f8f9fa;">
+                        <a href="#" style="color: #e74c3c; font-size: 0.85rem; text-decoration: none; font-weight: 600;">Tout marquer comme lu</a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Profile -->
+            <li class="nav-item dropdown-user dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3" data-bs-toggle="dropdown" style="padding: 8px 15px 8px 8px; border-radius: 50px; transition: all 0.3s ease; background: linear-gradient(135deg, rgba(135, 206, 235, 0.15), rgba(147, 197, 114, 0.1)); border: 2px solid rgba(135, 206, 235, 0.2);">
+                    <div class="avatar" style="border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <img src="{{ asset('assets_backend/img/avatars/1.png') }}" class="rounded-circle" style="width: 38px; height: 38px;">
+                    </div>
+                    <div class="d-none d-md-block text-start">
+                        <span style="font-weight: 700; color: #2c3e50; font-size: 0.9rem; display: block; line-height: 1.2;">Admin</span>
+                        <small style="color: #87CEEB; font-size: 0.75rem; font-weight: 600;">Super Admin</small>
+                    </div>
+                    <i class="bx bx-chevron-down" style="color: #87CEEB; font-size: 1.2rem;"></i>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-xl" style="border-radius: 20px; min-width: 220px; overflow: hidden;">
+                    <li class="dropdown-header" style="background: linear-gradient(135deg, #87CEEB, #93C572); padding: 25px 20px; text-align: center;">
+                        <div style="border: 4px solid white; border-radius: 50%; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 12px;">
+                            <img src="{{ asset('assets_backend/img/avatars/1.png') }}" class="rounded-circle" style="width: 60px; height: 60px;">
+                        </div>
+                        <h6 class="mb-1" style="font-weight: 700; color: white; font-size: 1rem;">Administrateur</h6>
+                        <small style="color: rgba(255,255,255,0.9); font-size: 0.8rem;">admin@re7la.ma</small>
+                    </li>
+                    <li><hr class="dropdown-divider my-0"></li>
+                    <li>
+                        <a class="dropdown-item py-3" href="{{ path('app_admin_profile') }}" style="display: flex; align-items: center; gap: 12px; transition: all 0.3s ease;">
+                            <div style="width: 35px; height: 35px; background: rgba(135, 206, 235, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bx bx-user" style="color: #87CEEB; font-size: 1.1rem;"></i>
+                            </div>
+                            <span style="color: #2c3e50; font-weight: 500;">Mon Profil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-3" href="#" style="display: flex; align-items: center; gap: 12px; transition: all 0.3s ease;">
+                            <div style="width: 35px; height: 35px; background: rgba(147, 197, 114, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bx bx-cog" style="color: #93C572; font-size: 1.1rem;"></i>
+                            </div>
+                            <span style="color: #2c3e50; font-weight: 500;">Paramètres</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-3" href="#" style="display: flex; align-items: center; gap: 12px; transition: all 0.3s ease;">
+                            <div style="width: 35px; height: 35px; background: rgba(155, 89, 182, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bx bx-help-circle" style="color: #9b59b6; font-size: 1.1rem;"></i>
+                            </div>
+                            <span style="color: #2c3e50; font-weight: 500;">Aide & Support</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider my-0"></li>
+                    <li>
+                        <a class="dropdown-item py-3" href="#" style="display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; background: rgba(231, 76, 60, 0.05);">
+                            <div style="width: 35px; height: 35px; background: rgba(231, 76, 60, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bx bx-power-off" style="color: #e74c3c; font-size: 1.1rem;"></i>
+                            </div>
+                            <span style="color: #e74c3c; font-weight: 600;">Déconnexion</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+</nav>
+
+<style>
+    /* Enhanced hover effects */
+    .btn-view-site:hover {
+        background: linear-gradient(135deg, #93C572, #7cb342) !important;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(147, 197, 114, 0.3);
+    }
+
+    .dropdown-toggle:hover {
+        background: rgba(135, 206, 235, 0.2) !important;
+        transform: scale(1.05);
+    }
+
+    .dropdown-toggle[aria-expanded="true"] {
+        background: rgba(135, 206, 235, 0.25) !important;
+    }
+
+    .nav-item .dropdown-menu {
+        animation: dropdownFade 0.3s ease;
+    }
+
+    @keyframes dropdownFade {
+        from {
+            opacity: 0;
+            transform: translateY(-15px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .dropdown-item:hover {
+        background: rgba(135, 206, 235, 0.08) !important;
+        transform: translateX(5px);
+    }
+
+    /* Search focus effect */
+    .search-container:focus-within {
+        background: rgba(135, 206, 235, 0.15) !important;
+        border-color: rgba(135, 206, 235, 0.5) !important;
+        box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.15);
+    }
+
+    /* Menu toggle hover */
+    .layout-menu-toggle a:hover {
+        transform: rotate(90deg);
+        color: #5dade2 !important;
+    }
+</style>
