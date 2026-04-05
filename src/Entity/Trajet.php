@@ -2,154 +2,151 @@
 
 namespace App\Entity;
 
-use App\Repository\TrajetRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: TrajetRepository::class)]
+use App\Entity\Voiture;
+
+#[ORM\Entity]
 class Trajet
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_trajet')]
-    private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'trajets')]
-    #[ORM\JoinColumn(name: 'id_voiture', referencedColumnName: 'id_voiture', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\Id]
+    #[ORM\Column(type: "integer")]
+    private ?int $id_trajet = null;
+
+        #[ORM\ManyToOne(targetEntity: Voiture::class, inversedBy: "trajets")]
+    #[ORM\JoinColumn(name: 'id_voiture', referencedColumnName: 'id_voiture', onDelete: 'CASCADE')]
     private ?Voiture $id_voiture = null;
 
-    #[ORM\Column]
-    #[Assert\NotNull(message: 'L id utilisateur est obligatoire.')]
-    #[Assert\Positive(message: 'L id utilisateur doit être un entier positif.')]
+    #[ORM\Column(type: "integer")]
     private ?int $id_utilisateur = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'Le point de départ est obligatoire.')]
-    #[Assert\Length(max: 255)]
+    #[ORM\Column(type: "string", length: 255)]
     private ?string $point_depart = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'Le point d arrivée est obligatoire.')]
-    #[Assert\Length(max: 255)]
+    #[ORM\Column(type: "string", length: 255)]
     private ?string $point_arrivee = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotNull(message: 'La distance est obligatoire.')]
-    #[Assert\Positive(message: 'La distance doit être positive.')]
+    #[ORM\Column(type: "float")]
     private ?float $distance_km = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[ORM\Column(type: "date")]
     private ?\DateTimeInterface $date_reservation = null;
 
-    #[ORM\Column]
-    #[Assert\NotNull(message: 'Le nombre de personnes est obligatoire.')]
-    #[Assert\Range(min: 1, max: 20, notInRangeMessage: 'Le nombre de personnes doit être entre {{ min }} et {{ max }}.')]
+    #[ORM\Column(type: "integer")]
     private ?int $nb_personnes = null;
 
-    #[ORM\Column(length: 50, nullable: true)]
-    #[Assert\NotBlank(message: 'Le statut est obligatoire.')]
-    #[Assert\Length(max: 50)]
+    #[ORM\Column(type: "string", length: 50)]
     private ?string $statut = null;
+
+    public function getId_trajet()
+    {
+        return $this->id_trajet;
+    }
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->id_trajet;
     }
 
-    public function getIdVoiture(): ?Voiture
+    public function setId_trajet($value)
+    {
+        $this->id_trajet = $value;
+    }
+
+    public function getId_voiture()
     {
         return $this->id_voiture;
     }
 
-    public function setIdVoiture(?Voiture $id_voiture): static
+    public function setId_voiture($value)
     {
-        $this->id_voiture = $id_voiture;
-
-        return $this;
+        $this->id_voiture = $value;
     }
 
-    public function getIdUtilisateur(): ?int
+    public function getId_utilisateur()
     {
         return $this->id_utilisateur;
     }
 
-    public function setIdUtilisateur(int $id_utilisateur): static
+    public function setId_utilisateur($value)
     {
-        $this->id_utilisateur = $id_utilisateur;
-
-        return $this;
+        $this->id_utilisateur = $value;
     }
 
-    public function getPointDepart(): ?string
+    public function getPoint_depart()
     {
         return $this->point_depart;
     }
 
-    public function setPointDepart(?string $point_depart): static
+    public function setPoint_depart($value)
     {
-        $this->point_depart = $point_depart;
-
-        return $this;
+        $this->point_depart = $value;
     }
 
-    public function getPointArrivee(): ?string
+    public function getPoint_arrivee()
     {
         return $this->point_arrivee;
     }
 
-    public function setPointArrivee(?string $point_arrivee): static
+    public function setPoint_arrivee($value)
     {
-        $this->point_arrivee = $point_arrivee;
-
-        return $this;
+        $this->point_arrivee = $value;
     }
 
-    public function getDistanceKm(): ?float
+    public function getDistance_km()
     {
         return $this->distance_km;
     }
 
-    public function setDistanceKm(?float $distance_km): static
+    public function setDistance_km($value)
     {
-        $this->distance_km = $distance_km;
-
-        return $this;
+        $this->distance_km = $value;
     }
 
-    public function getDateReservation(): ?\DateTimeInterface
+    public function getDate_reservation()
     {
         return $this->date_reservation;
     }
 
-    public function setDateReservation(?\DateTimeInterface $date_reservation): static
+    public function setDate_reservation($value)
     {
-        $this->date_reservation = $date_reservation;
-
-        return $this;
+        $this->date_reservation = $value;
     }
 
-    public function getNbPersonnes(): ?int
+    public function getNb_personnes()
     {
         return $this->nb_personnes;
     }
 
-    public function setNbPersonnes(int $nb_personnes): static
+    public function setNb_personnes($value)
     {
-        $this->nb_personnes = $nb_personnes;
-
-        return $this;
+        $this->nb_personnes = $value;
     }
 
-    public function getStatut(): ?string
+    public function getStatut()
     {
         return $this->statut;
     }
 
-    public function setStatut(?string $statut): static
+    public function setStatut($value)
     {
-        $this->statut = $statut;
-
-        return $this;
+        $this->statut = $value;
     }
+
+    // Aliases for compatibility
+    public function getPointDepart() { return $this->point_depart; }
+    public function setPointDepart($v) { $this->point_depart = $v; return $this; }
+    public function getPointArrivee() { return $this->point_arrivee; }
+    public function setPointArrivee($v) { $this->point_arrivee = $v; return $this; }
+    public function getDistanceKm() { return $this->distance_km; }
+    public function setDistanceKm($v) { $this->distance_km = $v; return $this; }
+    public function getDateReservation() { return $this->date_reservation; }
+    public function setDateReservation($v) { $this->date_reservation = $v; return $this; }
+    public function getNbPersonnes() { return $this->nb_personnes; }
+    public function setNbPersonnes($v) { $this->nb_personnes = $v; return $this; }
+    public function getIdVoiture() { return $this->id_voiture; }
+    public function setIdVoiture($v) { $this->id_voiture = $v; return $this; }
+    public function getIdUtilisateur() { return $this->id_utilisateur; }
+    public function setIdUtilisateur($v) { $this->id_utilisateur = $v; return $this; }
 }

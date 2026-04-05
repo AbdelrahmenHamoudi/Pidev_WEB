@@ -63,7 +63,14 @@ final class VoitureController extends AbstractController
         $sortableFields = ['id', 'marque', 'modele', 'prixKM', 'nbPlaces'];
         if (!in_array($sortBy, $sortableFields)) { $sortBy = 'id'; }
         if (!in_array(strtoupper($order), ['ASC', 'DESC'])) { $order = 'ASC'; }
-        $qb->orderBy('v.' . $sortBy, $order);
+        
+        $doctrineSortBy = match ($sortBy) {
+            'id' => 'id_voiture',
+            'prixKM' => 'prix_km',
+            'nbPlaces' => 'nb_places',
+            default => $sortBy,
+        };
+        $qb->orderBy('v.' . $doctrineSortBy, $order);
 
         $voitures = $qb->getQuery()->getResult();
 

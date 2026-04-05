@@ -1,0 +1,15 @@
+PHP Fatal error:  Declaration of App\Command\GenerateRepositoriesCommand::execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output) must be compatible with Symfony\Component\Console\Command\Command::execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output): int in C:\Users\mega-pc\re7la_trajet_web\src\Command\GenerateRepositoriesCommand.php on line 32
+
+Fatal error: Declaration of App\Command\GenerateRepositoriesCommand::execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output) must be compatible with Symfony\Component\Console\Command\Command::execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output): int in C:\Users\mega-pc\re7la_trajet_web\src\Command\GenerateRepositoriesCommand.php on line 32
+Symfony\Component\ErrorHandler\Error\FatalError {#319
+  #message: "Compile Error: Declaration of App\Command\GenerateRepositoriesCommand::execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output) must be compatible with Symfony\Component\Console\Command\Command::execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output): int"
+  #code: 0
+  #file: "C:\Users\mega-pc\re7la_trajet_web\src\Command\GenerateRepositoriesCommand.php"
+  #line: 32
+  -error: array:4 [
+    "type" => 64
+    "message" => "Declaration of App\Command\GenerateRepositoriesCommand::execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output) must be compatible with Symfony\Component\Console\Command\Command::execute(Symfony\Component\Console\Input\InputInterface $input, Symfony\Component\Console\Output\OutputInterface $output): int"
+    "file" => "C:\Users\mega-pc\re7la_trajet_web\src\Command\GenerateRepositoriesCommand.php"
+    "line" => 32
+  ]
+}

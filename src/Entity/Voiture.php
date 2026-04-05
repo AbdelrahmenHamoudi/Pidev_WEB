@@ -2,187 +2,191 @@
 
 namespace App\Entity;
 
-use App\Entity\Trajet;
-use App\Repository\VoitureRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: VoitureRepository::class)]
+use Doctrine\Common\Collections\Collection;
+use App\Entity\Trajet;
+
+#[ORM\Entity]
 class Voiture
 {
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_voiture')]
-    private ?int $id = null;
+    #[ORM\Column(type: "integer")]
+    private ?int $id_voiture = null;
 
-    /**
-     * @var Collection<int, Trajet>
-     */
-    #[ORM\OneToMany(mappedBy: 'id_voiture', targetEntity: Trajet::class, cascade: ['remove'], orphanRemoval: true)]
-    private Collection $trajets;
-
-    public function __construct()
-    {
-        $this->trajets = new ArrayCollection();
-    }
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'La marque est obligatoire.')]
-    #[Assert\Length(max: 255)]
+    #[ORM\Column(type: "string", length: 255)]
     private ?string $marque = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'Le modèle est obligatoire.')]
-    #[Assert\Length(max: 255)]
+    #[ORM\Column(type: "string", length: 255)]
     private ?string $modele = null;
 
-    #[ORM\Column(length: 50, nullable: true)]
-    #[Assert\NotBlank(message: 'L immatriculation est obligatoire.')]
-    #[Assert\Length(max: 50)]
+    #[ORM\Column(type: "string", length: 50)]
     private ?string $immatriculation = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Assert\NotNull(message: 'Le prix par km est obligatoire.')]
-    #[Assert\Positive(message: 'Le prix par km doit être positif.')]
-    private ?float $prix_KM = null;
+    #[ORM\Column(type: "float")]
+    private ?float $prix_km = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: "boolean")]
     private ?bool $avec_chauffeur = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: "boolean")]
     private ?bool $disponibilite = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: "text")]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: "string", length: 255)]
     private ?string $image = null;
 
-    #[ORM\Column]
-    #[Assert\NotNull(message: 'Le nombre de places est obligatoire.')]
-    #[Assert\Range(min: 1, max: 20, notInRangeMessage: 'Les places doivent être entre {{ min }} et {{ max }}.')]
+    #[ORM\Column(type: "integer")]
     private ?int $nb_places = null;
+
+    public function getId_voiture()
+    {
+        return $this->id_voiture;
+    }
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->id_voiture;
     }
 
-    public function getMarque(): ?string
+    public function setId_voiture($value)
+    {
+        $this->id_voiture = $value;
+    }
+
+    public function getMarque()
     {
         return $this->marque;
     }
 
-    public function setMarque(?string $marque): static
+    public function setMarque($value)
     {
-        $this->marque = $marque;
-
-        return $this;
+        $this->marque = $value;
     }
 
-    public function getModele(): ?string
+    public function getModele()
     {
         return $this->modele;
     }
 
-    public function setModele(?string $modele): static
+    public function setModele($value)
     {
-        $this->modele = $modele;
-
-        return $this;
+        $this->modele = $value;
     }
 
-    public function getImmatriculation(): ?string
+    public function getImmatriculation()
     {
         return $this->immatriculation;
     }
 
-    public function setImmatriculation(?string $immatriculation): static
+    public function setImmatriculation($value)
     {
-        $this->immatriculation = $immatriculation;
-
-        return $this;
+        $this->immatriculation = $value;
     }
 
-    public function getPrixKM(): ?float
+    public function getPrix_km()
     {
-        return $this->prix_KM;
+        return $this->prix_km;
     }
 
-    public function setPrixKM(?float $prix_KM): static
+    public function setPrix_km($value)
     {
-        $this->prix_KM = $prix_KM;
-
-        return $this;
+        $this->prix_km = $value;
     }
 
-    public function isAvecChauffeur(): ?bool
+    public function getAvec_chauffeur()
     {
         return $this->avec_chauffeur;
     }
 
-    public function setAvecChauffeur(?bool $avec_chauffeur): static
+    public function setAvec_chauffeur($value)
     {
-        $this->avec_chauffeur = $avec_chauffeur;
-
-        return $this;
+        $this->avec_chauffeur = $value;
     }
 
-    public function isDisponibilite(): ?bool
+    public function getDisponibilite()
     {
         return $this->disponibilite;
     }
 
-    public function setDisponibilite(?bool $disponibilite): static
+    public function setDisponibilite($value)
     {
-        $this->disponibilite = $disponibilite;
-
-        return $this;
+        $this->disponibilite = $value;
     }
 
-    public function getDescription(): ?string
+    public function getDescription()
     {
         return $this->description;
     }
 
-    public function setDescription(?string $description): static
+    public function setDescription($value)
     {
-        $this->description = $description;
-
-        return $this;
+        $this->description = $value;
     }
 
-    public function getImage(): ?string
+    public function getImage()
     {
         return $this->image;
     }
 
-    public function setImage(?string $image): static
+    public function setImage($value)
     {
-        $this->image = $image;
-
-        return $this;
+        $this->image = $value;
     }
 
-    public function getNbPlaces(): ?int
+    public function getNb_places()
     {
         return $this->nb_places;
     }
 
-    public function setNbPlaces(int $nb_places): static
+    public function setNb_places($value)
     {
-        $this->nb_places = $nb_places;
-
-        return $this;
+        $this->nb_places = $value;
     }
 
-    /**
-     * @return Collection<int, Trajet>
-     */
-    public function getTrajets(): Collection
+    // Aliases for compatibility
+    public function getPrixKM() { return $this->prix_km; }
+    public function setPrixKM($v) { $this->prix_km = $v; return $this; }
+    public function getAvecChauffeur() { return $this->avec_chauffeur; }
+    public function setAvecChauffeur($v) { $this->avec_chauffeur = $v; return $this; }
+    public function getNbPlaces() { return $this->nb_places; }
+    public function setNbPlaces($v) { $this->nb_places = $v; return $this; }
+
+    #[ORM\OneToMany(mappedBy: "id_voiture", targetEntity: Trajet::class)]
+    private Collection $trajets;
+
+    public function __construct()
     {
-        return $this->trajets;
+        $this->trajets = new \Doctrine\Common\Collections\ArrayCollection();
     }
+
+        public function getTrajets(): Collection
+        {
+            return $this->trajets;
+        }
+    
+        public function addTrajet(Trajet $trajet): self
+        {
+            if (!$this->trajets->contains($trajet)) {
+                $this->trajets[] = $trajet;
+                $trajet->setId_voiture($this);
+            }
+    
+            return $this;
+        }
+    
+        public function removeTrajet(Trajet $trajet): self
+        {
+            if ($this->trajets->removeElement($trajet)) {
+                // set the owning side to null (unless already changed)
+                if ($trajet->getId_voiture() === $this) {
+                    $trajet->setId_voiture(null);
+                }
+            }
+    
+            return $this;
+        }
 }
