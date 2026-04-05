@@ -7,7 +7,7 @@
     <div class="container py-4">
         
         <!-- Header & Search Bar -->
-        <div class="row mb-5">
+        <div class="row mb-5" style="margin-top: 80px;">
             <div class="col-12 px-0">
                 <form method="get" action="{{ path('app_hebergements_search') }}" class="hero-search-container" style="margin-top: 0; max-width: 1000px; margin: 0 auto;">
                     <div class="search-input-group">
@@ -114,9 +114,7 @@
                     <div class="hebergement-card-horizontal" data-type="{{ hebergement.typeHebergement }}">
                         <div class="card-image-box">
                             {% set imgName = '' %}
-                            {% if hebergement.images|length > 0 %}
-                                {% set imgName = hebergement.images[0]|split('/')|last|split('\\')|last %}
-                            {% elseif hebergement.image %}
+                            {% if hebergement.image %}
                                 {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
                             {% endif %}
                             
@@ -157,7 +155,7 @@
                                 <div class="card-price-box">
                                     <div class="price-value">{{ hebergement.prixParNuit }} DT</div>
                                     <div class="price-unit">pour 1 nuit, taxes incluses</div>
-                                    <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}" class="btn btn-primary-modern mt-3">Voir les disponibilités</a>
+                                    <a href="{{ path('app_hebergement_detail', {id: hebergement.idHebergement}) }}" class="btn btn-primary-modern mt-3">Voir les disponibilités</a>
                                 </div>
                             </div>
                         </div>

@@ -34,9 +34,7 @@
                 <div class="card border-0 overflow-hidden" style="border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); transition: all 0.3s ease;">
                     <div class="position-relative">
                         {% set imgName = '' %}
-                        {% if hebergement.images|length > 0 %}
-                            {% set imgName = hebergement.images[0]|split('/')|last|split('\\')|last %}
-                        {% elseif hebergement.image %}
+                        {% if hebergement.image %}
                             {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
                         {% endif %}
                         
@@ -66,10 +64,10 @@
                             </span>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}" class="btn w-50" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
+                            <a href="{{ path('app_hebergement_detail', {id: hebergement.idHebergement}) }}" class="btn w-50" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
                                 Voir détails
                             </a>
-                            <a href="{{ path('app_reservation_new', {hebergementId: hebergement.id}) }}" class="btn w-50" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border-radius: 50px; font-weight: 600;">
+                            <a href="{{ path('app_reservation_new', {hebergementId: hebergement.idHebergement}) }}" class="btn w-50" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border-radius: 50px; font-weight: 600;">
                                 Réserver
                             </a>
                         </div>

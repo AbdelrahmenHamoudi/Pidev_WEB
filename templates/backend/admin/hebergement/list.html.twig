@@ -36,42 +36,14 @@
     <!-- Grid -->
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
       {% for hebergement in hebergements %}
-      {% set imgs = hebergement.images %}
-      {% set imgCount = imgs|length %}
+      {% set img = hebergement.image %}
       <div style="background:#FAFAFA;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);border:1px solid #e8ecf0;transition:all 0.3s;position:relative;" class="h-card">
 
-        <!-- IMAGE CAROUSEL -->
-        <div class="slider-wrap" style="position:relative;height:200px;background:#e8ecf0;overflow:hidden;">
+        <!-- IMAGE -->
+        <div style="position:relative;height:200px;background:#e8ecf0;overflow:hidden;">
 
-          {% if imgCount > 0 %}
-            <!-- Slides -->
-            {% for img in imgs %}
-            <div class="slide-{{ hebergement.id }}" style="position:absolute;inset:0;transition:opacity 0.4s;opacity:{{ loop.index == 1 ? '1' : '0' }};pointer-events:{{ loop.index == 1 ? 'auto' : 'none' }};">
-              <img src="{{ asset(img) }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ hebergement.titre }} - photo {{ loop.index }}">
-            </div>
-            {% endfor %}
-
-            {% if imgCount > 1 %}
-            <!-- Prev Arrow -->
-            <button onclick="slidePrev({{ hebergement.id }}, {{ imgCount }})" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:10;background:rgba(255,255,255,0.85);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.2s;" onmouseover="this.style.background='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.85)';">
-              <i class="fas fa-chevron-left" style="font-size:11px;color:#2C3E50;"></i>
-            </button>
-            <!-- Next Arrow -->
-            <button onclick="slideNext({{ hebergement.id }}, {{ imgCount }})" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:10;background:rgba(255,255,255,0.85);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.2s;" onmouseover="this.style.background='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.85)';">
-              <i class="fas fa-chevron-right" style="font-size:11px;color:#2C3E50;"></i>
-            </button>
-            <!-- Dot Indicators -->
-            <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:10;">
-              {% for i in 1..imgCount %}
-              <div id="dot-{{ hebergement.id }}-{{ i }}" style="width:{{ i == 1 ? '18' : '7' }}px;height:7px;border-radius:10px;background:{{ i == 1 ? '#fff' : 'rgba(255,255,255,0.5)' }};transition:all 0.3s;"></div>
-              {% endfor %}
-            </div>
-            <!-- Counter -->
-            <div id="counter-{{ hebergement.id }}" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.4);color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;z-index:10;">1 / {{ imgCount }}</div>
-            {% endif %}
-
-          {% elseif hebergement.image %}
-            <img src="{{ asset(hebergement.image) }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ hebergement.titre }}">
+          {% if img %}
+            <img src="{{ asset(img) }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ hebergement.titre }}">
           {% else %}
             <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F7DC6F,#F39C12);">
               <i class="fas fa-home" style="font-size:48px;color:#fff;opacity:0.8;"></i>
@@ -86,8 +58,8 @@
           </div>
           <!-- Availability Badge -->
           <div style="position:absolute;top:12px;right:12px;z-index:5;">
-            <span style="background:{{ hebergement.disponible ? '#1ABC9C' : '#e63946' }};color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,0.2);">
-              {{ hebergement.disponible ? 'Disponible' : 'Indisponible' }}
+            <span style="background:{{ hebergement.disponibleHeberg ? '#1ABC9C' : '#e63946' }};color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,0.2);">
+              {{ hebergement.disponibleHeberg ? 'Disponible' : 'Indisponible' }}
             </span>
           </div>
         </div>
@@ -104,14 +76,14 @@
           </div>
           <!-- Actions -->
           <div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid #e8ecf0;padding-top:12px;">
-            <a href="{{ path('app_admin_hebergement_show', {id: hebergement.id}) }}" class="action-btn view-btn">
+            <a href="{{ path('app_admin_hebergement_show', {id: hebergement.idHebergement}) }}" class="action-btn view-btn">
               <i class="fas fa-eye"></i> Voir
             </a>
-            <a href="{{ path('app_admin_hebergement_edit', {id: hebergement.id}) }}" class="action-btn edit-btn">
+            <a href="{{ path('app_admin_hebergement_edit', {id: hebergement.idHebergement}) }}" class="action-btn edit-btn">
               <i class="fas fa-pen"></i> Éditer
             </a>
-            <form method="post" action="{{ path('app_admin_hebergement_delete', {id: hebergement.id}) }}" style="flex:0.5;" onsubmit="return confirm('Supprimer cet hébergement ?');">
-              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.id) }}">
+            <form method="post" action="{{ path('app_admin_hebergement_delete', {id: hebergement.idHebergement}) }}" style="flex:0.5;" onsubmit="return confirm('Supprimer cet hébergement ?');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.idHebergement) }}">
               <button type="submit" class="action-btn delete-btn">
                 <i class="fas fa-trash"></i>
               </button>

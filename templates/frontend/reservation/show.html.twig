@@ -1,6 +1,6 @@
 {% extends 'frontend/base_frontend.html.twig' %}
 
-{% block title %}Détails Réservation #{{ reservation.id }} - RE7LA{% endblock %}
+{% block title %}Détails Réservation #{{ reservation.idReservation }} - RE7LA{% endblock %}
 
 {% block body %}
 <section class="py-5" style="background: linear-gradient(135deg, rgba(135, 206, 235, 0.1), rgba(147, 197, 114, 0.1)); min-height: 100vh;">
@@ -10,7 +10,7 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">Accueil</a></li>
                 <li class="breadcrumb-item"><a href="{{ path('app_reservations_list') }}" style="color: #87CEEB;">Mes Réservations</a></li>
-                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">Détails #{{ reservation.id }}</li>
+                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">Détails #{{ reservation.idReservation }}</li>
             </ol>
         </nav>
 
@@ -33,7 +33,7 @@
                         <p style="color: #777; font-size: 0.95rem; margin-bottom: 20px;">
                             {{ reservation.hebergement.descHebergement|slice(0, 100) }}{% if reservation.hebergement.descHebergement|length > 100 %}...{% endif %}
                         </p>
-                        <a href="{{ path('app_hebergement_detail', {id: reservation.hebergement.id}) }}" class="btn w-100" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
+                        <a href="{{ path('app_hebergement_detail', {id: reservation.hebergement.idHebergement}) }}" class="btn w-100" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
                             <i class="bx bx-building-house me-2"></i>Voir l'hébergement
                         </a>
                     </div>
@@ -47,8 +47,8 @@
                         <h4 style="font-weight: 700; color: #2c3e50; margin: 0;">
                             <i class="bx bx-receipt me-2" style="color: #87CEEB;"></i>Détails de la Réservation
                         </h4>
-                        <span class="statut-badge statut-{{ reservation.statut|lower|replace({' ': '-'}) }}" style="padding: 8px 20px; border-radius: 25px; font-weight: 600; font-size: 0.9rem;">
-                            {{ reservation.statut }}
+                        <span class="statut-badge statut-{{ reservation.statut_r|lower|replace({' ': '-'}) }}" style="padding: 8px 20px; border-radius: 25px; font-weight: 600; font-size: 0.9rem;">
+                            {{ reservation.statut_r }}
                         </span>
                     </div>
 
@@ -61,7 +61,7 @@
                                     </div>
                                     <div>
                                         <small style="color: #999;">Date d'arrivée</small>
-                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.dateDebut|date('d/m/Y') }}</p>
+                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.dateDebutR|date('d/m/Y') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -72,7 +72,7 @@
                                     </div>
                                     <div>
                                         <small style="color: #999;">Date de départ</small>
-                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.dateFin|date('d/m/Y') }}</p>
+                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.dateFinR|date('d/m/Y') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -83,7 +83,7 @@
                                     </div>
                                     <div>
                                         <small style="color: #999;">Nombre de nuits</small>
-                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.nombreNuits }} nuits</p>
+                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ ((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400)|default(1) }} nuits</p>
                                     </div>
                                 </div>
                             </div>
@@ -109,12 +109,12 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span style="font-size: 1.1rem;">Nombre de nuits</span>
-                            <span style="font-weight: 600; font-size: 1.1rem;">× {{ reservation.nombreNuits }}</span>
+                            <span style="font-weight: 600; font-size: 1.1rem;">× {{ ((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400)|default(1) }}</span>
                         </div>
                         <hr style="border-color: rgba(255,255,255,0.3); margin: 20px 0;">
                         <div class="d-flex justify-content-between align-items-center">
                             <span style="font-size: 1.3rem; font-weight: 700;">Total</span>
-                            <span style="font-size: 1.5rem; font-weight: 700;">{{ reservation.prixTotal }} DT</span>
+                            <span style="font-size: 1.5rem; font-weight: 700;">{{ reservation.hebergement ? (((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400) * reservation.hebergement.prixParNuitNumeric)|default(0) ~ ' DT' : 'N/A' }}</span>
                         </div>
                     </div>
 
@@ -123,12 +123,12 @@
                         <a href="{{ path('app_reservations_list') }}" class="btn" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; padding: 15px 30px; font-weight: 600;">
                             <i class="bx bx-arrow-back me-2"></i>Retour
                         </a>
-                        {% if reservation.statut in ['EN ATTENTE', 'PENDING'] %}
-                            <a href="{{ path('app_reservation_edit', {id: reservation.id}) }}" class="btn" style="background: rgba(243, 156, 18, 0.15); color: #f39c12; border-radius: 50px; padding: 15px 30px; font-weight: 600;">
+                        {% if reservation.statut_r in ['EN ATTENTE', 'PENDING'] %}
+                            <a href="{{ path('app_reservation_edit', {id: reservation.idReservation}) }}" class="btn" style="background: rgba(243, 156, 18, 0.15); color: #f39c12; border-radius: 50px; padding: 15px 30px; font-weight: 600;">
                                 <i class="bx bx-edit me-2"></i>Modifier
                             </a>
-                            <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+                            <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.idReservation}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.idReservation) }}">
                                 <button class="btn" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c; border-radius: 50px; padding: 15px 30px; font-weight: 600; border: none;">
                                     <i class="bx bx-x-circle me-2"></i>Annuler
                                 </button>

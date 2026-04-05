@@ -38,7 +38,7 @@ class HebergementType extends AbstractType
                 'required' => false,
                 'constraints' => [
                     new Assert\Length([
-                        'max' => 255,
+                        'max' => 1000,
                         'maxMessage' => 'La description ne doit pas dépasser {{ limit }} caractères'
                     ])
                 ],
@@ -86,7 +86,7 @@ class HebergementType extends AbstractType
                 ],
                 'attr' => ['min' => 0, 'step' => '0.01']
             ])
-            ->add('disponible', ChoiceType::class, [
+            ->add('disponibleHeberg', ChoiceType::class, [
                 'label' => 'Disponibilité',
                 'choices' => [
                     'Disponible' => true,

@@ -1,6 +1,6 @@
 {% extends 'frontend/base_frontend.html.twig' %}
 
-{% block title %}Modifier Réservation #{{ reservation.id }} - RE7LA{% endblock %}
+{% block title %}Modifier Réservation #{{ reservation.idReservation }} - RE7LA{% endblock %}
 
 {% block body %}
 <section class="py-5" style="background: linear-gradient(135deg, rgba(135, 206, 235, 0.1), rgba(147, 197, 114, 0.1)); min-height: 100vh;">
@@ -61,16 +61,16 @@
 
                         <!-- Date Arrivée -->
                         <div class="col-md-6">
-                            {{ form_label(form.dateDebut) }}
-                            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control' ~ (form.dateDebut.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
-                            {{ form_errors(form.dateDebut) }}
+                            {{ form_label(form.dateDebutR) }}
+                            {{ form_widget(form.dateDebutR, {'attr': {'class': 'form-control' ~ (form.dateDebutR.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
+                            {{ form_errors(form.dateDebutR) }}
                         </div>
 
                         <!-- Date Départ -->
                         <div class="col-md-6">
-                            {{ form_label(form.dateFin) }}
-                            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control' ~ (form.dateFin.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
-                            {{ form_errors(form.dateFin) }}
+                            {{ form_label(form.dateFinR) }}
+                            {{ form_widget(form.dateFinR, {'attr': {'class': 'form-control' ~ (form.dateFinR.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
+                            {{ form_errors(form.dateFinR) }}
                         </div>
                     </div>
 
@@ -83,16 +83,16 @@
                             <div class="col-md-4">
                                 <small style="color: #777;">Dates actuelles</small>
                                 <p style="font-weight: 600; color: #2c3e50; margin: 0;">
-                                    {{ reservation.dateDebut|date('d/m/Y') }} - {{ reservation.dateFin|date('d/m/Y') }}
+                                    {{ reservation.dateDebutR|date('d/m/Y') }} - {{ reservation.dateFinR|date('d/m/Y') }}
                                 </p>
                             </div>
                             <div class="col-md-4">
                                 <small style="color: #777;">Nuits</small>
-                                <p style="font-weight: 600; color: #2c3e50; margin: 0;">{{ reservation.nombreNuits }}</p>
+                                <p style="font-weight: 600; color: #2c3e50; margin: 0;">{{ ((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400)|default(1) }}</p>
                             </div>
                             <div class="col-md-4">
                                 <small style="color: #777;">Total actuel</small>
-                                <p style="font-weight: 600; color: #87CEEB; margin: 0;">{{ reservation.prixTotal }} DT</p>
+                                <p style="font-weight: 600; color: #87CEEB; margin: 0;">{{ reservation.hebergement ? (((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400) * reservation.hebergement.prixParNuitNumeric)|default(0) ~ ' DT' : 'N/A' }}</p>
                             </div>
                         </div>
                     </div>

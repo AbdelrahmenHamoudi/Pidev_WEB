@@ -5,16 +5,17 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+
 use App\Repository\HebergementRepository;
 
 #[ORM\Entity(repositoryClass: HebergementRepository::class)]
 #[ORM\Table(name: 'hebergement')]
-#[ORM\HasLifecycleCallbacks]
 class Hebergement
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\GeneratedValue(strategy: "IDENTITY")]
+    #[ORM\Column(name: "id_hebergement", type: Types::INTEGER)]
     private ?int $id_hebergement = null;
 
     public function getId_hebergement(): ?int
@@ -28,7 +29,7 @@ class Hebergement
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private ?string $titre = null;
 
     public function getTitre(): ?string
@@ -36,13 +37,13 @@ class Hebergement
         return $this->titre;
     }
 
-    public function setTitre(?string $titre): self
+    public function setTitre(string $titre): self
     {
         $this->titre = $titre;
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 1000, nullable: false)]
     private ?string $desc_hebergement = null;
 
     public function getDesc_hebergement(): ?string
@@ -50,13 +51,13 @@ class Hebergement
         return $this->desc_hebergement;
     }
 
-    public function setDesc_hebergement(?string $desc_hebergement): self
+    public function setDesc_hebergement(string $desc_hebergement): self
     {
         $this->desc_hebergement = $desc_hebergement;
         return $this;
     }
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', nullable: false)]
     private ?int $capacite = null;
 
     public function getCapacite(): ?int
@@ -64,13 +65,13 @@ class Hebergement
         return $this->capacite;
     }
 
-    public function setCapacite(?int $capacite): self
+    public function setCapacite(int $capacite): self
     {
         $this->capacite = $capacite;
         return $this;
     }
 
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 50, nullable: false)]
     private ?string $type_hebergement = null;
 
     public function getType_hebergement(): ?string
@@ -78,46 +79,27 @@ class Hebergement
         return $this->type_hebergement;
     }
 
-    public function setType_hebergement(?string $type_hebergement): self
+    public function setType_hebergement(string $type_hebergement): self
     {
         $this->type_hebergement = $type_hebergement;
         return $this;
     }
 
-    #[ORM\Column(name: 'disponible_heberg', type: 'boolean', nullable: true)]
-    private ?bool $disponible = null;
+    #[ORM\Column(type: 'boolean', nullable: false)]
+    private ?bool $disponible_heberg = null;
 
     public function isDisponible_heberg(): ?bool
     {
-        return $this->disponible;
+        return $this->disponible_heberg;
     }
 
-    public function setDisponible_heberg(?bool $disponible_heberg): self
+    public function setDisponible_heberg(bool $disponible_heberg): self
     {
-        $this->disponible = $disponible_heberg;
+        $this->disponible_heberg = $disponible_heberg;
         return $this;
     }
 
-    public function getDisponible_heberg(): ?bool
-    {
-        return $this->disponible;
-    }
-
-    #[ORM\Column(name: 'prixParNuit', type: 'float', nullable: true)]
-    private ?float $prixParNuit = null;
-
-    public function getPrixParNuit(): ?float
-    {
-        return $this->prixParNuit;
-    }
-
-    public function setPrixParNuit(?float $prixParNuit): self
-    {
-        $this->prixParNuit = $prixParNuit;
-        return $this;
-    }
-
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
 
     public function getImage(): ?string
@@ -131,44 +113,30 @@ class Hebergement
         return $this;
     }
 
-    #[ORM\Column(type: 'json', nullable: true)]
-    private ?array $images = [];
+    #[ORM\Column(type: 'string', length: 20, nullable: false)]
+    private ?string $prix_par_nuit = null;
+
+    public function getPrix_par_nuit(): ?string
+    {
+        return $this->prix_par_nuit;
+    }
+
+    public function setPrix_par_nuit(string $prix_par_nuit): self
+    {
+        $this->prix_par_nuit = $prix_par_nuit;
+        return $this;
+    }
 
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'hebergement')]
     private Collection $reservations;
 
+    #[ORM\Column(name: "images", type: Types::JSON, nullable: true)]
+    private ?array $images = [];
+
     public function __construct()
     {
-        $this->images = [];
         $this->reservations = new ArrayCollection();
-    }
-
-    public function getImages(): array
-    {
-        return $this->images ?? [];
-    }
-
-    public function setImages(?array $images): self
-    {
-        $this->images = $images ?? [];
-        return $this;
-    }
-
-    public function addImage(string $filename): self
-    {
-        if (!in_array($filename, $this->images ?? [])) {
-            $this->images[] = $filename;
-        }
-        return $this;
-    }
-
-    public function removeImage(string $filename): self
-    {
-        $this->images = array_filter($this->images ?? [], function($img) use ($filename) {
-            return $img !== $filename;
-        });
-        $this->images = array_values($this->images); // Re-index array
-        return $this;
+        $this->images = [];
     }
 
     /**
@@ -196,6 +164,30 @@ class Hebergement
         return $this;
     }
 
+    public function getImages(): array
+    {
+        return $this->images ?? [];
+    }
+
+    public function setImages(?array $images): self
+    {
+        $this->images = $images;
+        return $this;
+    }
+
+    public function addImage(string $image): self
+    {
+        if ($this->images === null) {
+            $this->images = [];
+        }
+        
+        if (!in_array($image, $this->images, true)) {
+            $this->images[] = $image;
+        }
+
+        return $this;
+    }
+
     public function getIdHebergement(): ?int
     {
         return $this->id_hebergement;
@@ -206,9 +198,10 @@ class Hebergement
         return $this->desc_hebergement;
     }
 
-    public function setDescHebergement(?string $desc_hebergement): static
+    public function setDescHebergement(string $desc_hebergement): static
     {
         $this->desc_hebergement = $desc_hebergement;
+
         return $this;
     }
 
@@ -217,41 +210,40 @@ class Hebergement
         return $this->type_hebergement;
     }
 
-    public function setTypeHebergement(?string $type_hebergement): static
+    public function setTypeHebergement(string $type_hebergement): static
     {
         $this->type_hebergement = $type_hebergement;
+
         return $this;
     }
 
     public function isDisponibleHeberg(): ?bool
     {
-        return $this->disponible;
+        return $this->disponible_heberg;
     }
 
-    public function setDisponibleHeberg(?bool $disponible_heberg): static
+    public function setDisponibleHeberg(bool $disponible_heberg): static
     {
-        $this->disponible = $disponible_heberg;
+        $this->disponible_heberg = $disponible_heberg;
+
         return $this;
     }
 
-    public function getDisponible(): ?bool
+    public function getPrixParNuit(): ?string
     {
-        return $this->disponible;
+        return $this->prix_par_nuit;
     }
 
-    public function isDisponible(): ?bool
+    public function getPrixParNuitNumeric(): float
     {
-        return $this->getDisponible();
+        return (float) str_replace(',', '.', $this->prix_par_nuit);
     }
 
-    public function setDisponible(?bool $disponible): self
+    public function setPrixParNuit(string $prix_par_nuit): static
     {
-        $this->disponible = $disponible;
+        $this->prix_par_nuit = $prix_par_nuit;
+
         return $this;
     }
 
-    public function getId(): ?int
-    {
-        return $this->id_hebergement;
-    }
 }

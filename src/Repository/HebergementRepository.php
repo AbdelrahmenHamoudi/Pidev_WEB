@@ -16,7 +16,7 @@ class HebergementRepository extends ServiceEntityRepository
     public function findAvailable(): array
     {
         return $this->createQueryBuilder('h')
-            ->where('h.disponible = :disponible')
+            ->where('h.disponible_heberg = :disponible')
             ->setParameter('disponible', true)
             ->orderBy('h.titre', 'ASC')
             ->getQuery()
@@ -27,7 +27,7 @@ class HebergementRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('h')
             ->where('h.typeHebergement = :type')
-            ->andWhere('h.disponible = :disponible')
+            ->andWhere('h.disponible_heberg = :disponible')
             ->setParameter('type', $type)
             ->setParameter('disponible', true)
             ->orderBy('h.prixParNuit', 'ASC')

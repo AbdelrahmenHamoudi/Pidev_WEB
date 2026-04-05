@@ -22,7 +22,7 @@
   <div>
     <!-- Image principale -->
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;margin-bottom:24px;">
-      {% set firstImage = hebergement.images|length > 0 ? hebergement.images[0] : hebergement.image %}
+      {% set firstImage = hebergement.image ? hebergement.image : null %}
       {% if firstImage %}
         <img src="{{ asset(firstImage) }}" style="width:100%;height:400px;object-fit:cover;" alt="{{ hebergement.titre }}">
       {% else %}
@@ -37,8 +37,8 @@
           <span style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;">
             <i class="fas fa-tag" style="margin-right:6px;"></i>{{ hebergement.typeHebergement }}
           </span>
-          <span style="background:{{ hebergement.disponible ? 'rgba(26,188,156,0.15)' : 'rgba(239,68,68,0.15)' }};color:{{ hebergement.disponible ? '#1ABC9C' : '#ef4444' }};padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;">
-            {{ hebergement.disponible ? 'Disponible' : 'Indisponible' }}
+          <span style="background:{{ hebergement.disponibleHeberg ? 'rgba(26,188,156,0.15)' : 'rgba(239,68,68,0.15)' }};color:{{ hebergement.disponibleHeberg ? '#1ABC9C' : '#ef4444' }};padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;">
+            {{ hebergement.disponibleHeberg ? 'Disponible' : 'Indisponible' }}
           </span>
         </div>
         
@@ -64,18 +64,30 @@
     </div>
 
     <!-- Galerie photos -->
-    {% if hebergement.images|length > 1 %}
+    {% if hebergement.images|length > 0 %}
     <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
       <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
         <i class="fas fa-images" style="color:#1ABC9C;"></i>
         Galerie photos ({{ hebergement.images|length }})
       </h3>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
-        {% for image in hebergement.images %}
+          {% for imgPath in hebergement.images %}
           <div style="border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);height:150px;">
-            <img src="{{ asset(image) }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" alt="Photo {{ loop.index }}">
+            <img src="{{ asset(imgPath) }}" style="width:100%;height:100%;object-fit:cover;transition:all 0.3s;cursor:pointer;" alt="Photo" onclick="window.open(this.src, '_blank')">
           </div>
-        {% endfor %}
+          {% endfor %}
+      </div>
+    </div>
+    {% elseif hebergement.image %}
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-images" style="color:#1ABC9C;"></i>
+        Photo
+      </h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
+          <div style="border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);height:150px;">
+            <img src="{{ asset(hebergement.image) }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" alt="Photo">
+          </div>
       </div>
     </div>
     {% endif %}
@@ -115,13 +127,13 @@
       <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:20px;">Actions</h3>
       
       <div style="display:flex;flex-direction:column;gap:12px;">
-        <a href="{{ path('app_admin_hebergement_edit', {id: hebergement.id}) }}" style="background:rgba(26,188,156,0.1);color:#1ABC9C;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <a href="{{ path('app_admin_hebergement_edit', {id: hebergement.idHebergement}) }}" style="background:rgba(26,188,156,0.1);color:#1ABC9C;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
           <i class="fas fa-edit"></i>
           Modifier
         </a>
         
-        <form method="post" action="{{ path('app_admin_hebergement_delete', {id: hebergement.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet hébergement ?');">
-          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.id) }}">
+        <form method="post" action="{{ path('app_admin_hebergement_delete', {id: hebergement.idHebergement}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet hébergement ?');">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.idHebergement) }}">
           <button type="submit" style="width:100%;background:rgba(239,68,68,0.1);color:#ef4444;border:none;padding:12px;border-radius:12px;font-weight:500;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
             <i class="fas fa-trash"></i>
             Supprimer
@@ -139,22 +151,22 @@
           {% for reservation in hebergement.reservations %}
           <div style="background:#f8fafc;border-radius:12px;padding:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <span style="font-weight:600;color:#2C3E50;">{{ reservation.dateDebut|date('d/m/Y') }}</span>
+              <span style="font-weight:600;color:#2C3E50;">{{ reservation.dateDebutR|date('d/m/Y') }}</span>
               <span style="padding:4px 8px;border-radius:12px;font-size:11px;font-weight:600;background:{{ 
-                reservation.statut == 'CONFIRMEE' ? 'rgba(26,188,156,0.15)' : 
-                reservation.statut in ['EN ATTENTE', 'PENDING'] ? 'rgba(243,156,18,0.15)' : 
+                reservation.statut_r == 'CONFIRMEE' ? 'rgba(26,188,156,0.15)' : 
+                reservation.statut_r in ['EN ATTENTE', 'PENDING'] ? 'rgba(243,156,18,0.15)' : 
                 'rgba(239,68,68,0.15)' 
               }};color:{{
-                reservation.statut == 'CONFIRMEE' ? '#1ABC9C' : 
-                reservation.statut in ['EN ATTENTE', 'PENDING'] ? '#F39C12' : 
+                reservation.statut_r == 'CONFIRMEE' ? '#1ABC9C' : 
+                reservation.statut_r in ['EN ATTENTE', 'PENDING'] ? '#F39C12' : 
                 '#ef4444' 
               }};">
-                {{ reservation.statut }}
+                {{ reservation.statut_r }}
               </span>
             </div>
             <div style="font-size:12px;color:#64748b;">
               <i class="fas fa-calendar" style="margin-right:4px;"></i>
-              {{ reservation.dateDebut|date('d/m/Y') }} - {{ reservation.dateFin|date('d/m/Y') }}
+              {{ reservation.dateDebutR|date('d/m/Y') }} - {{ reservation.dateFinR|date('d/m/Y') }}
             </div>
           </div>
           {% endfor %}

@@ -6,10 +6,10 @@
 {% block page_title %}Gestion des Réservations{% endblock %}
 
 {% block body %}
-{% set pending = reservations|filter(r => 'ATTENT' in r.statut|upper or 'PEND' in r.statut|upper)|length %}
-{% set confirmed = reservations|filter(r => 'CONFIRM' in r.statut|upper)|length %}
-{% set cancelled = reservations|filter(r => 'ANNUL' in r.statut|upper)|length %}
-{% set refused = reservations|filter(r => 'REFUS' in r.statut|upper)|length %}
+{% set pending = reservations|filter(r => 'ATTENT' in r.statut_r|upper or 'PEND' in r.statut_r|upper)|length %}
+{% set confirmed = reservations|filter(r => 'CONFIRM' in r.statut_r|upper)|length %}
+{% set cancelled = reservations|filter(r => 'ANNUL' in r.statut_r|upper)|length %}
+{% set refused = reservations|filter(r => 'REFUS' in r.statut_r|upper)|length %}
 
 <!-- Stats Cards (overlaps header) -->
 <div class="stat-cards-row">
@@ -86,7 +86,7 @@
     <!-- Reservations Grid -->
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
       {% for reservation in reservations %}
-        {% set r_statut = reservation.statut|upper %}
+        {% set r_statut = reservation.statut_r|upper %}
         <div class="r-card" style="background:#FAFAFA;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);border:1px solid #e8ecf0;transition:all 0.3s;position:relative;">
           <div style="padding:20px;">
 
@@ -113,56 +113,56 @@
             <div style="background:#fff;border-radius:10px;padding:12px;margin-bottom:16px;border:1px solid #e8ecf0;">
               <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
                 <span style="color:#64748b;font-size:12px;"><i class="far fa-calendar-alt" style="margin-right:4px;"></i>Arrivée</span>
-                <span style="font-weight:600;color:#2C3E50;font-size:12px;">{{ reservation.dateDebut|date('d/m/Y') }}</span>
+                <span style="font-weight:600;color:#2C3E50;font-size:12px;">{{ reservation.dateDebutR|date('d/m/Y') }}</span>
               </div>
               <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                 <span style="color:#64748b;font-size:12px;"><i class="far fa-calendar-check" style="margin-right:4px;"></i>Départ</span>
-                <span style="font-weight:600;color:#2C3E50;font-size:12px;">{{ reservation.dateFin|date('d/m/Y') }}</span>
+                <span style="font-weight:600;color:#2C3E50;font-size:12px;">{{ reservation.dateFinR|date('d/m/Y') }}</span>
               </div>
               <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px dashed #e8ecf0;">
                 <span style="color:#64748b;font-size:12px;">Nuits</span>
-                <span style="font-weight:700;color:#1ABC9C;font-size:13px;">{{ reservation.nombreNuits }}</span>
+                <span style="font-weight:700;color:#1ABC9C;font-size:13px;">{{ ((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400)|default(1) }}</span>
               </div>
             </div>
 
             <!-- Total -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
               <span style="color:#2C3E50;font-size:13px;font-weight:600;">Total</span>
-              <span style="font-size:18px;font-weight:800;color:#F7B731;">{{ reservation.hebergement ? reservation.prixTotal ~ ' DT' : 'N/A' }}</span>
+              <span style="font-size:18px;font-weight:800;color:#F7B731;">{{ reservation.hebergement ? (((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400) * reservation.hebergement.prixParNuitNumeric)|default(0) ~ ' DT' : 'N/A' }}</span>
             </div>
 
             <!-- Action Buttons -->
             <div style="display:flex;gap:8px;border-top:1px solid #e8ecf0;padding-top:16px;">
-              {% set r_statut = reservation.statut|upper %}
+              {% set r_statut = reservation.statut_r|upper %}
               
               {% if 'CONFIRM' in r_statut %}
                 <!-- Réservation confirmée - seulement Annuler disponible -->
                 <div style="flex:1;text-align:center;padding:8px;background:rgba(26,188,156,0.1);border-radius:8px;color:#1ABC9C;font-size:11px;font-weight:600;">
                   <i class="fas fa-check-circle"></i> CONFIRMÉE
                 </div>
-                <form method="post" action="{{ path('app_admin_reservation_cancel', {id: reservation.id}) }}" style="flex:1;">
-                  <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+                <form method="post" action="{{ path('app_admin_reservation_cancel', {id: reservation.idReservation}) }}" style="flex:1;" class="action-form">
+                  <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.idReservation) }}">
                   <button type="submit" class="action-btn reject-btn" onclick="return confirm('Annuler cette réservation ?')">
                     <i class="fas fa-ban"></i> ANNULER
                   </button>
                 </form>
-              {% elseif 'ANNUL' in r_statut %}
-                <!-- Réservation annulée - aucune action -->
+              {% elseif 'ANNUL' in r_statut or 'REFUS' in r_statut %}
+                <!-- Réservation annulée ou refusée - aucune action -->
                 <div style="flex:2;text-align:center;padding:8px;background:rgba(230,57,70,0.1);border-radius:8px;color:#e63946;font-size:11px;font-weight:600;">
-                  <i class="fas fa-times-circle"></i> ANNULÉE
+                  <i class="fas fa-times-circle"></i> {{ r_statut }}
                 </div>
               {% else %}
                 <!-- En attente - les deux boutons -->
-                <form method="post" action="{{ path('app_admin_reservation_confirm', {id: reservation.id}) }}" style="flex:1;">
-                  <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ reservation.id) }}">
+                <form method="post" action="{{ path('app_admin_reservation_confirm', {id: reservation.idReservation}) }}" style="flex:1;" class="action-form">
+                  <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ reservation.idReservation) }}">
                   <button type="submit" class="action-btn confirm-btn" onclick="return confirm('Confirmer cette réservation ?')">
                     <i class="fas fa-check"></i> CONFIRMER
                   </button>
                 </form>
-                <form method="post" action="{{ path('app_admin_reservation_cancel', {id: reservation.id}) }}" style="flex:1;">
-                  <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
-                  <button type="submit" class="action-btn reject-btn" onclick="return confirm('Annuler cette réservation ?')">
-                    <i class="fas fa-ban"></i> ANNULER
+                <form method="post" action="{{ path('app_admin_reservation_reject', {id: reservation.idReservation}) }}" style="flex:1;" class="action-form">
+                  <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ reservation.idReservation) }}">
+                  <button type="submit" class="action-btn reject-btn" onclick="return confirm('Rejeter cette réservation ?')">
+                    <i class="fas fa-ban"></i> REJETER
                   </button>
                 </form>
               {% endif %}
@@ -222,4 +222,13 @@
     color: #fff;
   }
 </style>
+
+<script>
+document.querySelectorAll('.action-form').forEach(form => {
+  form.addEventListener('submit', function() {
+    this.querySelector('button').disabled = true;
+    this.querySelector('button').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+  });
+});
+</script>
 {% endblock %}

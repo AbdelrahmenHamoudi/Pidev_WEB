@@ -18,9 +18,9 @@ class ReservationRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('r')
             ->leftJoin('r.hebergement', 'h')
             ->addSelect('h')
-            ->where('r.userId = :userId')
+            ->where('r.user = :userId')
             ->setParameter('userId', $userId)
-            ->orderBy('r.dateDebut', 'DESC')
+            ->orderBy('r.date_debut_r', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -29,8 +29,8 @@ class ReservationRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('r')
             ->where('r.hebergement = :hebergementId')
-            ->andWhere('r.statut IN (:statuts)')
-            ->andWhere('r.dateFin >= :today')
+            ->andWhere('r.statut_r IN (:statuts)')
+            ->andWhere('r.date_fin_r >= :today')
             ->setParameter('hebergementId', $hebergementId)
             ->setParameter('statuts', ['Confirmée', 'EN ATTENTE', 'PENDING'])
             ->setParameter('today', new \DateTime())
@@ -43,12 +43,35 @@ class ReservationRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('r')
             ->leftJoin('r.hebergement', 'h')
             ->addSelect('h')
-            ->where('r.dateDebut >= :today')
-            ->andWhere('r.statut IN (:statuts)')
+            ->where('r.date_debut_r >= :today')
+            ->andWhere('r.statut_r IN (:statuts)')
             ->setParameter('today', new \DateTime())
             ->setParameter('statuts', ['Confirmée', 'EN ATTENTE'])
-            ->orderBy('r.dateDebut', 'ASC')
+            ->orderBy('r.date_debut_r', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Finds reservations that overlap with the given date range for a specific property.
+     */
+    public function findOverlappingReservations(int $hebergementId, \DateTimeInterface $start, \DateTimeInterface $end, ?int $excludeId = null): array
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->where('r.hebergement = :hebergementId')
+            ->andWhere('r.statut_r NOT IN (:excludedStatuts)')
+            ->andWhere('r.date_debut_r < :end')
+            ->andWhere('r.date_fin_r > :start')
+            ->setParameter('hebergementId', $hebergementId)
+            ->setParameter('end', $end)
+            ->setParameter('start', $start)
+            ->setParameter('excludedStatuts', ['Annulée', 'ANNULEE', 'Refusée', 'REFUSEE']);
+
+        if ($excludeId) {
+            $qb->andWhere('r.id_reservation != :excludeId')
+               ->setParameter('excludeId', $excludeId);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

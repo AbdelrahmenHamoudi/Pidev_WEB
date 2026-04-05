@@ -65,16 +65,16 @@
 
                         <!-- Date Arrivée -->
                         <div class="col-md-6">
-                            {{ form_label(form.dateDebut) }}
-                            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control' ~ (form.dateDebut.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
-                            {{ form_errors(form.dateDebut) }}
+                            {{ form_label(form.dateDebutR) }}
+                            {{ form_widget(form.dateDebutR, {'attr': {'class': 'form-control' ~ (form.dateDebutR.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
+                            {{ form_errors(form.dateDebutR) }}
                         </div>
 
                         <!-- Date Départ -->
                         <div class="col-md-6">
-                            {{ form_label(form.dateFin) }}
-                            {{ form_widget(form.dateFin, {'attr': {'class': 'form-control' ~ (form.dateFin.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
-                            {{ form_errors(form.dateFin) }}
+                            {{ form_label(form.dateFinR) }}
+                            {{ form_widget(form.dateFinR, {'attr': {'class': 'form-control' ~ (form.dateFinR.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
+                            {{ form_errors(form.dateFinR) }}
                         </div>
                     </div>
 

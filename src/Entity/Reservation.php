@@ -2,139 +2,149 @@
 
 namespace App\Entity;
 
-use App\Repository\ReservationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
+use App\Repository\ReservationRepository;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: 'reservation')]
 class Reservation
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_reservation', type: 'integer')]
-    private ?int $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id_reservation = null;
 
-    #[ORM\Column(name: 'user_id', type: 'integer')]
-    private ?int $userId = null;
-
-    #[ORM\ManyToOne(targetEntity: Hebergement::class, inversedBy: 'reservations')]
-    #[ORM\JoinColumn(name: 'hebergement_id', referencedColumnName: 'id_hebergement', nullable: true, onDelete: 'SET NULL')]
-    private ?Hebergement $hebergement = null;
-
-    #[ORM\Column(name: 'dateDebutR', type: Types::DATE_MUTABLE)]
-    #[Assert\NotBlank(message: 'La date de début est obligatoire')]
-    #[Assert\GreaterThanOrEqual('today', message: 'La date de début doit être aujourd\'hui ou dans le futur')]
-    private ?\DateTimeInterface $dateDebut = null;
-
-    #[ORM\Column(name: 'dateFinR', type: Types::DATE_MUTABLE)]
-    #[Assert\NotBlank(message: 'La date de fin est obligatoire')]
-    private ?\DateTimeInterface $dateFin = null;
-
-    #[ORM\Column(name: 'statutR', type: 'string', length: 50, options: ['default' => 'EN ATTENTE'])]
-    #[Assert\Choice(choices: ['EN ATTENTE', 'Confirmée', 'Annulée', 'PENDING'], message: 'Statut invalide')]
-    private ?string $statut = 'EN ATTENTE';
-
-    #[Assert\Callback]
-    public function validateDates(ExecutionContextInterface $context): void
+    public function getId_reservation(): ?int
     {
-        if ($this->dateDebut && $this->dateFin) {
-            if ($this->dateFin <= $this->dateDebut) {
-                $context->buildViolation('La date de fin doit être après la date de début')
-                    ->atPath('dateFin')
-                    ->addViolation();
-            }
-
-            $diff = $this->dateDebut->diff($this->dateFin);
-            if ($diff->days > 30) {
-                $context->buildViolation('La réservation ne peut pas dépasser 30 nuits')
-                    ->atPath('dateFin')
-                    ->addViolation();
-            }
-        }
-
-        if ($this->hebergement && !$this->hebergement->isDisponible()) {
-            $context->buildViolation('Cet hébergement n\'est pas disponible')
-                ->atPath('hebergement')
-                ->addViolation();
-        }
+        return $this->id_reservation;
     }
 
-    public function getId(): ?int
+    public function setId_reservation(int $id_reservation): self
     {
-        return $this->id;
+        $this->id_reservation = $id_reservation;
+        return $this;
+    }
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reservations')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    private ?User $user = null;
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+        return $this;
     }
 
     public function getUserId(): ?int
     {
-        return $this->userId;
+        return $this->user ? $this->user->getId() : null;
     }
 
-    public function setUserId(int $userId): static
-    {
-        $this->userId = $userId;
-        return $this;
-    }
+    #[ORM\ManyToOne(targetEntity: Hebergement::class, inversedBy: 'reservations')]
+    #[ORM\JoinColumn(name: 'hebergement_id', referencedColumnName: 'id_hebergement')]
+    private ?Hebergement $hebergement = null;
 
     public function getHebergement(): ?Hebergement
     {
         return $this->hebergement;
     }
 
-    public function setHebergement(?Hebergement $hebergement): static
+    public function setHebergement(?Hebergement $hebergement): self
     {
         $this->hebergement = $hebergement;
         return $this;
     }
 
-    public function getDateDebut(): ?\DateTimeInterface
+    #[ORM\Column(type: 'date', nullable: false)]
+    private ?\DateTimeInterface $date_debut_r = null;
+
+    public function getDate_debut_r(): ?\DateTimeInterface
     {
-        return $this->dateDebut;
+        return $this->date_debut_r;
     }
 
-    public function setDateDebut(?\DateTimeInterface $dateDebut): static
+    public function setDate_debut_r(\DateTimeInterface $date_debut_r): self
     {
-        $this->dateDebut = $dateDebut;
+        $this->date_debut_r = $date_debut_r;
         return $this;
     }
 
-    public function getDateFin(): ?\DateTimeInterface
+    #[ORM\Column(type: 'date', nullable: false)]
+    private ?\DateTimeInterface $date_fin_r = null;
+
+    public function getDate_fin_r(): ?\DateTimeInterface
     {
-        return $this->dateFin;
+        return $this->date_fin_r;
     }
 
-    public function setDateFin(?\DateTimeInterface $dateFin): static
+    public function setDate_fin_r(\DateTimeInterface $date_fin_r): self
     {
-        $this->dateFin = $dateFin;
+        $this->date_fin_r = $date_fin_r;
         return $this;
     }
 
-    public function getStatut(): ?string
+    #[ORM\Column(type: 'string', length: 50, nullable: false)]
+    private ?string $statut_r = null;
+
+    public function getStatut_r(): ?string
     {
-        return $this->statut;
+        return $this->statut_r;
     }
 
-    public function setStatut(string $statut): static
+    public function setStatut_r(string $statut_r): self
     {
-        $this->statut = $statut;
+        $this->statut_r = $statut_r;
         return $this;
     }
 
-    public function getNombreNuits(): int
+    public function getIdReservation(): ?int
     {
-        if ($this->dateDebut && $this->dateFin) {
-            return $this->dateDebut->diff($this->dateFin)->days;
-        }
-        return 0;
+        return $this->id_reservation;
     }
 
-    public function getPrixTotal(): float
+    public function getDateDebutR(): ?\DateTime
     {
-        if ($this->hebergement) {
-            return $this->getNombreNuits() * $this->hebergement->getPrixParNuit();
-        }
-        return 0;
+        return $this->date_debut_r;
     }
+
+    public function setDateDebutR(?\DateTime $date_debut_r): static
+    {
+        $this->date_debut_r = $date_debut_r;
+
+        return $this;
+    }
+
+    public function getDateFinR(): ?\DateTime
+    {
+        return $this->date_fin_r;
+    }
+
+    public function setDateFinR(?\DateTime $date_fin_r): static
+    {
+        $this->date_fin_r = $date_fin_r;
+
+        return $this;
+    }
+
+    public function getStatutR(): ?string
+    {
+        return $this->statut_r;
+    }
+
+    public function setStatutR(string $statut_r): static
+    {
+        $this->statut_r = $statut_r;
+
+        return $this;
+    }
+
 }

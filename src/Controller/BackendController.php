@@ -170,7 +170,7 @@ final class BackendController extends AbstractController
         Hebergement $hebergement,
         EntityManagerInterface $em
     ): Response {
-        if ($this->isCsrfTokenValid('delete' . $hebergement->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $hebergement->getIdHebergement(), $request->request->get('_token'))) {
             $em->remove($hebergement);
             $em->flush();
             $this->addFlash('success', 'Hébergement supprimé avec succès');
@@ -193,7 +193,7 @@ final class BackendController extends AbstractController
     public function reservationList(EntityManagerInterface $em): Response
     {
         $reservations = $em->createQuery(
-            'SELECT r, h FROM App\Entity\Reservation r LEFT JOIN r.hebergement h ORDER BY r.dateDebut DESC'
+            'SELECT r, h FROM App\Entity\Reservation r LEFT JOIN r.hebergement h ORDER BY r.date_debut_r DESC'
         )->getResult();
         
         return $this->render('backend/admin/reservation/list.html.twig', [
@@ -207,10 +207,16 @@ final class BackendController extends AbstractController
         Reservation $reservation,
         EntityManagerInterface $em
     ): Response {
-        if ($this->isCsrfTokenValid('confirm' . $reservation->getId(), $request->request->get('_token'))) {
-            $reservation->setStatut('CONFIRMEE');
+        // Prevent multiple confirmations
+        if ($reservation->getStatutR() === 'CONFIRMEE') {
+            $this->addFlash('warning', 'Cette réservation est déjà confirmée.');
+            return $this->redirectToRoute('app_admin_reservation_list');
+        }
+
+        if ($this->isCsrfTokenValid('confirm' . $reservation->getIdReservation(), $request->request->get('_token'))) {
+            $reservation->setStatutR('CONFIRMEE');
             $em->flush();
-            $this->addFlash('success', 'Réservation #' . $reservation->getId() . ' confirmée avec succès');
+            $this->addFlash('success', 'Réservation #' . $reservation->getIdReservation() . ' confirmée avec succès');
         }
 
         return $this->redirectToRoute('app_admin_reservation_list');
@@ -222,10 +228,16 @@ final class BackendController extends AbstractController
         Reservation $reservation,
         EntityManagerInterface $em
     ): Response {
-        if ($this->isCsrfTokenValid('reject' . $reservation->getId(), $request->request->get('_token'))) {
-            $reservation->setStatut('REFUSEE');
+        // Prevent action on already processed reservation
+        if (in_array($reservation->getStatutR(), ['REFUSEE', 'ANNULEE', 'CONFIRMEE'])) {
+            $this->addFlash('warning', 'Cette réservation ne peut plus être rejetée.');
+            return $this->redirectToRoute('app_admin_reservation_list');
+        }
+
+        if ($this->isCsrfTokenValid('reject' . $reservation->getIdReservation(), $request->request->get('_token'))) {
+            $reservation->setStatutR('REFUSEE');
             $em->flush();
-            $this->addFlash('success', 'Réservation #' . $reservation->getId() . ' refusée');
+            $this->addFlash('success', 'Réservation #' . $reservation->getIdReservation() . ' refusée');
         }
 
         return $this->redirectToRoute('app_admin_reservation_list');
@@ -237,10 +249,16 @@ final class BackendController extends AbstractController
         Reservation $reservation,
         EntityManagerInterface $em
     ): Response {
-        if ($this->isCsrfTokenValid('cancel' . $reservation->getId(), $request->request->get('_token'))) {
-            $reservation->setStatut('ANNULEE');
+        // Prevent cancellation of already cancelled reservation
+        if ($reservation->getStatutR() === 'ANNULEE') {
+            $this->addFlash('warning', 'Cette réservation est déjà annulée.');
+            return $this->redirectToRoute('app_admin_reservation_list');
+        }
+
+        if ($this->isCsrfTokenValid('cancel' . $reservation->getIdReservation(), $request->request->get('_token'))) {
+            $reservation->setStatutR('ANNULEE');
             $em->flush();
-            $this->addFlash('success', 'Réservation #' . $reservation->getId() . ' annulée');
+            $this->addFlash('success', 'Réservation #' . $reservation->getIdReservation() . ' annulée');
         }
 
         return $this->redirectToRoute('app_admin_reservation_list');

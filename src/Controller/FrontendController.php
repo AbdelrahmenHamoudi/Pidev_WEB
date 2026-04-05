@@ -6,6 +6,7 @@ use App\Entity\Reservation;
 use App\Form\ReservationType;
 use App\Repository\HebergementRepository;
 use App\Repository\ReservationRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,7 +60,7 @@ final class FrontendController extends AbstractController
     {
         $hebergement = $repository->find($id);
         
-        if (!$hebergement || !$hebergement->isDisponible()) {
+        if (!$hebergement || !$hebergement->isDisponibleHeberg()) {
             throw $this->createNotFoundException('Hébergement non disponible');
         }
         
@@ -86,25 +87,54 @@ final class FrontendController extends AbstractController
         Request $request,
         $hebergementId,
         HebergementRepository $hebergementRepository,
+        ReservationRepository $reservationRepository,
+        UserRepository $userRepository,
         EntityManagerInterface $em,
         SessionInterface $session
     ): Response {
         $hebergement = $hebergementRepository->find($hebergementId);
         
-        if (!$hebergement || !$hebergement->isDisponible()) {
+        if (!$hebergement || !$hebergement->isDisponibleHeberg()) {
             $this->addFlash('error', 'Cet hébergement n\'est pas disponible');
             return $this->redirectToRoute('app_hebergements');
         }
 
         $reservation = new Reservation();
         $reservation->setHebergement($hebergement);
-        $reservation->setUserId($session->get('user_id', self::STATIC_USER_ID));
+        $reservation->setDateDebutR(new \DateTime());
+        $reservation->setDateFinR((new \DateTime())->modify('+1 day'));
+        $user = $userRepository->find($session->get('user_id', self::STATIC_USER_ID));
+        $reservation->setUser($user);
         
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $reservation->setStatut('EN ATTENTE');
+            // Check if end date is after start date
+            if ($reservation->getDate_fin_r() <= $reservation->getDate_debut_r()) {
+                $this->addFlash('error', 'La date de départ doit être après la date d\'arrivée.');
+                return $this->render('frontend/reservation/new.html.twig', [
+                    'form' => $form->createView(),
+                    'hebergement' => $hebergement
+                ]);
+            }
+
+            // Check for overlapping reservations
+            $conflicts = $reservationRepository->findOverlappingReservations(
+                $hebergement->getIdHebergement(),
+                $reservation->getDate_debut_r(),
+                $reservation->getDate_fin_r()
+            );
+
+            if (!empty($conflicts)) {
+                $this->addFlash('error', 'Désolé, cet hébergement est déjà réservé ou en attente pour les dates sélectionnées.');
+                return $this->render('frontend/reservation/new.html.twig', [
+                    'form' => $form->createView(),
+                    'hebergement' => $hebergement
+                ]);
+            }
+
+            $reservation->setStatutR('EN ATTENTE');
             
             $em->persist($reservation);
             $em->flush();
@@ -123,6 +153,7 @@ final class FrontendController extends AbstractController
     public function reservationEdit(
         Request $request,
         Reservation $reservation,
+        ReservationRepository $reservationRepository,
         EntityManagerInterface $em,
         SessionInterface $session
     ): Response {
@@ -132,7 +163,7 @@ final class FrontendController extends AbstractController
         }
 
         // Only allow editing if status is pending
-        if (!in_array($reservation->getStatut(), ['EN ATTENTE', 'PENDING'])) {
+        if (!in_array($reservation->getStatutR(), ['EN ATTENTE', 'PENDING'])) {
             $this->addFlash('error', 'Vous ne pouvez modifier que les réservations en attente');
             return $this->redirectToRoute('app_reservations_list');
         }
@@ -141,6 +172,31 @@ final class FrontendController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Check if end date is after start date
+            if ($reservation->getDate_fin_r() <= $reservation->getDate_debut_r()) {
+                $this->addFlash('error', 'La date de départ doit être après la date d\'arrivée.');
+                return $this->render('frontend/reservation/edit.html.twig', [
+                    'form' => $form->createView(),
+                    'reservation' => $reservation
+                ]);
+            }
+
+            // Check for overlapping reservations (excluding current one)
+            $conflicts = $reservationRepository->findOverlappingReservations(
+                $reservation->getHebergement()->getIdHebergement(),
+                $reservation->getDate_debut_r(),
+                $reservation->getDate_fin_r(),
+                $reservation->getId_reservation()
+            );
+
+            if (!empty($conflicts)) {
+                $this->addFlash('error', 'Désolé, ce créneau est déjà réservé par une autre demande.');
+                return $this->render('frontend/reservation/edit.html.twig', [
+                    'form' => $form->createView(),
+                    'reservation' => $reservation
+                ]);
+            }
+
             $em->flush();
             $this->addFlash('success', 'Réservation modifiée avec succès');
             return $this->redirectToRoute('app_reservations_list');
@@ -164,8 +220,14 @@ final class FrontendController extends AbstractController
             throw $this->createAccessDeniedException('Accès refusé');
         }
 
-        if ($this->isCsrfTokenValid('cancel' . $reservation->getId(), $request->request->get('_token'))) {
-            $reservation->setStatut('Annulée');
+        // Prevent multiple cancellations or cancelling confirmed ones
+        if ($reservation->getStatutR() === 'Annulée' || $reservation->getStatutR() === 'ANNULEE') {
+            $this->addFlash('warning', 'Cette réservation est déjà annulée.');
+            return $this->redirectToRoute('app_reservations_list');
+        }
+
+        if ($this->isCsrfTokenValid('cancel' . $reservation->getIdReservation(), $request->request->get('_token'))) {
+            $reservation->setStatutR('Annulée');
             $em->flush();
             $this->addFlash('success', 'Réservation annulée avec succès');
         }
@@ -186,12 +248,12 @@ final class FrontendController extends AbstractController
         }
 
         // Only allow deletion if cancelled or pending
-        if (!in_array($reservation->getStatut(), ['Annulée', 'EN ATTENTE', 'PENDING'])) {
+        if (!in_array($reservation->getStatutR(), ['Annulée', 'EN ATTENTE', 'PENDING'])) {
             $this->addFlash('error', 'Cette réservation ne peut pas être supprimée');
             return $this->redirectToRoute('app_reservations_list');
         }
 
-        if ($this->isCsrfTokenValid('delete' . $reservation->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $reservation->getIdReservation(), $request->request->get('_token'))) {
             $em->remove($reservation);
             $em->flush();
             $this->addFlash('success', 'Réservation supprimée avec succès');
@@ -217,9 +279,9 @@ final class FrontendController extends AbstractController
         }
         
         if ($disponible === '1') {
-            $criteria['disponible'] = true;
+            $criteria['disponible_heberg'] = true;
         } elseif ($disponible === '0') {
-            $criteria['disponible'] = false;
+            $criteria['disponible_heberg'] = false;
         }
         
         // Get results based on criteria

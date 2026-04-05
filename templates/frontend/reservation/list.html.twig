@@ -47,8 +47,8 @@
                                     <i class="bx bx-building-house" style="font-size: 4rem; color: white;"></i>
                                 </div>
                             {% endif %}
-                            <span class="badge-status statut-{{ reservation.statut|lower|replace({' ': '-'}) }}" style="position: absolute; top: 15px; right: 15px; padding: 8px 15px; border-radius: 25px; font-weight: 600; font-size: 0.8rem;">
-                                {{ reservation.statut }}
+                            <span class="badge-status statut-{{ reservation.statut_r|lower|replace({' ': '-'}) }}" style="position: absolute; top: 15px; right: 15px; padding: 8px 15px; border-radius: 25px; font-weight: 600; font-size: 0.8rem;">
+                                {{ reservation.statut_r }}
                             </span>
                         </div>
                         <div class="card-body p-4">
@@ -60,41 +60,41 @@
                             <div style="background: #f8f9fa; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span style="color: #777;"><i class="bx bx-calendar me-1"></i>Arrivée</span>
-                                    <span style="font-weight: 600; color: #2c3e50;">{{ reservation.dateDebut|date('d/m/Y') }}</span>
+                                    <span style="font-weight: 600; color: #2c3e50;">{{ reservation.dateDebutR|date('d/m/Y') }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span style="color: #777;"><i class="bx bx-calendar me-1"></i>Départ</span>
-                                    <span style="font-weight: 600; color: #2c3e50;">{{ reservation.dateFin|date('d/m/Y') }}</span>
+                                    <span style="font-weight: 600; color: #2c3e50;">{{ reservation.dateFinR|date('d/m/Y') }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span style="color: #777;"><i class="bx bx-moon me-1"></i>Nuits</span>
-                                    <span style="font-weight: 600; color: #2c3e50;">{{ reservation.nombreNuits }}</span>
+                                    <span style="font-weight: 600; color: #2c3e50;">{{ ((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400)|default(1) }}</span>
                                 </div>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span style="color: #777;">Total</span>
-                                <span style="font-weight: 700; color: #87CEEB; font-size: 1.3rem;">{{ reservation.prixTotal }} DT</span>
+                                <span style="font-weight: 700; color: #87CEEB; font-size: 1.3rem;">{{ reservation.hebergement ? (((reservation.dateFinR|date('U') - reservation.dateDebutR|date('U')) / 86400) * reservation.hebergement.prixParNuitNumeric)|default(0) ~ ' DT' : 'N/A' }}</span>
                             </div>
 
                             <div class="d-flex gap-2">
-                                <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn flex-fill" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
+                                <a href="{{ path('app_reservation_show', {id: reservation.idReservation}) }}" class="btn flex-fill" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
                                     <i class="bx bx-show me-1"></i>Voir
                                 </a>
-                                {% if reservation.statut in ['EN ATTENTE', 'PENDING'] %}
-                                    <a href="{{ path('app_reservation_edit', {id: reservation.id}) }}" class="btn flex-fill" style="background: rgba(243, 156, 18, 0.15); color: #f39c12; border-radius: 50px; font-weight: 600;">
+                                {% if reservation.statut_r in ['EN ATTENTE', 'PENDING'] %}
+                                    <a href="{{ path('app_reservation_edit', {id: reservation.idReservation}) }}" class="btn flex-fill" style="background: rgba(243, 156, 18, 0.15); color: #f39c12; border-radius: 50px; font-weight: 600;">
                                         <i class="bx bx-edit me-1"></i>Modifier
                                     </a>
-                                    <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.id}) }}" style="display: inline; flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+                                    <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.idReservation}) }}" class="action-form" style="display: inline; flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.idReservation) }}">
                                         <button class="btn w-100" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c; border-radius: 50px; font-weight: 600;">
                                             <i class="bx bx-x-circle me-1"></i>Annuler
                                         </button>
                                     </form>
                                 {% endif %}
-                                {% if reservation.statut in ['Annulée', 'EN ATTENTE', 'PENDING'] %}
-                                    <form method="post" action="{{ path('app_reservation_delete', {id: reservation.id}) }}" style="display: inline; flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?');">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                                {% if reservation.statut_r in ['Annulée', 'EN ATTENTE', 'PENDING'] %}
+                                    <form method="post" action="{{ path('app_reservation_delete', {id: reservation.idReservation}) }}" style="display: inline; flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.idReservation) }}">
                                         <button class="btn w-100" style="background: rgba(149, 165, 166, 0.15); color: #95a5a6; border-radius: 50px; font-weight: 600;">
                                             <i class="bx bx-trash me-1"></i>Supprimer
                                         </button>
@@ -127,4 +127,16 @@
     .statut-annulee { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
     .statut-pending { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
 </style>
+
+<script>
+document.querySelectorAll('.action-form').forEach(form => {
+  form.addEventListener('submit', function() {
+    const btn = this.querySelector('button');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Traitement...';
+    }
+  });
+});
+</script>
 {% endblock %}

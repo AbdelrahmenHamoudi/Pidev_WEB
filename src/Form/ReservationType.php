@@ -38,7 +38,7 @@ class ReservationType extends AbstractType
                 'query_builder' => function () {
                     return $this->em->getRepository(Hebergement::class)
                         ->createQueryBuilder('h')
-                        ->where('h.disponible = :dispo')
+                        ->where('h.disponible_heberg = :dispo')
                         ->setParameter('dispo', true)
                         ->orderBy('h.titre', 'ASC');
                 },
@@ -48,7 +48,7 @@ class ReservationType extends AbstractType
                     new Assert\NotBlank(['message' => 'Veuillez sélectionner un hébergement'])
                 ]
             ])
-            ->add('dateDebut', DateType::class, [
+            ->add('dateDebutR', DateType::class, [
                 'label' => 'Date d\'arrivée',
                 'widget' => 'single_text',
                 'input' => 'datetime',
@@ -61,7 +61,7 @@ class ReservationType extends AbstractType
                 ],
                 'attr' => ['min' => (new \DateTime())->format('Y-m-d')]
             ])
-            ->add('dateFin', DateType::class, [
+            ->add('dateFinR', DateType::class, [
                 'label' => 'Date de départ',
                 'widget' => 'single_text',
                 'input' => 'datetime',
@@ -77,8 +77,8 @@ class ReservationType extends AbstractType
             $form = $event->getForm();
 
             if ($reservation instanceof Reservation) {
-                $debut = $reservation->getDateDebut();
-                $fin = $reservation->getDateFin();
+                $debut = $reservation->getDateDebutR();
+                $fin = $reservation->getDateFinR();
 
                 if ($debut && $fin) {
                     if ($fin <= $debut) {
@@ -103,7 +103,7 @@ class ReservationType extends AbstractType
                 }
 
                 $hebergement = $reservation->getHebergement();
-                if ($hebergement && !$hebergement->isDisponible()) {
+                if ($hebergement && !$hebergement->isDisponibleHeberg()) {
                     $form->get('hebergement')->addError(new \Symfony\Component\Form\FormError(
                         'Cet hébergement n\'est pas disponible actuellement'
                     ));
