@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Hebergement;
-use App\Entity\HebergementImage;
 use App\Entity\Reservation;
 use App\Form\HebergementType;
 use App\Repository\HebergementRepository;
@@ -89,14 +88,12 @@ final class BackendController extends AbstractController
                         
                         $file->move($targetDir, $newFilename);
                         
-                        $hebergementImage = new HebergementImage();
-                        $hebergementImage->setFilename('uploads/hebergements/' . $newFilename);
-                        $hebergementImage->setOrdre($index);
-                        $hebergement->addImage($hebergementImage);
+                        $imagePath = 'uploads/hebergements/' . $newFilename;
+                        $hebergement->addImage($imagePath);
                         $uploadCount++;
                         
                         if ($uploadCount === 1) {
-                            $hebergement->setImage('uploads/hebergements/' . $newFilename);
+                            $hebergement->setImage($imagePath);
                         }
                     } catch (\Exception $e) {
                         $this->addFlash('error', 'Erreur upload: ' . $e->getMessage());
@@ -147,10 +144,8 @@ final class BackendController extends AbstractController
                             $newFilename
                         );
                         
-                        $hebergementImage = new HebergementImage();
-                        $hebergementImage->setFilename('uploads/hebergements/' . $newFilename);
-                        $hebergementImage->setOrdre($hebergement->getImages()->count() + $index);
-                        $hebergement->addImage($hebergementImage);
+                        $imagePath = 'uploads/hebergements/' . $newFilename;
+                        $hebergement->addImage($imagePath);
                     } catch (\Exception $e) {
                         $this->addFlash('error', 'Erreur upload: ' . $file->getClientOriginalName());
                     }
@@ -195,9 +190,12 @@ final class BackendController extends AbstractController
     // ==================== RESERVATION MANAGEMENT ====================
 
     #[Route('/admin/reservations', name: 'app_admin_reservation_list')]
-    public function reservationList(ReservationRepository $repository): Response
+    public function reservationList(EntityManagerInterface $em): Response
     {
-        $reservations = $repository->findBy([], ['dateDebut' => 'DESC']);
+        $reservations = $em->createQuery(
+            'SELECT r, h FROM App\Entity\Reservation r LEFT JOIN r.hebergement h ORDER BY r.dateDebut DESC'
+        )->getResult();
+        
         return $this->render('backend/admin/reservation/list.html.twig', [
             'reservations' => $reservations
         ]);

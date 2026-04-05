@@ -9,95 +9,104 @@
         <!-- Header & Search Bar -->
         <div class="row mb-5">
             <div class="col-12 px-0">
-                <div class="hero-search-container" style="margin-top: 0; max-width: 1000px; margin: 0 auto;">
+                <form method="get" action="{{ path('app_hebergements_search') }}" class="hero-search-container" style="margin-top: 0; max-width: 1000px; margin: 0 auto;">
                     <div class="search-input-group">
                         <span class="search-label">Où allez-vous ?</span>
-                        <input type="text" class="search-field" placeholder="Rechercher...">
+                        <input type="text" name="titre" class="search-field" placeholder="Rechercher..." value="{{ current_titre }}">
                     </div>
                     <div class="search-input-group">
                         <span class="search-label">Dates</span>
-                        <input type="text" class="search-field" placeholder="Ajouter des dates" onfocus="(this.type='date')">
+                        <input type="text" name="dates" class="search-field" placeholder="Ajouter des dates" onfocus="(this.type='date')">
                     </div>
                     <div class="search-input-group">
                         <span class="search-label">Voyageurs</span>
-                        <input type="text" class="search-field" placeholder="2 adultes, 1 chambre">
+                        <input type="number" name="capacite" min="1" class="search-field" placeholder="Personnes" value="{{ current_capacite }}">
                     </div>
-                    <button class="search-btn">
+                    <button type="submit" class="search-btn">
                         <i class="fas fa-search"></i>
                     </button>
-                </div>
+                </form>
             </div>
         </div>
 
         <div class="row">
             <!-- Sidebar Filters -->
             <div class="col-lg-3">
-                <div class="filter-sidebar">
+                <form method="get" action="{{ path('app_hebergements_search') }}" class="filter-sidebar">
                     <div class="filter-group">
                         <h6 class="filter-title">Filtrer par nom</h6>
-                        <input type="text" class="form-control" placeholder="Hébergement..." style="border-radius: 10px; border: 1px solid #ddd;">
+                        <input type="text" name="titre" class="form-control" placeholder="Hébergement..." value="{{ current_titre }}" style="border-radius: 10px; border: 1px solid #ddd;">
                     </div>
 
                     <div class="filter-group">
                         <h6 class="filter-title">Type d'établissement</h6>
                         <label class="filter-option">
-                            <input type="checkbox" checked> Tous
+                            <input type="radio" name="type" value="all" {{ current_type == 'all' ? 'checked' : '' }}> Tous
                         </label>
                         <label class="filter-option">
-                            <input type="checkbox"> Appart'hôtel
+                            <input type="radio" name="type" value="Appartement" {{ current_type == 'Appartement' ? 'checked' : '' }}> Appart'hôtel
                         </label>
                         <label class="filter-option">
-                            <input type="checkbox"> Hôtel
+                            <input type="radio" name="type" value="Hôtel" {{ current_type == 'Hôtel' ? 'checked' : '' }}> Hôtel
                         </label>
                         <label class="filter-option">
-                            <input type="checkbox"> Maison d'hôtes
+                            <input type="radio" name="type" value="Maison d'hôtes" {{ current_type == "Maison d'hôtes" ? 'checked' : '' }}> Maison d'hôtes
                         </label>
                     </div>
 
                     <div class="filter-group">
-                        <h6 class="filter-title">Destinations populaires</h6>
-                        <label class="filter-option">
-                            <input type="checkbox"> Nice
-                        </label>
-                        <label class="filter-option">
-                            <input type="checkbox"> Cannes
-                        </label>
-                        <label class="filter-option">
-                            <input type="checkbox"> Saint-Tropez
-                        </label>
+                        <h6 class="filter-title">Capacité (personnes)</h6>
+                        <select name="capacite" class="form-control" style="border-radius: 10px; border: 1px solid #ddd;">
+                            <option value="">Toutes capacités</option>
+                            <option value="1" {{ current_capacite == '1' ? 'selected' : '' }}>1+ personne</option>
+                            <option value="2" {{ current_capacite == '2' ? 'selected' : '' }}>2+ personnes</option>
+                            <option value="4" {{ current_capacite == '4' ? 'selected' : '' }}>4+ personnes</option>
+                            <option value="6" {{ current_capacite == '6' ? 'selected' : '' }}>6+ personnes</option>
+                        </select>
                     </div>
 
                     <div class="filter-group">
-                        <h6 class="filter-title">Options</h6>
-                        <div class="form-check form-switch p-0" style="display: flex; align-items: center; justify-content: space-between;">
-                            <label class="form-check-label" style="font-size: 0.9rem; font-weight: 500;">Petit-déjeuner inclus</label>
-                            <input class="form-check-input" type="checkbox" style="margin-left: 0; float: none;">
-                        </div>
+                        <h6 class="filter-title">Disponibilité</h6>
+                        <label class="filter-option">
+                            <input type="radio" name="disponible" value="" {{ current_disponible is empty ? 'checked' : '' }}> Tous
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="disponible" value="1" {{ current_disponible == '1' ? 'checked' : '' }}> Disponible
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="disponible" value="0" {{ current_disponible == '0' ? 'checked' : '' }}> Indisponible
+                        </label>
                     </div>
 
-                    <button class="btn btn-primary-modern w-100 mt-3">Appliquer les filtres</button>
-                </div>
+                    <button type="submit" class="btn btn-primary-modern w-100 mt-3">Appliquer les filtres</button>
+                    <a href="{{ path('app_hebergements_search') }}" class="btn btn-outline-secondary w-100 mt-2" style="border-radius: 12px;">Réinitialiser</a>
+                </form>
             </div>
 
             <!-- Results Content -->
             <div class="col-lg-9">
                 <!-- Tabs -->
                 <div class="results-header-tabs mb-4" data-aos="fade-up">
-                        <div class="category-tabs d-flex gap-2">
-                            <button class="btn btn-category active">Tous les séjours</button>
-                            <button class="btn btn-category">Hôtels</button>
-                            <button class="btn btn-category">Maisons</button>
-                        </div>
+                    <div class="category-tabs d-flex gap-2">
+                        <a href="{{ path('app_hebergements_search') }}" class="btn btn-category {{ current_type == 'all' or current_type is empty ? 'active' : '' }}">Tous les séjours</a>
+                        <a href="{{ path('app_hebergements_search', {type: 'Hôtel'}) }}" class="btn btn-category {{ current_type == 'Hôtel' ? 'active' : '' }}">Hôtels</a>
+                        <a href="{{ path('app_hebergements_search', {type: "Maison d'hôtes"}) }}" class="btn btn-category {{ current_type == "Maison d'hôtes" ? 'active' : '' }}">Maisons</a>
                     </div>
+                </div>
                     
                     <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
                         <h4 class="mb-0 fw-bold">{{ hebergements|length }} établissements trouvés</h4>
-                    <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" type="button" style="border-radius: 50px; padding: 10px 20px; font-weight: 600;">
-                            Trier par : Recommandé
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" style="border-radius: 50px; padding: 10px 20px; font-weight: 600;">
+                                Trier par : {{ current_sort == 'price_asc' ? 'Prix croissant' : current_sort == 'price_desc' ? 'Prix décroissant' : 'Recommandé' }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="border-radius: 12px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                                <li><a class="dropdown-item" href="{{ path('app_hebergements_search', {titre: current_titre, type: current_type, capacite: current_capacite, disponible: current_disponible, sort: 'default'}) }}">Recommandé</a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_hebergements_search', {titre: current_titre, type: current_type, capacite: current_capacite, disponible: current_disponible, sort: 'price_asc'}) }}">Prix : croissant</a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_hebergements_search', {titre: current_titre, type: current_type, capacite: current_capacite, disponible: current_disponible, sort: 'price_desc'}) }}">Prix : décroissant</a></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
 
                 <!-- Results List -->
                 <div class="search-results-list">
@@ -106,7 +115,7 @@
                         <div class="card-image-box">
                             {% set imgName = '' %}
                             {% if hebergement.images|length > 0 %}
-                                {% set imgName = hebergement.images[0].filename|split('/')|last|split('\\')|last %}
+                                {% set imgName = hebergement.images[0]|split('/')|last|split('\\')|last %}
                             {% elseif hebergement.image %}
                                 {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
                             {% endif %}
@@ -143,7 +152,7 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-end">
                                 <div>
-                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">Petit-déjeuner inclus</span>
+                                  
                                 </div>
                                 <div class="card-price-box">
                                     <div class="price-value">{{ hebergement.prixParNuit }} DT</div>

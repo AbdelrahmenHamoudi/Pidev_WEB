@@ -35,7 +35,7 @@
                     <div class="position-relative">
                         {% set imgName = '' %}
                         {% if hebergement.images|length > 0 %}
-                            {% set imgName = hebergement.images[0].filename|split('/')|last|split('\\')|last %}
+                            {% set imgName = hebergement.images[0]|split('/')|last|split('\\')|last %}
                         {% elseif hebergement.image %}
                             {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
                         {% endif %}

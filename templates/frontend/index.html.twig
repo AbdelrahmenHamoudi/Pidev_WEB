@@ -1,6 +1,6 @@
 {% extends 'frontend/base_frontend.html.twig' %}
 
-{% block title %}RE7LA - Réservez votre voyage au Maroc{% endblock %}
+{% block title %}RE7LA - Découvrez la Tunisie autrement{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -315,39 +315,19 @@
         <div class="row align-items-center" style="min-height: 90vh; padding-top: 100px;">
             <div class="col-lg-6" data-aos="fade-right">
                 <h1 class="hero-title">
-                    Découvrez le <span class="gradient-text">Maroc</span> autrement
+                    Découvrez la <span class="gradient-text">Tunisie</span> autrement
                 </h1>
                 <p class="hero-subtitle">
                     Réservez vos voyages, hôtels et excursions en quelques clics. 
                     Des expériences uniques vous attendent.
                 </p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <a href="#destinations" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+                <div class="d-flex gap-3 flex-wrap mt-4">
+                    <a href="#destinations" class="btn" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 12px 30px; font-weight: 600; border: none;">
                         <i class="fas fa-compass me-2"></i>Explorer
                     </a>
-                    <a href="{{ path('app_hebergements_search') }}" class="btn btn-rechercher text-center d-flex align-items-center justify-content-center">
-                        <i class="fas fa-search me-2"></i>RECHERCHER
+                    <a href="{{ path('app_login') }}" class="btn" style="background: transparent; color: var(--dark); border-radius: 50px; padding: 12px 30px; font-weight: 600; border: 2px solid var(--dark);">
+                        <i class="fas fa-user me-2"></i>Mon compte
                     </a>
-                </div>
-            </div>
-            
-            <div class="col-lg-6" data-aos="fade-left">
-                <div class="hero-search-container">
-                    <div class="search-input-group">
-                        <span class="search-label">Où allez-vous ?</span>
-                        <input type="text" class="search-field" placeholder="Rechercher un hébergement..." id="search-dest">
-                    </div>
-                    <div class="search-input-group">
-                        <span class="search-label">Dates</span>
-                        <input type="text" class="search-field" placeholder="Ajouter des dates" onfocus="(this.type='date')">
-                    </div>
-                    <div class="search-input-group">
-                        <span class="search-label">Voyageurs</span>
-                        <input type="text" class="search-field" placeholder="2 adultes, 1 chambre">
-                    </div>
-                    <button class="search-btn" onclick="window.location.href='{{ path('app_hebergements_search') }}'">
-                        <i class="fas fa-search"></i>
-                    </button>
                 </div>
             </div>
         </div>

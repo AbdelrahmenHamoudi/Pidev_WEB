@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\HebergementRepository;
-use App\Entity\HebergementImage;
 
 #[ORM\Entity(repositoryClass: HebergementRepository::class)]
 #[ORM\Table(name: 'hebergement')]
@@ -132,45 +131,43 @@ class Hebergement
         return $this;
     }
 
-    #[ORM\OneToMany(targetEntity: HebergementImage::class, mappedBy: 'hebergement', cascade: ['persist'])]
-    private Collection $images;
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $images = [];
 
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'hebergement')]
     private Collection $reservations;
 
     public function __construct()
     {
-        $this->images = new ArrayCollection();
+        $this->images = [];
         $this->reservations = new ArrayCollection();
     }
 
-    /**
-     * @return Collection<int, HebergementImage>
-     */
-    public function getImages(): Collection
+    public function getImages(): array
     {
-        if (!$this->images instanceof Collection) {
-            $this->images = new ArrayCollection();
-        }
-        return $this->images;
+        return $this->images ?? [];
     }
 
-    public function addImage(HebergementImage $image): self
+    public function setImages(?array $images): self
     {
-        if (!$this->getImages()->contains($image)) {
-            $this->getImages()->add($image);
-            $image->setHebergement($this);
+        $this->images = $images ?? [];
+        return $this;
+    }
+
+    public function addImage(string $filename): self
+    {
+        if (!in_array($filename, $this->images ?? [])) {
+            $this->images[] = $filename;
         }
         return $this;
     }
 
-    public function removeImage(HebergementImage $image): self
+    public function removeImage(string $filename): self
     {
-        if ($this->getImages()->removeElement($image)) {
-            if ($image->getHebergement() === $this) {
-                $image->setHebergement(null);
-            }
-        }
+        $this->images = array_filter($this->images ?? [], function($img) use ($filename) {
+            return $img !== $filename;
+        });
+        $this->images = array_values($this->images); // Re-index array
         return $this;
     }
 

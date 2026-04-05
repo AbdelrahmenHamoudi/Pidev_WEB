@@ -25,7 +25,7 @@ class HebergementType extends AbstractType
                 'constraints' => [
                     new Assert\NotBlank(['message' => 'Le titre est obligatoire']),
                     new Assert\Length([
-                        'min' => 3,
+                        'min' => 5,
                         'max' => 255,
                         'minMessage' => 'Le titre doit contenir au moins {{ limit }} caractères',
                         'maxMessage' => 'Le titre ne doit pas dépasser {{ limit }} caractères'

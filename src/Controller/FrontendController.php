@@ -204,17 +204,66 @@ final class FrontendController extends AbstractController
     public function searchReservation(Request $request, HebergementRepository $repository): Response
     {
         $type = $request->query->get('type', 'all');
-        $ville = $request->query->get('ville');
+        $titre = $request->query->get('titre');
+        $capacite = $request->query->get('capacite');
+        $disponible = $request->query->get('disponible');
+        $sort = $request->query->get('sort', 'default');
         
-        if ($type !== 'all') {
-            $hebergements = $repository->findBy(['type_hebergement' => $type]);
+        // Build criteria array
+        $criteria = [];
+        
+        if ($type && $type !== 'all') {
+            $criteria['type_hebergement'] = $type;
+        }
+        
+        if ($disponible === '1') {
+            $criteria['disponible'] = true;
+        } elseif ($disponible === '0') {
+            $criteria['disponible'] = false;
+        }
+        
+        // Get results based on criteria
+        if (!empty($criteria)) {
+            $hebergements = $repository->findBy($criteria);
         } else {
             $hebergements = $repository->findAll();
         }
-
+        
+        // Filter by titre (partial match)
+        if ($titre) {
+            $hebergements = array_filter($hebergements, function($h) use ($titre) {
+                return stripos($h->getTitre(), $titre) !== false;
+            });
+        }
+        
+        // Filter by capacite (minimum)
+        if ($capacite && is_numeric($capacite)) {
+            $hebergements = array_filter($hebergements, function($h) use ($capacite) {
+                return $h->getCapacite() >= (int)$capacite;
+            });
+        }
+        
+        // Sort by price
+        if ($sort === 'price_asc') {
+            usort($hebergements, function($a, $b) {
+                return $a->getPrixParNuit() <=> $b->getPrixParNuit();
+            });
+        } elseif ($sort === 'price_desc') {
+            usort($hebergements, function($a, $b) {
+                return $b->getPrixParNuit() <=> $a->getPrixParNuit();
+            });
+        }
+        
+        // Reset array keys
+        $hebergements = array_values($hebergements);
+        
         return $this->render('frontend/reservation/search.html.twig', [
             'hebergements' => $hebergements,
-            'current_type' => $type
+            'current_type' => $type,
+            'current_titre' => $titre,
+            'current_capacite' => $capacite,
+            'current_disponible' => $disponible,
+            'current_sort' => $sort
         ]);
     }
 

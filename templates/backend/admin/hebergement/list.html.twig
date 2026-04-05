@@ -47,7 +47,7 @@
             <!-- Slides -->
             {% for img in imgs %}
             <div class="slide-{{ hebergement.id }}" style="position:absolute;inset:0;transition:opacity 0.4s;opacity:{{ loop.index == 1 ? '1' : '0' }};pointer-events:{{ loop.index == 1 ? 'auto' : 'none' }};">
-              <img src="{{ asset(img.filename) }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ hebergement.titre }} - photo {{ loop.index }}">
+              <img src="{{ asset(img) }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ hebergement.titre }} - photo {{ loop.index }}">
             </div>
             {% endfor %}
 

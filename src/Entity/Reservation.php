@@ -21,8 +21,7 @@ class Reservation
     private ?int $userId = null;
 
     #[ORM\ManyToOne(targetEntity: Hebergement::class, inversedBy: 'reservations')]
-    #[ORM\JoinColumn(name: 'hebergement_id', referencedColumnName: 'id_hebergement', nullable: false)]
-    #[Assert\NotBlank(message: 'Veuillez sélectionner un hébergement')]
+    #[ORM\JoinColumn(name: 'hebergement_id', referencedColumnName: 'id_hebergement', nullable: true, onDelete: 'SET NULL')]
     private ?Hebergement $hebergement = null;
 
     #[ORM\Column(name: 'dateDebutR', type: Types::DATE_MUTABLE)]

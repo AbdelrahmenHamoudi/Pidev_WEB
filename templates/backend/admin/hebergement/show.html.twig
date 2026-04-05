@@ -22,7 +22,7 @@
   <div>
     <!-- Image principale -->
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;margin-bottom:24px;">
-      {% set firstImage = hebergement.images|length > 0 ? hebergement.images[0].filename : hebergement.image %}
+      {% set firstImage = hebergement.images|length > 0 ? hebergement.images[0] : hebergement.image %}
       {% if firstImage %}
         <img src="{{ asset(firstImage) }}" style="width:100%;height:400px;object-fit:cover;" alt="{{ hebergement.titre }}">
       {% else %}
@@ -73,7 +73,7 @@
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
         {% for image in hebergement.images %}
           <div style="border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);height:150px;">
-            <img src="{{ asset(image.filename) }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" alt="Photo {{ loop.index }}">
+            <img src="{{ asset(image) }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" alt="Photo {{ loop.index }}">
           </div>
         {% endfor %}
       </div>
@@ -105,16 +105,6 @@
           <div>
             <div style="font-size:12px;color:#64748b;">Réservations</div>
             <div style="font-weight:600;color:#2C3E50;">{{ hebergement.reservations|length }} total</div>
-          </div>
-        </div>
-        
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:40px;height:40px;background:rgba(239,68,68,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-            <i class="fas fa-hashtag" style="color:#ef4444;font-size:16px;"></i>
-          </div>
-          <div>
-            <div style="font-size:12px;color:#64748b;">ID</div>
-            <div style="font-weight:600;color:#2C3E50;">#{{ hebergement.id }}</div>
           </div>
         </div>
       </div>
@@ -149,7 +139,7 @@
           {% for reservation in hebergement.reservations %}
           <div style="background:#f8fafc;border-radius:12px;padding:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <span style="font-weight:600;color:#2C3E50;">#{{ reservation.id }}</span>
+              <span style="font-weight:600;color:#2C3E50;">{{ reservation.dateDebut|date('d/m/Y') }}</span>
               <span style="padding:4px 8px;border-radius:12px;font-size:11px;font-weight:600;background:{{ 
                 reservation.statut == 'CONFIRMEE' ? 'rgba(26,188,156,0.15)' : 
                 reservation.statut in ['EN ATTENTE', 'PENDING'] ? 'rgba(243,156,18,0.15)' : 
