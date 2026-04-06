@@ -11,8 +11,9 @@ use App\Entity\Planningactivite;
 class Activite
 {
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column(name: "idActivite", type: "integer")]
-    private int $idActivite;
+    private ?int $idActivite = null;
 
     #[ORM\Column(type: "string", length: 255)]
     private string $nomA;
@@ -30,9 +31,9 @@ class Activite
     private int $capaciteMax;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $image;
-
-    #[ORM\OneToMany(mappedBy: "id_activite", targetEntity: Planningactivite::class)]
+    private ?string $image = null;
+    // ✅ RELATION CORRIGÉE
+    #[ORM\OneToMany(mappedBy: "activite", targetEntity: Planningactivite::class, cascade: ["persist", "remove"])]
     private Collection $planningactivites;
 
     public function __construct()
@@ -40,45 +41,66 @@ class Activite
         $this->planningactivites = new ArrayCollection();
     }
 
-    public function getIdActivite() { return $this->idActivite; }
-    public function setIdActivite($value) { $this->idActivite = $value; }
+    // ─── GETTERS & SETTERS ─────────────────────────────
 
-    public function getNomA() { return $this->nomA; }
-    public function setNomA($value) { $this->nomA = $value; }
-
-    public function getDescriptionA() { return $this->descriptionA; }
-    public function setDescriptionA($value) { $this->descriptionA = $value; }
-
-    public function getLieu() { return $this->lieu; }
-    public function setLieu($value) { $this->lieu = $value; }
-
-    public function getPrixParPersonne() { return $this->prixParPersonne; }
-    public function setPrixParPersonne($value) { $this->prixParPersonne = $value; }
-
-    public function getCapaciteMax() { return $this->capaciteMax; }
-    public function setCapaciteMax($value) { $this->capaciteMax = $value; }
-
-    public function getImage() { return $this->image; }
-    public function setImage($value) { $this->image = $value; }
-
-    public function getPlanningactivites(): Collection { return $this->planningactivites; }
-
-    public function addPlanningactivite(Planningactivite $planningactivite): self
+    public function getIdActivite(): ?int
     {
-        if (!$this->planningactivites->contains($planningactivite)) {
-            $this->planningactivites[] = $planningactivite;
-            $planningactivite->setId_activite($this);
+        return $this->idActivite;
+    }
+
+    public function getNomA(): string { return $this->nomA; }
+    public function setNomA(string $nomA): self { $this->nomA = $nomA; return $this; }
+
+    public function getDescriptionA(): string { return $this->descriptionA; }
+    public function setDescriptionA(string $descriptionA): self { $this->descriptionA = $descriptionA; return $this; }
+
+    public function getLieu(): string { return $this->lieu; }
+    public function setLieu(string $lieu): self { $this->lieu = $lieu; return $this; }
+
+    public function getPrixParPersonne(): string { return $this->prixParPersonne; }
+    public function setPrixParPersonne(string $prix): self { $this->prixParPersonne = $prix; return $this; }
+
+    public function getCapaciteMax(): int { return $this->capaciteMax; }
+    public function setCapaciteMax(int $capaciteMax): self { $this->capaciteMax = $capaciteMax; return $this; }
+
+    public function getImage(): ?string
+{
+    return $this->image;
+}
+
+public function setImage(?string $image): self
+{
+    $this->image = $image;
+    return $this;
+}
+
+    // ─── RELATION ─────────────────────────────────────
+
+    public function getPlanningactivites(): Collection
+    {
+        return $this->planningactivites;
+    }
+
+    public function addPlanningactivite(Planning $planning): self
+    {
+        if (!$this->planningactivites->contains($planning)) {
+            $this->planningactivites[] = $planning;
+            $planning->setActivite($this);
         }
         return $this;
     }
 
-    public function removePlanningactivite(Planningactivite $planningactivite): self
+    public function removePlanningactivite(Planning $planning): self
     {
-        if ($this->planningactivites->removeElement($planningactivite)) {
-            if ($planningactivite->getId_activite() === $this) {
-                $planningactivite->setId_activite(null);
+        if ($this->planningactivites->removeElement($planning)) {
+            if ($planning->getActivite() === $this) {
+                $planning->setActivite(null);
             }
         }
         return $this;
     }
+    public function getPlannings(): Collection
+{
+    return $this->planningactivites; // ou le nom exact de ta propriété existante
+}
 }
