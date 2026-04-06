@@ -151,9 +151,11 @@ tr:last-child td{border-bottom:none;}
         <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
       </a>
 
-      <a href="{{ path('activite_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'activite' or app.request.attributes.get('_route') starts with 'planning' ? 'active' : '' }}">
-        <i class="fas fa-hiking"></i><span>Activités</span>
+      <a href="{{ path('app_home') }}" target="_blank" class="nav-item">
+        <i class="fas fa-globe"></i><span>Aller au Front</span>
+        <i class="fas fa-external-link-alt" style="margin-left:auto;font-size:10px;opacity:0.5;"></i>
       </a>
+
 
       <a href="{{ path('app_admin_hebergement_list') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'app_admin_hebergement' ? 'active' : '' }}">
         <i class="fas fa-building"></i><span>Hébergements</span>
@@ -168,6 +170,9 @@ tr:last-child td{border-bottom:none;}
         <i class="fas fa-route"></i><span>Flotte & Trajets</span>
       </a>
 
+      <a href="{{ path('activite_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'activite_' ? 'active' : '' }}">
+        <i class="fas fa-hiking"></i><span>Activités</span>
+      </a>
 
       <div class="nav-section-title">Gestion</div>
 

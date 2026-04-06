@@ -432,6 +432,9 @@
                         <a class="nav-link" href="#services">Services</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'activite_index_front' ? 'active' : '' }}" href="{{ path('activite_index_front') }}">Activités</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') == 'app_hebergements_search' ? 'active' : '' }}" href="{{ path('app_hebergements_search') }}">Réservation</a>
                     </li>
                     <li class="nav-item">
@@ -471,6 +474,13 @@
                                         <i class="fas fa-user"></i>
                                         Mon profil
                                     </a>
+
+                                    {% if app.user and app.user.role == 'admin' %}
+                                    <a href="{{ path('app_admin') }}">
+                                        <i class="fas fa-user-shield"></i>
+                                        Administration
+                                    </a>
+                                    {% endif %}
 
                                     <a href="{{ path('app_user_profile_edit') }}">
                                         <i class="fas fa-user-edit"></i>
