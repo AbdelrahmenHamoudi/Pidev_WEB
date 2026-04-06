@@ -28,7 +28,7 @@ class PlanningController extends AbstractController
         $plannings = $this->planningService->findDisponiblesByActivite($idActivite);
         $dates     = $this->planningService->getDatesDisponibles($idActivite);
 
-        return $this->render('planning/index.html.twig', [
+        return $this->render('backOffice/admin/planning/index.html.twig', [
             'activite'  => $activite,
             'plannings' => $plannings,
             'dates'     => $dates,
@@ -52,7 +52,9 @@ class PlanningController extends AbstractController
             ]);
         }
 
-        return $this->render('planning/new.html.twig', ['form' => $form]);
+        return $this->render('backOffice/admin/planning/new.html.twig', [
+            'form' => $form,
+        ]);
     }
 
     // ── Modifier ───────────────────────────────────────────────────────────
@@ -77,7 +79,7 @@ class PlanningController extends AbstractController
             ]);
         }
 
-        return $this->render('planning/edit.html.twig', [
+        return $this->render('backOffice/admin/planning/edit.html.twig', [
             'form'     => $form,
             'planning' => $planning,
         ]);
@@ -122,14 +124,14 @@ class PlanningController extends AbstractController
         if ($this->isCsrfTokenValid('reserver_' . $id, $request->request->get('_token'))) {
             $success = $this->planningService->reserverPlace($id);
             if ($success) {
-                $this->addFlash('success', 'Reservation confirmee ! Vous recevrez un email de confirmation.');
+                $this->addFlash('success', 'Reservation confirmee !');
             } else {
-                $this->addFlash('error', 'Plus de places disponibles pour ce planning.');
+                $this->addFlash('error', 'Plus de places disponibles.');
             }
         } else {
             $this->addFlash('error', 'Token de securite invalide.');
         }
 
-        return $this->redirectToRoute('activite_show', ['id' => $idActivite]);
+        return $this->redirectToRoute('activite_show_front', ['id' => $idActivite]);
     }
 }

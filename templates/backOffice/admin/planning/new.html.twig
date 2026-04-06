@@ -1,0 +1,77 @@
+{# ════════════════════════════════════════════════════════════
+   templates/backOffice/admin/planning/new.html.twig
+════════════════════════════════════════════════════════════ #}
+{% extends 'backOffice/baseend.html.twig' %}
+{% block title %}RE7LA Admin — Nouveau Planning{% endblock %}
+{% block breadcrumb %}Plannings / Nouveau{% endblock %}
+{% block page_title %}Nouveau planning{% endblock %}
+{% block body %}
+<div style="max-width:560px;">
+    {{ form_start(form) }}
+    <div class="card">
+        <div class="card-title">Créer un planning</div>
+        <div class="card-sub">Associez une date et des horaires à une activité</div>
+
+        <div style="display:grid;gap:16px;margin-top:12px;">
+
+            <div>
+                {{ form_label(form.activite, 'Activité', {label_attr:{style:'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.activite, {attr:{style:'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;background:#fff;'}}) }}
+                {{ form_errors(form.activite) }}
+            </div>
+
+            <div>
+                {{ form_label(form.datePlanning, 'Date', {label_attr:{style:'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.datePlanning, {attr:{style:'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;'}}) }}
+                {{ form_errors(form.datePlanning) }}
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                    {{ form_label(form.heureDebut, 'Heure début', {label_attr:{style:'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                    {{ form_widget(form.heureDebut, {attr:{style:'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;'}}) }}
+                    {{ form_errors(form.heureDebut) }}
+                </div>
+                <div>
+                    {{ form_label(form.heureFin, 'Heure fin', {label_attr:{style:'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                    {{ form_widget(form.heureFin, {attr:{style:'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;'}}) }}
+                    {{ form_errors(form.heureFin) }}
+                </div>
+            </div>
+
+            <div>
+                {{ form_label(form.nbPlacesRestantes, 'Nombre de places', {label_attr:{style:'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.nbPlacesRestantes, {attr:{style:'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;'}}) }}
+                {{ form_errors(form.nbPlacesRestantes) }}
+            </div>
+
+            <div>
+                {{ form_label(form.etat, 'État', {label_attr:{style:'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.etat, {attr:{style:'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;background:#fff;'}}) }}
+                {{ form_errors(form.etat) }}
+            </div>
+
+        </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:14px;">
+        <button type="submit"
+                style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;padding:11px 24px;
+                       border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">
+            <i class="fas fa-save"></i> Enregistrer
+        </button>
+        <a href="{{ path('activite_index') }}"
+           style="background:#f0f2f5;color:#64748b;padding:11px 18px;border-radius:10px;
+                  font-size:13px;font-weight:600;text-decoration:none;">
+            <i class="fas fa-times"></i> Annuler
+        </a>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+
+
+{# ════════════════════════════════════════════════════════════
+   templates/backOffice/admin/planning/edit.html.twig
+════════════════════════════════════════════════════════════ #}

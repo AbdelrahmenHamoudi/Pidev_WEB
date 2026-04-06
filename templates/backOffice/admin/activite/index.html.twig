@@ -1,0 +1,176 @@
+{% extends 'backOffice/baseend.html.twig' %}
+
+{% block title %}RE7LA Admin — Activités{% endblock %}
+{% block breadcrumb %}Activités{% endblock %}
+{% block page_title %}Gestion des Activités{% endblock %}
+
+{% block body %}
+
+{# ── Flash messages ── #}
+{% for message in app.flashes('success') %}
+    <div style="background:#d1fae5;color:#065f46;padding:12px 18px;border-radius:10px;margin-bottom:16px;font-weight:600;display:flex;align-items:center;gap:10px;">
+        <i class="fas fa-check-circle"></i> {{ message }}
+    </div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div style="background:#fee2e2;color:#991b1b;padding:12px 18px;border-radius:10px;margin-bottom:16px;font-weight:600;display:flex;align-items:center;gap:10px;">
+        <i class="fas fa-exclamation-circle"></i> {{ message }}
+    </div>
+{% endfor %}
+
+{# ── Stat cards ── #}
+<div class="stat-cards-row" style="margin-bottom:24px;">
+    <div class="stat-card">
+        <div class="stat-card-left">
+            <div class="label">Total Activités</div>
+            <div class="value">{{ activites|length }}</div>
+        </div>
+        <div class="stat-icon ic-orange"><i class="fas fa-hiking"></i></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-left">
+            <div class="label">Disponibles</div>
+            <div class="value">{{ activites|filter(a => a.statut == 'Disponible')|length }}</div>
+        </div>
+        <div class="stat-icon ic-teal"><i class="fas fa-check-circle"></i></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-left">
+            <div class="label">Complètes</div>
+            <div class="value">{{ activites|filter(a => a.statut == 'Complet')|length }}</div>
+        </div>
+        <div class="stat-icon ic-navy"><i class="fas fa-times-circle"></i></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-left">
+            <div class="label">Types</div>
+            <div class="value">5</div>
+        </div>
+        <div class="stat-icon ic-yellow"><i class="fas fa-tags"></i></div>
+    </div>
+</div>
+
+{# ── Header + bouton ajouter ── #}
+<div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+            <div class="card-title">Liste des Activités</div>
+            <div class="card-sub">{{ activites|length }} activité(s) enregistrée(s)</div>
+        </div>
+        <a href="{{ path('activite_new') }}"
+           style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;padding:10px 20px;
+                  border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;
+                  display:inline-flex;align-items:center;gap:8px;">
+            <i class="fas fa-plus"></i> Nouvelle Activité
+        </a>
+    </div>
+
+    {# ── Filtre type ── #}
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+        {% for type in ['Aventure','Sport','Culture','Detente','Excursion'] %}
+            <a href="{{ path('activite_index', {type: type}) }}"
+               style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;
+                      text-decoration:none;border:1px solid #e8ecf0;
+                      background:{{ filterType == type ? 'linear-gradient(135deg,#F7B731,#E6C050)' : '#f8fafc' }};
+                      color:{{ filterType == type ? '#fff' : '#64748b' }};">
+                {{ type }}
+            </a>
+        {% endfor %}
+        {% if filterType %}
+            <a href="{{ path('activite_index') }}"
+               style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;
+                      text-decoration:none;background:#fee2e2;color:#991b1b;">
+                <i class="fas fa-times"></i> Réinitialiser
+            </a>
+        {% endif %}
+    </div>
+
+    {# ── Tableau ── #}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Image</th>
+                    <th>Nom</th>
+                    <th>Lieu</th>
+                    <th>Type</th>
+                    <th>Prix</th>
+                    <th>Capacité</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activite in activites %}
+                <tr>
+                    <td style="color:#94a3b8;font-size:12px;">#{{ activite.idActivite }}</td>
+                    <td>
+                        {% if activite.image %}
+                            <img src="{{ asset('uploads/activites/' ~ activite.image) }}"
+                                 style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
+                        {% else %}
+                            <div style="width:48px;height:48px;background:linear-gradient(135deg,#F7B731,#E6C050);
+                                        border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-hiking" style="color:#fff;"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td style="font-weight:600;">{{ activite.nomA }}</td>
+                    <td><i class="fas fa-map-marker-alt" style="color:#F7B731;margin-right:4px;"></i>{{ activite.lieu }}</td>
+                    <td>
+                        <span style="background:#f0f2f5;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">
+                            {{ activite.type }}
+                        </span>
+                    </td>
+                    <td style="font-weight:600;color:#F7B731;">{{ activite.prixParPersonne|number_format(0) }} DT</td>
+                    <td>{{ activite.capaciteMax }} pers.</td>
+                    <td>
+                        <span class="status-badge {{ activite.statut == 'Disponible' ? 's-ok' : (activite.statut == 'Complet' ? 's-cancel' : 's-pend') }}">
+                            {{ activite.statut }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="{{ path('activite_show', {id: activite.idActivite}) }}"
+                               title="Voir" style="background:#e0f2fe;color:#0369a1;width:30px;height:30px;
+                               border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-eye" style="font-size:12px;"></i>
+                            </a>
+                            <a href="{{ path('planning_index', {idActivite: activite.idActivite}) }}"
+                               title="Plannings" style="background:#d1fae5;color:#065f46;width:30px;height:30px;
+                               border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-calendar" style="font-size:12px;"></i>
+                            </a>
+                            <a href="{{ path('activite_edit', {id: activite.idActivite}) }}"
+                               title="Modifier" style="background:#fef3c7;color:#92400e;width:30px;height:30px;
+                               border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-edit" style="font-size:12px;"></i>
+                            </a>
+                            <form method="post" action="{{ path('activite_delete', {id: activite.idActivite}) }}"
+                                  onsubmit="return confirm('Supprimer cette activité ?');" style="margin:0;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_activite_' ~ activite.idActivite) }}">
+                                <button type="submit" title="Supprimer"
+                                        style="background:#fee2e2;color:#991b1b;width:30px;height:30px;
+                                               border-radius:8px;border:none;cursor:pointer;
+                                               display:flex;align-items:center;justify-content:center;">
+                                    <i class="fas fa-trash" style="font-size:12px;"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" style="text-align:center;padding:40px;color:#94a3b8;">
+                        <i class="fas fa-hiking" style="font-size:40px;margin-bottom:10px;display:block;"></i>
+                        Aucune activité trouvée
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
