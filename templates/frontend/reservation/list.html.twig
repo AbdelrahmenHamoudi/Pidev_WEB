@@ -1,0 +1,195 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Mes Voyages - RE7LA{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-5" style="background: #f8f9fa; min-height: 100vh;">
+    <div class="container py-4">
+        
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-5" style="margin-top: 80px;">
+            <div>
+                <h2 style="font-weight: 800; color: #2c3e50; font-family: 'Outfit', sans-serif;">
+                    Mes <span style="color: #87CEEB;">Voyages</span>
+                </h2>
+                <p class="text-muted">Retrouvez l'historique de vos réservations d'hébergement</p>
+            </div>
+            <a href="{{ path('app_hebergements_search') }}" class="btn btn-primary-modern" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border-radius: 50px; padding: 12px 30px; font-weight: 600; border: none; text-decoration: none;">
+                <i class="fas fa-plus me-2"></i>Nouvelle réservation
+            </a>
+        </div>
+
+        <!-- Flash Messages -->
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success border-0 mb-4" style="border-radius: 15px; background: rgba(147, 197, 114, 0.15); color: #5a9e3b;">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger border-0 mb-4" style="border-radius: 15px; background: rgba(231, 76, 60, 0.15); color: #c0392b;">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+            </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
+                    <h5 class="mb-0 fw-bold" style="color: #64748b;">{{ reservations|length }} Voyage(s) au total</h5>
+                </div>
+
+                <!-- Reservations List -->
+                <div class="search-results-list">
+                    {% for reservation in reservations %}
+                    <div class="hebergement-card-horizontal" data-aos="fade-up">
+                        <div class="card-image-box">
+                            {% set imgName = reservation.hebergement.image|split('/')|last|split('\\')|last %}
+                            {% if imgName and '.' in imgName %}
+                                <img src="{{ asset('uploads/hebergements/' ~ imgName) }}" alt="{{ reservation.hebergement.titre }}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800';">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800" alt="{{ reservation.hebergement.titre }}">
+                            {% endif %}
+                            
+                            <div class="position-absolute" style="top: 15px; left: 15px;">
+                                <span class="badge shadow-sm" style="background: rgba(255,255,255,0.9); color: #333; border-radius: 50px; padding: 6px 14px; font-weight: 700; font-size: 0.75rem;">
+                                    Réf #{{ reservation.idReservation }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-content-box">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="card-header-flex">
+                                        <h4 class="card-title">{{ reservation.hebergement.titre }}</h4>
+                                        <div class="text-warning small ms-2">
+                                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        </div>
+                                    </div>
+                                    <div class="card-location">
+                                        <i class="fas fa-map-marker-alt me-1"></i> {{ reservation.hebergement.typeHebergement }}
+                                    </div>
+                                    
+                                    <div class="mt-3 p-3" style="background: rgba(248, 249, 250, 0.8); border-radius: 12px; border: 1px solid #f1f5f9;">
+                                        <div class="row g-2 text-center">
+                                            <div class="col-5">
+                                                <small class="text-muted d-block text-uppercase" style="font-size: 0.65rem; font-weight: 700;">Arrivée</small>
+                                                <span class="fw-bold" style="color: #2c3e50;"><i class="far fa-calendar-alt me-1 text-primary"></i>{{ reservation.dateDebutR|date('d/m/Y') }}</span>
+                                            </div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-long-arrow-alt-right text-muted"></i>
+                                            </div>
+                                            <div class="col-5">
+                                                <small class="text-muted d-block text-uppercase" style="font-size: 0.65rem; font-weight: 700;">Départ</small>
+                                                <span class="fw-bold" style="color: #2c3e50;"><i class="far fa-calendar-alt me-1 text-primary"></i>{{ reservation.dateFinR|date('d/m/Y') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge-status statut-{{ reservation.statut|lower|replace({' ': '-'}) }}" style="padding: 10px 22px; border-radius: 50px; font-weight: 700; font-size: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: inline-block;">
+                                        {{ reservation.statut }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="card-price-box">
+                                    <div class="price-value" style="color: #87CEEB; font-weight: 800;">
+                                        {{ reservation.prixTotal ? reservation.prixTotal|number_format(0, '.', ' ') ~ ' DT' : 'N/A' }}
+                                    </div>
+                                    <div class="price-unit">{{ reservation.nombreNuits }} nuit(s) • Total séjour</div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ path('app_reservation_show', {id: reservation.idReservation}) }}" class="btn btn-light-modern rounded-pill">
+                                        <i class="fas fa-eye me-1"></i>Détails
+                                    </a>
+                                    {% if reservation.statut|upper in ['EN ATTENTE', 'PENDING'] %}
+                                        <a href="{{ path('app_reservation_edit', {id: reservation.idReservation}) }}" class="btn btn-warning-modern rounded-pill">
+                                            <i class="fas fa-edit me-1"></i>Modifier
+                                        </a>
+                                        <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.idReservation}) }}" class="action-form" onsubmit="return confirm('Annuler cette réservation ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.idReservation) }}">
+                                            <button class="btn btn-danger-modern rounded-pill">
+                                                <i class="fas fa-times-circle me-1"></i>Annuler
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    {% if reservation.statut|upper in ['ANNULÉE', 'EN ATTENTE', 'PENDING'] %}
+                                        <form method="post" action="{{ path('app_reservation_delete', {id: reservation.idReservation}) }}" onsubmit="return confirm('Supprimer définitivement ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.idReservation) }}">
+                                            <button class="btn btn-outline-danger shadow-sm" style="border-radius: 50px; padding: 10px 15px; border: none; background: rgba(220, 53, 69, 0.05); color: #dc3545;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5" style="background: white; border-radius: 30px; border: 1px dashed #cbd5e1;">
+                        <img src="https://cdni.iconscout.com/illustration/premium/thumb/not-found-4064375-3363936.png" style="width: 200px; opacity: 0.6;">
+                        <h4 class="mt-4 fw-800" style="color: #1e293b;">Aucun voyage trouvé</h4>
+                        <p class="text-muted">Il est temps de planifier votre prochaine aventure !</p>
+                        <a href="{{ path('app_hebergements_search') }}" class="btn mt-3 shadow-lg" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 700;">
+                            Découvrir les hébergements
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hebergement-card-horizontal {
+        background: white;
+        border-radius: 30px;
+        overflow: hidden;
+        display: flex;
+        margin-bottom: 30px;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.06);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 1px solid rgba(241, 245, 249, 0.8);
+    }
+    .hebergement-card-horizontal:hover { transform: translateY(-8px); box-shadow: 0 25px 60px rgba(0,0,0,0.12); }
+    .card-image-box { width: 320px; min-width: 320px; position: relative; overflow: hidden; }
+    .card-image-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+    .hebergement-card-horizontal:hover .card-image-box img { transform: scale(1.08); }
+    .card-content-box { flex: 1; padding: 35px; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-title { font-weight: 800; color: #1e293b; font-size: 1.4rem; margin-bottom: 5px; font-family: 'Outfit', sans-serif; }
+    .card-header-flex { display: flex; align-items: center; }
+    .card-location { font-size: 0.95rem; color: #87CEEB; font-weight: 700; }
+    .card-price-box .price-value { font-size: 1.7rem; font-weight: 900; font-family: 'Outfit', sans-serif; }
+    .card-price-box .price-unit { font-size: 0.85rem; color: #94a3b8; font-weight: 600; }
+
+    .btn-light-modern { background: rgba(135, 206, 235, 0.08); color: #87CEEB; border: none; padding: 12px 24px; font-weight: 700; transition: 0.3s; }
+    .btn-light-modern:hover { background: #87CEEB; color: white; }
+    .btn-warning-modern { background: rgba(243, 156, 18, 0.08); color: #f39c12; border: none; padding: 12px 24px; font-weight: 700; transition: 0.3s; }
+    .btn-warning-modern:hover { background: #f39c12; color: white; }
+    .btn-danger-modern { background: rgba(231, 76, 60, 0.08); color: #e74c3c; border: none; padding: 12px 24px; font-weight: 700; transition: 0.3s; }
+    .btn-danger-modern:hover { background: #e74c3c; color: white; }
+
+    .statut-confirmee { background: rgba(147, 197, 114, 0.15); color: #7cb342; border: 1px solid rgba(147, 197, 114, 0.2); }
+    .statut-en-attente, .statut-pending { background: rgba(243, 156, 18, 0.15); color: #e67e22; border: 1px solid rgba(243, 156, 18, 0.2); }
+    .statut-annulée { background: rgba(231, 76, 60, 0.15); color: #c0392b; border: 1px solid rgba(231, 76, 60, 0.2); }
+
+    @media (max-width: 991px) {
+        .hebergement-card-horizontal { flex-direction: column; border-radius: 25px; }
+        .card-image-box { width: 100%; height: 220px; }
+        .card-content-box { padding: 25px; }
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.action-form').forEach(form => {
+      form.addEventListener('submit', function() {
+        const btn = this.querySelector('button');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>';
+        }
+      });
+    });
+</script>
+{% endblock %}
