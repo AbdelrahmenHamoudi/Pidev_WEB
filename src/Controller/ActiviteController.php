@@ -137,7 +137,7 @@ class ActiviteController extends AbstractController
             ? $this->service->findByFilters($type, $prixMax ? (float)$prixMax : null)
             : $this->service->findDisponibles();
 
-        return $this->render('frontend/activite/index.html.twig', [
+        return $this->render('frontOffice/index.html.twig', [
             'activites'  => $activites,
             'filterType' => $type,
             'filterPrix' => $prixMax,
@@ -154,7 +154,7 @@ class ActiviteController extends AbstractController
             throw $this->createNotFoundException("Activite introuvable");
         }
 
-        return $this->render('frontend/activite/show.html.twig', [
+        return $this->render('frontOffice/show.html.twig', [
             'activite' => $activite,
         ]);
     }
