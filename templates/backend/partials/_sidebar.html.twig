@@ -10,7 +10,6 @@
         </a>
     </div>
 
-    <!-- Menu Container -->
     <div class="menu-inner-shadow"></div>
     
     <ul class="menu-inner py-3" style="padding: 0 12px;">
@@ -25,6 +24,12 @@
                 {% endif %}
             </a>
         </li>
+
+        <a href="{{ path('activite_index') }}" 
+   class="nav-item {{ app.request.attributes.get('_route') starts with 'activite' 
+   or app.request.attributes.get('_route') starts with 'planning' ? 'active' : '' }}">
+    <i class="fas fa-hiking"></i><span>Activités</span>
+</a>
 
         <!-- Go To Front -->
         <li class="menu-item {% if app.request.get('_route') == 'app_home' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden; transition: all 0.3s ease;">
@@ -48,19 +53,20 @@
             </a>
         </li>
 
+        <!-- Activités ✅ AJOUTÉ -->
+        <li class="menu-item {% if app.request.get('_route') starts with 'activite' or app.request.get('_route') starts with 'planning' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="{{ path('activite_index') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') starts with 'activite' or app.request.get('_route') starts with 'planning' %}background: linear-gradient(135deg, rgba(255, 209, 102, 0.15), rgba(230, 126, 34, 0.15)); border-left: 3px solid #F7B731;{% endif %}">
+                <i class="menu-icon tf-icons bx bx-cycling" style="{% if app.request.get('_route') starts with 'activite' or app.request.get('_route') starts with 'planning' %}color: #F7B731;{% else %}color: #6c757d;{% endif %} font-size: 1.3rem;"></i>
+                <div style="{% if app.request.get('_route') starts with 'activite' or app.request.get('_route') starts with 'planning' %}color: #2c3e50; font-weight: 600;{% else %}color: #6c757d;{% endif %}">Activités</div>
+            </a>
+        </li>
+
         <!-- Réservations -->
         <li class="menu-item {% if app.request.get('_route') starts with 'app_admin_reservation' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
             <a href="{{ path('app_admin_reservation_list') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') starts with 'app_admin_reservation' %}background: linear-gradient(135deg, rgba(255, 209, 102, 0.15), rgba(230, 126, 34, 0.15)); border-left: 3px solid #F7B731;{% endif %}">
                 <i class="menu-icon tf-icons bx bx-calendar-check" style="{% if app.request.get('_route') starts with 'app_admin_reservation' %}color: #F7B731;{% else %}color: #6c757d;{% endif %} font-size: 1.3rem;"></i>
                 <div style="{% if app.request.get('_route') starts with 'app_admin_reservation' %}color: #2c3e50; font-weight: 600;{% else %}color: #6c757d;{% endif %}">Réservations</div>
                 <span class="badge rounded-pill ms-auto" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">NEW</span>
-            </a>
-        </li>
-        <!-- Promotions -->
-        <li class="menu-item {% if app.request.get('_route') starts with 'app_admin_promotion' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
-            <a href="{{ path('app_admin_promotion_list') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') starts with 'app_admin_promotion' %}background: linear-gradient(135deg, rgba(255, 209, 102, 0.15), rgba(230, 126, 34, 0.15)); border-left: 3px solid #F7B731;{% endif %}">
-                <i class="menu-icon tf-icons bx bx-purchase-tag-alt" style="{% if app.request.get('_route') starts with 'app_admin_promotion' %}color: #F7B731;{% else %}color: #6c757d;{% endif %} font-size: 1.3rem;"></i>
-                <div style="{% if app.request.get('_route') starts with 'app_admin_promotion' %}color: #2c3e50; font-weight: 600;{% else %}color: #6c757d;{% endif %}">Promotions</div>
             </a>
         </li>
 
@@ -171,36 +177,14 @@
 </aside>
 
 <style>
-    /* Sidebar hover effects */
     .menu-item:not(.active):hover .menu-link {
         background: rgba(255, 209, 102, 0.08) !important;
         transform: translateX(5px);
     }
-    
-    .menu-item:not(.active):hover .menu-link i {
-        color: #F7B731 !important;
-    }
-    
-    .menu-item:not(.active):hover .menu-link div {
-        color: #2c3e50 !important;
-    }
-    
-    /* Submenu styling */
-    .menu-sub .menu-item:hover .menu-link {
-        background: rgba(255, 209, 102, 0.1) !important;
-    }
-    
-    /* Scrollbar styling */
-    .layout-menu::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    .layout-menu::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-    
-    .layout-menu::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #F7B731, #E67E22);
-        border-radius: 3px;
-    }
+    .menu-item:not(.active):hover .menu-link i { color: #F7B731 !important; }
+    .menu-item:not(.active):hover .menu-link div { color: #2c3e50 !important; }
+    .menu-sub .menu-item:hover .menu-link { background: rgba(255, 209, 102, 0.1) !important; }
+    .layout-menu::-webkit-scrollbar { width: 6px; }
+    .layout-menu::-webkit-scrollbar-track { background: #f1f1f1; }
+    .layout-menu::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #F7B731, #E67E22); border-radius: 3px; }
 </style>

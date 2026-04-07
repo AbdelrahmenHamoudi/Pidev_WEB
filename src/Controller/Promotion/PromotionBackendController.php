@@ -211,7 +211,6 @@ final class PromotionBackendController extends AbstractController
         }
 
         renderEdit:
-        // Préparer les données existantes pour pré-remplir le sélecteur JS
         $existingPackItems = '[]';
         if ($promotion->isPack() && $promotion->getPackItems()) {
             $existingPackItems = $promotion->getPackItems();
@@ -223,13 +222,12 @@ final class PromotionBackendController extends AbstractController
             'hebergements'      => $hebergements,
             'activites'         => $activites,
             'voitures'          => $voitures,
-            // Variables pour le JS de pré-sélection
             'existingPromoType' => $promotion->getPromoType(),
             'existingOfferType' => $promotion->getOfferType() ?? '',
             'existingRefId'     => $promotion->getReferenceId() ?? 0,
             'existingPackItems' => $existingPackItems,
         ]);
-    }
+            }
 
     // ════════════════════════════════════════════
     // SUPPRIMER

@@ -12,8 +12,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Commentaire
 {
     #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(name: "idCommentaire", type: "integer")]
-    private int $idCommentaire;
+    private ?int $idCommentaire = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "commentaires")]
     #[ORM\JoinColumn(name: 'id_utilisateur', referencedColumnName: 'id', onDelete: 'CASCADE')]

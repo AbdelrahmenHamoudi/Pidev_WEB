@@ -13,5 +13,19 @@ class PlanningactiviteRepository extends ServiceEntityRepository
         parent::__construct($registry, Planningactivite::class);
     }
 
-    // Add custom methods as needed
+    /**
+     * Retourne les plannings disponibles pour une activite donnee
+     */
+    public function findDisponiblesByActivite(int $idActivite): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.activite = :idActivite')
+            ->andWhere('p.etat = :etat')
+            ->andWhere('p.nbPlacesRestantes > 0')
+            ->setParameter('idActivite', $idActivite)
+            ->setParameter('etat', 'Disponible')
+            ->orderBy('p.datePlanning', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

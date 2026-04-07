@@ -156,6 +156,7 @@ tr:last-child td{border-bottom:none;}
         <i class="fas fa-external-link-alt" style="margin-left:auto;font-size:10px;opacity:0.5;"></i>
       </a>
 
+
       <a href="{{ path('app_admin_hebergement_list') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'app_admin_hebergement' ? 'active' : '' }}">
         <i class="fas fa-building"></i><span>Hébergements</span>
       </a>
@@ -165,13 +166,21 @@ tr:last-child td{border-bottom:none;}
         <span class="nav-badge new">3</span>
       </a>
 
-      <!-- Promotions -->
-        <a href="{{ path('app_admin_promotion_list') }}" 
-          class="nav-item {{ app.request.attributes.get('_route') starts with 'app_admin_promotion' ? 'active' : '' }}">
-    
-          <i class="fas fa-tags"></i>
-            <span>Promotions</span>
-        </a>
+      <a href="{{ path('app_admin_voiture') }}" class="nav-item {{ app.request.attributes.get('_route') == 'app_admin_voiture' ? 'active' : '' }}">
+        <i class="fas fa-route"></i><span>Flotte & Trajets</span>
+      </a>
+
+      <a href="{{ path('activite_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'activite_' ? 'active' : '' }}">
+        <i class="fas fa-hiking"></i><span>Activités</span>
+      </a>
+      
+      <a href="{{ path('app_admin_publication_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'app_admin_publication' ? 'active' : '' }}">
+        <i class="fas fa-newspaper"></i><span>Publications</span>
+      </a>
+
+      <a href="{{ path('app_admin_commentaire_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'app_admin_commentaire' ? 'active' : '' }}">
+        <i class="fas fa-comments"></i><span>Commentaires</span>
+      </a>
 
       <div class="nav-section-title">Gestion</div>
 

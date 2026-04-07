@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Trajet;
 
@@ -12,37 +12,57 @@ class Voiture
 {
 
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
-    private int $id_voiture;
+    private ?int $id_voiture = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $marque;
+    #[Assert\NotBlank(message: "La marque est obligatoire.")]
+    #[Assert\Length(min: 2, minMessage: "La marque doit comporter au moins {{ limit }} caractères.")]
+    private ?string $marque = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $modele;
+    #[Assert\NotBlank(message: "Le modèle est obligatoire.")]
+    private ?string $modele = null;
 
     #[ORM\Column(type: "string", length: 50)]
-    private string $immatriculation;
+    #[Assert\NotBlank(message: "L'immatriculation est obligatoire.")]
+    #[Assert\Regex(
+        pattern: "/^\d{3} TN \d{4}$/",
+        message: "L'immatriculation doit respecter le format tunisien : XXX TN XXXX (Ex: 123 TN 4567)."
+    )]
+    private ?string $immatriculation = null;
 
-    #[ORM\Column(type: "string")]
-    private string $prix_KM;
+    #[ORM\Column(type: "float")]
+    #[Assert\NotBlank(message: "Le prix au km est obligatoire.")]
+    #[Assert\Positive(message: "Le prix au km doit être un nombre positif.")]
+    private ?float $prix_km = null;
 
     #[ORM\Column(type: "boolean")]
-    private bool $avec_chauffeur;
+    private ?bool $avec_chauffeur = null;
 
     #[ORM\Column(type: "boolean")]
-    private bool $disponibilite;
+    private ?bool $disponibilite = null;
 
     #[ORM\Column(type: "text")]
-    private string $description;
+    #[Assert\NotBlank(message: "La description est obligatoire.")]
+    #[Assert\Length(min: 10, minMessage: "La description doit comporter au moins {{ limit }} caractères.")]
+    private ?string $description = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $image;
+    private ?string $image = null;
 
     #[ORM\Column(type: "integer")]
-    private int $nb_places;
+    #[Assert\NotBlank(message: "Le nombre de places est obligatoire.")]
+    #[Assert\Range(min: 1, max: 9, notInRangeMessage: "Le nombre de places doit être compris entre {{ min }} et {{ max }}.")]
+    private ?int $nb_places = null;
 
     public function getId_voiture()
+    {
+        return $this->id_voiture;
+    }
+
+    public function getId(): ?int
     {
         return $this->id_voiture;
     }
@@ -82,14 +102,14 @@ class Voiture
         $this->immatriculation = $value;
     }
 
-    public function getPrix_KM()
+    public function getPrix_km()
     {
-        return $this->prix_KM;
+        return $this->prix_km;
     }
 
-    public function setPrix_KM($value)
+    public function setPrix_km($value)
     {
-        $this->prix_KM = $value;
+        $this->prix_km = $value;
     }
 
     public function getAvec_chauffeur()
@@ -142,8 +162,21 @@ class Voiture
         $this->nb_places = $value;
     }
 
+    // Aliases for compatibility
+    public function getPrixKM() { return $this->prix_km; }
+    public function setPrixKM($v) { $this->prix_km = $v; return $this; }
+    public function getAvecChauffeur() { return $this->avec_chauffeur; }
+    public function setAvecChauffeur($v) { $this->avec_chauffeur = $v; return $this; }
+    public function getNbPlaces() { return $this->nb_places; }
+    public function setNbPlaces($v) { $this->nb_places = $v; return $this; }
+
     #[ORM\OneToMany(mappedBy: "id_voiture", targetEntity: Trajet::class)]
     private Collection $trajets;
+
+    public function __construct()
+    {
+        $this->trajets = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
         public function getTrajets(): Collection
         {

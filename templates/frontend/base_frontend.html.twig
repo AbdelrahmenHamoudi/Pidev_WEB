@@ -432,18 +432,24 @@
                         <a class="nav-link" href="#services">Services</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'activite_index_front' ? 'active' : '' }}" href="{{ path('activite_index_front') }}">Activités</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') == 'app_hebergements_search' ? 'active' : '' }}" href="{{ path('app_hebergements_search') }}">Réservation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_trajet' ? 'active' : '' }}" href="{{ path('app_trajet') }}">Mes Trajets</a>
                     </li>
                     {% if app.session.get('user_id') or app.user %}
                         <li class="nav-item">
                             <a class="nav-link {{ app.request.attributes.get('_route') == 'app_reservations_list' ? 'active' : '' }}" href="{{ path('app_reservations_list') }}">Mes Voyages</a>
                         </li>
-
-                     <li class="nav-item">
-                        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_promotions_list' ? 'active' : '' }}" href="{{ path('app_promotions_list') }}">Promotions</a>
-                    </li>
-
                     {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-communaute {{ app.request.attributes.get('_route') starts with 'app_communaute' ? 'active' : '' }}" href="{{ path('app_communaute_index') }}">
+                            <i class=""></i>Communauté
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">Contact</a>
                     </li>
@@ -473,6 +479,13 @@
                                         <i class="fas fa-user"></i>
                                         Mon profil
                                     </a>
+
+                                    {% if app.user and app.user.role == 'admin' %}
+                                    <a href="{{ path('app_admin') }}">
+                                        <i class="fas fa-user-shield"></i>
+                                        Administration
+                                    </a>
+                                    {% endif %}
 
                                     <a href="{{ path('app_user_profile_edit') }}">
                                         <i class="fas fa-user-edit"></i>

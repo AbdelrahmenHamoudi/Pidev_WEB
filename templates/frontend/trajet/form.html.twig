@@ -1,0 +1,360 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}{{ title }} - RE7LA{% endblock %}
+
+{% block extra_styles %}
+:root {
+    --bleu-ceil: #87CEEB;
+    --bleu-ceil-dark: #5dade2;
+    --rouge: #e74c3c;
+    --vert-pistache: #93C572;
+    --vert-pistache-dark: #7cb342;
+    --dark: #2c3e50;
+}
+
+.form-hero {
+    background: linear-gradient(135deg, var(--dark) 0%, #1a2f42 100%);
+    padding: 140px 0 60px; position: relative; overflow: hidden;
+}
+.form-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1507090190120-17c44eb1a6e9?w=1400') center/cover;
+    opacity: 0.05;
+}
+
+.form-card-fe {
+    background: white; border-radius: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    overflow: hidden; margin-bottom: 24px;
+    border: 1px solid rgba(135,206,235,0.1);
+}
+.fc-head {
+    padding: 22px 28px; border-bottom: 1px solid #f0f4f8;
+    display: flex; align-items: center; gap: 14px;
+}
+.fc-icon {
+    width: 46px; height: 46px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.fc-title { font-weight: 700; font-size: 16px; color: var(--dark); }
+.fc-sub   { font-size: 12px; color: #94a3b8; margin-top: 1px; }
+
+.form-group-fe { display: flex; flex-direction: column; gap: 8px; }
+.form-label-fe {
+    font-size: 12px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: #94a3b8;
+}
+.form-label-fe .req { color: var(--rouge); margin-left: 2px; }
+.form-input-fe {
+    width: 100%; padding: 14px 18px;
+    border: 2px solid #e8f0fe; border-radius: 15px;
+    font-size: 14px; font-family: 'Poppins', sans-serif;
+    color: var(--dark); background: #fafcff;
+    transition: all 0.3s; outline: none;
+}
+.form-input-fe:focus {
+    border-color: var(--bleu-ceil);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(135,206,235,0.15);
+}
+select.form-input-fe { cursor: pointer; }
+
+.route-preview-fe {
+    background: linear-gradient(135deg, var(--dark), #1a2f42);
+    border-radius: 20px; padding: 24px;
+    margin-bottom: 20px;
+}
+.rp-label  { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 5px; }
+.rp-value  { font-size: 18px; font-weight: 700; color: white; font-family: 'Poppins', sans-serif; }
+.rp-stop   { display: flex; align-items: center; gap: 12px; }
+.rp-dot-d  { width: 12px; height: 12px; border-radius: 50%; background: var(--bleu-ceil); box-shadow: 0 0 8px rgba(135,206,235,0.6); flex-shrink: 0; }
+.rp-dot-a  { width: 12px; height: 12px; border-radius: 50%; background: var(--vert-pistache); box-shadow: 0 0 8px rgba(147,197,114,0.6); flex-shrink: 0; }
+.rp-line   { width: 2px; height: 28px; background: rgba(255,255,255,0.12); margin-left: 5px; margin-bottom: 10px; }
+
+.tip-item  { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f4f8; font-size: 13px; color: #64748b; }
+.tip-item:last-child { border-bottom: none; }
+{% endblock %}
+
+{% block body %}
+
+<!-- ===== HERO ===== -->
+<section class="form-hero">
+    <div class="container position-relative">
+        <!-- Breadcrumb -->
+        <nav class="mb-4">
+            <ol class="breadcrumb" style="background: rgba(255,255,255,0.08); padding: 10px 20px; border-radius: 50px; display: inline-flex;">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: rgba(255,255,255,0.6); text-decoration: none;">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_trajet') }}" style="color: var(--bleu-ceil); text-decoration: none;">Trajets</a></li>
+                <li class="breadcrumb-item active" style="color: white;">{{ trajet.id ? 'Modifier' : 'Nouveau' }}</li>
+            </ol>
+        </nav>
+
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; padding: 7px 18px; border-radius: 50px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 18px;">
+                    <i class="fas fa-{{ trajet.id ? 'edit' : 'plus' }} me-2"></i>{{ trajet.id ? 'Modifier un trajet' : 'Nouvelle réservation' }}
+                </span>
+                <h1 style="font-weight: 800; font-size: 2.5rem; color: white; line-height: 1.2; margin-bottom: 12px;">
+                    {{ title|split(' ')|first }}
+                    <span style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                        {{ title|split(' ')|slice(1)|join(' ') }}
+                    </span>
+                </h1>
+                <p style="color: rgba(255,255,255,0.5); font-size: 14px;">Remplissez tous les champs requis pour valider votre trajet.</p>
+            </div>
+            <div class="col-lg-4 d-flex justify-content-lg-end mt-3 mt-lg-0">
+                <a href="{{ path('app_trajet') }}" class="btn" style="background: rgba(255,255,255,0.1); color: white; border-radius: 50px; padding: 11px 24px; font-weight: 600; border: 1px solid rgba(255,255,255,0.2);">
+                    <i class="fas fa-arrow-left me-2"></i>Retour
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background: #f8f9fa;">
+    <div class="container">
+
+        <form method="POST" action="{{ trajet.id ? path('app_trajet_edit', {id: trajet.id}) : path('app_trajet_create') }}" id="trajetForm">
+            <div class="row g-4">
+                <!-- ===== FLASH MESSAGES (Errors) ===== -->
+                <div class="col-12 mt-4">
+                    {% for message in app.flashes('error') %}
+                        <div style="background: rgba(231,76,60,0.1); color: #e74c3c; padding: 14px 20px; border-radius: 15px; margin-bottom: 12px; font-size: 14px; border: 1px solid rgba(231,76,60,0.15); display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- ===== LEFT : FORM ===== -->
+                <div class="col-lg-8">
+
+                    <!-- Itinéraire -->
+                    <div class="form-card-fe" data-aos="fade-up">
+                        <div class="fc-head">
+                            <div class="fc-icon" style="background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(135,206,235,0.1));">
+                                <i class="fas fa-map-marked-alt" style="color: var(--bleu-ceil);"></i>
+                            </div>
+                            <div>
+                                <div class="fc-title">Itinéraire</div>
+                                <div class="fc-sub">Définissez le point de départ et d'arrivée</div>
+                            </div>
+                        </div>
+                        <div style="padding: 28px;">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-group-fe">
+                                        <label class="form-label-fe">Point de départ</label>
+                                        <div class="position-relative">
+                                            <i class="fas fa-map-marker-alt" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--bleu-ceil);"></i>
+                                            <input type="text" name="point_depart" id="depInput" class="form-input-fe" style="padding-left: 44px;"
+                                                   value="{{ trajet.pointDepart ?? '' }}" placeholder="Ex : Tunis">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-fe">
+                                        <label class="form-label-fe">Point d'arrivée</label>
+                                        <div class="position-relative">
+                                            <i class="fas fa-map-pin" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--vert-pistache);"></i>
+                                            <input type="text" name="point_arrivee" id="arrInput" class="form-input-fe" style="padding-left: 44px;"
+                                                   value="{{ trajet.pointArrivee ?? '' }}" placeholder="Ex : Djerba">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-fe">
+                                        <label class="form-label-fe">Distance (km)</label>
+                                        <input type="number" name="distance_km" class="form-input-fe"
+                                               value="{{ trajet.distanceKm ?? '' }}" placeholder="Ex : 450">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-fe">
+                                        <label class="form-label-fe">Nombre de passagers</label>
+                                        <input type="number" name="nb_personnes" class="form-input-fe"
+                                               value="{{ trajet.nbPersonnes ?? 1 }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Planification -->
+                    <div class="form-card-fe" data-aos="fade-up" data-aos-delay="50">
+                        <div class="fc-head">
+                            <div class="fc-icon" style="background: linear-gradient(135deg, rgba(147,197,114,0.2), rgba(147,197,114,0.1));">
+                                <i class="fas fa-calendar-alt" style="color: var(--vert-pistache);"></i>
+                            </div>
+                            <div>
+                                <div class="fc-title">Planification</div>
+                                <div class="fc-sub">Date et statut de la réservation</div>
+                            </div>
+                        </div>
+                        <div style="padding: 28px;">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-group-fe">
+                                        <label class="form-label-fe">Date de réservation</label>
+                                        <input type="datetime-local" name="date_reservation" class="form-input-fe"
+                                               value="{{ trajet.dateReservation ? trajet.dateReservation|date('Y-m-d\\TH:i') : '' }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-fe">
+                                        <label class="form-label-fe">Statut</label>
+                                        <select name="statut" class="form-input-fe">
+                                            {% for s in ['Réservé', 'Confirmé', 'Annulé', 'Terminé'] %}
+                                                <option value="{{ s }}" {{ (trajet.statut ?? 'Réservé') == s ? 'selected' : '' }}>{{ s }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Véhicule -->
+                    <div class="form-card-fe" data-aos="fade-up" data-aos-delay="100">
+                        <div class="fc-head">
+                            <div class="fc-icon" style="background: linear-gradient(135deg, rgba(44,62,80,0.1), rgba(44,62,80,0.05));">
+                                <i class="fas fa-car" style="color: var(--dark);"></i>
+                            </div>
+                            <div>
+                                <div class="fc-title">Véhicule</div>
+                                <div class="fc-sub">Sélectionnez la voiture pour ce trajet</div>
+                            </div>
+                        </div>
+                        <div style="padding: 28px;">
+                            <div class="row g-4">
+                                <div class="col-md-8">
+                                    <div class="form-group-fe">
+                                        <label class="form-label-fe">Voiture</label>
+                                        <select name="id_voiture" class="form-input-fe">
+                                            <option value="">— Sélectionner une voiture —</option>
+                                            {% for v in voitures %}
+                                                <option value="{{ v.id }}"
+                                                    {{ (trajet.idVoiture is not null and trajet.idVoiture.id == v.id) ? 'selected' : '' }}>
+                                                    {{ v.marque }} {{ v.modele }}{% if v.immatriculation is defined %} — {{ v.immatriculation }}{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group-fe">
+                                        <label class="form-label-fe">Date souhaitée</label>
+                                        <div style="font-size: 13px; color: #94a3b8; margin-top: 5px;">
+                                            <i class="fas fa-info-circle me-1"></i>Automatique
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit buttons -->
+                    <div class="d-flex gap-3 justify-content-end flex-wrap" data-aos="fade-up" data-aos-delay="150">
+                        <a href="{{ path('app_trajet') }}" class="btn" style="background: white; color: #64748b; border: 2px solid #e0e7ff; border-radius: 50px; padding: 13px 28px; font-weight: 600;">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </a>
+                        {% if trajet.id %}
+                            <a href="{{ path('app_trajet_show', {id: trajet.id}) }}" class="btn" style="background: rgba(135,206,235,0.15); color: var(--bleu-ceil); border-radius: 50px; padding: 13px 28px; font-weight: 600;">
+                                <i class="fas fa-eye me-2"></i>Voir
+                            </a>
+                        {% endif %}
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 13px 32px; font-weight: 700; border: none; font-family: 'Poppins', sans-serif; font-size: 15px; box-shadow: 0 10px 30px rgba(135,206,235,0.4); transition: all 0.3s;">
+                            <i class="fas fa-{{ trajet.id ? 'save' : 'route' }} me-2"></i>
+                            {{ trajet.id ? 'Enregistrer les modifications' : 'Confirmer la réservation' }}
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- ===== SIDEBAR ===== -->
+                <div class="col-lg-4">
+
+                    <!-- Route preview -->
+                    <div class="route-preview-fe" data-aos="fade-up">
+                        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 18px;">Aperçu de l'itinéraire</div>
+                        <div class="rp-stop">
+                            <div class="rp-dot-d"></div>
+                            <div>
+                                <div class="rp-label">Départ</div>
+                                <div class="rp-value" id="depPreview">{{ trajet.pointDepart ?: '—' }}</div>
+                            </div>
+                        </div>
+                        <div class="rp-line ms-1 my-2"></div>
+                        <div class="rp-stop">
+                            <div class="rp-dot-a"></div>
+                            <div>
+                                <div class="rp-label">Arrivée</div>
+                                <div class="rp-value" id="arrPreview">{{ trajet.pointArrivee ?: '—' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div style="background: white; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.07); overflow: hidden;" data-aos="fade-up" data-aos-delay="80">
+                        <div style="padding: 20px 24px; border-bottom: 1px solid #f0f4f8; display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(147,197,114,0.1)); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-lightbulb" style="color: var(--bleu-ceil);"></i>
+                            </div>
+                            <div style="font-weight: 700; font-size: 15px; color: var(--dark);">Conseils</div>
+                        </div>
+                        <div style="padding: 8px 24px 16px;">
+                            <div class="tip-item">
+                                <i class="fas fa-map-marker-alt" style="color: var(--bleu-ceil); margin-top: 2px; flex-shrink: 0;"></i>
+                                Renseignez des noms de villes précis pour faciliter la localisation.
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-car" style="color: var(--vert-pistache); margin-top: 2px; flex-shrink: 0;"></i>
+                                Vérifiez que la voiture sélectionnée est disponible à cette date.
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-users" style="color: var(--bleu-ceil); margin-top: 2px; flex-shrink: 0;"></i>
+                                Le nombre de passagers ne doit pas dépasser la capacité du véhicule.
+                            </div>
+                            <div class="tip-item">
+                                <i class="fas fa-clock" style="color: var(--vert-pistache); margin-top: 2px; flex-shrink: 0;"></i>
+                                Réservez au moins 24h à l'avance pour une meilleure organisation.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Live route preview
+const dep     = document.getElementById('depInput');
+const arr     = document.getElementById('arrInput');
+const depPrev = document.getElementById('depPreview');
+const arrPrev = document.getElementById('arrPreview');
+if (dep && arr) {
+    dep.addEventListener('input', () => { depPrev.textContent = dep.value || '—'; });
+    arr.addEventListener('input', () => { arrPrev.textContent = arr.value || '—'; });
+}
+
+// Input focus styles
+document.querySelectorAll('.form-input-fe').forEach(input => {
+    input.addEventListener('focus', () => {
+        input.style.borderColor = 'var(--bleu-ceil)';
+        input.style.boxShadow   = '0 0 0 4px rgba(135,206,235,0.15)';
+        input.style.background  = 'white';
+    });
+    input.addEventListener('blur', () => {
+        input.style.borderColor = '#e8f0fe';
+        input.style.boxShadow   = 'none';
+        input.style.background  = '#fafcff';
+    });
+});
+</script>
+{% endblock %}
