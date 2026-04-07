@@ -1,0 +1,328 @@
+{#
+  Variables expected:
+    typeCibles — array  e.g. ['HEBERGEMENT','ACTIVITE','TRANSPORT']
+    statuts    — array  e.g. ['VALIDE','EN_ATTENTE','REFUSE']
+    users      — array of Users entities
+    pub        — Publication entity or null (new)
+#}
+<style>
+.pf-section {
+  font-size:10px; font-weight:700; text-transform:uppercase;
+  letter-spacing:1.5px; color:#94a3b8;
+  padding-bottom:8px; border-bottom:1px solid #f0f4fb;
+  margin:4px 0 18px;
+}
+.pf-group { margin-bottom:20px; }
+.pf-label {
+  display:flex; align-items:center; gap:5px;
+  font-size:12px; font-weight:700; color:#374151;
+  margin-bottom:7px; text-transform:uppercase; letter-spacing:.5px;
+}
+.pf-label .req { color:#ef4444; font-size:15px; line-height:1; }
+
+.pf-input, .pf-select, .pf-textarea {
+  width:100%; border:1.5px solid #edf0f7; border-radius:11px;
+  padding:11px 14px; font-size:13px; color:#1a1d23;
+  font-family:'DM Sans',sans-serif; background:#fff;
+  transition:border-color .2s, box-shadow .2s; appearance:none;
+}
+.pf-input:focus, .pf-select:focus, .pf-textarea:focus {
+  border-color:#F7B731; box-shadow:0 0 0 3px rgba(247,183,49,.12); outline:none;
+}
+.pf-textarea { resize:vertical; min-height:110px; line-height:1.6; }
+
+.pf-input.valid, .pf-select.valid, .pf-textarea.valid {
+  border-color:#10b981 !important; box-shadow:0 0 0 3px rgba(16,185,129,.10) !important;
+}
+.pf-input.invalid, .pf-select.invalid, .pf-textarea.invalid {
+  border-color:#ef4444 !important; box-shadow:0 0 0 3px rgba(239,68,68,.10) !important;
+}
+
+.pf-feedback { font-size:11px; margin-top:5px; font-weight:600; display:none; }
+.pf-feedback.err { color:#ef4444; display:block; }
+.pf-feedback.ok  { color:#10b981; display:block; }
+
+.pf-counter-row { display:flex; justify-content:space-between; margin-top:5px; }
+.pf-hint    { font-size:11px; color:#94a3b8; }
+.pf-counter { font-size:11px; font-weight:700; color:#94a3b8; font-variant-numeric:tabular-nums; }
+.pf-counter.warn { color:#F7B731; }
+.pf-counter.over { color:#ef4444; }
+
+.pf-sel-wrap { position:relative; }
+.pf-sel-wrap::after {
+  content:'▾'; position:absolute; right:14px; top:50%;
+  transform:translateY(-50%); color:#94a3b8; pointer-events:none;
+}
+.pf-select { padding-right:36px; cursor:pointer; }
+
+.pf-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+/* File drop zone */
+.pf-drop {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; border:2px dashed #edf0f7; border-radius:14px;
+  padding:24px 20px; cursor:pointer; transition:all .2s;
+  background:#fafbfc; text-align:center;
+}
+.pf-drop:hover, .pf-drop.drag { border-color:#F7B731; background:rgba(247,183,49,.04); }
+.pf-drop.has-file  { border-color:#10b981; background:rgba(16,185,129,.04); }
+.pf-drop.file-err  { border-color:#ef4444; background:rgba(239,68,68,.04); }
+.pf-drop-icon { font-size:26px; }
+.pf-drop-text { font-size:12px; color:#64748b; font-weight:500; }
+.pf-drop-sub  { font-size:11px; color:#94a3b8; }
+.pf-drop-name { font-size:12px; color:#10b981; font-weight:700; }
+.pf-file-hidden { display:none; }
+
+.pf-img-preview { display:none; margin-top:10px; border-radius:12px; overflow:hidden; border:1.5px solid #edf0f7; }
+.pf-img-preview img { width:100%; max-height:180px; object-fit:cover; display:block; }
+.pf-img-preview.show { display:block; }
+
+/* Toggle */
+.pf-toggle-wrap {
+  display:inline-flex; align-items:center; gap:12px;
+  padding:13px 16px; border:1.5px solid #edf0f7;
+  border-radius:11px; cursor:pointer; transition:all .2s; background:#fff;
+}
+.pf-toggle-wrap:hover { border-color:#F7B731; background:rgba(247,183,49,.05); }
+.pf-toggle { position:relative; width:40px; height:22px; flex-shrink:0; }
+.pf-toggle input { opacity:0; width:0; height:0; position:absolute; }
+.pf-slider { position:absolute; inset:0; background:#edf0f7; border-radius:22px; transition:.2s; }
+.pf-slider::before {
+  content:''; position:absolute; width:16px; height:16px;
+  background:#fff; border-radius:50%; left:3px; top:3px;
+  transition:.2s; box-shadow:0 1px 4px rgba(0,0,0,.15);
+}
+.pf-toggle input:checked ~ .pf-slider { background:#F7B731; }
+.pf-toggle input:checked ~ .pf-slider::before { transform:translateX(18px); }
+.pf-toggle-lbl { font-size:13px; font-weight:500; color:#374151; }
+
+@media(max-width:640px){ .pf-row-2{ grid-template-columns:1fr; } }
+</style>
+
+{# ── Description ── #}
+<div class="pf-section">📝 Contenu</div>
+
+<div class="pf-group">
+  <label for="DescriptionP" class="pf-label">Description <span class="req">*</span></label>
+  <textarea id="DescriptionP" name="DescriptionP"
+            class="pf-textarea" rows="5"
+            minlength="5" maxlength="200" required
+            placeholder="Rédigez une description claire et détaillée…"
+            oninput="pfCounterUpdate(this,'desc-ctr'); pfValidTA(this,5,200)">{{ pub ? pub.descriptionP : '' }}</textarea>
+  <div class="pf-counter-row">
+    <span class="pf-hint">Entre 5 et 200 caractères.</span>
+    <span class="pf-counter" id="desc-ctr">0 / 200</span>
+  </div>
+  <span class="pf-feedback" id="DescriptionP-fb"></span>
+</div>
+
+{# ── Type & Statut ── #}
+<div class="pf-section">🏷 Catégorie & Statut</div>
+
+<div class="pf-row-2">
+  <div class="pf-group">
+    <label for="typeCible" class="pf-label">Type cible <span class="req">*</span></label>
+    <div class="pf-sel-wrap">
+      <select id="typeCible" name="typeCible" class="pf-select" required onchange="pfValidSel(this)">
+        <option value="">— Sélectionner —</option>
+        {% for tc in typeCibles %}
+          <option value="{{ tc }}" {{ pub and pub.typeCible == tc ? 'selected' : '' }}>
+            {% if tc == 'HEBERGEMENT' %}🏨 Hébergement
+            {% elseif tc == 'ACTIVITE' %}🎯 Activité
+            {% elseif tc == 'TRANSPORT' %}🚌 Transport
+            {% else %}{{ tc }}{% endif %}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <span class="pf-feedback" id="typeCible-fb"></span>
+  </div>
+
+  <div class="pf-group">
+    <label for="statutP" class="pf-label">Statut <span class="req">*</span></label>
+    <div class="pf-sel-wrap">
+      <select id="statutP" name="statutP" class="pf-select" required onchange="pfValidSel(this)">
+        <option value="">— Sélectionner —</option>
+        {% for s in statuts %}
+          <option value="{{ s }}" {{ pub and pub.statutP == s ? 'selected' : '' }}>
+            {% if s == 'VALIDE' %}✅ Validé
+            {% elseif s == 'EN_ATTENTE' %}⏳ En attente
+            {% elseif s == 'REFUSE' %}🚫 Refusé
+            {% else %}{{ s }}{% endif %}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <span class="pf-feedback" id="statutP-fb"></span>
+  </div>
+</div>
+
+{# ── Auteur ── #}
+<div class="pf-section">👤 Auteur</div>
+
+<div class="pf-group">
+  <label for="id_utilisateur" class="pf-label">Utilisateur <span class="req">*</span></label>
+  <div class="pf-sel-wrap">
+    <select id="id_utilisateur" name="id_utilisateur" class="pf-select" required onchange="pfValidSel(this)">
+      <option value="">— Sélectionner un utilisateur —</option>
+      {% for user in users %}
+        <option value="{{ user.id }}"
+          {{ pub and pub.id_utilisateur and pub.id_utilisateur.id == user.id ? 'selected' : '' }}>
+          {{ user.nom }} {{ user.prenom }} — {{ user.e_mail }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  <span class="pf-feedback" id="id_utilisateur-fb"></span>
+</div>
+
+{# ── Image ── #}
+<div class="pf-section">🖼 Image {% if not pub %}(obligatoire){% else %}(optionnelle — laisser vide pour conserver){% endif %}</div>
+
+<div class="pf-group">
+  <label class="pf-drop" id="pf-drop-zone" for="ImgURL">
+    <div class="pf-drop-icon">📷</div>
+    <div class="pf-drop-text" id="pf-drop-text">Cliquer ou glisser une image ici</div>
+    <div class="pf-drop-sub">JPG, PNG, WEBP, GIF · max 2 Mo</div>
+    <div class="pf-drop-name" id="pf-drop-name"></div>
+  </label>
+  <input type="file" id="ImgURL" name="ImgURL" class="pf-file-hidden"
+         accept="image/jpeg,image/png,image/webp,image/gif"
+         onchange="pfHandleFile(this)">
+  <div class="pf-img-preview" id="pf-preview"><img id="pf-preview-img" src="" alt="Aperçu"></div>
+  {% if pub and pub.imgURL %}
+    <div style="margin-top:8px;font-size:12px;color:#64748b;">
+      📎 Image actuelle : <strong>{{ pub.imgURL }}</strong>
+    </div>
+  {% endif %}
+  <span class="pf-feedback" id="ImgURL-fb"></span>
+</div>
+
+{# ── Options ── #}
+<div class="pf-section">⚙️ Options</div>
+
+<div class="pf-group">
+  <label class="pf-toggle-wrap" for="estVerifie">
+    <span class="pf-toggle">
+      <input type="checkbox" id="estVerifie" name="estVerifie" value="1"
+             {{ pub and pub.estVerifie ? 'checked' : '' }}>
+      <span class="pf-slider"></span>
+    </span>
+    <span class="pf-toggle-lbl">Marquer comme vérifiée</span>
+  </label>
+</div>
+
+{# hidden marker so JS knows we're in edit mode #}
+{% if pub %}<span data-pub-id="{{ pub.idPublication }}" style="display:none"></span>{% endif %}
+
+<script>
+(function(){
+  /* ── counter ── */
+  function pfCounterUpdate(el, cid) {
+    const len = el.value.length, max = +el.getAttribute('maxlength')||200;
+    const c = document.getElementById(cid); if(!c) return;
+    c.textContent = len + ' / ' + max;
+    c.className = 'pf-counter' + (len >= max ? ' over' : len > max*.85 ? ' warn' : '');
+  }
+  window.pfCounterUpdate = pfCounterUpdate;
+
+  /* ── textarea validate ── */
+  function pfValidTA(el, min, max) {
+    const v = el.value.trim(), fb = document.getElementById(el.id+'-fb');
+    el.classList.remove('valid','invalid');
+    if(fb){ fb.textContent=''; fb.className='pf-feedback'; }
+    if(!v)           { el.classList.add('invalid'); set(fb,'⚠ Ce champ est requis.','err'); }
+    else if(v.length < min){ el.classList.add('invalid'); set(fb,`⚠ Minimum ${min} caractères (actuel : ${v.length}).`,'err'); }
+    else if(v.length > max){ el.classList.add('invalid'); set(fb,`⚠ Maximum ${max} caractères dépassé.`,'err'); }
+    else             { el.classList.add('valid');   set(fb,'✓ Valide','ok'); }
+  }
+  window.pfValidTA = pfValidTA;
+
+  /* ── select validate ── */
+  function pfValidSel(el) {
+    const fb = document.getElementById(el.id+'-fb');
+    el.classList.remove('valid','invalid');
+    if(fb){ fb.textContent=''; fb.className='pf-feedback'; }
+    if(!el.value){ el.classList.add('invalid'); set(fb,'⚠ Veuillez sélectionner une option.','err'); }
+    else         { el.classList.add('valid');   set(fb,'✓ Valide','ok'); }
+  }
+  window.pfValidSel = pfValidSel;
+
+  /* ── file handler ── */
+  function pfHandleFile(input){
+    const zone = document.getElementById('pf-drop-zone');
+    const nameEl = document.getElementById('pf-drop-name');
+    const textEl = document.getElementById('pf-drop-text');
+    const preview = document.getElementById('pf-preview');
+    const previewImg = document.getElementById('pf-preview-img');
+    const fb = document.getElementById('ImgURL-fb');
+    zone.classList.remove('has-file','file-err');
+    if(fb){ fb.textContent=''; fb.className='pf-feedback'; }
+    nameEl.textContent=''; preview.classList.remove('show');
+    if(!input.files||!input.files[0]) return;
+    const file = input.files[0];
+    const allowed=['image/jpeg','image/png','image/webp','image/gif'];
+    if(!allowed.includes(file.type)){
+      zone.classList.add('file-err');
+      set(fb,'⚠ Format invalide. Utilisez JPG, PNG, WEBP ou GIF.','err');
+      input.value=''; return;
+    }
+    if(file.size > 2*1024*1024){
+      zone.classList.add('file-err');
+      set(fb,'⚠ Fichier trop lourd. Maximum 2 Mo.','err');
+      input.value=''; return;
+    }
+    zone.classList.add('has-file');
+    nameEl.textContent = '✓ '+file.name;
+    textEl.textContent = 'Image sélectionnée';
+    set(fb,'✓ Image valide','ok');
+    const reader = new FileReader();
+    reader.onload = e => { previewImg.src=e.target.result; preview.classList.add('show'); };
+    reader.readAsDataURL(file);
+  }
+  window.pfHandleFile = pfHandleFile;
+
+  function set(el,msg,cls){ if(!el) return; el.textContent=msg; el.className='pf-feedback '+cls; }
+
+  /* ── init on load ── */
+  document.addEventListener('DOMContentLoaded', function(){
+    const desc = document.getElementById('DescriptionP');
+    if(desc){ pfCounterUpdate(desc,'desc-ctr'); if(desc.value.trim()) pfValidTA(desc,5,200); }
+    ['typeCible','statutP','id_utilisateur'].forEach(id=>{
+      const el=document.getElementById(id); if(el&&el.value) pfValidSel(el);
+    });
+
+    /* ── drag & drop ── */
+    const zone = document.getElementById('pf-drop-zone');
+    if(zone){
+      zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('drag'); });
+      zone.addEventListener('dragleave', ()=> zone.classList.remove('drag'));
+      zone.addEventListener('drop', e=>{
+        e.preventDefault(); zone.classList.remove('drag');
+        const fi = document.getElementById('ImgURL');
+        if(e.dataTransfer.files.length){ fi.files=e.dataTransfer.files; pfHandleFile(fi); }
+      });
+    }
+
+    /* ── submit gate ── */
+    const form = desc ? desc.closest('form') : null;
+    if(!form) return;
+    form.addEventListener('submit', function(e){
+      let ok=true;
+      if(desc){ pfValidTA(desc,5,200); if(desc.classList.contains('invalid')) ok=false; }
+      ['typeCible','statutP','id_utilisateur'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el){ pfValidSel(el); if(el.classList.contains('invalid')) ok=false; }
+      });
+      const fi=document.getElementById('ImgURL');
+      const isEdit=!!document.querySelector('[data-pub-id]');
+      if(fi&&!isEdit&&!fi.files.length){
+        document.getElementById('pf-drop-zone').classList.add('file-err');
+        set(document.getElementById('ImgURL-fb'),'⚠ Une image est requise pour créer une publication.','err');
+        ok=false;
+      }
+      if(!ok){ e.preventDefault(); const first=form.querySelector('.invalid,.file-err'); if(first) first.scrollIntoView({behavior:'smooth',block:'center'}); }
+    });
+  });
+})();
+</script>

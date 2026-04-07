@@ -1,0 +1,578 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Publication — RE7LA{% endblock %}
+
+{% block extra_styles %}
+.show-hero {
+    background: linear-gradient(135deg, rgba(135,206,235,0.1), rgba(147,197,114,0.1));
+    padding: 36px 0 0;
+}
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--bleu-ceil-dark);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 24px;
+    transition: gap .2s;
+}
+.back-link:hover { gap: 12px; color: var(--bleu-ceil-dark); }
+
+/* ── PUB DETAIL CARD ── */
+.pub-detail-card {
+    background: white;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(44,62,80,0.10);
+    border: 1px solid rgba(44,62,80,0.06);
+    margin-bottom: 36px;
+}
+.pub-detail-img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+}
+.pub-detail-img-placeholder {
+    width: 100%;
+    height: 280px;
+    background: linear-gradient(135deg, rgba(135,206,235,0.25), rgba(147,197,114,0.25));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+}
+.pub-detail-body {
+    padding: 30px 36px 32px;
+}
+.pub-detail-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.pub-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+.badge-hebergement { background: rgba(135,206,235,0.15); color: #2980b9; }
+.badge-activite    { background: rgba(147,197,114,0.15); color: #27ae60; }
+.badge-transport   { background: rgba(231,76,60,0.1);   color: #c0392b; }
+
+.pub-detail-desc {
+    font-size: 16px;
+    color: #334155;
+    line-height: 1.8;
+    margin-bottom: 24px;
+}
+.pub-detail-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid #f1f5f9;
+}
+.pub-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.pub-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px; font-weight: 700;
+    overflow: hidden; flex-shrink: 0;
+}
+.pub-avatar img { width:100%; height:100%; object-fit:cover; }
+.pub-author-name { font-weight: 700; color: var(--dark); font-size: 15px; }
+.pub-author-date { font-size: 12px; color: #94a3b8; }
+
+.btn-edit-mine {
+    background: rgba(93,173,226,0.12);
+    color: var(--bleu-ceil-dark) !important;
+    padding: 9px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all .2s;
+    border: 1.5px solid rgba(93,173,226,0.2);
+}
+.btn-edit-mine:hover {
+    background: var(--bleu-ceil-dark);
+    color: white !important;
+    border-color: var(--bleu-ceil-dark);
+}
+.btn-delete-mine {
+    background: rgba(231,76,60,0.09);
+    color: var(--rouge) !important;
+    padding: 9px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1.5px solid rgba(231,76,60,0.15);
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+}
+.btn-delete-mine:hover {
+    background: var(--rouge);
+    color: white !important;
+    border-color: var(--rouge);
+}
+
+/* ── COMMENTS SECTION ── */
+.comments-section {
+    background: white;
+    border-radius: 28px;
+    padding: 32px 36px;
+    box-shadow: 0 4px 20px rgba(44,62,80,0.07);
+    border: 1px solid rgba(44,62,80,0.06);
+    margin-bottom: 60px;
+}
+.comments-section h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.comments-section h2 span {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white;
+    font-size: 13px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-weight: 600;
+}
+
+/* Comment form */
+.comment-form-wrap {
+    background: #f8fafc;
+    border-radius: 18px;
+    padding: 20px 22px;
+    margin-bottom: 28px;
+    border: 1.5px solid #e2e8f0;
+}
+.comment-form-wrap textarea {
+    width: 100%;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 13px 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: var(--dark);
+    resize: none;
+    outline: none;
+    transition: border-color .25s;
+    background: white;
+}
+.comment-form-wrap textarea:focus { border-color: var(--bleu-ceil); }
+.btn-submit-comment {
+    margin-top: 10px;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white;
+    border: none;
+    padding: 10px 26px;
+    border-radius: 50px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.btn-submit-comment:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(135,206,235,0.35); }
+
+.login-cta {
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 18px 22px;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+.login-cta a { color: var(--bleu-ceil-dark); font-weight: 600; text-decoration: none; }
+
+/* Comment items */
+.comment-list { display: flex; flex-direction: column; gap: 16px; }
+.comment-item {
+    display: flex;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    transition: background .2s;
+    position: relative;
+}
+.comment-item.is-mine {
+    background: linear-gradient(135deg, rgba(135,206,235,0.07), rgba(147,197,114,0.07));
+    border-color: rgba(135,206,235,0.2);
+}
+.comment-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 12px; font-weight: 700;
+    overflow: hidden; flex-shrink: 0;
+}
+.comment-avatar img { width:100%; height:100%; object-fit:cover; }
+.comment-content { flex: 1; }
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+.comment-author { font-weight: 700; font-size: 13.5px; color: var(--dark); }
+.comment-date   { font-size: 11.5px; color: #94a3b8; }
+.mine-badge {
+    font-size: 10.5px;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white;
+    padding: 2px 9px;
+    border-radius: 50px;
+    font-weight: 600;
+}
+.comment-text { font-size: 14px; color: #475569; line-height: 1.6; }
+.comment-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+.btn-comment-action {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all .2s;
+    font-family: 'Poppins', sans-serif;
+    text-decoration: none;
+}
+.btn-comment-edit   { background: rgba(93,173,226,0.1);  color: var(--bleu-ceil-dark); }
+.btn-comment-edit:hover   { background: var(--bleu-ceil-dark); color: white; }
+.btn-comment-delete { background: rgba(231,76,60,0.1);  color: var(--rouge); }
+.btn-comment-delete:hover { background: var(--rouge); color: white; }
+
+/* Inline edit form */
+.inline-edit-form { display: none; margin-top: 10px; }
+.inline-edit-form textarea {
+    width: 100%;
+    border: 1.5px solid var(--bleu-ceil);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13.5px;
+    color: var(--dark);
+    resize: none;
+    outline: none;
+    background: white;
+}
+.inline-edit-actions { display: flex; gap: 8px; margin-top: 8px; }
+.btn-save-edit {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white; border: none; padding: 7px 18px; border-radius: 50px;
+    font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 13px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+}
+.btn-cancel-edit {
+    background: #f1f5f9; color: #64748b; border: none; padding: 7px 16px;
+    border-radius: 50px; font-family: 'Poppins', sans-serif; font-weight: 600;
+    font-size: 13px; cursor: pointer;
+}
+
+/* Flash messages */
+.flash-wrapper {
+    position: fixed; top: 110px; right: 24px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 10px; max-width: 360px;
+}
+.flash-msg {
+    background: white; border-radius: 14px; padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12); font-size: 14px; font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+    border-left: 4px solid var(--vert-pistache);
+    animation: slideIn .3s ease;
+}
+.flash-msg.error { border-left-color: var(--rouge); }
+@keyframes slideIn {
+    from { transform: translateX(40px); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .pub-detail-body, .comments-section { padding: 22px 18px; }
+    .pub-detail-top { flex-direction: column; }
+}
+{% endblock %}
+
+{% block body %}
+{% set isOwner = app.user and publication.id_utilisateur and publication.id_utilisateur.id == app.user.id %}
+
+{# Flash messages #}
+{% if app.flashes('success') or app.flashes('error') %}
+<div class="flash-wrapper" id="flashWrapper">
+    {% for msg in app.flashes('success') %}
+        <div class="flash-msg">✅ {{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="flash-msg error">⚠️ {{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="show-hero">
+    <div class="container">
+        <a href="{{ path('app_communaute_index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour à la communauté
+        </a>
+    </div>
+</div>
+
+<div class="container" style="max-width:820px; padding-bottom: 0;">
+
+    {# ── Publication detail ── #}
+    <div class="pub-detail-card" data-aos="fade-up">
+        {% if publication.imgURL %}
+            <img src="{{ asset('uploads/publications/' ~ publication.imgURL) }}"
+                 alt="Image publication" class="pub-detail-img">
+        {% else %}
+            <div class="pub-detail-img-placeholder">
+                {% if publication.typeCible == 'HEBERGEMENT' %}🏨
+                {% elseif publication.typeCible == 'ACTIVITE' %}🏄
+                {% else %}🚌{% endif %}
+            </div>
+        {% endif %}
+
+        <div class="pub-detail-body">
+            <div class="pub-detail-top">
+                <span class="pub-type-badge badge-{{ publication.typeCible|lower }}">
+                    {% if publication.typeCible == 'HEBERGEMENT' %}<i class="fas fa-hotel"></i>
+                    {% elseif publication.typeCible == 'ACTIVITE' %}<i class="fas fa-hiking"></i>
+                    {% else %}<i class="fas fa-bus"></i>{% endif %}
+                    {{ publication.typeCible|lower|capitalize }}
+                </span>
+                {% if isOwner %}
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <a href="{{ path('app_communaute_edit', {'idPublication': publication.idPublication}) }}" class="btn-edit-mine">
+                            <i class="fas fa-pen"></i> Modifier
+                        </a>
+                        <form method="POST" action="{{ path('app_communaute_delete', {'idPublication': publication.idPublication}) }}"
+                              onsubmit="return confirm('Supprimer cette publication ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_pub_' ~ publication.idPublication) }}">
+                            <button type="submit" class="btn-delete-mine">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+
+            <p class="pub-detail-desc">{{ publication.descriptionP }}</p>
+
+            <div class="pub-detail-meta">
+                <div class="pub-author">
+                    <div class="pub-avatar">
+                        {% if publication.id_utilisateur and publication.id_utilisateur.image %}
+                            <img src="{{ asset('uploads/profiles/' ~ publication.id_utilisateur.image) }}" alt="">
+                        {% elseif publication.id_utilisateur %}
+                            {{ publication.id_utilisateur.prenom|slice(0,1)|upper }}{{ publication.id_utilisateur.nom|slice(0,1)|upper }}
+                        {% else %}?{% endif %}
+                    </div>
+                    <div>
+                        <div class="pub-author-name">
+                            {% if publication.id_utilisateur %}
+                                {{ publication.id_utilisateur.prenom }} {{ publication.id_utilisateur.nom }}
+                            {% else %}Anonyme{% endif %}
+                        </div>
+                        <div class="pub-author-date">Publié le {{ publication.dateCreation|date('d/m/Y à H:i') }}</div>
+                    </div>
+                </div>
+                <div style="color:#94a3b8;font-size:13px;display:flex;align-items:center;gap:6px;">
+                    <i class="fas fa-comment"></i>
+                    {{ publication.commentaires|length }} commentaire{{ publication.commentaires|length != 1 ? 's' : '' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Comments section ── #}
+    <div class="comments-section" data-aos="fade-up" data-aos-delay="100">
+        <h2>
+            <i class="fas fa-comments" style="color:var(--bleu-ceil-dark)"></i>
+            Commentaires
+            <span>{{ publication.commentaires|length }}</span>
+        </h2>
+
+        {# Comment form #}
+        {% if app.user %}
+            <div class="comment-form-wrap">
+                <form method="POST" action="{{ path('app_communaute_comment_add', {'idPublication': publication.idPublication}) }}">
+                    <div style="display:flex;gap:12px;align-items:flex-start;">
+                        <div class="comment-avatar" style="margin-top:4px;">
+                            {% if app.user.image %}
+                                <img src="{{ asset('uploads/profiles/' ~ app.user.image) }}" alt="">
+                            {% else %}
+                                {{ app.user.prenom|slice(0,1)|upper }}{{ app.user.nom|slice(0,1)|upper }}
+                            {% endif %}
+                        </div>
+                        <div style="flex:1;">
+                            <textarea name="contenuC" rows="3" placeholder="Partagez votre avis… (max 200 caractères)" maxlength="200" required></textarea>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                                <span style="font-size:11.5px;color:#94a3b8;">Max 200 caractères</span>
+                                <button type="submit" class="btn-submit-comment">
+                                    <i class="fas fa-paper-plane"></i> Commenter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <div class="login-cta">
+                <i class="fas fa-lock me-2"></i>
+                <a href="{{ path('app_login') }}">Connectez-vous</a> pour laisser un commentaire.
+            </div>
+        {% endif %}
+
+        {# Comment list #}
+        {% set activeComments = publication.commentaires|filter(c => c.statutC == true) %}
+
+        {% if activeComments|length == 0 %}
+            <div style="text-align:center;padding:40px 0;color:#94a3b8;">
+                <i class="fas fa-comment-slash" style="font-size:2.5rem;margin-bottom:12px;display:block;"></i>
+                Aucun commentaire pour l'instant. Soyez le premier !
+            </div>
+        {% else %}
+            <div class="comment-list">
+                {% for commentaire in activeComments %}
+                    {% set isCommentMine = app.user and commentaire.id_utilisateur and commentaire.id_utilisateur.id == app.user.id %}
+                    <div class="comment-item {{ isCommentMine ? 'is-mine' : '' }}" id="comment-{{ commentaire.idCommentaire }}">
+                        <div class="comment-avatar">
+                            {% if commentaire.id_utilisateur and commentaire.id_utilisateur.image %}
+                                <img src="{{ asset('uploads/profiles/' ~ commentaire.id_utilisateur.image) }}" alt="">
+                            {% elseif commentaire.id_utilisateur %}
+                                {{ commentaire.id_utilisateur.prenom|slice(0,1)|upper }}{{ commentaire.id_utilisateur.nom|slice(0,1)|upper }}
+                            {% else %}?{% endif %}
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">
+                                    {% if commentaire.id_utilisateur %}
+                                        {{ commentaire.id_utilisateur.prenom }} {{ commentaire.id_utilisateur.nom }}
+                                    {% else %}Anonyme{% endif %}
+                                </span>
+                                <span class="comment-date">{{ commentaire.dateCreationC|date('d/m/Y à H:i') }}</span>
+                                {% if isCommentMine %}<span class="mine-badge">Moi</span>{% endif %}
+                            </div>
+
+                            {# Comment text (hides when editing) #}
+                            <p class="comment-text" id="text-{{ commentaire.idCommentaire }}">{{ commentaire.contenuC }}</p>
+
+                            {# Inline edit form (hidden by default) #}
+                            {% if isCommentMine %}
+                                <div class="inline-edit-form" id="edit-form-{{ commentaire.idCommentaire }}">
+                                    <form method="POST" action="{{ path('app_communaute_comment_edit', {'idCommentaire': commentaire.idCommentaire}) }}">
+                                        <textarea name="contenuC" rows="3" maxlength="200">{{ commentaire.contenuC }}</textarea>
+                                        <div class="inline-edit-actions">
+                                            <button type="submit" class="btn-save-edit">
+                                                <i class="fas fa-check"></i> Enregistrer
+                                            </button>
+                                            <button type="button" class="btn-cancel-edit"
+                                                    onclick="cancelEdit({{ commentaire.idCommentaire }})">
+                                                Annuler
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="comment-actions">
+                                    <button type="button" class="btn-comment-action btn-comment-edit"
+                                            onclick="startEdit({{ commentaire.idCommentaire }})">
+                                        <i class="fas fa-pen"></i> Modifier
+                                    </button>
+                                    <form method="POST" action="{{ path('app_communaute_comment_delete', {'idCommentaire': commentaire.idCommentaire}) }}"
+                                          style="display:inline"
+                                          onsubmit="return confirm('Supprimer ce commentaire ?');">
+                                        <button type="submit" class="btn-comment-action btn-comment-delete">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+    function startEdit(id) {
+        document.getElementById('text-' + id).style.display = 'none';
+        document.getElementById('edit-form-' + id).style.display = 'block';
+        // hide the action buttons
+        const item = document.getElementById('comment-' + id);
+        const actions = item.querySelector('.comment-actions');
+        if (actions) actions.style.display = 'none';
+    }
+
+    function cancelEdit(id) {
+        document.getElementById('text-' + id).style.display = '';
+        document.getElementById('edit-form-' + id).style.display = 'none';
+        const item = document.getElementById('comment-' + id);
+        const actions = item.querySelector('.comment-actions');
+        if (actions) actions.style.display = '';
+    }
+
+    // Auto-dismiss flash messages
+    setTimeout(() => {
+        const fw = document.getElementById('flashWrapper');
+        if (fw) {
+            fw.style.transition = 'opacity .5s';
+            fw.style.opacity = '0';
+            setTimeout(() => fw.remove(), 500);
+        }
+    }, 4000);
+
+    // Scroll to anchor if coming from a post
+    {% if app.flashes('success') is not empty %}
+        document.querySelector('.comments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    {% endif %}
+</script>
+{% endblock %}

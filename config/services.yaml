@@ -4,6 +4,7 @@
 parameters:
     upload_directory: '%kernel.project_dir%/public/uploads/activite'
     profile_images_directory: '%kernel.project_dir%/public/uploads/profiles'
+    publication_images_directory: '%kernel.project_dir%/public/uploads/publications'
 
 services:
     # default configuration for services in *this* file

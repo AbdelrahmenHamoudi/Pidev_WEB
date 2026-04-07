@@ -12,9 +12,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Publication
 {
     #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(name: "idPublication", type: "integer")]
-    private int $idPublication;
-
+    private ?int $idPublication = null;
+    
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "publications")]
     #[ORM\JoinColumn(name: 'id_utilisateur', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Users $id_utilisateur;
