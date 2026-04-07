@@ -13,7 +13,7 @@
     <div class="menu-inner-shadow"></div>
     
     <ul class="menu-inner py-3" style="padding: 0 12px;">
-        
+
         <!-- Dashboard -->
         <li class="menu-item {% if app.request.get('_route') == 'app_admin' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden; transition: all 0.3s ease;">
             <a href="{{ path('app_admin') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') == 'app_admin' %}background: linear-gradient(135deg, rgba(255, 209, 102, 0.15), rgba(230, 192, 80, 0.15)); border-left: 3px solid #F7B731;{% endif %}">
@@ -24,12 +24,6 @@
                 {% endif %}
             </a>
         </li>
-
-        <a href="{{ path('activite_index') }}" 
-   class="nav-item {{ app.request.attributes.get('_route') starts with 'activite' 
-   or app.request.attributes.get('_route') starts with 'planning' ? 'active' : '' }}">
-    <i class="fas fa-hiking"></i><span>Activités</span>
-</a>
 
         <!-- Go To Front -->
         <li class="menu-item {% if app.request.get('_route') == 'app_home' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden; transition: all 0.3s ease;">
@@ -53,7 +47,7 @@
             </a>
         </li>
 
-        <!-- Activités ✅ AJOUTÉ -->
+        <!-- Activités -->
         <li class="menu-item {% if app.request.get('_route') starts with 'activite' or app.request.get('_route') starts with 'planning' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
             <a href="{{ path('activite_index') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') starts with 'activite' or app.request.get('_route') starts with 'planning' %}background: linear-gradient(135deg, rgba(255, 209, 102, 0.15), rgba(230, 126, 34, 0.15)); border-left: 3px solid #F7B731;{% endif %}">
                 <i class="menu-icon tf-icons bx bx-cycling" style="{% if app.request.get('_route') starts with 'activite' or app.request.get('_route') starts with 'planning' %}color: #F7B731;{% else %}color: #6c757d;{% endif %} font-size: 1.3rem;"></i>
@@ -70,10 +64,19 @@
             </a>
         </li>
 
-        <li class="menu-item">
-            <a href="/admin/users" class="menu-link">
+        <!-- Promotions -->
+        <li class="menu-item {% if app.request.get('_route') starts with 'app_admin_promotion' %}active{% endif %}" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="{{ path('app_admin_promotion_list') }}" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease; {% if app.request.get('_route') starts with 'app_admin_promotion' %}background: linear-gradient(135deg, rgba(255, 209, 102, 0.15), rgba(230, 126, 34, 0.15)); border-left: 3px solid #F7B731;{% endif %}">
+                <i class="menu-icon tf-icons bx bx-purchase-tag-alt" style="{% if app.request.get('_route') starts with 'app_admin_promotion' %}color: #F7B731;{% else %}color: #6c757d;{% endif %} font-size: 1.3rem;"></i>
+                <div style="{% if app.request.get('_route') starts with 'app_admin_promotion' %}color: #2c3e50; font-weight: 600;{% else %}color: #6c757d;{% endif %}">Promotions</div>
+            </a>
+        </li>
+
+        <!-- Utilisateurs -->
+        <li class="menu-item" style="margin-bottom: 8px; border-radius: 12px; overflow: hidden;">
+            <a href="/admin/users" class="menu-link" style="border-radius: 12px; padding: 12px 15px; transition: all 0.3s ease;">
                 <i class="menu-icon tf-icons bx bx-user" style="color: #6c757d; font-size: 1.3rem;"></i>
-                <div style="color: #6c757d;">Utilisateurs TEST</div>
+                <div style="color: #6c757d;">Utilisateurs</div>
             </a>
         </li>
 

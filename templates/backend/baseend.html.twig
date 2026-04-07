@@ -166,6 +166,10 @@ tr:last-child td{border-bottom:none;}
         <span class="nav-badge new">3</span>
       </a>
 
+      <a href="{{ path('app_admin_promotion_list') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'app_admin_promotion' ? 'active' : '' }}">
+        <i class="fas fa-tags"></i><span>Promotions</span>
+      </a>
+
       <a href="{{ path('app_admin_voiture') }}" class="nav-item {{ app.request.attributes.get('_route') == 'app_admin_voiture' ? 'active' : '' }}">
         <i class="fas fa-route"></i><span>Flotte & Trajets</span>
       </a>

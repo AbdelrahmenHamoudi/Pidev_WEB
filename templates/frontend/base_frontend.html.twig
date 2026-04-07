@@ -26,21 +26,9 @@
             --navbar-height: 96px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            overflow-x: hidden;
-            background: var(--light);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; overflow-x: hidden; background: var(--light); }
 
         .navbar-re7la {
             background: rgba(255, 255, 255, 0.85);
@@ -56,10 +44,7 @@
             z-index: 1100;
         }
 
-        .navbar-re7la.scrolled {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 0;
-        }
+        .navbar-re7la.scrolled { background: rgba(255, 255, 255, 0.95); padding: 10px 0; }
 
         .navbar-brand {
             font-weight: 800;
@@ -70,10 +55,7 @@
             background-clip: text;
         }
 
-        .navbar-brand span {
-            color: var(--rouge);
-            -webkit-text-fill-color: var(--rouge);
-        }
+        .navbar-brand span { color: var(--rouge); -webkit-text-fill-color: var(--rouge); }
 
         .nav-link {
             font-weight: 500;
@@ -95,10 +77,7 @@
             border-radius: 2px;
         }
 
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
-        }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
 
         .btn-nav {
             background: linear-gradient(135deg, var(--bleu-ceil), var(--bleu-ceil-dark));
@@ -113,10 +92,7 @@
             align-items: center;
         }
 
-        .btn-nav:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(135, 206, 235, 0.4);
-        }
+        .btn-nav:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(135, 206, 235, 0.4); }
 
         .btn-nav-outline {
             background: white;
@@ -131,14 +107,9 @@
             transition: all 0.3s ease;
         }
 
-        .btn-nav-outline:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(44, 62, 80, 0.08);
-        }
+        .btn-nav-outline:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(44, 62, 80, 0.08); }
 
-        .account-dropdown {
-            position: relative;
-        }
+        .account-dropdown { position: relative; }
 
         .account-btn {
             border: none;
@@ -154,9 +125,7 @@
             transition: all 0.3s ease;
         }
 
-        .account-btn:hover {
-            transform: translateY(-2px);
-        }
+        .account-btn:hover { transform: translateY(-2px); }
 
         .account-avatar {
             width: 40px;
@@ -172,11 +141,7 @@
             font-weight: 700;
         }
 
-        .account-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .account-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
         .account-menu {
             position: absolute;
@@ -192,32 +157,13 @@
             z-index: 1200;
         }
 
-        .account-menu.show {
-            display: block;
-        }
+        .account-menu.show { display: block; }
 
-        .account-menu-header {
-            padding: 10px 12px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            margin-bottom: 8px;
-        }
+        .account-menu-header { padding: 10px 12px 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 8px; }
+        .account-menu-header strong { display: block; color: var(--dark); font-size: 14px; }
+        .account-menu-header span { display: block; color: #64748b; font-size: 12px; margin-top: 2px; word-break: break-word; }
 
-        .account-menu-header strong {
-            display: block;
-            color: var(--dark);
-            font-size: 14px;
-        }
-
-        .account-menu-header span {
-            display: block;
-            color: #64748b;
-            font-size: 12px;
-            margin-top: 2px;
-            word-break: break-word;
-        }
-
-        .account-menu a,
-        .account-menu button {
+        .account-menu a, .account-menu button {
             width: 100%;
             display: flex;
             align-items: center;
@@ -234,24 +180,11 @@
             transition: all 0.2s ease;
         }
 
-        .account-menu a:hover,
-        .account-menu button:hover {
-            background: #f8fafc;
-            color: var(--bleu-ceil-dark);
-        }
+        .account-menu a:hover, .account-menu button:hover { background: #f8fafc; color: var(--bleu-ceil-dark); }
+        .delete-account-btn { color: #dc2626 !important; }
+        .delete-account-btn:hover { background: #fef2f2 !important; color: #b91c1c !important; }
 
-        .delete-account-btn {
-            color: #dc2626 !important;
-        }
-
-        .delete-account-btn:hover {
-            background: #fef2f2 !important;
-            color: #b91c1c !important;
-        }
-
-        main.site-main {
-            padding-top: calc(var(--navbar-height) + 24px);
-        }
+        main.site-main { padding-top: calc(var(--navbar-height) + 24px); }
 
         .hero-section {
             min-height: calc(100vh - var(--navbar-height));
@@ -263,26 +196,13 @@
         }
 
         .hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3') center/cover;
             opacity: 0.15;
         }
 
-        .hero-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero-title {
-            font-size: 4.5rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 20px;
-        }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-title { font-size: 4.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
 
         .hero-title .gradient-text {
             background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache), var(--rouge));
@@ -291,12 +211,7 @@
             background-clip: text;
         }
 
-        .hero-subtitle {
-            font-size: 1.3rem;
-            color: #666;
-            margin-bottom: 40px;
-            font-weight: 400;
-        }
+        .hero-subtitle { font-size: 1.3rem; color: #666; margin-bottom: 40px; font-weight: 400; }
 
         .booking-card {
             background: rgba(255, 255, 255, 0.9);
@@ -307,12 +222,7 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
-        .booking-card h3 {
-            color: var(--dark);
-            font-weight: 700;
-            margin-bottom: 30px;
-            text-align: center;
-        }
+        .booking-card h3 { color: var(--dark); font-weight: 700; margin-bottom: 30px; text-align: center; }
 
         .form-control-re7la {
             border: 2px solid #e0e0e0;
@@ -323,10 +233,7 @@
             background: white;
         }
 
-        .form-control-re7la:focus {
-            border-color: var(--bleu-ceil);
-            box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.2);
-        }
+        .form-control-re7la:focus { border-color: var(--bleu-ceil); box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.2); }
 
         .btn-rechercher {
             background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
@@ -342,44 +249,12 @@
             letter-spacing: 1px;
         }
 
-        .btn-rechercher:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(135, 206, 235, 0.4);
-        }
+        .btn-rechercher:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(135, 206, 235, 0.4); }
 
-        .floating-shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 20s infinite ease-in-out;
-        }
-
-        .shape-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--bleu-ceil);
-            top: -200px;
-            right: -100px;
-            animation-delay: 0s;
-        }
-
-        .shape-2 {
-            width: 300px;
-            height: 300px;
-            background: var(--vert-pistache);
-            bottom: -150px;
-            left: -100px;
-            animation-delay: 5s;
-        }
-
-        .shape-3 {
-            width: 200px;
-            height: 200px;
-            background: var(--rouge);
-            top: 50%;
-            left: 10%;
-            animation-delay: 10s;
-        }
+        .floating-shape { position: absolute; border-radius: 50%; opacity: 0.1; animation: float 20s infinite ease-in-out; }
+        .shape-1 { width: 400px; height: 400px; background: var(--bleu-ceil); top: -200px; right: -100px; animation-delay: 0s; }
+        .shape-2 { width: 300px; height: 300px; background: var(--vert-pistache); bottom: -150px; left: -100px; animation-delay: 5s; }
+        .shape-3 { width: 200px; height: 200px; background: var(--rouge); top: 50%; left: 10%; animation-delay: 10s; }
 
         @keyframes float {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -388,22 +263,10 @@
         }
 
         @media (max-width: 991px) {
-            :root {
-                --navbar-height: 88px;
-            }
-
-            .navbar-re7la {
-                padding: 12px 0;
-            }
-
-            .account-menu {
-                right: 0;
-                min-width: 240px;
-            }
-
-            main.site-main {
-                padding-top: calc(var(--navbar-height) + 18px);
-            }
+            :root { --navbar-height: 88px; }
+            .navbar-re7la { padding: 12px 0; }
+            .account-menu { right: 0; min-width: 240px; }
+            main.site-main { padding-top: calc(var(--navbar-height) + 18px); }
         }
 
         {% block extra_styles %}{% endblock %}
@@ -446,9 +309,10 @@
                         </li>
                     {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link nav-link-communaute {{ app.request.attributes.get('_route') starts with 'app_communaute' ? 'active' : '' }}" href="{{ path('app_communaute_index') }}">
-                            <i class=""></i>Communauté
-                        </a>
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_promotions' ? 'active' : '' }}" href="{{ path('app_promotions_list') }}">Promotions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-communaute {{ app.request.attributes.get('_route') starts with 'app_communaute' ? 'active' : '' }}" href="{{ path('app_communaute_index') }}">Communauté</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">Contact</a>
@@ -535,7 +399,6 @@
                     <h3 style="font-weight: 800; margin-bottom: 20px;">RE<span style="color: var(--rouge);">7</span>LA</h3>
                     <p style="color: #aaa; line-height: 1.8;">Votre partenaire de confiance pour des voyages inoubliables au Maroc. Découvrez des expériences uniques et authentiques.</p>
                 </div>
-
                 <div class="col-lg-2 col-md-4 mb-4">
                     <h5 style="font-weight: 600; margin-bottom: 20px; color: var(--vert-pistache);">Liens rapides</h5>
                     <ul style="list-style: none; padding: 0;">
@@ -545,7 +408,6 @@
                         <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">Contact</a></li>
                     </ul>
                 </div>
-
                 <div class="col-lg-3 col-md-4 mb-4">
                     <h5 style="font-weight: 600; margin-bottom: 20px; color: var(--vert-pistache);">Contact</h5>
                     <ul style="list-style: none; padding: 0; color: #aaa;">
@@ -554,15 +416,12 @@
                         <li style="margin-bottom: 10px;"><i class="fas fa-envelope me-2" style="color: var(--rouge);"></i> contact@re7la.ma</li>
                     </ul>
                 </div>
-
                 <div class="col-lg-3 col-md-4 mb-4">
                     <h5 style="font-weight: 600; margin-bottom: 20px; color: var(--vert-pistache);">Newsletter</h5>
                     <p style="color: #aaa; font-size: 0.9rem;">Abonnez-vous pour recevoir nos offres exclusives.</p>
                 </div>
             </div>
-
             <hr style="border-color: #444; margin: 40px 0 20px;">
-
             <div class="text-center" style="color: #777;">
                 <p>&copy; 2024 RE7LA. Tous droits réservés.</p>
             </div>
@@ -573,33 +432,20 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <script>
-        AOS.init({
-            duration: 1000,
-            once: true
-        });
+        AOS.init({ duration: 1000, once: true });
 
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar-re7la');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
+            if (window.scrollY > 50) { navbar.classList.add('scrolled'); }
+            else { navbar.classList.remove('scrolled'); }
         });
 
         document.addEventListener('DOMContentLoaded', function () {
             const btn = document.getElementById('accountDropdownBtn');
             const menu = document.getElementById('accountDropdownMenu');
-
             if (btn && menu) {
-                btn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    menu.classList.toggle('show');
-                });
-
-                document.addEventListener('click', function () {
-                    menu.classList.remove('show');
-                });
+                btn.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('show'); });
+                document.addEventListener('click', function () { menu.classList.remove('show'); });
             }
         });
     </script>
