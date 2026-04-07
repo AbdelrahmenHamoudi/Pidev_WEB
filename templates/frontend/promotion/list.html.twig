@@ -1,0 +1,230 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Promotions - RE7LA{% endblock %}
+
+{% block body %}
+<section class="py-5" style="background: #f8f9fa; min-height: 100vh;">
+    <div class="container">
+
+        {# ── Header ────────────────────────────────────────────────────────── #}
+        <div class="text-center mb-5">
+            <h2 style="font-weight: 700; color: #2c3e50;">
+                <span style="color: #87CEEB;">Nos</span> Promotions
+            </h2>
+            <p style="color: #777;">Des offres exclusives pour voyager moins cher en Tunisie</p>
+        </div>
+
+        {# ── Flash messages ────────────────────────────────────────────────── #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert"
+                 style="border-radius: 15px; border: none; background: rgba(147, 197, 114, 0.15); color: #5a9e3b;">
+                <i class="bx bx-check-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+
+        {# ── Barre de stats ────────────────────────────────────────────────── #}
+        {#
+          CHANGEMENT :
+          Avant : on filtrait sur p.isActive() (true/false).
+          Après  : on utilise p.status pour distinguer 3 états.
+          - activePromos : status == 'active'
+          - upcomingPromos : status == 'upcoming' (bientôt)
+          - packPromos : promos de type pack
+        #}
+        {% set activePromos   = promotions|filter(p => p.status == 'active') %}
+        {% set upcomingPromos = promotions|filter(p => p.status == 'upcoming') %}
+        {% set packPromos     = promotions|filter(p => p.isPack()) %}
+
+        <div class="d-flex justify-content-center gap-3 mb-5 flex-wrap">
+            <div style="background:#fff;border-radius:50px;padding:10px 22px;box-shadow:0 4px 15px rgba(0,0,0,0.06);font-size:13px;font-weight:600;color:#2c3e50;">
+                🎫 <span style="color:#87CEEB;">{{ promotions|length }}</span> promotions
+            </div>
+            <div style="background:#fff;border-radius:50px;padding:10px 22px;box-shadow:0 4px 15px rgba(0,0,0,0.06);font-size:13px;font-weight:600;color:#2c3e50;">
+                ✅ <span style="color:#1ABC9C;">{{ activePromos|length }}</span> actives
+            </div>
+            <div style="background:#fff;border-radius:50px;padding:10px 22px;box-shadow:0 4px 15px rgba(0,0,0,0.06);font-size:13px;font-weight:600;color:#2c3e50;">
+                🕐 <span style="color:#E67E22;">{{ upcomingPromos|length }}</span> bientôt
+            </div>
+            <div style="background:#fff;border-radius:50px;padding:10px 22px;box-shadow:0 4px 15px rgba(0,0,0,0.06);font-size:13px;font-weight:600;color:#2c3e50;">
+                📦 <span style="color:#F7B731;">{{ packPromos|length }}</span> packs
+            </div>
+        </div>
+
+        {# ── Grille des promotions ─────────────────────────────────────────── #}
+        <div class="row g-4">
+            {% for promotion in promotions %}
+
+            {#
+              CHANGEMENT PRINCIPAL :
+              On calcule status, statusColors et isReservable() pour chaque promo.
+              - status = 'active' | 'upcoming' | 'expired'
+              - statusColors = {bg, color} (vient de l'entity)
+              - promotion.reservable = true si active OU bientôt
+
+              Logique du bouton :
+                active   → "🏨 Réserver maintenant" (vert, cliquable)
+                upcoming → "🔔 Réserver à l'avance"  (orange, cliquable)
+                expired  → "Offre terminée"           (gris, désactivé)
+            #}
+            {% set status        = promotion.status %}
+            {% set statusColors  = promotion.statusColors %}
+            {% set isReservable  = promotion.reservable %}
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 overflow-hidden promo-card"
+                     style="border-radius:25px;
+                            box-shadow:0 10px 40px rgba(0,0,0,0.08);
+                            transition:all 0.3s ease;
+                            opacity:{{ status == 'expired' ? '0.7' : '1' }};">
+
+                    {# ── Image ou placeholder ──────────────────────────────── #}
+                    <div class="position-relative">
+                        {% if promotion.image %}
+                            <img src="{{ asset(promotion.image) }}" class="w-100"
+                                 style="height:200px;object-fit:cover;" alt="{{ promotion.name }}">
+                        {% else %}
+                            <div class="w-100 d-flex align-items-center justify-content-center"
+                                 style="height:200px;background:linear-gradient(135deg,#F7B731,#E67E22);">
+                                <i class="bx bx-purchase-tag-alt" style="font-size:5rem;color:rgba(255,255,255,0.5);"></i>
+                            </div>
+                        {% endif %}
+
+                        {# Badge type (Pack / Individuelle) — inchangé #}
+                        <span style="position:absolute;top:20px;left:20px;
+                            background:{{ promotion.isPack() ? 'linear-gradient(135deg,#1ABC9C,#16a085)' : 'linear-gradient(135deg,#87CEEB,#5ba4d4)' }};
+                            color:white;padding:6px 16px;border-radius:25px;font-weight:600;font-size:0.8rem;">
+                            {{ promotion.isPack() ? '📦 Pack' : '🎫 Individuelle' }}
+                        </span>
+
+                        {# Badge réduction — inchangé #}
+                        <span style="position:absolute;top:20px;right:20px;
+                            background:rgba(255,255,255,0.95);
+                            padding:6px 14px;border-radius:25px;font-weight:800;
+                            color:#F7B731;font-size:1rem;">
+                            -{{ promotion.reductionLabel }}
+                        </span>
+
+                        {#
+                          CHANGEMENT : Ruban bas de l'image
+                          Avant  : uniquement "❌ Promotion expirée" si !isActive
+                          Après  :
+                            - expired  → ruban rouge   "❌ Promotion expirée"
+                            - upcoming → ruban orange  "🕐 Disponible dès le XX/XX/XXXX"
+                            - active   → pas de ruban (la promo est en cours, c'est normal)
+                        #}
+                        {% if status == 'expired' %}
+                        <div style="position:absolute;bottom:0;left:0;right:0;
+                                    background:rgba(230,57,70,0.85);color:#fff;
+                                    text-align:center;padding:7px;font-size:12px;font-weight:600;">
+                            ❌ Promotion expirée
+                        </div>
+                        {% elseif status == 'upcoming' %}
+                        <div style="position:absolute;bottom:0;left:0;right:0;
+                                    background:rgba(230,126,34,0.88);color:#fff;
+                                    text-align:center;padding:7px;font-size:12px;font-weight:600;">
+                            🕐 Disponible dès le {{ promotion.startDate|date('d/m/Y') }}
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+                    {# ── Corps de la card ──────────────────────────────────── #}
+                    <div class="card-body p-4">
+
+                        <h5 style="font-weight:700;color:#2c3e50;margin-bottom:8px;">{{ promotion.name }}</h5>
+
+                        {% if promotion.description %}
+                            <p style="color:#777;font-size:0.9rem;margin-bottom:16px;line-height:1.5;">
+                                {{ promotion.description|slice(0,100) }}{% if promotion.description|length > 100 %}...{% endif %}
+                            </p>
+                        {% endif %}
+
+                        {# Période de validité #}
+                        <div style="background:#f8f9fa;border-radius:12px;padding:12px;margin-bottom:16px;font-size:13px;">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span style="color:#999;"><i class="bx bx-calendar me-1"></i>Valable du</span>
+                                <span style="font-weight:600;color:#2c3e50;">{{ promotion.startDate|date('d/m/Y') }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span style="color:#999;"><i class="bx bx-calendar-check me-1"></i>Au</span>
+                                <span style="font-weight:600;color:#2c3e50;">{{ promotion.endDate|date('d/m/Y') }}</span>
+                            </div>
+                        </div>
+
+                        {#
+                          CHANGEMENT : Badge statut dans la card
+                          Avant  : "✅ Active" vert ou "❌ Expirée" rouge (isActive)
+                          Après  : 3 états avec couleurs dynamiques via statusColors
+                                   "✅ Active" (vert) | "🕐 Bientôt" (orange) | "❌ Expirée" (rouge)
+                        #}
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span style="font-size:12px;color:#999;">Statut</span>
+                            <span style="font-size:12px;font-weight:700;
+                                padding:3px 12px;border-radius:20px;
+                                background:{{ statusColors.bg }};
+                                color:{{ statusColors.color }};">
+                                {{ promotion.statusLabel }}
+                            </span>
+                        </div>
+
+                        {#
+                          CHANGEMENT : Bouton CTA
+                          Avant  : actif si isActive(), désactivé sinon (2 états)
+                          Après  : 3 états
+                            - active   → vert  "🏨 Réserver maintenant"   (cliquable)
+                            - upcoming → orange "🔔 Réserver à l'avance"   (cliquable)
+                            - expired  → gris  "Offre terminée"            (désactivé)
+                          
+                          On utilise promotion.isReservable() pour savoir si on peut cliquer.
+                          Une promo "Bientôt" est réservable car elle va commencer.
+                        #}
+                        {% if status == 'active' %}
+                            <a href="{{ path('app_hebergements_search') }}"
+                               class="btn w-100"
+                               style="background:linear-gradient(135deg,#87CEEB,#93C572);
+                                      color:white;border-radius:50px;font-weight:600;padding:12px;">
+                                🏨 Réserver maintenant
+                            </a>
+
+                        {% elseif status == 'upcoming' %}
+                            <a href="{{ path('app_hebergements_search') }}"
+                               class="btn w-100"
+                               style="background:linear-gradient(135deg,#F7B731,#E67E22);
+                                      color:white;border-radius:50px;font-weight:600;padding:12px;">
+                                🔔 Réserver à l'avance
+                            </a>
+
+                        {% else %}
+                            {# expired : bouton grisé, non cliquable #}
+                            <button class="btn w-100" disabled
+                               style="background:#e8ecf0;color:#94a3b8;
+                                      border-radius:50px;font-weight:600;padding:12px;
+                                      cursor:not-allowed;">
+                                Offre terminée
+                            </button>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="bx bx-purchase-tag-alt" style="font-size:5rem;color:#ddd;margin-bottom:20px;"></i>
+                <h4 style="color:#2c3e50;font-weight:600;">Aucune promotion disponible</h4>
+                <p style="color:#777;">Revenez bientôt pour découvrir nos offres exclusives !</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+<style>
+    .promo-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12) !important;
+    }
+</style>
+{% endblock %}

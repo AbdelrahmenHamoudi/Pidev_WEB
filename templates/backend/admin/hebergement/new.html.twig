@@ -1,0 +1,143 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Nouvel Hébergement - RE7LA Admin{% endblock %}
+
+{% block breadcrumb %}Hébergements{% endblock %}
+{% block page_title %}Nouvel Hébergement{% endblock %}
+
+{% block body %}
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
+  <div>
+    <a href="{{ path('app_admin_hebergement_list') }}" style="color:#1ABC9C;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <i class="fas fa-arrow-left"></i>
+      Retour aux hébergements
+    </a>
+    <h1 style="font-size:24px;font-weight:700;color:#2C3E50;margin:0;">Ajouter un hébergement</h1>
+  </div>
+</div>
+
+<div style="background:#fff;border-radius:20px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+  {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }}
+  
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;">
+    <!-- Titre -->
+    <div>
+      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.titre) }}</label>
+      {{ form_widget(form.titre, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#f8fafc;' ~ (form.titre.vars.errors|length > 0 ? 'border-color:#ef4444;background:#fee2e2;' : '')}}) }}
+      {% if form.titre.vars.errors|length > 0 %}
+        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.titre) }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Type -->
+    <div>
+      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.typeHebergement) }}</label>
+      {{ form_widget(form.typeHebergement, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#f8fafc;' ~ (form.typeHebergement.vars.errors|length > 0 ? 'border-color:#ef4444;background:#fee2e2;' : '')}}) }}
+      {% if form.typeHebergement.vars.errors|length > 0 %}
+        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.typeHebergement) }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    <div style="grid-column:1/-1;">
+      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.descHebergement) }}</label>
+      {{ form_widget(form.descHebergement, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#f8fafc;min-height:100px;resize:vertical;' ~ (form.descHebergement.vars.errors|length > 0 ? 'border-color:#ef4444;background:#fee2e2;' : '')}}) }}
+      {% if form.descHebergement.vars.errors|length > 0 %}
+        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.descHebergement) }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Capacité -->
+    <div>
+      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.capacite) }}</label>
+      {{ form_widget(form.capacite, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#f8fafc;' ~ (form.capacite.vars.errors|length > 0 ? 'border-color:#ef4444;background:#fee2e2;' : ''), 'min': 1, 'max': 100}}) }}
+      {% if form.capacite.vars.errors|length > 0 %}
+        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.capacite) }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Prix -->
+    <div>
+      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.prixParNuit) }}</label>
+      <div style="display:flex;align-items:stretch;">
+        {{ form_widget(form.prixParNuit, {'attr': {'style': 'flex:1;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px 0 0 12px;font-size:14px;transition:all 0.3s;background:#f8fafc;' ~ (form.prixParNuit.vars.errors|length > 0 ? 'border-color:#ef4444;background:#fee2e2;' : ''), 'step': '0.01'}}) }}
+        <div style="background:#f8fafc;border:2px solid #e8ecf0;border-left:none;border-radius:0 12px 12px 0;padding:12px 16px;display:flex;align-items:center;color:#64748b;font-weight:500;">
+          DT/nuits
+        </div>
+      </div>
+      {% if form.prixParNuit.vars.errors|length > 0 %}
+        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.prixParNuit) }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Disponibilité -->
+    <div>
+      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.disponibleHeberg) }}</label>
+      {{ form_widget(form.disponibleHeberg, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#f8fafc;' ~ (form.disponibleHeberg.vars.errors|length > 0 ? 'border-color:#ef4444;background:#fee2e2;' : '')}}) }}
+      {% if form.disponibleHeberg.vars.errors|length > 0 %}
+        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.disponibleHeberg) }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Photos multiples -->
+    <div style="grid-column:1/-1;">
+      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.imageFiles) }}</label>
+      <div style="border:3px dashed #e8ecf0;border-radius:16px;padding:32px;text-align:center;transition:all 0.3s;background:#f8fafc;cursor:pointer;" 
+           onmouseover="this.style.borderColor='#1ABC9C';this.style.background='rgba(26,188,156,0.05)';"
+           onmouseout="this.style.borderColor='#e8ecf0';this.style.background='#f8fafc';">
+        <div style="width:60px;height:60px;background:linear-gradient(135deg,#1ABC9C,#16a085);border-radius:15px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <i class="fas fa-images" style="font-size:24px;color:#fff;"></i>
+        </div>
+        <h3 style="font-size:16px;font-weight:600;color:#2C3E50;margin-bottom:8px;">Télécharger des images</h3>
+        <p style="color:#64748b;font-size:14px;margin-bottom:16px;">Cliquez pour sélectionner ou glissez-déposez</p>
+        {{ form_widget(form.imageFiles, {'attr': {'style': 'display:none;', 'multiple': 'multiple'}}) }}
+        <button type="button" style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:500;font-size:13px;cursor:pointer;" 
+                onclick="document.querySelector('input[type=file]').click();">
+          <i class="fas fa-folder-open" style="margin-right:8px;"></i>
+          Parcourir les fichiers
+        </button>
+      </div>
+      <p style="color:#64748b;font-size:12px;margin-top:8px;">
+        <i class="fas fa-info-circle" style="color:#1ABC9C;margin-right:4px;"></i>
+        Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs photos. La première sera l'image principale.
+      </p>
+      {% if form.imageFiles.vars.errors|length > 0 %}
+        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.imageFiles) }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-top:32px;padding-top:24px;border-top:1px solid #f0f2f5;">
+    <a href="{{ path('app_admin_hebergement_list') }}" style="background:#fff;color:#64748b;border:2px solid #e8ecf0;padding:12px 24px;border-radius:12px;font-weight:500;text-decoration:none;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;">
+      <i class="fas fa-times"></i>
+      Annuler
+    </a>
+    <button type="submit" style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;border:none;padding:12px 24px;border-radius:12px;font-weight:500;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;">
+      <i class="fas fa-save"></i>
+      Créer l'hébergement
+    </button>
+  </div>
+
+  {{ form_end(form) }}
+</div>
+
+<style>
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #1ABC9C !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(26,188,156,0.1) !important;
+  }
+  
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26,188,156,0.3);
+  }
+  
+  a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+</style>
+{% endblock %}

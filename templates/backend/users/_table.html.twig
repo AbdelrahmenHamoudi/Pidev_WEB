@@ -1,0 +1,88 @@
+<div class="card" style="padding:20px;border-radius:20px;">
+    <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="background:#f8fafc;">
+                    <th style="padding:14px;text-align:left;">ID</th>
+                    <th style="padding:14px;text-align:left;">Image</th>
+                    <th style="padding:14px;text-align:left;">Nom complet</th>
+                    <th style="padding:14px;text-align:left;">Email</th>
+                    <th style="padding:14px;text-align:left;">Téléphone</th>
+                    <th style="padding:14px;text-align:left;">Rôle</th>
+                    <th style="padding:14px;text-align:left;">Statut</th>
+                    <th style="padding:14px;text-align:left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr style="border-top:1px solid #edf2f7;">
+                        <td style="padding:14px;">{{ user.id }}</td>
+                        <td style="padding:14px;">
+                            <img
+                                src="{{ asset('uploads/profiles/' ~ user.image) }}"
+                                alt="profil"
+                                style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #f1f5f9;"
+                            >
+                        </td>
+                        <td style="padding:14px;">{{ user.prenom }} {{ user.nom }}</td>
+                        <td style="padding:14px;">{{ user.e_mail }}</td>
+                        <td style="padding:14px;">{{ user.num_tel }}</td>
+                        <td style="padding:14px;">
+                            <span style="padding:6px 12px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-size:12px;font-weight:600;">
+                                {{ user.role }}
+                            </span>
+                        </td>
+                        <td style="padding:14px;">
+                            {% if user.status == 'Banned' %}
+                                <span style="padding:6px 12px;border-radius:999px;background:#fee2e2;color:#b91c1c;font-size:12px;font-weight:600;">
+                                    {{ user.status }}
+                                </span>
+                            {% else %}
+                                <span style="padding:6px 12px;border-radius:999px;background:#dcfce7;color:#166534;font-size:12px;font-weight:600;">
+                                    {{ user.status }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding:14px;">
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <a
+                                    href="{{ path('app_admin_users_show', {id: user.id}) }}"
+                                    style="padding:8px 12px;background:#eff6ff;color:#1d4ed8;border-radius:10px;text-decoration:none;font-weight:600;">
+                                    Voir
+                                </a>
+
+                                <a
+                                    href="{{ path('app_admin_users_edit', {id: user.id}) }}"
+                                    style="padding:8px 12px;background:#fef3c7;color:#92400e;border-radius:10px;text-decoration:none;font-weight:600;">
+                                    Modifier
+                                </a>
+
+                                <button
+                                    type="button"
+                                    class="ban-toggle-btn"
+                                    data-id="{{ user.id }}"
+                                    style="padding:8px 12px;border:none;border-radius:10px;cursor:pointer;font-weight:600;background:{% if user.status == 'Banned' %}#dcfce7{% else %}#fee2e2{% endif %};color:{% if user.status == 'Banned' %}#166534{% else %}#b91c1c{% endif %};">
+                                    {% if user.status == 'Banned' %}Débannir{% else %}Bannir{% endif %}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="delete-user-btn"
+                                    data-id="{{ user.id }}"
+                                    style="padding:8px 12px;background:#111827;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;">
+                                    Supprimer
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="padding:20px;text-align:center;color:#64748b;">
+                            Aucun utilisateur trouvé.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

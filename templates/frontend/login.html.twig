@@ -1,0 +1,862 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Connexion - RE7LA{% endblock %}
+
+{% block extra_styles %}
+<style>
+    :root {
+        --re7la-orange: #F39C12;
+        --re7la-orange-dark: #e67e22;
+        --re7la-white: #FAFAFA;
+        --re7la-yellow: #F7DC6F;
+        --re7la-navy: #2C3E50;
+        --re7la-turquoise: #1ABC9C;
+        --re7la-text: #243447;
+        --re7la-muted: #6b7280;
+        --re7la-border: rgba(44, 62, 80, 0.10);
+        --re7la-shadow: 0 35px 80px rgba(44, 62, 80, 0.18);
+        --re7la-danger: #F39C12;
+        --re7la-success: #27AE60;
+    }
+
+    .auth-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 20px 60px;
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(26, 188, 156, 0.40), transparent 22%),
+            radial-gradient(circle at 88% 14%, rgba(243, 156, 18, 0.42), transparent 24%),
+            radial-gradient(circle at 85% 82%, rgba(247, 220, 111, 0.36), transparent 24%),
+            radial-gradient(circle at 18% 85%, rgba(26, 188, 156, 0.22), transparent 20%),
+            linear-gradient(135deg, #fff0cc 0%, #fffaf1 32%, #e6fbf6 68%, #fff2d9 100%);
+    }
+
+    .auth-section::before,
+    .auth-section::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        z-index: 0;
+        filter: blur(10px);
+        animation: floatBlob 9s ease-in-out infinite;
+    }
+
+    .auth-section::before {
+        width: 440px;
+        height: 440px;
+        left: -120px;
+        top: -120px;
+        background: rgba(243, 156, 18, 0.20);
+    }
+
+    .auth-section::after {
+        width: 380px;
+        height: 380px;
+        right: -90px;
+        bottom: -120px;
+        background: rgba(26, 188, 156, 0.20);
+        animation-delay: 1.2s;
+    }
+
+    @keyframes floatBlob {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+        50% {
+            transform: translate(10px, -12px) scale(1.03);
+        }
+    }
+
+    .auth-wrapper {
+        width: 100%;
+        max-width: 1220px;
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+        border-radius: 36px;
+        overflow: hidden;
+        background: rgba(250, 250, 250, 0.80);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.75);
+        box-shadow: var(--re7la-shadow);
+        position: relative;
+        z-index: 1;
+    }
+
+    .auth-story {
+        position: relative;
+        padding: 64px 58px;
+        color: white;
+        min-height: 760px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        background:
+            linear-gradient(160deg, rgba(44, 62, 80, 0.96), rgba(44, 62, 80, 0.82)),
+            linear-gradient(135deg, rgba(243, 156, 18, 0.28), rgba(26, 188, 156, 0.24));
+    }
+
+    .auth-story::before,
+    .auth-story::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    .auth-story::before {
+        width: 300px;
+        height: 300px;
+        top: -70px;
+        right: -60px;
+        background: rgba(243, 156, 18, 0.22);
+    }
+
+    .auth-story::after {
+        width: 240px;
+        height: 240px;
+        bottom: -70px;
+        left: -60px;
+        background: rgba(26, 188, 156, 0.18);
+    }
+
+    .story-top,
+    .story-content,
+    .story-bottom {
+        position: relative;
+        z-index: 2;
+    }
+
+    .story-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 20px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+    }
+
+    .story-brand img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        background: rgba(255, 255, 255, 0.96);
+        border-radius: 18px;
+        padding: 5px;
+    }
+
+    .story-brand span {
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.4px;
+    }
+
+    .story-kicker {
+        display: inline-block;
+        margin: 30px 0 14px;
+        padding: 9px 15px;
+        border-radius: 999px;
+        background: rgba(247, 220, 111, 0.18);
+        color: var(--re7la-yellow);
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .story-title {
+        font-size: clamp(2.5rem, 4vw, 4.4rem);
+        line-height: 1.02;
+        font-weight: 900;
+        margin-bottom: 18px;
+    }
+
+    .story-title .accent-orange {
+        color: var(--re7la-orange);
+    }
+
+    .story-title .accent-yellow {
+        color: var(--re7la-yellow);
+    }
+
+    .story-text {
+        max-width: 530px;
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 1.05rem;
+        line-height: 1.9;
+        margin-bottom: 36px;
+    }
+
+    .journey-steps {
+        display: grid;
+        gap: 16px;
+        max-width: 540px;
+    }
+
+    .journey-step {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 18px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        transition: transform 0.25s ease, background 0.25s ease;
+    }
+
+    .journey-step:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.11);
+    }
+
+    .journey-step-number {
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--re7la-orange), var(--re7la-yellow));
+        color: var(--re7la-navy);
+        font-weight: 900;
+        box-shadow: 0 12px 24px rgba(243, 156, 18, 0.30);
+    }
+
+    .journey-step h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .journey-step p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .story-bottom {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+
+    .trust-badge {
+        padding: 15px 16px;
+        border-radius: 18px;
+        min-width: 155px;
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        transition: transform 0.25s ease;
+    }
+
+    .trust-badge:hover {
+        transform: translateY(-2px);
+    }
+
+    .trust-badge strong {
+        display: block;
+        color: white;
+        font-size: 1rem;
+        margin-bottom: 4px;
+    }
+
+    .trust-badge span {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.72);
+    }
+
+    .auth-panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 58px 44px;
+        background:
+            linear-gradient(180deg, rgba(250, 250, 250, 0.98), rgba(250, 250, 250, 0.94));
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 440px;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .logo-box {
+        width: 132px;
+        height: 132px;
+        margin: 0 auto 20px;
+        border-radius: 34px;
+        background: linear-gradient(145deg, rgba(243, 156, 18, 0.24), rgba(26, 188, 156, 0.24));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 22px 50px rgba(44, 62, 80, 0.14);
+        border: 1px solid rgba(44, 62, 80, 0.06);
+        animation: logoFloat 4.5s ease-in-out infinite;
+    }
+
+    .logo-box img {
+        width: 98px;
+        height: 98px;
+        object-fit: contain;
+    }
+
+    @keyframes logoFloat {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-4px);
+        }
+    }
+
+    .auth-header h1 {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--re7la-navy);
+        margin-bottom: 10px;
+    }
+
+    .auth-header p {
+        color: var(--re7la-muted);
+        margin: 0;
+        line-height: 1.8;
+        font-size: 15px;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, rgba(255, 236, 232, 0.96), rgba(255, 224, 214, 0.96));
+        border: 1px solid rgba(231, 76, 60, 0.18);
+        color: #c0392b;
+        padding: 15px 16px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .input-label {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--re7la-navy);
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .input-wrap {
+        position: relative;
+    }
+
+    .input-wrap .input-icon {
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        color: #7c8a9c;
+        font-size: 15px;
+        pointer-events: none;
+    }
+
+    .input-wrap input {
+        width: 100%;
+        height: 62px;
+        border-radius: 20px;
+        border: 1.5px solid var(--re7la-border);
+        background: #ffffff;
+        padding: 0 18px 0 48px;
+        color: var(--re7la-text);
+        font-size: 15px;
+        outline: none;
+        transition: all 0.25s ease;
+        box-shadow: 0 10px 24px rgba(44, 62, 80, 0.04);
+    }
+
+    .input-wrap input::placeholder {
+        color: #9ca3af;
+    }
+
+    .input-wrap input:focus {
+        border-color: var(--re7la-orange);
+        box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.16);
+        transform: translateY(-1px);
+    }
+
+    .input-wrap input.input-error {
+        border-color: var(--re7la-danger);
+        box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.14);
+    }
+
+    .input-wrap input.input-success {
+        border-color: var(--re7la-success);
+        box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.14);
+    }
+
+    .field-error {
+        display: none;
+        margin-top: 8px;
+        color: var(--re7la-danger);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+
+    .field-error.show {
+        display: block;
+    }
+
+    .password-wrap input {
+        padding-right: 56px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 14px;
+        transform: translateY(-50%);
+        width: 38px;
+        height: 38px;
+        border: none;
+        border-radius: 12px;
+        background: rgba(243, 156, 18, 0.10);
+        color: var(--re7la-orange);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .toggle-password:hover {
+        background: rgba(243, 156, 18, 0.18);
+    }
+
+    .auth-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin: 8px 0 24px;
+        flex-wrap: wrap;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--re7la-turquoise);
+    }
+
+    .form-check-label {
+        color: var(--re7la-muted);
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .forgot-link {
+        color: var(--re7la-orange);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        transition: color 0.2s ease;
+    }
+
+    .forgot-link:hover {
+        color: var(--re7la-turquoise);
+    }
+
+    .btn-auth {
+        width: 100%;
+        height: 62px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 900;
+        color: white;
+        letter-spacing: 0.3px;
+        background: #F39C12;
+        box-shadow: 0 18px 34px rgba(243, 156, 18, 0.34);
+        transition: all 0.3s ease;
+    }
+
+    .btn-auth:hover {
+        background: var(--re7la-orange-dark);
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 0 22px 40px rgba(243, 156, 18, 0.38);
+    }
+
+    .btn-auth:active {
+        transform: translateY(0);
+    }
+
+    .btn-subtext {
+        text-align: center;
+        margin-top: 14px;
+        color: var(--re7la-muted);
+        font-size: 13px;
+    }
+
+    .auth-links {
+        text-align: center;
+        margin-top: 28px;
+    }
+
+    .auth-links p {
+        margin-bottom: 10px;
+        color: var(--re7la-muted);
+        font-size: 14px;
+    }
+
+    .auth-links a {
+        text-decoration: none;
+        font-weight: 800;
+        color: var(--re7la-navy);
+        transition: color 0.2s ease;
+    }
+
+    .auth-links a:hover {
+        color: var(--re7la-turquoise);
+    }
+
+    .back-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--re7la-orange) !important;
+        margin-top: 4px;
+    }
+
+    @media (max-width: 991px) {
+        .auth-wrapper {
+            grid-template-columns: 1fr;
+            max-width: 780px;
+        }
+
+        .auth-story {
+            min-height: auto;
+            padding: 42px 30px;
+        }
+
+        .auth-panel {
+            padding: 42px 24px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .auth-section {
+            padding: 100px 14px 40px;
+        }
+
+        .auth-wrapper {
+            border-radius: 24px;
+        }
+
+        .auth-story,
+        .auth-panel {
+            padding: 28px 18px;
+        }
+
+        .story-title {
+            font-size: 2rem;
+        }
+
+        .auth-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .auth-options {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo-box {
+            width: 110px;
+            height: 110px;
+        }
+
+        .logo-box img {
+            width: 82px;
+            height: 82px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="auth-section">
+    <div class="auth-wrapper" data-aos="zoom-in-up">
+        <div class="auth-story">
+            <div class="story-top">
+                <div class="story-brand">
+                    <img src="{{ asset('assets_backend/images/logo.png') }}" alt="Logo RE7LA">
+                    <span>RE7LA EXPERIENCE</span>
+                </div>
+            </div>
+
+            <div class="story-content">
+                <span class="story-kicker">Voyage • Loisirs • Évasion</span>
+
+                <h2 class="story-title">
+                    Votre prochaine <span class="accent-orange">aventure</span><br>
+                    commence <span class="accent-yellow">maintenant</span>
+                </h2>
+
+                <p class="story-text">
+                    Connectez-vous pour retrouver vos réservations, explorer vos activités
+                    et continuer votre expérience RE7LA dans un univers vibrant,
+                    chaleureux et inspiré du voyage.
+                </p>
+
+                <div class="journey-steps">
+                    <div class="journey-step">
+                        <div class="journey-step-number">1</div>
+                        <div>
+                            <h3>Accédez rapidement à votre espace</h3>
+                            <p>Une interface claire et immersive qui guide l’utilisateur naturellement vers l’action principale.</p>
+                        </div>
+                    </div>
+
+                    <div class="journey-step">
+                        <div class="journey-step-number">2</div>
+                        <div>
+                            <h3>Retrouvez vos réservations et vos activités</h3>
+                            <p>Vos informations essentielles sont au cœur de l’expérience, sans distraction inutile.</p>
+                        </div>
+                    </div>
+
+                    <div class="journey-step">
+                        <div class="journey-step-number">3</div>
+                        <div>
+                            <h3>Continuez votre voyage avec fluidité</h3>
+                            <p>Un design premium pensé pour inspirer confiance, confort et envie d’évasion.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="story-bottom">
+                <div class="trust-badge">
+                    <strong>Rapide</strong>
+                    <span>Connexion sans friction</span>
+                </div>
+                <div class="trust-badge">
+                    <strong>Premium</strong>
+                    <span>Expérience haut de gamme</span>
+                </div>
+                <div class="trust-badge">
+                    <strong>Vibrant</strong>
+                    <span>Univers voyage & loisir</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-panel">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo-box">
+                        <img src="{{ asset('assets_backend/images/logo.png') }}" alt="RE7LA Logo">
+                    </div>
+                    <h1>Connexion</h1>
+                    <p>
+                        Heureux de vous revoir. Connectez-vous pour continuer votre aventure RE7LA.
+                    </p>
+                </div>
+
+                {% if error is defined and error %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        {{ error.messageKey|trans(error.messageData, 'security') }}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{{ path('app_login') }}" id="loginForm" novalidate>
+                    <div class="form-group">
+                        <label for="email" class="input-label">Adresse email</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input
+                                type="email"
+                                id="email"
+                                name="_username"
+                                value="{{ last_username|default('') }}"
+                                placeholder="exemple@email.com"
+                                required
+                                autocomplete="email"
+                            >
+                        </div>
+                        <div class="field-error" id="emailError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="input-label">Mot de passe</label>
+                        <div class="input-wrap password-wrap">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input
+                                type="password"
+                                id="password"
+                                name="_password"
+                                placeholder="Entrez votre mot de passe"
+                                required
+                                autocomplete="current-password"
+                            >
+                            <button type="button" class="toggle-password" id="togglePassword" aria-label="Afficher ou masquer le mot de passe">
+                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
+                        <div class="field-error" id="passwordError"></div>
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <div class="auth-options">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remember" name="_remember_me">
+                            <label class="form-check-label" for="remember">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+
+                        <a href="{{ path('app_forgot_password') }}" class="forgot-link">
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
+
+                    <button type="submit" class="btn-auth">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Se connecter
+                    </button>
+
+                    <div class="btn-subtext">
+                        Accédez à votre espace personnel RE7LA en quelques secondes.
+                    </div>
+                </form>
+
+                <div class="auth-links">
+                    <p>
+                        Pas encore de compte ?
+                        <a href="{{ path('app_register') }}">Créer un compte</a>
+                    </p>
+                    <p>
+                        <a href="{{ path('app_home') }}" class="back-home">
+                            <i class="fas fa-arrow-left"></i>
+                            Retour à l'accueil
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('loginForm');
+    const emailField = document.getElementById('email');
+    const passwordField = document.getElementById('password');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const togglePassword = document.getElementById('togglePassword');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+
+    function showError(input, errorEl, message) {
+        input.classList.remove('input-success');
+        input.classList.add('input-error');
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+    }
+
+    function clearError(input, errorEl) {
+        input.classList.remove('input-error');
+        input.classList.add('input-success');
+        errorEl.textContent = '';
+        errorEl.classList.remove('show');
+    }
+
+    function validateEmail() {
+        const email = emailField.value.trim().toLowerCase();
+
+        if (email === '') {
+            showError(emailField, emailError, '✉ L\'email est requis');
+            return false;
+        } else if (email.length > 100) {
+            showError(emailField, emailError, '⚠ Email trop long (max 100 caractères)');
+            return false;
+        } else if (email.includes(' ')) {
+            showError(emailField, emailError, '⚠ L\'email ne doit pas contenir d\'espaces');
+            return false;
+        } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            showError(emailField, emailError, '⚠ Format invalide (ex: nom@domaine.tn)');
+            return false;
+        } else {
+            clearError(emailField, emailError);
+            return true;
+        }
+    }
+
+    function validatePassword() {
+        const password = passwordField.value;
+
+        if (password === '') {
+            showError(passwordField, passwordError, '🔒 Le mot de passe est requis');
+            return false;
+        } else if (password.length < 4) {
+            showError(passwordField, passwordError, '⚠ Minimum 4 caractères');
+            return false;
+        } else if (password.length > 255) {
+            showError(passwordField, passwordError, '⚠ Mot de passe trop long');
+            return false;
+        } else if (password.includes(' ')) {
+            showError(passwordField, passwordError, '⚠ Ne doit pas contenir d\'espaces');
+            return false;
+        } else if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+            showError(passwordField, passwordError, '⚠ Doit contenir lettres ET chiffres');
+            return false;
+        } else {
+            clearError(passwordField, passwordError);
+            return true;
+        }
+    }
+
+    emailField.addEventListener('input', validateEmail);
+    passwordField.addEventListener('input', validatePassword);
+
+    form.addEventListener('submit', function (event) {
+        const isEmailValid = validateEmail();
+        const isPasswordValid = validatePassword();
+
+        if (!isEmailValid || !isPasswordValid) {
+            event.preventDefault();
+        }
+    });
+
+    if (togglePassword && passwordField && togglePasswordIcon) {
+        togglePassword.addEventListener('click', function () {
+            const isPassword = passwordField.getAttribute('type') === 'password';
+            passwordField.setAttribute('type', isPassword ? 'text' : 'password');
+
+            togglePasswordIcon.classList.toggle('fa-eye');
+            togglePasswordIcon.classList.toggle('fa-eye-slash');
+        });
+    }
+});
+</script>
+{% endblock %}

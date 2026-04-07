@@ -1,0 +1,266 @@
+/* RE7LA Custom Theme Colors
+   Bleu ciel: #87CEEB
+   Rouge: #e74c3c
+   Vert pistache: #93C572
+*/
+
+/* ========== Global Styles ========== */
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+/* ========== Navbar Styles ========== */
+.navbar-default {
+    background-color: transparent;
+    border-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.navbar-default.affix {
+    background-color: rgba(135, 206, 235, 0.95) !important; /* Bleu ciel */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-default .navbar-brand {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.navbar-default.affix .navbar-brand {
+    color: #fff;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #fff;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #93C572; /* Vert pistache */
+}
+
+.navbar-default.affix .navbar-nav > li > a {
+    color: #fff;
+}
+
+.navbar-default.affix .navbar-nav > li > a:hover,
+.navbar-default.affix .navbar-nav > li > a:focus {
+    color: #e74c3c; /* Rouge */
+}
+
+/* ========== Button Styles ========== */
+.btn-transparent-white {
+    background-color: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.btn-transparent-white:hover {
+    background-color: #87CEEB; /* Bleu ciel */
+    border-color: #87CEEB;
+    color: #fff;
+}
+
+.btn-transparent-prime {
+    background-color: transparent;
+    border: 2px solid #87CEEB;
+    color: #87CEEB;
+    transition: all 0.3s ease;
+}
+
+.btn-transparent-prime:hover {
+    background-color: #87CEEB;
+    color: #fff;
+}
+
+.btn-capsul {
+    border-radius: 100px;
+    padding: 12px 30px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-capsul.btn-primary {
+    background-color: #87CEEB;
+    border-color: #87CEEB;
+    color: #fff;
+}
+
+.btn-capsul.btn-primary:hover {
+    background-color: #5dade2;
+    border-color: #5dade2;
+}
+
+/* ========== Section Title ========== */
+.section-title h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.section-title small {
+    color: #87CEEB;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* ========== Feature Icons ========== */
+.feature-icon span {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    text-align: center;
+    background: rgba(135, 206, 235, 0.1);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.feature-thumb:hover .feature-icon span {
+    background: #87CEEB;
+    transform: scale(1.1);
+}
+
+.feature-thumb:hover .feature-icon span i {
+    color: #fff !important;
+}
+
+.feature-thumb h3 {
+    color: #333;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+/* ========== Gallery Styles ========== */
+.opc-main-bg {
+    background-color: #87CEEB;
+    color: #fff;
+}
+
+.filter-wrapper li a.selected,
+.filter-wrapper li a:hover {
+    background-color: #e74c3c; /* Rouge */
+}
+
+.gallery-overlay {
+    background: rgba(135, 206, 235, 0.8);
+}
+
+.gallery-thumb h3 {
+    color: #333;
+    margin-top: 15px;
+}
+
+/* ========== Video Section ========== */
+#video-sec .overlay {
+    background: rgba(135, 206, 235, 0.8);
+}
+
+#video-sec h2 {
+    color: #fff;
+}
+
+#video-sec h2 small {
+    color: rgba(255,255,255,0.8);
+}
+
+.popup-youtube {
+    background-color: #e74c3c; /* Rouge */
+    color: #fff;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    border-radius: 50%;
+    display: inline-block;
+    font-size: 30px;
+    transition: all 0.3s ease;
+}
+
+.popup-youtube:hover {
+    background-color: #93C572; /* Vert pistache */
+    transform: scale(1.1);
+}
+
+/* ========== Location/Media Styles ========== */
+.media-heading {
+    color: #87CEEB;
+    font-weight: 700;
+}
+
+/* ========== Contact Section ========== */
+#contact-sec {
+    background-color: #87CEEB;
+    position: relative;
+}
+
+#contact-sec .overlay {
+    background: rgba(0,0,0,0.3);
+}
+
+#contact-sec h2 {
+    color: #fff;
+    margin-bottom: 30px;
+}
+
+#contact-sec h2 small {
+    color: rgba(255,255,255,0.8);
+}
+
+/* Input styles with brand colors */
+.input_field-hoshi:focus + .input_label-hoshi::after {
+    background: #93C572; /* Vert pistache */
+}
+
+.input_field-hoshi:focus + .input_label-hoshi .input_label-content-hoshi {
+    color: #93C572;
+}
+
+/* ========== Footer Styles ========== */
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 30px 0;
+}
+
+footer a {
+    color: #87CEEB;
+}
+
+footer a:hover {
+    color: #93C572;
+}
+
+/* ========== Loader Styles ========== */
+.loader-bg {
+    background-color: #87CEEB;
+}
+
+.ball-pulse-rise > div {
+    background-color: #fff;
+}
+
+/* ========== Responsive Adjustments ========== */
+@media (max-width: 768px) {
+    .navbar-default .navbar-collapse {
+        background-color: rgba(135, 206, 235, 0.95);
+    }
+    
+    .navbar-default .navbar-nav > li > a {
+        color: #fff;
+    }
+}
