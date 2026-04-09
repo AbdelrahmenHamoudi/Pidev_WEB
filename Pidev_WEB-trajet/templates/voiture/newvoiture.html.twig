@@ -1,0 +1,309 @@
+{% extends 'base_voiture.html.twig' %}
+
+{% block title %}{{ title }} - RE7LA Admin{% endblock %}
+{% block breadcrumb %}Voitures{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block body %}
+
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
+  <div>
+    <a href="{{ path('app_voiture') }}" style="color:#F7B731;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <i class="fas fa-arrow-left"></i>
+      Retour aux voitures
+    </a>
+    <h1 style="font-size:24px;font-weight:700;color:#2C3E50;margin:0;">{{ voiture.id ? 'Modifier ' ~ voiture.marque ~ ' ' ~ voiture.modele : 'Ajouter un véhicule' }}</h1>
+  </div>
+</div>
+
+<div style="background:#fff;border-radius:20px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+
+  <form method="POST" enctype="multipart/form-data">
+
+    <!-- ===== SECTION 1 : Identification ===== -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#F7B731,#E6C050);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-car" style="color:#fff;font-size:14px;"></i>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Identification du véhicule</div>
+          <div style="font-size:12px;color:#94a3b8;">Marque, modèle et immatriculation</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Marque</label>
+          <input type="text" name="marque" value="{{ voiture.marque ?? '' }}" required
+                 placeholder="Ex : Toyota, Peugeot…"
+                 style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+        </div>
+
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Modèle</label>
+          <input type="text" name="modele" value="{{ voiture.modele ?? '' }}" required
+                 placeholder="Ex : Corolla, 308…"
+                 style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+        </div>
+
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Immatriculation</label>
+          <input type="text" name="immatriculation" value="{{ voiture.immatriculation ?? '' }}" required
+                 placeholder="Ex : TN 1234 AB"
+                 style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+        </div>
+
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Tarif / km (DT)</label>
+          <div style="display:flex;align-items:stretch;">
+            <input type="number" name="prix_KM" value="{{ voiture.prixKM ?? '' }}" step="0.01" min="0" required
+                   placeholder="Ex : 4.50"
+                   style="flex:1;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px 0 0 12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+            <div style="background:#f8fafc;border:2px solid #e8ecf0;border-left:none;border-radius:0 12px 12px 0;padding:12px 16px;display:flex;align-items:center;color:#64748b;font-weight:500;white-space:nowrap;">
+              DT/km
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== SECTION 2 : Capacité & Options ===== -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#1ABC9C,#16a085);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-sliders-h" style="color:#fff;font-size:14px;"></i>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Capacité & Options</div>
+          <div style="font-size:12px;color:#94a3b8;">Places et services disponibles</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Nombre de places</label>
+          <input type="number" name="nb_places" value="{{ voiture.nbPlaces ?? 5 }}" min="1" max="20" required
+                 style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;justify-content:flex-end;">
+
+          <label style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:#f8fafc;border:2px solid #e8ecf0;border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:14px;color:#64748b;" class="toggle-opt">
+            <input type="checkbox" name="avec_chauffeur" value="1" {% if voiture.avecChauffeur %}checked{% endif %}
+                   style="width:17px;height:17px;accent-color:#F7B731;flex-shrink:0;">
+            <i class="fas fa-user-tie" style="color:#F7B731;"></i>
+            Avec chauffeur disponible
+          </label>
+
+          <label style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:#f8fafc;border:2px solid #e8ecf0;border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:14px;color:#64748b;" class="toggle-opt">
+            <input type="checkbox" name="disponibilite" value="1" {% if voiture.disponibilite %}checked{% endif %}
+                   style="width:17px;height:17px;accent-color:#1ABC9C;flex-shrink:0;">
+            <i class="fas fa-check-circle" style="color:#1ABC9C;"></i>
+            Disponible à la réservation
+          </label>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECTION 3 : Image & Description ===== -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#2C3E50,#34495e);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-images" style="color:#fff;font-size:14px;"></i>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Image & Description</div>
+          <div style="font-size:12px;color:#94a3b8;">Photo du véhicule et informations</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:16px;">
+        <button type="button" id="tab-btn-upload" onclick="switchTab('upload')"
+                style="padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid #F7B731;background:#F7B731;color:#fff;transition:all 0.18s;font-family:'Inter',sans-serif;">
+          <i class="fas fa-folder-open" style="margin-right:6px;"></i>Depuis mon PC
+        </button>
+        <button type="button" id="tab-btn-url" onclick="switchTab('url')"
+                style="padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid #e8ecf0;background:#f8fafc;color:#64748b;transition:all 0.18s;font-family:'Inter',sans-serif;">
+          <i class="fas fa-link" style="margin-right:6px;"></i>URL externe
+        </button>
+      </div>
+
+      <!-- Tab Upload -->
+      <div id="tab-upload">
+        <div style="border:3px dashed #e8ecf0;border-radius:16px;padding:32px;text-align:center;background:#f8fafc;cursor:pointer;transition:all 0.3s;position:relative;"
+             id="dropZone"
+             onmouseover="this.style.borderColor='#F7B731';this.style.background='rgba(247,183,49,0.05)';"
+             onmouseout="this.style.borderColor='#e8ecf0';this.style.background='#f8fafc';">
+          <div style="width:60px;height:60px;background:linear-gradient(135deg,#F7B731,#E6C050);border-radius:15px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <i class="fas fa-camera" style="font-size:24px;color:#fff;"></i>
+          </div>
+          <h3 style="font-size:16px;font-weight:600;color:#2C3E50;margin-bottom:8px;" id="dropTitle">Télécharger une image</h3>
+          <p style="color:#64748b;font-size:14px;margin-bottom:0;" id="dropSub">Cliquez ou glissez une image ici — PNG, JPG, WEBP (max 5 Mo)</p>
+          <input type="file" name="image_file" id="imageFile" accept="image/png,image/jpeg,image/webp,image/gif"
+                 style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"
+                 onchange="previewFile(this)">
+        </div>
+        <div id="filePreviewWrap" style="display:none;margin-top:12px;position:relative;">
+          <img id="filePreview" src="" alt="Aperçu" style="width:100%;max-height:240px;object-fit:cover;border-radius:12px;border:1px solid #e8ecf0;">
+          <button type="button" onclick="clearFile()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;">
+            <i class="fas fa-times"></i> Supprimer
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab URL -->
+      <div id="tab-url" style="display:none;">
+        <input type="url" name="image_url" id="imageUrl"
+               value="{{ (voiture.image is defined and voiture.image and voiture.image starts with 'http') ? voiture.image : '' }}"
+               placeholder="https://exemple.com/image.jpg"
+               oninput="previewUrl(this.value)"
+               style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+        <div id="urlPreviewWrap" style="display:none;margin-top:12px;">
+          <img id="urlPreview" src="" alt="Aperçu" style="width:100%;max-height:240px;object-fit:cover;border-radius:12px;border:1px solid #e8ecf0;">
+        </div>
+      </div>
+
+      <!-- Image actuelle (édition) -->
+      {% if voiture.image %}
+      <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 14px;background:#f3f4f6;border-radius:8px;font-size:12px;color:#6b7280;">
+        <i class="fas fa-image" style="color:#F7B731;"></i>
+        <span>Image actuelle :</span>
+        <img src="{{ voiture.image }}" alt="actuelle" style="width:48px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e8ecf0;flex-shrink:0;" onerror="this.style.display='none'">
+        <span style="font-family:monospace;font-size:11px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ voiture.image }}</span>
+      </div>
+      {% endif %}
+
+      <!-- Description -->
+      <div style="margin-top:20px;">
+        <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Description</label>
+        <textarea name="description" rows="4"
+                  placeholder="Équipements, état, caractéristiques du véhicule…"
+                  style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;resize:vertical;">{{ voiture.description ?? '' }}</textarea>
+      </div>
+
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div style="display:flex;gap:12px;padding-top:24px;border-top:1px solid #f0f2f5;">
+      <a href="{{ path('app_voiture') }}" style="background:#fff;color:#64748b;border:2px solid #e8ecf0;padding:12px 24px;border-radius:12px;font-weight:500;text-decoration:none;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;">
+        <i class="fas fa-times"></i> Annuler
+      </a>
+      <button type="submit" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-weight:600;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-size:14px;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
+        <i class="fas fa-save"></i>
+        {% if voiture.id %}Enregistrer les modifications{% else %}Ajouter le véhicule{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+<style>
+  input:focus, select:focus, textarea:focus {
+    outline:none;
+    border-color:#F7B731 !important;
+    background:#fff !important;
+    box-shadow:0 0 0 3px rgba(247,183,49,0.1) !important;
+  }
+  .toggle-opt:hover { border-color:#F7B731 !important;color:#2C3E50; }
+  .toggle-opt:has(input:checked) { border-color:#F7B731;background:#fffbf0;color:#d97706;font-weight:600; }
+  button:hover, a:hover { transform:translateY(-1px); }
+</style>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function switchTab(tab) {
+  const uploadEl  = document.getElementById('tab-upload');
+  const urlEl     = document.getElementById('tab-url');
+  const btnUpload = document.getElementById('tab-btn-upload');
+  const btnUrl    = document.getElementById('tab-btn-url');
+
+  if (tab === 'upload') {
+    uploadEl.style.display = 'block';
+    urlEl.style.display    = 'none';
+    btnUpload.style.background = '#F7B731';
+    btnUpload.style.borderColor = '#F7B731';
+    btnUpload.style.color = '#fff';
+    btnUrl.style.background = '#f8fafc';
+    btnUrl.style.borderColor = '#e8ecf0';
+    btnUrl.style.color = '#64748b';
+    document.getElementById('imageUrl').value = '';
+  } else {
+    uploadEl.style.display = 'none';
+    urlEl.style.display    = 'block';
+    btnUrl.style.background = '#F7B731';
+    btnUrl.style.borderColor = '#F7B731';
+    btnUrl.style.color = '#fff';
+    btnUpload.style.background = '#f8fafc';
+    btnUpload.style.borderColor = '#e8ecf0';
+    btnUpload.style.color = '#64748b';
+    document.getElementById('imageFile').value = '';
+    hideFilePreview();
+  }
+}
+
+function previewFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { alert('Fichier trop lourd — maximum 5 Mo.'); input.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('filePreview').src = e.target.result;
+    document.getElementById('filePreviewWrap').style.display = 'block';
+    document.getElementById('dropTitle').textContent = file.name;
+    document.getElementById('dropSub').textContent = (file.size / 1024).toFixed(0) + ' Ko — Image chargée';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFile() {
+  document.getElementById('imageFile').value = '';
+  hideFilePreview();
+  document.getElementById('dropTitle').textContent = 'Télécharger une image';
+  document.getElementById('dropSub').textContent = 'Cliquez ou glissez une image ici — PNG, JPG, WEBP (max 5 Mo)';
+}
+
+function hideFilePreview() {
+  document.getElementById('filePreviewWrap').style.display = 'none';
+  document.getElementById('filePreview').src = '';
+}
+
+function previewUrl(url) {
+  const wrap = document.getElementById('urlPreviewWrap');
+  const img  = document.getElementById('urlPreview');
+  if (url) {
+    img.src = url;
+    img.onload  = () => wrap.style.display = 'block';
+    img.onerror = () => wrap.style.display = 'none';
+  } else { wrap.style.display = 'none'; }
+}
+
+// Drag & Drop
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.style.borderColor='#F7B731'; });
+dropZone.addEventListener('dragleave', () => dropZone.style.borderColor='#e8ecf0');
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.style.borderColor='#e8ecf0';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const dt = new DataTransfer(); dt.items.add(file);
+    const input = document.getElementById('imageFile');
+    input.files = dt.files; previewFile(input);
+  }
+});
+
+{% if voiture.image is defined and voiture.image and voiture.image starts with 'http' %}
+  switchTab('url');
+  previewUrl('{{ voiture.image }}');
+{% endif %}
+</script>
+{% endblock %}

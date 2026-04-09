@@ -1,0 +1,337 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Mes Trajets - RE7LA{% endblock %}
+
+{% block extra_styles %}
+:root {
+    --bleu-ceil: #87CEEB;
+    --bleu-ceil-dark: #5dade2;
+    --rouge: #e74c3c;
+    --vert-pistache: #93C572;
+    --vert-pistache-dark: #7cb342;
+    --dark: #2c3e50;
+}
+
+/* ===== HERO ===== */
+.trajet-hero {
+    background: linear-gradient(135deg, rgba(135, 206, 235, 0.15), rgba(147, 197, 114, 0.15));
+    padding: 140px 0 80px;
+    position: relative;
+    overflow: hidden;
+}
+.trajet-hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1400') center/cover;
+    opacity: 0.07;
+}
+.floating-shape { position: absolute; border-radius: 50%; opacity: 0.08; animation: float 20s infinite ease-in-out; }
+.shape-1 { width: 400px; height: 400px; background: var(--bleu-ceil); top: -150px; right: -100px; animation-delay: 0s; }
+.shape-2 { width: 250px; height: 250px; background: var(--vert-pistache); bottom: -80px; left: -60px; animation-delay: 5s; }
+@keyframes float { 0%,100%{transform:translate(0,0) rotate(0deg);} 33%{transform:translate(30px,-30px) rotate(120deg);} 66%{transform:translate(-20px,20px) rotate(240deg);} }
+
+/* ===== STAT CARDS ===== */
+.stat-card-fe {
+    background: white;
+    border-radius: 25px;
+    padding: 28px 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    border: 1px solid rgba(135,206,235,0.15);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+.stat-card-fe:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
+.stat-icon-fe {
+    width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+
+/* ===== FILTERS ===== */
+.filters-card {
+    background: white;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.07);
+    margin-bottom: 40px;
+}
+
+/* ===== TRAJET CARDS ===== */
+.trajet-card {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    border: 1px solid rgba(135,206,235,0.1);
+    transition: all 0.3s ease;
+}
+.trajet-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.13); }
+
+.route-banner {
+    background: linear-gradient(135deg, var(--dark), #1a2f42);
+    padding: 24px 28px;
+    display: flex; align-items: center; gap: 0; position: relative;
+}
+.rb-city { flex: 1; }
+.rb-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+.rb-name  { font-size: 20px; font-weight: 700; color: white; font-family: 'Poppins', sans-serif; }
+.rb-arrow { margin: 0 16px; color: rgba(255,255,255,0.3); font-size: 22px; flex-shrink: 0; }
+.rb-dot-dep { position: absolute; bottom: -6px; left: 28px; width: 12px; height: 12px; border-radius: 50%; background: var(--bleu-ceil); box-shadow: 0 0 10px rgba(135,206,235,0.7); }
+.rb-dot-arr { position: absolute; bottom: -6px; right: 28px; width: 12px; height: 12px; border-radius: 50%; background: var(--vert-pistache); box-shadow: 0 0 10px rgba(147,197,114,0.7); }
+
+.trajet-body { padding: 24px 28px; }
+
+.info-row-fe {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid #f0f4f8; font-size: 14px;
+}
+.info-row-fe:last-child { border-bottom: none; }
+.ir-key { color: #94a3b8; display: flex; align-items: center; gap: 8px; }
+.ir-val { font-weight: 600; color: var(--dark); }
+
+.badge-fe {
+    display: inline-block; padding: 6px 16px; border-radius: 50px;
+    font-size: 12px; font-weight: 700;
+}
+.badge-reserved  { background: rgba(135,206,235,0.15); color: #3b82f6; }
+.badge-confirmed { background: rgba(147,197,114,0.15); color: #16a34a; }
+.badge-cancelled { background: rgba(231,76,60,0.15);   color: #dc2626; }
+.badge-completed { background: rgba(44,62,80,0.08);    color: #475569; }
+
+.trajet-actions {
+    display: flex; gap: 8px;
+    padding: 16px 28px 24px; border-top: 1px solid #f0f4f8;
+}
+{% endblock %}
+
+{% block body %}
+
+<!-- ===== HERO ===== -->
+<section class="trajet-hero">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-7" data-aos="fade-right">
+                <span style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; padding: 8px 20px; border-radius: 50px; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 20px;">
+                    <i class="fas fa-route me-2"></i>Gestion des Trajets
+                </span>
+                <h1 style="font-weight: 800; font-size: 3rem; color: var(--dark); line-height: 1.2; margin-bottom: 16px;">
+                    Mes <span style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Trajets</span>
+                </h1>
+                <p style="color: #666; font-size: 1.1rem; margin-bottom: 32px;">
+                    {{ trajets|length }} trajet{{ trajets|length != 1 ? 's' : '' }} enregistré{{ trajets|length != 1 ? 's' : '' }} dans votre espace
+                </p>
+                <a href="{{ path('app_trajet_create') }}" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 35px; font-weight: 600; box-shadow: 0 10px 30px rgba(135,206,235,0.4); transition: all 0.3s;">
+                    <i class="fas fa-plus me-2"></i>Nouveau Trajet
+                </a>
+            </div>
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center" data-aos="fade-left">
+                <div style="width: 280px; height: 280px; background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(147,197,114,0.2)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-bus" style="font-size: 8rem; background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background: #f8f9fa;">
+    <div class="container">
+
+        <!-- ===== FLASH MESSAGES ===== -->
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-dismissible fade show mb-4" role="alert" style="border-radius: 15px; border: none; background: rgba(147,197,114,0.15); color: #16a34a;">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-dismissible fade show mb-4" role="alert" style="border-radius: 15px; border: none; background: rgba(231,76,60,0.15); color: #dc2626;">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+
+        <!-- ===== STAT CARDS ===== -->
+        {% set total     = trajets|length %}
+        {% set reserved  = trajets|filter(t => t.statut == 'Réservé')|length %}
+        {% set confirmed = trajets|filter(t => t.statut == 'Confirmé')|length %}
+        {% set cancelled = trajets|filter(t => t.statut == 'Annulé')|length %}
+
+        <div class="row g-4 mb-5" data-aos="fade-up">
+            <div class="col-6 col-md-3">
+                <div class="stat-card-fe">
+                    <div class="stat-icon-fe" style="background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(135,206,235,0.1));">
+                        <i class="fas fa-route" style="color: var(--bleu-ceil);"></i>
+                    </div>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ total }}</div>
+                    <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Total trajets</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card-fe">
+                    <div class="stat-icon-fe" style="background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(135,206,235,0.1));">
+                        <i class="fas fa-clock" style="color: var(--bleu-ceil);"></i>
+                    </div>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ reserved }}</div>
+                    <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Réservés</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card-fe">
+                    <div class="stat-icon-fe" style="background: linear-gradient(135deg, rgba(147,197,114,0.2), rgba(147,197,114,0.1));">
+                        <i class="fas fa-check-circle" style="color: var(--vert-pistache);"></i>
+                    </div>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ confirmed }}</div>
+                    <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Confirmés</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card-fe">
+                    <div class="stat-icon-fe" style="background: linear-gradient(135deg, rgba(231,76,60,0.15), rgba(231,76,60,0.08));">
+                        <i class="fas fa-times-circle" style="color: var(--rouge);"></i>
+                    </div>
+                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ cancelled }}</div>
+                    <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Annulés</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FILTERS ===== -->
+        <div class="filters-card mb-5" data-aos="fade-up">
+            <h5 style="font-weight: 700; color: var(--dark); margin-bottom: 20px;">
+                <i class="fas fa-filter me-2" style="color: var(--bleu-ceil);"></i>Filtrer les trajets
+            </h5>
+            <form method="GET" action="{{ path('app_trajet') }}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Recherche</label>
+                        <div class="position-relative">
+                            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                            <input type="text" name="search" value="{{ search ?? '' }}"
+                                   placeholder="Départ, arrivée, voiture…"
+                                   style="width: 100%; padding: 12px 14px 12px 40px; border: 2px solid #e0e7ff; border-radius: 15px; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; transition: all 0.3s; background: #f8faff;">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Statut</label>
+                        <select name="statut" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e7ff; border-radius: 15px; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; background: #f8faff; cursor: pointer;">
+                            <option value="">Tous les statuts</option>
+                            {% for s in ['Réservé', 'Confirmé', 'Annulé', 'Terminé'] %}
+                                <option value="{{ s }}" {{ (statut ?? '') == s ? 'selected' : '' }}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Voiture</label>
+                        <select name="voiture" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e7ff; border-radius: 15px; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; background: #f8faff; cursor: pointer;">
+                            <option value="">Toutes les voitures</option>
+                            {% for v in voitures ?? [] %}
+                                <option value="{{ v.id }}" {{ (voitureId|default('')) == (v.id ~ '') ? 'selected' : '' }}>
+                                    {{ v.marque }} {{ v.modele }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn w-100" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 15px; padding: 12px; font-weight: 600; border: none; transition: all 0.3s;">
+                            <i class="fas fa-search me-1"></i>Filtrer
+                        </button>
+                    </div>
+                </div>
+                {% if (search ?? '') or (statut ?? '') or (voitureId ?? '') %}
+                <div class="mt-3">
+                    <a href="{{ path('app_trajet') }}" style="color: var(--rouge); font-size: 13px; font-weight: 600; text-decoration: none;">
+                        <i class="fas fa-times me-1"></i>Réinitialiser les filtres
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- ===== TRAJET CARDS ===== -->
+        <div class="row g-4">
+            {% for trajet in trajets %}
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
+                <div class="trajet-card">
+
+                    <!-- Route banner -->
+                    <div class="route-banner">
+                        <div class="rb-city">
+                            <div class="rb-label">Départ</div>
+                            <div class="rb-name">{{ trajet.pointDepart }}</div>
+                        </div>
+                        <div class="rb-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="rb-city text-end">
+                            <div class="rb-label">Arrivée</div>
+                            <div class="rb-name">{{ trajet.pointArrivee }}</div>
+                        </div>
+                        <div class="rb-dot-dep"></div>
+                        <div class="rb-dot-arr"></div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="trajet-body">
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-calendar-alt"></i> Date</span>
+                            <span class="ir-val">
+                                {% if trajet.dateReservation %}{{ trajet.dateReservation|date('d/m/Y') }}{% else %}—{% endif %}
+                            </span>
+                        </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-users"></i> Passagers</span>
+                            <span class="ir-val">{{ trajet.nbPersonnes }} personne{{ trajet.nbPersonnes > 1 ? 's' : '' }}</span>
+                        </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-road"></i> Distance</span>
+                            <span class="ir-val">{% if trajet.distanceKm %}{{ trajet.distanceKm|number_format(1) }} km{% else %}—{% endif %}</span>
+                        </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-car"></i> Véhicule</span>
+                            <span class="ir-val">{% if trajet.idVoiture %}{{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}{% else %}—{% endif %}</span>
+                        </div>
+                        <div class="info-row-fe" style="border-bottom: none; padding-top: 14px;">
+                            <span class="ir-key"><i class="fas fa-info-circle"></i> Statut</span>
+                            <span>
+                                {% set s = trajet.statut %}
+                                <span class="badge-fe
+                                    {% if s == 'Réservé' %}badge-reserved
+                                    {% elseif s == 'Confirmé' %}badge-confirmed
+                                    {% elseif s == 'Annulé' %}badge-cancelled
+                                    {% else %}badge-completed{% endif %}">
+                                    {{ s }}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="trajet-actions">
+                        <a href="{{ path('app_trajet_show', {id: trajet.id}) }}" class="btn flex-fill" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; font-weight: 600; font-size: 13px;">
+                            <i class="fas fa-eye me-1"></i>Voir le détail
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="text-center py-5" style="background: white; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.07);">
+                    <div style="width: 100px; height: 100px; background: linear-gradient(135deg, rgba(135,206,235,0.15), rgba(147,197,114,0.15)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                        <i class="fas fa-bus" style="font-size: 2.5rem; color: var(--bleu-ceil);"></i>
+                    </div>
+                    <h4 style="font-weight: 700; color: var(--dark); margin-bottom: 10px;">Aucun trajet trouvé</h4>
+                    <p style="color: #94a3b8; margin-bottom: 28px;">
+                        {% if (search ?? '') or (statut ?? '') %}Modifiez vos filtres ou créez un nouveau trajet.{% else %}Commencez par réserver votre premier trajet.{% endif %}
+                    </p>
+                    <a href="{{ path('app_trajet_create') }}" class="btn" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 14px 35px; font-weight: 600;">
+                        <i class="fas fa-plus me-2"></i>Nouveau trajet
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

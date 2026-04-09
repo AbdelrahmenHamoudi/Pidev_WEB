@@ -1,0 +1,274 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}{{ hebergement.titre }} - RE7LA{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .main-image-container {
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        position: relative;
+        cursor: pointer;
+    }
+    .main-image {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    .main-image-container:hover .main-image {
+        transform: scale(1.02);
+    }
+    .thumbnail-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .thumbnail-item {
+        border-radius: 15px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    .thumbnail-item.active {
+        border-color: #87CEEB;
+    }
+    .thumbnail-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .thumbnail-item img {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+    }
+    .thumbnail-more {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    .lightbox {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .lightbox.active {
+        display: flex;
+    }
+    .lightbox img {
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 10px;
+    }
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: white;
+        font-size: 3rem;
+        cursor: pointer;
+    }
+    .lightbox-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: white;
+        font-size: 3rem;
+        cursor: pointer;
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="py-5" style="background: linear-gradient(135deg, rgba(135, 206, 235, 0.1), rgba(147, 197, 114, 0.1)); min-height: 100vh;">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_hebergements') }}" style="color: #87CEEB;">Hébergements</a></li>
+                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">{{ hebergement.titre }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            <!-- Gallery -->
+            <div class="col-lg-6">
+                {% set images = hebergement.images|length > 0 ? hebergement.images : [] %}
+                {% if images|length > 0 %}
+                    <!-- Main Image -->
+                    <div class="main-image-container" onclick="openLightbox(0)">
+                        <img id="main-image" src="{{ asset(images[0].filename) }}" class="main-image" alt="{{ hebergement.titre }}">
+                    </div>
+                    
+                    <!-- Thumbnails -->
+                    <div class="thumbnail-grid">
+                        {% for image in images|slice(0, 4) %}
+                            <div class="thumbnail-item {{ loop.first ? 'active' : '' }}" onclick="changeMainImage({{ loop.index0 }}, this)">
+                                <img src="{{ asset(image.filename) }}" alt="Photo {{ loop.index }}">
+                                {% if loop.last and images|length > 4 %}
+                                    <div class="thumbnail-more">+{{ images|length - 4 }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Lightbox -->
+                    <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+                        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+                        <span class="lightbox-nav lightbox-prev" onclick="changeLightboxImage(-1)">&#10094;</span>
+                        <img id="lightbox-img" src="" alt="Gallery">
+                        <span class="lightbox-nav lightbox-next" onclick="changeLightboxImage(1)">&#10095;</span>
+                    </div>
+                {% else %}
+                    <div style="border-radius: 25px; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.15);">
+                        <div class="w-100 d-flex align-items-center justify-content-center" style="height: 450px; background: linear-gradient(135deg, #87CEEB, #93C572);">
+                            <i class="bx bx-building-house" style="font-size: 8rem; color: white;"></i>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Info -->
+            <div class="col-lg-6">
+                <span style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; padding: 8px 20px; border-radius: 25px; font-weight: 600; font-size: 0.85rem;">
+                    {{ hebergement.typeHebergement }}
+                </span>
+
+                <h2 style="font-weight: 700; color: #2c3e50; margin: 20px 0;">{{ hebergement.titre }}</h2>
+
+                <div style="background: linear-gradient(135deg, #87CEEB, #93C572); border-radius: 20px; padding: 25px; color: white; margin-bottom: 30px;">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h3 style="font-weight: 700; margin: 0;">{{ hebergement.prixParNuit }} DT</h3>
+                            <small>par nuit</small>
+                        </div>
+                        <div class="col-4" style="border-left: 1px solid rgba(255,255,255,0.3); border-right: 1px solid rgba(255,255,255,0.3);">
+                            <h3 style="font-weight: 700; margin: 0;">{{ hebergement.capacite }}</h3>
+                            <small>personnes</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 style="font-weight: 700; margin: 0;">{{ hebergement.reservations|length }}</h3>
+                            <small>réservations</small>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 style="font-weight: 700; color: #2c3e50; margin-bottom: 15px;">Description</h5>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 30px;">
+                    {{ hebergement.descHebergement ?: 'Aucune description disponible pour cet hébergement.' }}
+                </p>
+
+                <div class="d-flex gap-3">
+                    <a href="{{ path('app_hebergements') }}" class="btn" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+                        <i class="bx bx-arrow-back me-2"></i>Retour
+                    </a>
+                    <a href="{{ path('app_reservation_new', {hebergementId: hebergement.id}) }}" class="btn" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+                        <i class="bx bx-calendar-plus me-2"></i>Réserver maintenant
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+const images = [
+    {% for image in hebergement.images %}
+        '{{ asset(image.filename) }}'{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+let currentImageIndex = 0;
+
+function changeMainImage(index, element) {
+    if (images.length === 0) return;
+    
+    currentImageIndex = index;
+    const mainImage = document.getElementById('main-image');
+    mainImage.style.opacity = '0.5';
+    
+    setTimeout(() => {
+        mainImage.src = images[index];
+        mainImage.style.opacity = '1';
+    }, 150);
+    
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail-item').forEach(thumb => {
+        thumb.classList.remove('active');
+    });
+    element.classList.add('active');
+}
+
+function openLightbox(index) {
+    if (images.length === 0) return;
+    
+    currentImageIndex = index;
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    lightboxImg.src = images[index];
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(event) {
+    if (event && event.target !== event.currentTarget && !event.target.classList.contains('lightbox-close')) return;
+    
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+function changeLightboxImage(direction) {
+    currentImageIndex += direction;
+    
+    if (currentImageIndex < 0) {
+        currentImageIndex = images.length - 1;
+    } else if (currentImageIndex >= images.length) {
+        currentImageIndex = 0;
+    }
+    
+    const lightboxImg = document.getElementById('lightbox-img');
+    lightboxImg.style.opacity = '0.5';
+    
+    setTimeout(() => {
+        lightboxImg.src = images[currentImageIndex];
+        lightboxImg.style.opacity = '1';
+    }, 150);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox.classList.contains('active')) return;
+    
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') changeLightboxImage(-1);
+    if (e.key === 'ArrowRight') changeLightboxImage(1);
+});
+</script>
+{% endblock %}
