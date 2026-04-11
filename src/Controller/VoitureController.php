@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
 
 #[Route('/voitures')]
 final class VoitureController extends AbstractController
@@ -97,7 +99,8 @@ final class VoitureController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         ValidatorInterface $validator,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        HubInterface $hub
     ): Response {
         $voiture = new Voiture();
 
@@ -113,6 +116,22 @@ final class VoitureController extends AbstractController
             } else {
                 $em->persist($voiture);
                 $em->flush();
+
+                $update = new Update(
+                    'https://re7la.com/voitures',
+                    json_encode([
+                        'action' => 'add',
+                        'message' => "Nouvelle voiture ajoutée : {$voiture->getMarque()} {$voiture->getModele()}",
+                        'voiture' => ['id' => $voiture->getId(), 'marque' => $voiture->getMarque(), 'modele' => $voiture->getModele()]
+                    ])
+                );
+                
+                try {
+                    $hub->publish($update);
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'La voiture a été ajoutée. (Mode Dev: Notification temps réel désactivée, hub introuvable)');
+                }
+
                 $this->addFlash('success', 'Voiture ajoutée avec succès !');
                 return $this->redirectToRoute('app_voiture');
             }
@@ -136,7 +155,8 @@ final class VoitureController extends AbstractController
         Voiture $voiture,
         EntityManagerInterface $em,
         ValidatorInterface $validator,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        HubInterface $hub
     ): Response {
         if ($request->isMethod('POST')) {
             $this->hydrateVoiture($voiture, $request);
@@ -149,6 +169,21 @@ final class VoitureController extends AbstractController
                 }
             } else {
                 $em->flush();
+
+                $update = new Update(
+                    'https://re7la.com/voitures',
+                    json_encode([
+                        'action' => 'edit',
+                        'message' => "La voiture {$voiture->getMarque()} {$voiture->getModele()} a été mise à jour.",
+                        'voiture' => ['id' => $voiture->getId(), 'marque' => $voiture->getMarque(), 'modele' => $voiture->getModele()]
+                    ])
+                );
+                try {
+                    $hub->publish($update);
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Mise à jour réussie. (Notifications temps réel indisponibles)');
+                }
+
                 $this->addFlash('success', 'Voiture modifiée avec succès !');
                 return $this->redirectToRoute('app_voiture_show', ['id' => $voiture->getId()]);
             }
@@ -161,9 +196,12 @@ final class VoitureController extends AbstractController
     }
 
     #[Route('/{id}/supprimer', name: 'app_voiture_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(Request $request, Voiture $voiture, EntityManagerInterface $em): Response
+    public function delete(Request $request, Voiture $voiture, EntityManagerInterface $em, HubInterface $hub): Response
     {
         if ($this->isCsrfTokenValid('delete' . $voiture->getId(), $request->request->get('_csrf_token'))) {
+            $marque = $voiture->getMarque();
+            $modele = $voiture->getModele();
+            $idVoiture = $voiture->getId();
             // Supprimer le fichier image si c'est un fichier local
             $image = $voiture->getImage();
             if ($image && str_starts_with($image, '/uploads/voitures/')) {
@@ -172,8 +210,23 @@ final class VoitureController extends AbstractController
                     unlink($filePath);
                 }
             }
+
             $em->remove($voiture);
             $em->flush();
+
+            $update = new Update(
+                'https://re7la.com/voitures',
+                json_encode([
+                    'action' => 'delete',
+                    'message' => "La voiture $marque $modele a été retirée de la flotte.",
+                    'voiture' => ['id' => $idVoiture, 'marque' => $marque, 'modele' => $modele]
+                ])
+            );
+            try {
+                $hub->publish($update);
+            } catch (\Exception $e) {
+            }
+
             $this->addFlash('success', 'Voiture supprimée avec succès !');
         }
 

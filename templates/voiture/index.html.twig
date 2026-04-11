@@ -195,8 +195,7 @@
       <p style="color:#94a3b8;font-size:13px;">{{ voitures|length }} véhicule{{ voitures|length != 1 ? 's' : '' }} dans la flotte</p>
     </div>
     <a href="{{ path('app_voiture_create') }}" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
-      <i class="fas fa-plus"></i>
-      Nouvelle Voiture
+      <i class="fas fa-plus"></i> Nouvelle Voiture
     </a>
   </div>
 
@@ -280,7 +279,7 @@
           <a href="{{ path('app_voiture_edit', {id: voiture.id}) }}" class="v-action-btn v-edit-btn">
             <i class="fas fa-pen"></i> Éditer
           </a>
-          <form method="POST" action="{{ path('app_voiture_delete', {id: voiture.id}) }}" style="flex:0.5;" onsubmit="return confirm('Supprimer {{ voiture.marque }} {{ voiture.modele }} ?');">
+          <form method="POST" action="{{ path('app_voiture_delete', {id: voiture.id}) }}" style="flex:0.5;" onsubmit="return confirm('Supprimer {{ voiture.marque }} {{ voiture.modele }} ?\nAttention : tous les trajets associés seront aussi supprimés.');">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('delete' ~ voiture.id) }}">
             <button type="submit" class="v-action-btn v-delete-btn">
               <i class="fas fa-trash"></i>
@@ -442,6 +441,103 @@
 
         refreshBtn.addEventListener('click', fetchCarStats);
         fetchCarStats();
+<<<<<<< HEAD
+=======
+
+        // --- MERCURE REAL-TIME NOTIFICATIONS ---
+        // Abonnement au Hub Mercure pour écouter les modifications de la flotte
+        const eventSource = new EventSource("{{ mercure('https://re7la.com/voitures')|escape('js') }}");
+        
+        eventSource.onmessage = event => {
+            const data = JSON.parse(event.data);
+            showMercureToast(data.message, data.action);
+            
+            // Optionnel : on peut recharger les stats dynamiquement en arrière-plan
+            if (['add', 'edit', 'delete'].includes(data.action)) {
+                fetchCarStats();
+                // Si on voulait être parfait, on pourrait aussi recharger juste le tableau des voitures ici.
+            }
+        };
+
+        function showMercureToast(message, type) {
+            let container = document.getElementById('mercure-toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'mercure-toast-container';
+                container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:12px;';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            
+            let iconCode = '<i class="fas fa-info-circle"></i>';
+            let bgGradient = 'linear-gradient(135deg, #3498db, #2980b9)';
+            
+            if (type === 'add') {
+                iconCode = '<i class="fas fa-plus-circle"></i>';
+                bgGradient = 'linear-gradient(135deg, #1ABC9C, #16a085)';
+            } else if (type === 'edit') {
+                iconCode = '<i class="fas fa-pen"></i>';
+                bgGradient = 'linear-gradient(135deg, #F39C12, #e67e22)';
+            } else if (type === 'delete') {
+                iconCode = '<i class="fas fa-trash"></i>';
+                bgGradient = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+            }
+
+            toast.style.cssText = `
+                background: ${bgGradient};
+                color: white;
+                padding: 16px 20px;
+                border-radius: 14px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                min-width: 320px;
+                max-width: 400px;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                transform: translateX(120%);
+                opacity: 0;
+                transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                backdrop-filter: blur(10px);
+            `;
+
+            toast.innerHTML = `
+                <div style="font-size:24px;">${iconCode}</div>
+                <div style="flex:1;">
+                    <div style="font-size:11px;text-transform:uppercase;font-weight:800;letter-spacing:0.5px;opacity:0.9;margin-bottom:4px;">Action en temps réel</div>
+                    <div style="line-height:1.4;">${message}</div>
+                </div>
+                <button onclick="this.parentElement.style.opacity='0'; setTimeout(()=>this.parentElement.remove(), 400);" style="background:transparent;border:none;color:white;cursor:pointer;opacity:0.7;padding:5px;font-size:16px;transition:0.2s;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    toast.style.transform = 'translateX(0)';
+                    toast.style.opacity = '1';
+                });
+            });
+
+            // Animate out after 6 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.transform = 'translateX(120%)';
+                    toast.style.opacity = '0';
+                    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 500);
+                }
+            }, 6000);
+        }
+        
+        // Expose globally for the test button
+        window.showMercureToast = showMercureToast;
+>>>>>>> 389a046 (ajout d'autre FA et API)
     });
 </script>
 {% endblock %}

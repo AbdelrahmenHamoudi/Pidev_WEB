@@ -156,7 +156,7 @@ class Voiture
     public function getNbPlaces() { return $this->nb_places; }
     public function setNbPlaces($v) { $this->nb_places = $v; return $this; }
 
-    #[ORM\OneToMany(mappedBy: "id_voiture", targetEntity: Trajet::class)]
+    #[ORM\OneToMany(mappedBy: "id_voiture", targetEntity: Trajet::class, cascade: ["remove"])]
     private Collection $trajets;
 
     public function __construct()

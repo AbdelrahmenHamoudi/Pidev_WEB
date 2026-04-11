@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
 
 #[Route('/trajets')]
 final class TrajetController extends AbstractController
@@ -78,7 +80,7 @@ final class TrajetController extends AbstractController
     }
 
     #[Route('/ajouter', name: 'app_trajet_create', methods: ['GET', 'POST'])]
-    public function create(Request $request, EntityManagerInterface $em, VoitureRepository $voitureRepo, ValidatorInterface $validator): Response
+    public function create(Request $request, EntityManagerInterface $em, VoitureRepository $voitureRepo, ValidatorInterface $validator, HubInterface $hub): Response
     {
         $trajet = new Trajet();
 
@@ -112,6 +114,22 @@ final class TrajetController extends AbstractController
             } else {
                 $em->persist($trajet);
                 $em->flush();
+
+                $update = new Update(
+                    'https://re7la.com/admin/trajets',
+                    json_encode([
+                        'action' => 'add_trajet',
+                        'message' => "Nouveau trajet réservé : {$trajet->getPointDepart()} vers {$trajet->getPointArrivee()}",
+                        'voiture_marque' => $voiture->getMarque(),
+                        'voiture_modele' => $voiture->getModele()
+                    ])
+                );
+                
+                try {
+                    $hub->publish($update);
+                } catch (\Exception $e) {
+                    // Ignore silently if Mercure is down
+                }
 
                 $this->addFlash('success', 'Trajet ajouté avec succès !');
                 return $this->redirectToRoute('app_trajet');

@@ -302,6 +302,48 @@ tr:last-child td{border-bottom:none;}
       });
     });
   });
+
+  // --- GLOBAL REAL TIME NOTIFICATIONS (TRAJETS) ---
+  document.addEventListener('DOMContentLoaded', function() {
+      const url = "{{ mercure('https://re7la.com/admin/trajets')|escape('js') }}";
+      const eventSource = new EventSource(url);
+      
+      eventSource.onmessage = event => {
+          const data = JSON.parse(event.data);
+          
+          if(data.action === 'add_trajet') {
+              // Notification globale SweetAlert2 Toast
+              const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 6000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                  toast.onmouseenter = Swal.stopTimer;
+                  toast.onmouseleave = Swal.resumeTimer;
+                }
+              });
+              
+              Toast.fire({
+                icon: "success",
+                title: "<span style='font-size:15px;font-weight:700;color:#2C3E50;'>Nouvelle Réservation !</span>",
+                html: `<div style='font-size:13px;color:#64748b;margin-top:4px;'>${data.message}<br><b style='color:#2C3E50;'>Auto:</b> ${data.voiture_marque} ${data.voiture_modele}</div>`,
+                background: '#ffffff',
+                iconColor: '#1ABC9C',
+                showCloseButton: true
+              });
+              
+              // Met à jour la bulle de notification dans le header (point rouge)
+              const notifDot = document.querySelector('.notif-dot');
+              if(notifDot) {
+                  let count = parseInt(notifDot.innerText) || 0;
+                  notifDot.innerText = count + 1;
+                  notifDot.style.animation = 'pulse 1s infinite alternate';
+              }
+          }
+      };
+  });
 </script>
 {% block javascripts %}{% endblock %}
 </body>
