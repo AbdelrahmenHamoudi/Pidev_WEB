@@ -1,0 +1,443 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Communauté — RE7LA{% endblock %}
+
+{% block extra_styles %}
+/* ── PAGE HEADER ── */
+.communaute-header {
+    background: linear-gradient(135deg, rgba(135,206,235,0.15), rgba(147,197,114,0.15));
+    border-bottom: 1px solid rgba(135,206,235,0.2);
+    padding: 48px 0 36px;
+    margin-bottom: 0;
+}
+.communaute-header h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+.communaute-header p {
+    color: #64748b;
+    font-size: 1.05rem;
+}
+
+/* ── FILTER BAR ── */
+.filter-bar {
+    background: white;
+    border-radius: 20px;
+    padding: 18px 24px;
+    box-shadow: 0 4px 20px rgba(44,62,80,0.07);
+    border: 1px solid rgba(135,206,235,0.25);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.filter-bar input[type="text"] {
+    flex: 1;
+    min-width: 180px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .25s;
+}
+.filter-bar input[type="text"]:focus { border-color: var(--bleu-ceil); }
+.filter-chip {
+    padding: 9px 18px;
+    border-radius: 50px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dark);
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.filter-chip:hover, .filter-chip.active {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    border-color: transparent;
+    color: white !important;
+}
+.btn-new-pub {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white !important;
+    padding: 11px 26px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .3s;
+    white-space: nowrap;
+    border: none;
+}
+.btn-new-pub:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(135,206,235,0.4);
+}
+
+/* ── PUBLICATION CARD ── */
+.pub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 28px;
+    padding: 36px 0 60px;
+}
+.pub-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(44,62,80,0.07);
+    border: 1px solid rgba(44,62,80,0.06);
+    transition: transform .3s, box-shadow .3s;
+    display: flex;
+    flex-direction: column;
+}
+.pub-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(44,62,80,0.12);
+}
+.pub-card-img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+}
+.pub-card-img-placeholder {
+    width: 100%;
+    height: 210px;
+    background: linear-gradient(135deg, rgba(135,206,235,0.3), rgba(147,197,114,0.3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--bleu-ceil-dark);
+}
+.pub-card-body {
+    padding: 20px 22px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.pub-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+.badge-hebergement { background: rgba(135,206,235,0.15); color: #2980b9; }
+.badge-activite    { background: rgba(147,197,114,0.15); color: #27ae60; }
+.badge-transport   { background: rgba(231,76,60,0.1);   color: #c0392b; }
+
+.pub-description {
+    font-size: 14.5px;
+    color: #475569;
+    line-height: 1.6;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.pub-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+}
+.pub-author {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+.pub-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.pub-avatar img { width:100%; height:100%; object-fit:cover; }
+.pub-author-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark);
+}
+.pub-date {
+    font-size: 11.5px;
+    color: #94a3b8;
+}
+.pub-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-see {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white !important;
+    padding: 7px 16px;
+    border-radius: 50px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all .2s;
+}
+.btn-see:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+.btn-icon-edit, .btn-icon-delete {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+}
+.btn-icon-edit   { background: rgba(93,173,226,0.12); color: var(--bleu-ceil-dark); }
+.btn-icon-edit:hover   { background: var(--bleu-ceil-dark); color: white; }
+.btn-icon-delete { background: rgba(231,76,60,0.1); color: var(--rouge); }
+.btn-icon-delete:hover { background: var(--rouge); color: white; }
+
+.comment-count {
+    font-size: 12px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    grid-column: 1 / -1;
+}
+.empty-state i { font-size: 3.5rem; color: #cbd5e1; margin-bottom: 16px; }
+.empty-state h3 { color: var(--dark); font-weight: 700; margin-bottom: 8px; }
+.empty-state p  { color: #94a3b8; }
+
+/* ── FLASH MESSAGES ── */
+.flash-wrapper {
+    position: fixed;
+    top: 110px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 360px;
+}
+.flash-msg {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid var(--vert-pistache);
+    animation: slideIn .3s ease;
+}
+.flash-msg.error { border-left-color: var(--rouge); }
+@keyframes slideIn {
+    from { transform: translateX(40px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .pub-grid { grid-template-columns: 1fr; }
+    .communaute-header h1 { font-size: 2rem; }
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-bar input[type="text"] { width: 100%; }
+}
+{% endblock %}
+
+{% block body %}
+
+{# ── Flash messages ── #}
+{% if app.flashes('success') or app.flashes('error') %}
+<div class="flash-wrapper" id="flashWrapper">
+    {% for msg in app.flashes('success') %}
+        <div class="flash-msg">✅ {{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="flash-msg error">⚠️ {{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{# ── Page header ── #}
+<div class="communaute-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1 data-aos="fade-right"><i class="fas fa-users me-3" style="background:linear-gradient(135deg,var(--bleu-ceil),var(--vert-pistache));-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>Communauté</h1>
+                <p data-aos="fade-right" data-aos-delay="100">Partagez vos expériences de voyage avec la communauté RE7LA</p>
+            </div>
+            {% if app.user %}
+                <a href="{{ path('app_communaute_new') }}" class="btn-new-pub" data-aos="fade-left">
+                    <i class="fas fa-plus"></i> Nouvelle publication
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn-new-pub" data-aos="fade-left">
+                    <i class="fas fa-sign-in-alt"></i> Connectez-vous pour publier
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# ── Filter bar ── #}
+<div class="container" style="margin-top:28px;">
+    <form method="GET" action="{{ path('app_communaute_index') }}" class="filter-bar" data-aos="fade-up">
+        <input type="text" name="search" value="{{ search }}" placeholder="🔍 Rechercher une publication…">
+
+        <a href="{{ path('app_communaute_index') }}" class="filter-chip {{ typeCible == '' ? 'active' : '' }}">
+            <i class="fas fa-globe-africa"></i> Tout
+        </a>
+        {% for type in typeCibles %}
+            <a href="{{ path('app_communaute_index', {'typeCible': type, 'search': search}) }}"
+               class="filter-chip {{ typeCible == type ? 'active' : '' }}">
+                {% if type == 'HEBERGEMENT' %}<i class="fas fa-hotel"></i>
+                {% elseif type == 'ACTIVITE' %}<i class="fas fa-hiking"></i>
+                {% else %}<i class="fas fa-bus"></i>{% endif %}
+                {{ type|lower|capitalize }}
+            </a>
+        {% endfor %}
+
+        <button type="submit" class="btn-new-pub" style="padding:10px 22px;">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+
+    {# ── Publication grid ── #}
+    <div class="pub-grid">
+        {% if publications is empty %}
+            <div class="empty-state" data-aos="fade-up">
+                <i class="fas fa-image"></i>
+                <h3>Aucune publication trouvée</h3>
+                <p>Soyez le premier à partager une expérience !</p>
+            </div>
+        {% else %}
+            {% for pub in publications %}
+                {% set isOwner = app.user and pub.id_utilisateur and pub.id_utilisateur.id == app.user.id %}
+                <div class="pub-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+
+                    {# Image #}
+                    {% if pub.imgURL %}
+                        <img src="{{ asset('uploads/publications/' ~ pub.imgURL) }}"
+                             alt="Publication"
+                             class="pub-card-img"
+                             loading="lazy">
+                    {% else %}
+                        <div class="pub-card-img-placeholder">
+                            {% if pub.typeCible == 'HEBERGEMENT' %}🏨
+                            {% elseif pub.typeCible == 'ACTIVITE' %}🏄
+                            {% else %}🚌{% endif %}
+                        </div>
+                    {% endif %}
+
+                    <div class="pub-card-body">
+                        {# Type badge #}
+                        <span class="pub-type-badge badge-{{ pub.typeCible|lower }}">
+                            {% if pub.typeCible == 'HEBERGEMENT' %}<i class="fas fa-hotel"></i>
+                            {% elseif pub.typeCible == 'ACTIVITE' %}<i class="fas fa-hiking"></i>
+                            {% else %}<i class="fas fa-bus"></i>{% endif %}
+                            {{ pub.typeCible|lower|capitalize }}
+                        </span>
+
+                        {# Description #}
+                        <p class="pub-description">{{ pub.descriptionP }}</p>
+
+                        {# Meta row #}
+                        <div class="pub-meta">
+                            <div class="pub-author">
+                                <div class="pub-avatar">
+                                    {% if pub.id_utilisateur and pub.id_utilisateur.image %}
+                                        <img src="{{ asset('uploads/profiles/' ~ pub.id_utilisateur.image) }}" alt="">
+                                    {% elseif pub.id_utilisateur %}
+                                        {{ pub.id_utilisateur.prenom|slice(0,1)|upper }}{{ pub.id_utilisateur.nom|slice(0,1)|upper }}
+                                    {% else %}
+                                        ?
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="pub-author-name">
+                                        {% if pub.id_utilisateur %}
+                                            {{ pub.id_utilisateur.prenom }} {{ pub.id_utilisateur.nom }}
+                                        {% else %}
+                                            Anonyme
+                                        {% endif %}
+                                    </div>
+                                    <div class="pub-date">{{ pub.dateCreation|date('d/m/Y') }}</div>
+                                </div>
+                            </div>
+
+                            <div class="pub-actions-right">
+                                <span class="comment-count">
+                                    <i class="fas fa-comment"></i>
+                                    {{ pub.commentaires|length }}
+                                </span>
+                                <a href="{{ path('app_communaute_show', {'idPublication': pub.idPublication}) }}" class="btn-see">
+                                    Voir <i class="fas fa-arrow-right"></i>
+                                </a>
+                                {% if isOwner %}
+                                    <a href="{{ path('app_communaute_edit', {'idPublication': pub.idPublication}) }}" class="btn-icon-edit" title="Modifier">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <form method="POST" action="{{ path('app_communaute_delete', {'idPublication': pub.idPublication}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette publication ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_pub_' ~ pub.idPublication) }}">
+                                        <button type="submit" class="btn-icon-delete" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Auto-dismiss flash messages after 4s
+    setTimeout(() => {
+        const fw = document.getElementById('flashWrapper');
+        if (fw) fw.style.transition = 'opacity .5s', fw.style.opacity = '0', setTimeout(() => fw.remove(), 500);
+    }, 4000);
+</script>
+{% endblock %}

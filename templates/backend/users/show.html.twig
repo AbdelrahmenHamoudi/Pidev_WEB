@@ -1,0 +1,42 @@
+    {% extends 'backend/baseend.html.twig' %}
+
+    {% block title %}Profil utilisateur - RE7LA Admin{% endblock %}
+    {% block breadcrumb %}Utilisateurs{% endblock %}
+    {% block page_title %}Profil utilisateur{% endblock %}
+
+    {% block body %}
+    <div class="card" style="padding:30px;border-radius:20px;">
+        <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;">
+            <img src="{{ asset('uploads/profiles/' ~ userItem.image) }}" alt="profil" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+            <div>
+                <h2 style="margin:0 0 8px;">{{ userItem.prenom }} {{ userItem.nom }}</h2>
+                <p style="margin:0 0 6px;color:#64748b;">{{ userItem.e_mail }}</p>
+                <p style="margin:0;color:#64748b;">{{ userItem.num_tel }}</p>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div class="card" style="padding:20px;border-radius:16px;background:#f8fafc;">
+                <strong>ID :</strong> {{ userItem.id }}
+            </div>
+            <div class="card" style="padding:20px;border-radius:16px;background:#f8fafc;">
+                <strong>Date naissance :</strong> {{ userItem.date_naiss }}
+            </div>
+            <div class="card" style="padding:20px;border-radius:16px;background:#f8fafc;">
+                <strong>Rôle :</strong> {{ userItem.role }}
+            </div>
+            <div class="card" style="padding:20px;border-radius:16px;background:#f8fafc;">
+                <strong>Statut :</strong> {{ userItem.status }}
+            </div>
+            <div class="card" style="padding:20px;border-radius:16px;background:#f8fafc;">
+                <strong>Email vérifié :</strong> {{ userItem.email_verified ? 'Oui' : 'Non' }}
+            </div>
+        </div>
+
+        <div style="margin-top:24px;">
+            <a href="{{ path('app_admin_users_index') }}" style="padding:12px 16px;border-radius:12px;background:#1ABC9C;color:white;text-decoration:none;">
+                Retour à la liste
+            </a>
+        </div>
+    </div>
+    {% endblock %}

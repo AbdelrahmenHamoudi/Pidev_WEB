@@ -1,0 +1,97 @@
+<div style="max-width:760px;">
+
+    {# ── Erreurs de validation ── #}
+    {% if form.vars.errors|length > 0 %}
+        <div style="background:#fee2e2;color:#991b1b;padding:14px 18px;border-radius:10px;margin-bottom:20px;">
+            <strong><i class="fas fa-exclamation-triangle"></i> Erreurs :</strong>
+            <ul style="margin:8px 0 0 16px;">
+                {% for error in form.vars.errors %}
+                    <li>{{ error.message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {{ form_start(form, {attr: {enctype: 'multipart/form-data'}}) }}
+
+    <div class="card">
+        <div class="card-title">Informations générales</div>
+        <div class="card-sub">Renseignez les détails de l'activité</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px;">
+
+            {# Nom #}
+            <div style="grid-column:1/-1;">
+                {{ form_label(form.nomA, 'Nom de l\'activité', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.nomA, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;'}}) }}
+                {{ form_errors(form.nomA) }}
+            </div>
+
+            {# Description #}
+            <div style="grid-column:1/-1;">
+                {{ form_label(form.descriptionA, 'Description', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.descriptionA, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;resize:vertical;min-height:100px;'}}) }}
+                {{ form_errors(form.descriptionA) }}
+            </div>
+
+            {# Lieu #}
+            <div>
+                {{ form_label(form.lieu, 'Lieu', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.lieu, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;'}}) }}
+                {{ form_errors(form.lieu) }}
+            </div>
+
+            {# Type #}
+        
+
+            {# Prix #}
+            <div>
+                {{ form_label(form.prixParPersonne, 'Prix par personne (DT)', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.prixParPersonne, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;'}}) }}
+                {{ form_errors(form.prixParPersonne) }}
+            </div>
+
+            {# Capacité #}
+            <div>
+                {{ form_label(form.capaciteMax, 'Capacité maximale', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {{ form_widget(form.capaciteMax, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;'}}) }}
+                {{ form_errors(form.capaciteMax) }}
+            </div>
+
+            {# Statut #}
+            
+
+            {# Image #}
+            <div style="grid-column:1/-1;">
+                {{ form_label(form.imageFile, 'Image (JPG, PNG — max 2Mo)', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                {% if activite.image %}
+                    <div style="margin-bottom:10px;">
+                        <img src="/uploads/activites/{{ activite.image }}"
+                             style="height:80px;border-radius:10px;object-fit:cover;">
+                        <span style="font-size:11px;color:#94a3b8;margin-left:10px;">Image actuelle</span>
+                    </div>
+                {% endif %}
+                {{ form_widget(form.imageFile, {attr: {style: 'width:100%;padding:8px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;'}}) }}
+                {{ form_errors(form.imageFile) }}
+            </div>
+
+        </div>
+    </div>
+
+    {# ── Boutons ── #}
+    <div style="display:flex;gap:12px;margin-top:16px;">
+        <button type="submit"
+                style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;padding:11px 28px;
+                       border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">
+            <i class="fas fa-save"></i>
+            {{ activite.idActivite ? 'Enregistrer les modifications' : 'Créer l\'activité' }}
+        </button>
+        <a href="{{ path('activite_index') }}"
+           style="background:#f0f2f5;color:#64748b;padding:11px 20px;border-radius:10px;
+                  font-size:13px;font-weight:600;text-decoration:none;">
+            <i class="fas fa-times"></i> Annuler
+        </a>
+    </div>
+
+    {{ form_end(form) }}
+</div>

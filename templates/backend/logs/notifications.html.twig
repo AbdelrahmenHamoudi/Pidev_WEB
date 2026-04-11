@@ -1,0 +1,75 @@
+{% extends 'backend/baseend.html.twig' %}
+{% block title %}Notifications — RE7LA{% endblock %}
+{% block breadcrumb %}Notifications{% endblock %}
+{% block page_title %}Notifications administrateurs{% endblock %}
+
+{% block body %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <p style="color:#64748b;font-size:13px;margin:0;">
+        {{ notifs|length }} notification(s) au total —
+        <strong style="color:#1ABC9C;">{{ unreadAdminNotifCount }} non lue(s)</strong>
+    </p>
+    {% if unreadAdminNotifCount > 0 %}
+    <a href="{{ path('app_admin_notifications_mark_all_read') }}"
+       style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;
+              padding:10px 18px;border-radius:12px;text-decoration:none;
+              font-weight:600;font-size:13px;">
+        <i class="fas fa-check-double" style="margin-right:6px;"></i>Tout marquer lu
+    </a>
+    {% endif %}
+</div>
+
+<div style="display:flex;flex-direction:column;gap:12px;">
+    {% for notif in notifs %}
+    <div style="background:{{ notif.is_read ? '#fff' : '#f0fdf4' }};
+                border-radius:16px;padding:20px 24px;
+                box-shadow:0 2px 12px rgba(0,0,0,0.05);
+                border-left:4px solid {{ notif.is_read ? '#e2e8f0' : '#1ABC9C' }};
+                display:flex;gap:16px;align-items:flex-start;">
+
+        <div style="font-size:26px;flex-shrink:0;">
+            {% if notif.type == 'ban' %}🚫
+            {% elseif notif.type == 'delete' %}🗑️
+            {% else %}ℹ️{% endif %}
+        </div>
+
+        <div style="flex:1;">
+            <div style="font-weight:{{ notif.is_read ? '500' : '700' }};color:#2C3E50;font-size:14px;
+                        display:flex;align-items:center;gap:10px;">
+                {{ notif.title }}
+                {% if not notif.is_read %}
+                    <span style="background:#1ABC9C;color:#fff;font-size:10px;
+                                 padding:2px 8px;border-radius:20px;font-weight:700;">NOUVEAU</span>
+                {% endif %}
+            </div>
+            <div style="color:#64748b;font-size:13px;margin-top:6px;">{{ notif.message }}</div>
+            <div style="color:#94a3b8;font-size:11px;margin-top:8px;display:flex;gap:16px;flex-wrap:wrap;">
+                <span><i class="fas fa-user" style="margin-right:4px;"></i>{{ notif.created_by }}</span>
+                <span><i class="fas fa-clock" style="margin-right:4px;"></i>{{ notif.created_at|date('d/m/Y H:i') }}</span>
+                <span style="background:{{ notif.priority == 'high' ? '#fee2e2' : '#f0f2f5' }};
+                             color:{{ notif.priority == 'high' ? '#b91c1c' : '#64748b' }};
+                             padding:2px 8px;border-radius:8px;font-weight:600;">
+                    {{ notif.priority == 'high' ? '🔴 Haute' : '🔵 Normale' }}
+                </span>
+            </div>
+        </div>
+
+        {% if not notif.is_read %}
+        <a href="{{ path('app_admin_notifications_read', {'id': notif.id}) }}"
+           style="font-size:12px;color:#1ABC9C;text-decoration:none;font-weight:600;
+                  white-space:nowrap;padding:6px 12px;border:1px solid #1ABC9C;
+                  border-radius:8px;flex-shrink:0;">
+            Marquer lu
+        </a>
+        {% endif %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:80px 0;color:#94a3b8;">
+        <i class="fas fa-bell-slash" style="font-size:40px;display:block;margin-bottom:16px;"></i>
+        <p style="font-size:15px;font-weight:600;">Aucune notification</p>
+        <p style="font-size:13px;">Les actions admin (ban, suppression...) apparaîtront ici.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+    
