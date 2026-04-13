@@ -4,107 +4,7 @@
 
 {% block extra_styles %}
 <style>
-    /* DESTINATIONS CARDS */
-    .destinations-section {
-        padding: 100px 0;
-        background: linear-gradient(180deg, #fff 0%, rgba(135, 206, 235, 0.05) 100%);
-    }
 
-    .section-header {
-        text-align: center;
-        margin-bottom: 60px;
-    }
-
-    .section-header h2 {
-        font-size: 2.8rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin-bottom: 15px;
-    }
-
-    .section-header p {
-        color: #777;
-        font-size: 1.1rem;
-    }
-
-    .destination-card {
-        border-radius: 25px;
-        overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        transition: all 0.4s ease;
-        background: white;
-        margin-bottom: 30px;
-    }
-
-    .destination-card:hover {
-        transform: translateY(-15px);
-        box-shadow: 0 25px 60px rgba(0,0,0,0.15);
-    }
-
-    .destination-img {
-        height: 250px;
-        background-size: cover;
-        background-position: center;
-        position: relative;
-    }
-
-    .destination-badge {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: linear-gradient(135deg, var(--rouge), #c0392b);
-        color: white;
-        padding: 8px 20px;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .destination-content {
-        padding: 30px;
-    }
-
-    .destination-content h4 {
-        font-weight: 700;
-        font-size: 1.4rem;
-        margin-bottom: 10px;
-    }
-
-    .destination-content p {
-        color: #777;
-        font-size: 0.95rem;
-        margin-bottom: 20px;
-    }
-
-    .destination-price {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--bleu-ceil);
-    }
-
-    .destination-price small {
-        color: #999;
-        font-size: 0.9rem;
-        font-weight: 400;
-    }
-
-    .btn-reserver {
-        background: linear-gradient(135deg, var(--vert-pistache), var(--vert-pistache-dark));
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 50px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-reserver:hover {
-        transform: scale(1.05);
-        box-shadow: 0 10px 30px rgba(147, 197, 114, 0.4);
-        color: white;
-    }
 
     /* SERVICES SECTION */
     .services-section {
@@ -322,7 +222,7 @@
                     Des expériences uniques vous attendent.
                 </p>
                 <div class="d-flex gap-3 flex-wrap">
-                    <a href="#destinations" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+                    <a href="#services" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
                         <i class="fas fa-compass me-2"></i>Explorer
                     </a>
                     <a href="{{ path('app_login') }}" class="btn btn-lg btn-outline-dark" style="border-radius: 50px; padding: 15px 40px; font-weight: 600;">
@@ -427,71 +327,7 @@
     </div>
 </section>
 
-<!-- DESTINATIONS SECTION -->
-<section class="destinations-section" id="destinations">
-    <div class="container">
-        <div class="section-header" data-aos="fade-up">
-            <h2>Destinations populaires</h2>
-            <p>Découvrez nos destinations les plus demandées par nos voyageurs</p>
-        </div>
-        
-        <div class="row">
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
-                <div class="destination-card">
-                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=500');">
-                        <span class="destination-badge">Populaire</span>
-                    </div>
-                    <div class="destination-content">
-                        <h4>Marrakech</h4>
-                        <p>Ville rouge aux mille couleurs, découvrez ses jardins, palais et souks.</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="destination-price">
-                                450€ <small>/personne</small>
-                            </div>
-                            <a href="#" class="btn-reserver">Réserver</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="destination-card">
-                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1564507592333-c60657eea523?w=500');">
-                        <span class="destination-badge" style="background: linear-gradient(135deg, var(--vert-pistache), var(--vert-pistache-dark));">Nouveau</span>
-                    </div>
-                    <div class="destination-content">
-                        <h4>Chefchaouen</h4>
-                        <p>La ville bleue nichée dans les montagnes du Rif, un dépaysement garanti.</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="destination-price">
-                                320€ <small>/personne</small>
-                            </div>
-                            <a href="#" class="btn-reserver">Réserver</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="destination-card">
-                    <div class="destination-img" style="background-image: url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500');">
-                        <span class="destination-badge">-20%</span>
-                    </div>
-                    <div class="destination-content">
-                        <h4>Désert du Sahara</h4>
-                        <p>Vivez une nuit magique sous les étoiles dans les dunes de Merzouga.</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="destination-price">
-                                380€ <small>/personne</small>
-                            </div>
-                            <a href="#" class="btn-reserver">Réserver</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
 
 <!-- SERVICES SECTION -->
 <section class="services-section" id="services">
