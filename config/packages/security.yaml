@@ -73,6 +73,7 @@ security:
     - { path: ^/reset-password, roles: PUBLIC_ACCESS }
     - { path: ^/account, roles: ROLE_USER }
     - { path: ^/admin, roles: ROLE_ADMIN }
+    - { path: ^/2fa, roles: PUBLIC_ACCESS }
 
 when@test:
     security:

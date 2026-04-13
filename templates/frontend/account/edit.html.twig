@@ -339,7 +339,7 @@
                     <form method="post" enctype="multipart/form-data" id="accountEditForm" novalidate>
                         <div class="form-grid">
                             <div class="field">
-                                <label for="prenom">Prénom *</label>
+                                <label for="prenom">Prenom *</label>
                                 <input id="prenom" type="text" name="prenom" value="{{ userItem.prenom }}">
                                 <small class="error-text" id="error-prenom"></small>
                             </div>
@@ -357,7 +357,7 @@
                             </div>
 
                             <div class="field">
-                                <label for="num_tel">Téléphone *</label>
+                                <label for="num_tel">Telephone *</label>
                                 <input id="num_tel" type="tel" name="num_tel" value="{{ userItem.num_tel }}">
                                 <small class="error-text" id="error-num_tel"></small>
                             </div>
@@ -378,7 +378,7 @@
                         <div class="security-block">
                             <h4>
                                 <i class="fas fa-lock"></i>
-                                Sécurité
+                                Securite
                             </h4>
 
                             <div class="form-grid">
@@ -402,6 +402,49 @@
                             </div>
                         </div>
 
+                        {# ===== BLOC 2FA ===== #}
+                        <div class="security-block">
+                            <h4>
+                                <i class="fas fa-shield-alt" style="color:#8b5cf6;"></i>
+                                Double Authentification (2FA)
+                            </h4>
+
+                            {% set has2fa = false %}
+                            {% for tfa in app.user.user_2fas %}
+                                {% if tfa.enabled %}
+                                    {% set has2fa = true %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if has2fa %}
+                                <div style="display:flex;align-items:center;gap:12px;padding:16px;background:rgba(34,197,94,0.08);border-radius:14px;margin-bottom:16px;">
+                                    <div style="width:42px;height:42px;background:rgba(34,197,94,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-check-circle" style="color:#22c55e;font-size:18px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:700;color:#2C3E50;font-size:14px;">2FA Activee</div>
+                                        <div style="font-size:12px;color:#6b7280;">Votre compte est protege par Google Authenticator</div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div style="display:flex;align-items:center;gap:12px;padding:16px;background:rgba(245,158,11,0.08);border-radius:14px;margin-bottom:16px;">
+                                    <div style="width:42px;height:42px;background:rgba(245,158,11,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-exclamation-triangle" style="color:#f59e0b;font-size:18px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:700;color:#2C3E50;font-size:14px;">2FA Non activee</div>
+                                        <div style="font-size:12px;color:#6b7280;">Ajoutez une couche de securite supplementaire</div>
+                                    </div>
+                                </div>
+
+                                <a href="{{ path('app_2fa_setup') }}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;padding:10px 20px;border-radius:12px;font-weight:600;text-decoration:none;font-size:13px;">
+                                    <i class="fas fa-shield-alt"></i> Activer la 2FA
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        {# ===== FORMULAIRE DESACTIVATION 2FA (en dehors du form principal) ===== #}
+
                         <div class="form-actions">
                             <a href="{{ path('app_user_profile') }}" class="btn-cancel">
                                 <i class="fas fa-times"></i>
@@ -414,6 +457,24 @@
                             </button>
                         </div>
                     </form>
+
+                    {# ===== FORMULAIRE DESACTIVATION 2FA SEPARE (en dehors du form principal) ===== #}
+                    {% set has2fa_check = false %}
+                    {% for tfa in app.user.user_2fas %}
+                        {% if tfa.enabled %}
+                            {% set has2fa_check = true %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if has2fa_check %}
+                        <div style="margin-top:20px;padding-top:20px;border-top:1px solid #f0f2f5;">
+                            <form method="post" action="{{ path('app_2fa_disable') }}" onsubmit="return confirm('Etes-vous sur de vouloir desactiver la 2FA ?');">
+                                <button type="submit" style="background:#fff;color:#ef4444;border:2px solid #fee2e2;padding:10px 20px;border-radius:12px;font-weight:600;cursor:pointer;font-size:13px;">
+                                    <i class="fas fa-times-circle"></i> Desactiver la 2FA
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -460,16 +521,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const val = input.value.trim();
 
         if (val === '') {
-            showError(input, label, '👤 ' + fieldName + ' est requis');
+            showError(input, label, fieldName + ' est requis');
             return false;
         } else if (val.length < 2) {
-            showError(input, label, '👤 Minimum 2 caractères');
+            showError(input, label, 'Minimum 2 caracteres');
             return false;
         } else if (val.length > 50) {
-            showError(input, label, '👤 Maximum 50 caractères');
+            showError(input, label, 'Maximum 50 caracteres');
             return false;
         } else if (!/^[a-zA-ZÀ-ÿ\s-]+$/.test(val)) {
-            showError(input, label, '👤 Caractères non autorisés');
+            showError(input, label, 'Caracteres non autorises');
             return false;
         } else {
             clearError(input, label);
@@ -481,13 +542,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const email = emailField.value.trim().toLowerCase();
 
         if (email === '') {
-            showError(emailField, emailError, '📧 L\'email est requis');
+            showError(emailField, emailError, 'L\'email est requis');
             return false;
         } else if (email.length > 100) {
-            showError(emailField, emailError, '📧 Email trop long');
+            showError(emailField, emailError, 'Email trop long');
             return false;
         } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-            showError(emailField, emailError, '📧 Format invalide');
+            showError(emailField, emailError, 'Format invalide');
             return false;
         } else {
             clearError(emailField, emailError);
@@ -499,13 +560,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const tel = telephoneField.value.trim();
 
         if (tel === '') {
-            showError(telephoneField, telephoneError, '📞 Le téléphone est requis');
+            showError(telephoneField, telephoneError, 'Le telephone est requis');
             return false;
         } else if (tel.length > 20) {
-            showError(telephoneField, telephoneError, '📞 Numéro trop long');
+            showError(telephoneField, telephoneError, 'Numero trop long');
             return false;
         } else if (!/^(\+216|0)?[2-9][0-9]{7}$/.test(tel)) {
-            showError(telephoneField, telephoneError, '📞 Format tunisien invalide');
+            showError(telephoneField, telephoneError, 'Format tunisien invalide');
             return false;
         } else {
             clearError(telephoneField, telephoneError);
@@ -517,7 +578,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const value = dateNaissField.value;
 
         if (!value) {
-            showError(dateNaissField, dateError, '📅 La date de naissance est requise');
+            showError(dateNaissField, dateError, 'La date de naissance est requise');
             return false;
         }
 
@@ -532,10 +593,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (age < 18) {
-            showError(dateNaissField, dateError, '📅 Vous devez avoir au moins 18 ans');
+            showError(dateNaissField, dateError, 'Vous devez avoir au moins 18 ans');
             return false;
         } else if (age > 120) {
-            showError(dateNaissField, dateError, '📅 Date invalide');
+            showError(dateNaissField, dateError, 'Date invalide');
             return false;
         } else {
             clearError(dateNaissField, dateError);
@@ -557,29 +618,29 @@ document.addEventListener('DOMContentLoaded', function () {
         let isValid = true;
 
         if (currentPassword === '') {
-            showError(currentPasswordField, currentPasswordError, '🔒 Le mot de passe actuel est requis');
+            showError(currentPasswordField, currentPasswordError, 'Le mot de passe actuel est requis');
             isValid = false;
         } else {
             clearError(currentPasswordField, currentPasswordError);
         }
 
         if (password === '') {
-            showError(passwordField, passwordError, '🔒 Le mot de passe est requis');
+            showError(passwordField, passwordError, 'Le mot de passe est requis');
             isValid = false;
         } else if (password.length < 8) {
-            showError(passwordField, passwordError, '🔒 Minimum 8 caractères');
+            showError(passwordField, passwordError, 'Minimum 8 caracteres');
             isValid = false;
         } else if (password.length > 255) {
-            showError(passwordField, passwordError, '🔒 Mot de passe trop long');
+            showError(passwordField, passwordError, 'Mot de passe trop long');
             isValid = false;
         } else if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
-            showError(passwordField, passwordError, '🔒 Doit contenir lettres ET chiffres');
+            showError(passwordField, passwordError, 'Doit contenir lettres ET chiffres');
             isValid = false;
         } else if (!/[A-Z]/.test(password)) {
-            showError(passwordField, passwordError, '🔒 Doit contenir une majuscule');
+            showError(passwordField, passwordError, 'Doit contenir une majuscule');
             isValid = false;
         } else if (!/[a-z]/.test(password)) {
-            showError(passwordField, passwordError, '🔒 Doit contenir une minuscule');
+            showError(passwordField, passwordError, 'Doit contenir une minuscule');
             isValid = false;
         } else {
             clearError(passwordField, passwordError);
@@ -598,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (confirm !== password) {
-            showError(confirmPasswordField, confirmPasswordError, '✓ Les mots de passe ne correspondent pas');
+            showError(confirmPasswordField, confirmPasswordError, 'Les mots de passe ne correspondent pas');
             return false;
         } else {
             clearError(confirmPasswordField, confirmPasswordError);
@@ -618,12 +679,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const maxSize = 2 * 1024 * 1024;
 
         if (!allowedTypes.includes(file.type)) {
-            showError(imageField, imageError, '❌ Format image invalide');
+            showError(imageField, imageError, 'Format image invalide');
             return false;
         }
 
         if (file.size > maxSize) {
-            showError(imageField, imageError, '❌ Taille max 2 MB');
+            showError(imageField, imageError, 'Taille max 2 MB');
             return false;
         }
 
@@ -644,7 +705,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
-    prenomField.addEventListener('input', () => validateNameField(prenomField, prenomError, 'Le prénom'));
+    prenomField.addEventListener('input', () => validateNameField(prenomField, prenomError, 'Le prenom'));
     nomField.addEventListener('input', () => validateNameField(nomField, nomError, 'Le nom'));
     emailField.addEventListener('input', validateEmail);
     telephoneField.addEventListener('input', validateTelephone);
@@ -662,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.addEventListener('submit', function(e) {
         const isValid =
-            validateNameField(prenomField, prenomError, 'Le prénom') &&
+            validateNameField(prenomField, prenomError, 'Le prenom') &&
             validateNameField(nomField, nomError, 'Le nom') &&
             validateEmail() &&
             validateTelephone() &&

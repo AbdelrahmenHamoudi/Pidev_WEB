@@ -40,3 +40,10 @@ services:
     App\EventListener\RecaptchaRequestListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 100 }
+
+    # ----------------------------
+    # 2FA Listener
+    # ----------------------------
+    App\EventListener\TwoFactorListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 50 }
