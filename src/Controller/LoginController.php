@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Users;
 use App\Service\MailerService;
+use App\Service\RecaptchaValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -34,9 +35,17 @@ class LoginController extends AbstractController
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
         SluggerInterface $slugger,
-        MailerService $mailerService
+        MailerService $mailerService,
+        RecaptchaValidator $recaptchaValidator
     ): Response {
         if ($request->isMethod('POST')) {
+            // Vérification reCAPTCHA (inscription)
+            $token = $request->request->get('g-recaptcha-response');
+            if (!$recaptchaValidator->verify($token, $request->getClientIp())) {
+                $this->addFlash('error', 'Veuillez confirmer que vous n\'êtes pas un robot.');
+                return $this->redirectToRoute('app_register');
+            }
+
             $nom = trim((string) $request->request->get('nom'));
             $prenom = trim((string) $request->request->get('prenom'));
             $dateNaiss = trim((string) $request->request->get('date_naiss'));

@@ -869,7 +869,13 @@
                     </div>
                     <div class="checkbox-error" id="termsError">Veuillez accepter les conditions d’utilisation.</div>
 
-                    <button type="submit" class="btn-auth">
+                    <div class="form-group full-width" style="margin-bottom:16px;">
+                        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+                        <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                        <div class="field-error" id="recaptchaErrorRegister" style="display:none;color:#c0392b;margin-top:8px;">Veuillez confirmer que vous n'êtes pas un robot.</div>
+                    </div>
+
+                    <button type="submit" class="btn-auth" id="registerSubmit">
                         <i class="fas fa-user-plus me-2"></i>
                         Créer mon compte
                     </button>
@@ -909,6 +915,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const strengthFill = document.getElementById('strengthFill');
     const strengthText = document.getElementById('strengthText');
+    const recaptchaErrorRegister = document.getElementById('recaptchaErrorRegister');
 
     function setFieldState(input, errorId, successId, valid, errorMessage = '') {
         const errorEl = document.getElementById(errorId);
@@ -1230,6 +1237,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const isImageValid = validateImageField();
         const isTermsValid = validateTermsField();
 
+        // Check reCAPTCHA token
+        const tokenEl = document.querySelector('textarea[name="g-recaptcha-response"], input[name="g-recaptcha-response"]');
+        const hasRecaptchaToken = tokenEl && tokenEl.value && tokenEl.value.trim() !== '';
+        if (!hasRecaptchaToken) {
+            recaptchaErrorRegister.style.display = 'block';
+        } else {
+            recaptchaErrorRegister.style.display = 'none';
+        }
+
         if (
             !isPrenomValid ||
             !isNomValid ||
@@ -1239,7 +1255,8 @@ document.addEventListener('DOMContentLoaded', function () {
             !isPasswordValid ||
             !isConfirmValid ||
             !isImageValid ||
-            !isTermsValid
+            !isTermsValid ||
+            !hasRecaptchaToken
         ) {
             event.preventDefault();
         }

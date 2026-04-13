@@ -688,7 +688,7 @@
                     </div>
                 {% endif %}
 
-                <form method="post" action="{{ path('app_login') }}" id="loginForm" novalidate>
+               <form method="post" action="{{ path('app_login') }}" id="loginForm" novalidate>
                     <div class="form-group">
                         <label for="email" class="input-label">Adresse email</label>
                         <div class="input-wrap">
@@ -727,6 +727,12 @@
 
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
+                    <div class="form-group" id="recaptcha-container-login" style="margin-bottom:16px;">
+                        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+                        <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                        <div class="field-error" id="recaptchaErrorLogin" style="display:none;color:#c0392b;margin-top:8px;">Veuillez confirmer que vous n'êtes pas un robot.</div>
+                    </div>
+
                     <div class="auth-options">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="remember" name="_remember_me">
@@ -740,7 +746,7 @@
                         </a>
                     </div>
 
-                    <button type="submit" class="btn-auth">
+                    <button type="submit" class="btn-auth" id="loginSubmit">
                         <i class="fas fa-sign-in-alt me-2"></i>
                         Se connecter
                     </button>
@@ -776,6 +782,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const passwordError = document.getElementById('passwordError');
     const togglePassword = document.getElementById('togglePassword');
     const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+    const recaptchaErrorLogin = document.getElementById('recaptchaErrorLogin');
 
     function showError(input, errorEl, message) {
         input.classList.remove('input-success');
@@ -843,7 +850,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const isEmailValid = validateEmail();
         const isPasswordValid = validatePassword();
 
-        if (!isEmailValid || !isPasswordValid) {
+        // Check reCAPTCHA token
+        const token = document.querySelector('textarea[name="g-recaptcha-response"], input[name="g-recaptcha-response"]');
+        const hasRecaptchaToken = token && token.value && token.value.trim() !== '';
+        if (!hasRecaptchaToken) {
+            recaptchaErrorLogin.style.display = 'block';
+        } else {
+            recaptchaErrorLogin.style.display = 'none';
+        }
+
+        if (!isEmailValid || !isPasswordValid || !hasRecaptchaToken) {
             event.preventDefault();
         }
     });
