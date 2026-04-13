@@ -6,6 +6,8 @@ use App\Entity\Users;
 use App\Service\AdminActionLogger;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +53,36 @@ class AdminUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_users_show', methods: ['GET'])]
+    #[Route('/export/pdf', name: 'app_admin_users_export_pdf', methods: ['GET'])]
+    public function exportPdf(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        // Réutilise les filtres actifs (search, role, status)
+        [$users, $search, $role, $status] = $this->getFilteredUsers($request, $entityManager);
+
+        $options = new Options();
+        $options->set('defaultFont', 'Helvetica');
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
+
+        $html = $this->generateUsersPdfHtml($users, $search, $role, $status);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        return new Response(
+            $dompdf->output(),
+            200,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="liste_utilisateurs_' . date('Y-m-d_His') . '.pdf"',
+            ]
+        );
+    }
+
+    #[Route('/{id}', name: 'app_admin_users_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(Users $user): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
@@ -61,7 +92,7 @@ class AdminUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_admin_users_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_users_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(
         Users $user,
         Request $request,
@@ -187,7 +218,7 @@ class AdminUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/ban-toggle', name: 'app_admin_users_ban_toggle', methods: ['POST'])]
+    #[Route('/{id}/ban-toggle', name: 'app_admin_users_ban_toggle', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function banToggle(
         Users $user,
         EntityManagerInterface $entityManager,
@@ -236,7 +267,7 @@ class AdminUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_admin_users_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_admin_users_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(
         Users $user,
         EntityManagerInterface $entityManager,
@@ -325,5 +356,91 @@ class AdminUserController extends AbstractController
             ->createQueryBuilder('u')->select('COUNT(u.id)')
             ->where('u.status = :status')->setParameter('status', $status)
             ->getQuery()->getSingleScalarResult();
+    }
+
+    private function generateUsersPdfHtml(array $users, string $search, string $role, string $status): string
+    {
+        $date = date('d/m/Y H:i');
+        $total = count($users);
+
+        // Afficher les filtres actifs
+        $filtersInfo = [];
+        if ($search !== '') {
+            $filtersInfo[] = 'Recherche : "' . htmlspecialchars($search) . '"';
+        }
+        if ($role !== '') {
+            $filtersInfo[] = 'Rôle : ' . htmlspecialchars($role);
+        }
+        if ($status !== '') {
+            $filtersInfo[] = 'Statut : ' . htmlspecialchars($status);
+        }
+        $filtersText = !empty($filtersInfo) ? ' — Filtres : ' . implode(', ', $filtersInfo) : '';
+
+        $html = '
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Helvetica, sans-serif; font-size: 11px; color: #333; }
+                h1 { color: #1ABC9C; text-align: center; margin-bottom: 5px; font-size: 22px; }
+                .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 11px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th { background-color: #2C3E50; color: white; padding: 10px 8px; text-align: left; font-size: 11px; }
+                td { padding: 8px; border-bottom: 1px solid #ecf0f1; }
+                tr:nth-child(even) { background-color: #f9f9f9; }
+                .badge { padding: 3px 8px; border-radius: 3px; color: white; font-size: 10px; font-weight: bold; display: inline-block; }
+                .admin { background-color: #2C3E50; }
+                .user { background-color: #1ABC9C; }
+                .banned { background-color: #e74c3c; }
+                .unbanned { background-color: #27ae60; }
+                .footer { margin-top: 20px; text-align: center; color: #95a5a6; font-size: 9px; border-top: 1px solid #ecf0f1; padding-top: 10px; }
+            </style>
+        </head>
+        <body>
+            <h1>RE7LA — Liste des Utilisateurs</h1>
+            <div class="subtitle">Exporté le ' . $date . ' — Total : ' . $total . ' utilisateur(s)' . $filtersText . '</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Date naissance</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Email vérifié</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        foreach ($users as $user) {
+            $roleClass = $user->getRole() === 'admin' ? 'admin' : 'user';
+            $statusClass = $user->getStatus() === 'Banned' ? 'banned' : 'unbanned';
+            $emailVerified = $user->getEmail_verified() ? 'Oui' : 'Non';
+
+            $html .= '
+                <tr>
+                    <td>' . $user->getId() . '</td>
+                    <td>' . htmlspecialchars($user->getNom()) . '</td>
+                    <td>' . htmlspecialchars($user->getPrenom()) . '</td>
+                    <td>' . htmlspecialchars($user->getE_mail()) . '</td>
+                    <td>' . htmlspecialchars($user->getNum_tel()) . '</td>
+                    <td>' . htmlspecialchars($user->getDate_naiss()) . '</td>
+                    <td><span class="badge ' . $roleClass . '">' . strtoupper($user->getRole()) . '</span></td>
+                    <td><span class="badge ' . $statusClass . '">' . $user->getStatus() . '</span></td>
+                    <td>' . $emailVerified . '</td>
+                </tr>';
+        }
+
+        $html .= '
+                </tbody>
+            </table>
+            <div class="footer">RE7LA Admin — Document généré automatiquement</div>
+        </body>
+        </html>';
+
+        return $html;
     }
 }

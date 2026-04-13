@@ -6,23 +6,19 @@ use App\Entity\Reservation;
 use App\Form\ReservationType;
 use App\Repository\HebergementRepository;
 use App\Repository\ReservationRepository;
-use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 final class FrontendController extends AbstractController
 {
-    private const STATIC_USER_ID = 32; // iheb user id from SQL
+    private const STATIC_USER_ID = 32;
 
     #[Route('/', name: 'app_home')]
     public function index(HebergementRepository $hebergementRepository): Response
     {
-        // Get available hebergements to display on homepage
         $hebergements = $hebergementRepository->findAvailable();
         
         return $this->render('frontend/index.html.twig', [
@@ -30,30 +26,7 @@ final class FrontendController extends AbstractController
         ]);
     }
 
-    #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils, SessionInterface $session): Response
-    {
-        // Set static user session for demo
-        $session->set('user_id', self::STATIC_USER_ID);
-        $session->set('user_email', 'iheb@gmail.com');
-        $session->set('user_name', 'iheb hmidi');
-        
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        return $this->render('frontend/login.html.twig', [
-            'error' => $error,
-            'last_username' => $lastUsername,
-        ]);
-    }
-
-    #[route('/forgot-password', name: 'app_forgot_password')]
-    public function forgotPassword(): Response
-    {
-        return $this->render('frontend/forgot_password.html.twig');
-    }
-
-    // ==================== HEBERGEMENTS (UNDER /RESERVATION) ====================
+    // ==================== HEBERGEMENTS ====================
 
     #[Route('/reservation/details/{id}', name: 'app_hebergement_detail')]
     public function hebergementDetail($id, HebergementRepository $repository): Response
@@ -87,7 +60,6 @@ final class FrontendController extends AbstractController
         $type = $request->query->get('type', 'all');
         $capacite = $request->query->get('capacite');
 
-        // Build query for personal reservations with filters
         $qb = $repository->createQueryBuilder('r')
             ->join('r.hebergement_id', 'h')
             ->where('r.user = :user')
@@ -123,7 +95,6 @@ final class FrontendController extends AbstractController
         Request $request,
         $hebergementId,
         HebergementRepository $hebergementRepository,
-        ReservationRepository $reservationRepository,
         EntityManagerInterface $em
     ): Response {
         $user = $this->getUser();
@@ -168,18 +139,16 @@ final class FrontendController extends AbstractController
     public function reservationEdit(
         Request $request,
         Reservation $reservation,
-        ReservationRepository $reservationRepository,
         EntityManagerInterface $em
     ): Response {
         $user = $this->getUser();
-        // Check ownership
+
         if (!$user || $reservation->getUserId() !== $user->getId()) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à modifier cette réservation');
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé');
         }
 
-        // Only allow editing if status is pending
         if (!in_array($reservation->getStatutR(), ['EN ATTENTE', 'PENDING'])) {
-            $this->addFlash('error', 'Vous ne pouvez modifier que les réservations en attente');
+            $this->addFlash('error', 'Modification non autorisée');
             return $this->redirectToRoute('app_reservations_list');
         }
 
@@ -188,7 +157,7 @@ final class FrontendController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            $this->addFlash('success', 'Réservation modifiée avec succès');
+            $this->addFlash('success', 'Réservation modifiée');
             return $this->redirectToRoute('app_reservations_list');
         }
 
@@ -205,21 +174,15 @@ final class FrontendController extends AbstractController
         EntityManagerInterface $em
     ): Response {
         $user = $this->getUser();
-        // Check ownership
+
         if (!$user || $reservation->getUserId() !== $user->getId()) {
             throw $this->createAccessDeniedException('Accès refusé');
-        }
-
-        // Prevent multiple cancellations or cancelling confirmed ones
-        if ($reservation->getStatutR() === 'Annulée' || $reservation->getStatutR() === 'ANNULEE') {
-            $this->addFlash('warning', 'Cette réservation est déjà annulée.');
-            return $this->redirectToRoute('app_reservations_list');
         }
 
         if ($this->isCsrfTokenValid('cancel' . $reservation->getIdReservation(), $request->request->get('_token'))) {
             $reservation->setStatutR('Annulée');
             $em->flush();
-            $this->addFlash('success', 'Réservation annulée avec succès');
+            $this->addFlash('success', 'Réservation annulée');
         }
 
         return $this->redirectToRoute('app_reservations_list');
@@ -232,21 +195,15 @@ final class FrontendController extends AbstractController
         EntityManagerInterface $em
     ): Response {
         $user = $this->getUser();
-        // Check ownership
+
         if (!$user || $reservation->getUserId() !== $user->getId()) {
             throw $this->createAccessDeniedException('Accès refusé');
-        }
-
-        // Only allow deletion if cancelled or pending
-        if (!in_array($reservation->getStatutR(), ['Annulée', 'EN ATTENTE', 'PENDING'])) {
-            $this->addFlash('error', 'Cette réservation ne peut pas être supprimée');
-            return $this->redirectToRoute('app_reservations_list');
         }
 
         if ($this->isCsrfTokenValid('delete' . $reservation->getIdReservation(), $request->request->get('_token'))) {
             $em->remove($reservation);
             $em->flush();
-            $this->addFlash('success', 'Réservation supprimée avec succès');
+            $this->addFlash('success', 'Réservation supprimée');
         }
 
         return $this->redirectToRoute('app_reservations_list');
@@ -261,7 +218,6 @@ final class FrontendController extends AbstractController
         $disponible = $request->query->get('disponible');
         $sort = $request->query->get('sort', 'default');
         
-        // Build criteria array
         $criteria = [];
         
         if ($type && $type !== 'all') {
@@ -274,28 +230,24 @@ final class FrontendController extends AbstractController
             $criteria['disponible_heberg'] = false;
         }
         
-        // Get results based on criteria
         if (!empty($criteria)) {
             $hebergements = $repository->findBy($criteria);
         } else {
             $hebergements = $repository->findAll();
         }
         
-        // Filter by titre (partial match)
         if ($titre) {
             $hebergements = array_filter($hebergements, function($h) use ($titre) {
                 return stripos($h->getTitre(), $titre) !== false;
             });
         }
         
-        // Filter by capacite (minimum)
         if ($capacite && is_numeric($capacite)) {
             $hebergements = array_filter($hebergements, function($h) use ($capacite) {
                 return $h->getCapacite() >= (int)$capacite;
             });
         }
         
-        // Sort by price
         if ($sort === 'price_asc') {
             usort($hebergements, function($a, $b) {
                 return $a->getPrixParNuit() <=> $b->getPrixParNuit();
@@ -306,7 +258,6 @@ final class FrontendController extends AbstractController
             });
         }
         
-        // Reset array keys
         $hebergements = array_values($hebergements);
         
         return $this->render('frontend/reservation/search.html.twig', [
@@ -322,9 +273,8 @@ final class FrontendController extends AbstractController
     #[Route('/reservation/{id}', name: 'app_reservation_show')]
     public function reservationShow(Reservation $reservation): Response
     {
-        /** @var \App\Entity\Users|null $user */
         $user = $this->getUser();
-        // Check ownership
+
         if (!$user || $reservation->getUserId() !== $user->getId()) {
             throw $this->createAccessDeniedException('Accès refusé');
         }

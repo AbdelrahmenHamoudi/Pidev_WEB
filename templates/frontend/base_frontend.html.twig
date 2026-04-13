@@ -288,9 +288,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}" href="{{ path('app_home') }}">Accueil</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#destinations">Destinations</a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="#services">Services</a>
                     </li>
@@ -311,6 +309,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_promotions' ? 'active' : '' }}" href="{{ path('app_promotions_list') }}">Promotions</a>
                     </li>
+
                     <li class="nav-item">
                         <a class="nav-link nav-link-communaute {{ app.request.attributes.get('_route') starts with 'app_communaute' ? 'active' : '' }}" href="{{ path('app_communaute_index') }}">Communauté</a>
                     </li>
@@ -403,7 +402,7 @@
                     <h5 style="font-weight: 600; margin-bottom: 20px; color: var(--vert-pistache);">Liens rapides</h5>
                     <ul style="list-style: none; padding: 0;">
                         <li style="margin-bottom: 10px;"><a href="{{ path('app_home') }}" style="color: #aaa; text-decoration: none;">Accueil</a></li>
-                        <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">Destinations</a></li>
+
                         <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">Services</a></li>
                         <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">Contact</a></li>
                     </ul>

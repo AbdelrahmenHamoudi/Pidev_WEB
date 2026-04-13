@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Users;
+use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -32,7 +33,8 @@ class LoginController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        MailerService $mailerService
     ): Response {
         if ($request->isMethod('POST')) {
             $nom = trim((string) $request->request->get('nom'));
@@ -44,55 +46,19 @@ class LoginController extends AbstractController
             $confirmPassword = (string) $request->request->get('confirm_password');
 
             // ==================== NOM ====================
-            if ($nom === '') {
-                $this->addFlash('error', '👤 Le nom est requis');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (mb_strlen($nom) < 2) {
-                $this->addFlash('error', '👤 Minimum 2 caractères pour le nom');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (mb_strlen($nom) > 50) {
-                $this->addFlash('error', '👤 Maximum 50 caractères pour le nom');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (!preg_match('/^[a-zA-ZÀ-ÿ\s-]+$/u', $nom)) {
-                $this->addFlash('error', '👤 Caractères non autorisés dans le nom');
+            if ($nom === '' || mb_strlen($nom) < 2 || mb_strlen($nom) > 50 || !preg_match('/^[a-zA-ZÀ-ÿ\s-]+$/u', $nom)) {
+                $this->addFlash('error', '👤 Nom invalide');
                 return $this->redirectToRoute('app_register');
             }
 
             // ==================== PRENOM ====================
-            if ($prenom === '') {
-                $this->addFlash('error', '👤 Le prénom est requis');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (mb_strlen($prenom) < 2) {
-                $this->addFlash('error', '👤 Minimum 2 caractères pour le prénom');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (mb_strlen($prenom) > 50) {
-                $this->addFlash('error', '👤 Maximum 50 caractères pour le prénom');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (!preg_match('/^[a-zA-ZÀ-ÿ\s-]+$/u', $prenom)) {
-                $this->addFlash('error', '👤 Caractères non autorisés dans le prénom');
+            if ($prenom === '' || mb_strlen($prenom) < 2 || mb_strlen($prenom) > 50 || !preg_match('/^[a-zA-ZÀ-ÿ\s-]+$/u', $prenom)) {
+                $this->addFlash('error', '👤 Prénom invalide');
                 return $this->redirectToRoute('app_register');
             }
 
             // ==================== DATE ====================
-            if ($dateNaiss === '') {
-                $this->addFlash('error', '📅 La date de naissance est requise');
-                return $this->redirectToRoute('app_register');
-            }
-
             $birthDate = \DateTime::createFromFormat('Y-m-d', $dateNaiss);
-
             if (!$birthDate || $birthDate->format('Y-m-d') !== $dateNaiss) {
                 $this->addFlash('error', '📅 Date invalide');
                 return $this->redirectToRoute('app_register');
@@ -100,35 +66,14 @@ class LoginController extends AbstractController
 
             $today = new \DateTime();
             $age = $today->diff($birthDate)->y;
-
-            if ($birthDate > $today) {
-                $this->addFlash('error', '📅 Date invalide');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if ($age < 18) {
-                $this->addFlash('error', '📅 Vous devez avoir au moins 18 ans');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if ($age > 120) {
+            if ($birthDate > $today || $age < 18 || $age > 120) {
                 $this->addFlash('error', '📅 Date invalide');
                 return $this->redirectToRoute('app_register');
             }
 
             // ==================== EMAIL ====================
-            if ($email === '') {
-                $this->addFlash('error', '📧 L\'email est requis');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (mb_strlen($email) > 100) {
-                $this->addFlash('error', '📧 Email trop long');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $this->addFlash('error', '📧 Veuillez saisir une adresse email valide');
+            if ($email === '' || mb_strlen($email) > 100 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addFlash('error', '📧 Email invalide');
                 return $this->redirectToRoute('app_register');
             }
 
@@ -142,49 +87,19 @@ class LoginController extends AbstractController
             }
 
             // ==================== TELEPHONE ====================
-            if ($numTel === '') {
-                $this->addFlash('error', '📞 Le téléphone est requis');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (mb_strlen($numTel) > 20) {
-                $this->addFlash('error', '📞 Numéro trop long');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (!preg_match('/^(\+216|0)?[2-9][0-9]{7}$/', $numTel)) {
-                $this->addFlash('error', '📞 Format tunisien invalide');
+            if ($numTel === '' || mb_strlen($numTel) > 20 || !preg_match('/^(\+216|0)?[2-9][0-9]{7}$/', $numTel)) {
+                $this->addFlash('error', '📞 Téléphone invalide');
                 return $this->redirectToRoute('app_register');
             }
 
             // ==================== PASSWORD ====================
-            if ($plainPassword === '') {
-                $this->addFlash('error', '🔒 Le mot de passe est requis');
+            if ($plainPassword === '' || strlen($plainPassword) < 8 || strlen($plainPassword) > 255) {
+                $this->addFlash('error', '🔒 Mot de passe invalide (min 8 caractères)');
                 return $this->redirectToRoute('app_register');
             }
 
-            if (strlen($plainPassword) < 8) {
-                $this->addFlash('error', '🔒 Minimum 8 caractères');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (strlen($plainPassword) > 255) {
-                $this->addFlash('error', '🔒 Mot de passe trop long');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (!preg_match('/[A-Za-z]/', $plainPassword) || !preg_match('/[0-9]/', $plainPassword)) {
-                $this->addFlash('error', '🔒 Doit contenir lettres ET chiffres');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (!preg_match('/[A-Z]/', $plainPassword)) {
-                $this->addFlash('error', '🔒 Doit contenir une majuscule');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (!preg_match('/[a-z]/', $plainPassword)) {
-                $this->addFlash('error', '🔒 Doit contenir une minuscule');
+            if (!preg_match('/[A-Z]/', $plainPassword) || !preg_match('/[a-z]/', $plainPassword) || !preg_match('/[0-9]/', $plainPassword)) {
+                $this->addFlash('error', '🔒 Doit contenir majuscule, minuscule et chiffre');
                 return $this->redirectToRoute('app_register');
             }
 
@@ -208,40 +123,28 @@ class LoginController extends AbstractController
 
             // ==================== IMAGE ====================
             $imageFile = $request->files->get('image');
-
             if ($imageFile) {
-                $allowedMimeTypes = [
-                    'image/jpeg',
-                    'image/png',
-                    'image/webp',
-                    'image/jpg'
-                ];
-
+                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
                 $maxSize = 2 * 1024 * 1024;
 
                 if (!in_array($imageFile->getMimeType(), $allowedMimeTypes, true)) {
-                    $this->addFlash('error', '❌ Format image invalide. Utilisez JPG, PNG ou WEBP.');
+                    $this->addFlash('error', '❌ Format image invalide');
                     return $this->redirectToRoute('app_register');
                 }
 
                 if ($imageFile->getSize() > $maxSize) {
-                    $this->addFlash('error', '❌ L’image ne doit pas dépasser 2 Mo.');
+                    $this->addFlash('error', '❌ Image trop lourde (max 2 Mo)');
                     return $this->redirectToRoute('app_register');
                 }
 
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $extension = $imageFile->guessExtension() ?: 'bin';
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $extension;
+                $safeFilename = $slugger->slug(pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME));
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . ($imageFile->guessExtension() ?: 'bin');
 
                 try {
-                    $imageFile->move(
-                        $this->getParameter('profile_images_directory'),
-                        $newFilename
-                    );
+                    $imageFile->move($this->getParameter('profile_images_directory'), $newFilename);
                     $user->setImage($newFilename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', '❌ Erreur lors de l’upload de l’image.');
+                    $this->addFlash('error', '❌ Erreur upload image');
                     return $this->redirectToRoute('app_register');
                 }
             } else {
@@ -251,17 +154,233 @@ class LoginController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', '✅ Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.');
-            return $this->redirectToRoute('app_login');
+            // ==================== GÉNÉRER CODE + ENVOYER EMAIL ====================
+            $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $expiresAt = (new \DateTime())->modify('+15 minutes')->format('Y-m-d H:i:s');
+
+            // Stocker en session (plus simple que la DB pour l'instant)
+            $session = $request->getSession();
+            $session->set('email_verification_code', $code);
+            $session->set('email_verification_user_id', $user->getId());
+            $session->set('email_verification_expires', $expiresAt);
+
+            try {
+                $mailerService->sendVerificationCode(
+                    $user->getE_mail(),
+                    $user->getPrenom(),
+                    $code
+                );
+            } catch (\Exception $e) {
+                $this->addFlash('error', '❌ Erreur envoi email : ' . $e->getMessage());
+                return $this->redirectToRoute('app_register');
+            }
+
+            $this->addFlash('success', '✅ Compte créé ! Un code de vérification a été envoyé à ' . $user->getE_mail());
+            return $this->redirectToRoute('app_verify_email');
         }
 
         return $this->render('frontend/register.html.twig');
     }
 
-    #[Route('/forgot-password', name: 'app_forgot_password')]
-    public function forgotPassword(): Response
-    {
+    #[Route('/verify-email', name: 'app_verify_email', methods: ['GET', 'POST'])]
+    public function verifyEmail(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerService $mailerService
+    ): Response {
+        $session = $request->getSession();
+        $userId = $session->get('email_verification_user_id');
+
+        if (!$userId) {
+            $this->addFlash('error', '❌ Aucune vérification en cours');
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($request->isMethod('POST')) {
+            $code = trim((string) $request->request->get('code'));
+            $storedCode = $session->get('email_verification_code');
+            $expiresAt = $session->get('email_verification_expires');
+
+            if (!$storedCode || !$expiresAt) {
+                $this->addFlash('error', '❌ Code expiré, veuillez recommencer');
+                return $this->redirectToRoute('app_register');
+            }
+
+            if (new \DateTime() > new \DateTime($expiresAt)) {
+                $session->remove('email_verification_code');
+                $session->remove('email_verification_user_id');
+                $session->remove('email_verification_expires');
+                $this->addFlash('error', '⏰ Code expiré, veuillez recommencer');
+                return $this->redirectToRoute('app_register');
+            }
+
+            if ($code !== $storedCode) {
+                $this->addFlash('error', '❌ Code incorrect');
+                return $this->redirectToRoute('app_verify_email');
+            }
+
+            // Code correct : activer le compte
+            $user = $entityManager->getRepository(Users::class)->find($userId);
+            if ($user) {
+                $user->setEmail_verified(true);
+                $entityManager->flush();
+            }
+
+            $session->remove('email_verification_code');
+            $session->remove('email_verification_user_id');
+            $session->remove('email_verification_expires');
+
+            $this->addFlash('success', '✅ Email vérifié avec succès ! Vous pouvez maintenant vous connecter.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $user = $entityManager->getRepository(Users::class)->find($userId);
+        return $this->render('frontend/verify_email.html.twig', [
+            'email' => $user ? $user->getE_mail() : '',
+        ]);
+    }
+
+    #[Route('/resend-verification', name: 'app_resend_verification', methods: ['POST'])]
+    public function resendVerification(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerService $mailerService
+    ): Response {
+        $session = $request->getSession();
+        $userId = $session->get('email_verification_user_id');
+
+        if (!$userId) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $user = $entityManager->getRepository(Users::class)->find($userId);
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $expiresAt = (new \DateTime())->modify('+15 minutes')->format('Y-m-d H:i:s');
+
+        $session->set('email_verification_code', $code);
+        $session->set('email_verification_expires', $expiresAt);
+
+        try {
+            $mailerService->sendVerificationCode($user->getE_mail(), $user->getPrenom(), $code);
+            $this->addFlash('success', '✅ Un nouveau code a été envoyé');
+        } catch (\Exception $e) {
+            $this->addFlash('error', '❌ Erreur envoi email');
+        }
+
+        return $this->redirectToRoute('app_verify_email');
+    }
+
+    #[Route('/forgot-password', name: 'app_forgot_password', methods: ['GET', 'POST'])]
+    public function forgotPassword(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerService $mailerService
+    ): Response {
+        if ($request->isMethod('POST')) {
+            $email = trim((string) $request->request->get('email'));
+
+            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addFlash('error', '📧 Email invalide');
+                return $this->redirectToRoute('app_forgot_password');
+            }
+
+            $user = $entityManager->getRepository(Users::class)->findOneBy([
+                'e_mail' => strtolower($email)
+            ]);
+
+            if (!$user) {
+                // Pour la sécurité, on ne révèle pas si l'email existe
+                $this->addFlash('success', '✅ Si cet email existe, un code a été envoyé');
+                return $this->redirectToRoute('app_forgot_password');
+            }
+
+            $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $expiresAt = (new \DateTime())->modify('+15 minutes')->format('Y-m-d H:i:s');
+
+            $session = $request->getSession();
+            $session->set('reset_password_code', $code);
+            $session->set('reset_password_user_id', $user->getId());
+            $session->set('reset_password_expires', $expiresAt);
+
+            try {
+                $mailerService->sendResetPasswordCode($user->getE_mail(), $user->getPrenom(), $code);
+            } catch (\Exception $e) {
+                $this->addFlash('error', '❌ Erreur envoi email : ' . $e->getMessage());
+                return $this->redirectToRoute('app_forgot_password');
+            }
+
+            $this->addFlash('success', '✅ Un code de réinitialisation a été envoyé à ' . $user->getE_mail());
+            return $this->redirectToRoute('app_reset_password');
+        }
+
         return $this->render('frontend/forgot_password.html.twig');
+    }
+
+    #[Route('/reset-password', name: 'app_reset_password', methods: ['GET', 'POST'])]
+    public function resetPassword(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $session = $request->getSession();
+        $userId = $session->get('reset_password_user_id');
+
+        if (!$userId) {
+            $this->addFlash('error', '❌ Aucune demande de réinitialisation en cours');
+            return $this->redirectToRoute('app_forgot_password');
+        }
+
+        if ($request->isMethod('POST')) {
+            $code = trim((string) $request->request->get('code'));
+            $newPassword = (string) $request->request->get('new_password');
+            $confirmPassword = (string) $request->request->get('confirm_password');
+
+            $storedCode = $session->get('reset_password_code');
+            $expiresAt = $session->get('reset_password_expires');
+
+            if (!$storedCode || new \DateTime() > new \DateTime($expiresAt)) {
+                $session->remove('reset_password_code');
+                $session->remove('reset_password_user_id');
+                $session->remove('reset_password_expires');
+                $this->addFlash('error', '⏰ Code expiré, veuillez recommencer');
+                return $this->redirectToRoute('app_forgot_password');
+            }
+
+            if ($code !== $storedCode) {
+                $this->addFlash('error', '❌ Code incorrect');
+                return $this->redirectToRoute('app_reset_password');
+            }
+
+            if (strlen($newPassword) < 8 || !preg_match('/[A-Z]/', $newPassword) || !preg_match('/[a-z]/', $newPassword) || !preg_match('/[0-9]/', $newPassword)) {
+                $this->addFlash('error', '🔒 Mot de passe faible (8+ caractères, majuscule, minuscule, chiffre)');
+                return $this->redirectToRoute('app_reset_password');
+            }
+
+            if ($newPassword !== $confirmPassword) {
+                $this->addFlash('error', '✓ Les mots de passe ne correspondent pas');
+                return $this->redirectToRoute('app_reset_password');
+            }
+
+            $user = $entityManager->getRepository(Users::class)->find($userId);
+            if ($user) {
+                $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+                $user->setMot_de_pass($hashedPassword);
+                $entityManager->flush();
+            }
+
+            $session->remove('reset_password_code');
+            $session->remove('reset_password_user_id');
+            $session->remove('reset_password_expires');
+
+            $this->addFlash('success', '✅ Mot de passe réinitialisé avec succès !');
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('frontend/reset_password.html.twig');
     }
 
     #[Route('/logout', name: 'app_logout')]

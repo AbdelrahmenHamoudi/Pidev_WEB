@@ -14,6 +14,38 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        # Firewall pour l'inscription API (public, pas de sécurité)
+        api_register:
+            pattern: ^/api/register
+            stateless: true
+            security: false
+
+        # Firewall pour le test d'envoi d'email (public, temporaire)
+        api_test_email:
+            pattern: ^/api/test-email
+            stateless: true
+            security: false
+
+        # Firewall pour le login API (génère le JWT)
+        api_login:
+            pattern: ^/api/login
+            stateless: true
+            provider: app_user_provider
+            json_login:
+                check_path: /api/login
+                username_path: e_mail
+                password_path: mot_de_pass
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        # Firewall pour les autres routes API (protégées par JWT)
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            jwt: ~
+
+        # Ton firewall web existant (intact)
         main:
             lazy: true
             provider: app_user_provider
@@ -29,11 +61,18 @@ security:
                 target: app_login
 
     access_control:
-        - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
-        - { path: ^/account, roles: ROLE_USER }
-        - { path: ^/admin, roles: ROLE_ADMIN }
+    - { path: ^/api/login, roles: PUBLIC_ACCESS }
+    - { path: ^/api/register, roles: PUBLIC_ACCESS }
+    - { path: ^/api/test-email, roles: PUBLIC_ACCESS }
+    - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/register, roles: PUBLIC_ACCESS }
+    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/verify-email, roles: PUBLIC_ACCESS }
+    - { path: ^/resend-verification, roles: PUBLIC_ACCESS }
+    - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
+    - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+    - { path: ^/account, roles: ROLE_USER }
+    - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:

@@ -38,6 +38,15 @@
     </div>
 </div>
 
+<div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <a href="#" id="exportPdfBtn"
+       style="background:#e74c3c;color:white;padding:12px 22px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(231,76,60,0.25);transition:transform 0.2s;"
+       onmouseover="this.style.transform='translateY(-2px)'"
+       onmouseout="this.style.transform='translateY(0)'">
+        📄 Exporter en PDF
+    </a>
+</div>
+
 <div class="card" style="padding:20px;border-radius:20px;margin-bottom:24px;">
     <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;">
         <div>
@@ -82,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const statusFilter = document.getElementById('statusFilter');
     const usersTableContainer = document.getElementById('usersTableContainer');
     const toast = document.getElementById('usersToast');
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
 
     let debounceTimer = null;
 
@@ -162,6 +172,17 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    // Export PDF avec les filtres actifs
+    exportPdfBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const params = new URLSearchParams({
+            search: searchInput.value,
+            role: roleFilter.value,
+            status: statusFilter.value
+        });
+        window.location.href = '/admin/users/export/pdf?' + params.toString();
+    });
 
     searchInput.addEventListener('input', function () {
         clearTimeout(debounceTimer);
