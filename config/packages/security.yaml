@@ -74,6 +74,8 @@ security:
     - { path: ^/account, roles: ROLE_USER }
     - { path: ^/admin, roles: ROLE_ADMIN }
     - { path: ^/2fa, roles: PUBLIC_ACCESS }
+    - { path: ^/face-login, roles: PUBLIC_ACCESS }
+    - { path: ^/face-api, roles: PUBLIC_ACCESS }
 
 when@test:
     security:

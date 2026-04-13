@@ -23,6 +23,9 @@ class TwoFactorListener
         'app_resend_verification',
         'app_forgot_password',
         'app_reset_password',
+        'app_face_login',
+        'app_face_login_attempt',
+        'app_face_api_health',
     ];
 
     public function __construct(TokenStorageInterface $tokenStorage, RouterInterface $router)

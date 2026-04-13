@@ -1,0 +1,232 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Activer Face ID - RE7LA{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .face-setup-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 20px 60px;
+        background: linear-gradient(135deg, rgba(135,206,235,0.08), rgba(147,197,114,0.08));
+    }
+
+    .face-setup-card {
+        background: white;
+        border-radius: 28px;
+        padding: 40px;
+        max-width: 520px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .face-setup-card h1 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #2C3E50;
+        margin-bottom: 8px;
+    }
+
+    .face-setup-card .subtitle {
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
+    .camera-box {
+        position: relative;
+        width: 100%;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #000;
+        margin-bottom: 20px;
+    }
+
+    .camera-box video {
+        width: 100%;
+        height: 320px;
+        object-fit: cover;
+        transform: scaleX(-1);
+    }
+
+    .camera-box canvas { display: none; }
+
+    .camera-box .overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+    }
+
+    .camera-box .guide-circle {
+        width: 200px;
+        height: 260px;
+        border: 3px dashed rgba(139,92,246,0.6);
+        border-radius: 50%;
+    }
+
+    .status-msg {
+        padding: 12px 16px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .status-msg.info { background: rgba(59,130,246,0.1); color: #2563eb; }
+    .status-msg.ok { background: rgba(34,197,94,0.1); color: #15803d; }
+    .status-msg.err { background: rgba(239,68,68,0.1); color: #dc2626; }
+
+    .btn-register {
+        width: 100%;
+        height: 52px;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 800;
+        color: white;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        box-shadow: 0 10px 24px rgba(139,92,246,0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-register:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn-register:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 20px;
+        color: #6b7280;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .back-link:hover { color: #1ABC9C; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+        display: inline-block;
+        width: 18px; height: 18px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        vertical-align: middle;
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="face-setup-page">
+    <div class="face-setup-card">
+        <h1>🔐 Activer Face ID</h1>
+        <p class="subtitle">Placez votre visage dans le cercle et cliquez sur Enregistrer</p>
+
+        <div id="statusMsg" class="status-msg info">
+            {% if serverOnline %}
+                Serveur en ligne — Positionnez votre visage
+            {% else %}
+                ⚠ Serveur Face ID hors ligne
+            {% endif %}
+        </div>
+
+        <div class="camera-box">
+            <video id="videoFeed" autoplay playsinline></video>
+            <canvas id="captureCanvas"></canvas>
+            <div class="overlay">
+                <div class="guide-circle"></div>
+            </div>
+        </div>
+
+        <button id="btnRegister" class="btn-register" {% if not serverOnline %}disabled{% endif %}>
+            <i class="fas fa-camera"></i> Enregistrer mon visage
+        </button>
+
+        <a href="{{ path('app_user_profile') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour au profil
+        </a>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    const video = document.getElementById('videoFeed');
+    const canvas = document.getElementById('captureCanvas');
+    const btn = document.getElementById('btnRegister');
+    const status = document.getElementById('statusMsg');
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 640, height: 480, facingMode: 'user' }
+        });
+        video.srcObject = stream;
+    } catch (err) {
+        status.className = 'status-msg err';
+        status.textContent = 'Impossible d\'accéder à la caméra';
+        btn.disabled = true;
+        return;
+    }
+
+    function captureImage() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0);
+        return canvas.toDataURL('image/jpeg', 0.85);
+    }
+
+    btn.addEventListener('click', async function() {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Enregistrement...';
+        status.className = 'status-msg info';
+        status.textContent = 'Analyse du visage en cours...';
+
+        const imageBase64 = captureImage();
+
+        try {
+            const response = await fetch('{{ path("app_face_id_register") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageBase64 })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                status.className = 'status-msg ok';
+                status.textContent = '✅ Visage enregistré avec succès !';
+                btn.innerHTML = '<i class="fas fa-check"></i> Enregistré !';
+                btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+
+                setTimeout(() => {
+                    window.location.href = '{{ path("app_user_profile") }}';
+                }, 2000);
+            } else {
+                status.className = 'status-msg err';
+                status.textContent = result.message || 'Erreur lors de l\'enregistrement';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-camera"></i> Réessayer';
+            }
+        } catch (err) {
+            status.className = 'status-msg err';
+            status.textContent = 'Erreur serveur';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-camera"></i> Réessayer';
+        }
+    });
+});
+</script>
+{% endblock %}

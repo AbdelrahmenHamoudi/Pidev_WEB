@@ -443,7 +443,33 @@
                             {% endif %}
                         </div>
 
-                        {# ===== FORMULAIRE DESACTIVATION 2FA (en dehors du form principal) ===== #}
+                        {# ===== BLOC FACE ID ===== #}
+                        <div class="security-block">
+                            <h4>
+                                <i class="fas fa-camera" style="color:#8b5cf6;"></i>
+                                Connexion par Face ID
+                            </h4>
+
+                            <div id="faceIdStatus" style="display:flex;align-items:center;gap:12px;padding:16px;border-radius:14px;margin-bottom:16px;background:rgba(107,114,128,0.08);">
+                                <div style="width:42px;height:42px;background:rgba(107,114,128,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                                    <i class="fas fa-spinner fa-spin" style="color:#6b7280;font-size:18px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">Verification...</div>
+                                    <div style="font-size:12px;color:#6b7280;">Chargement du statut Face ID</div>
+                                </div>
+                            </div>
+
+                            <div id="faceIdActions" style="display:none;">
+                                <a href="{{ path('app_face_id_setup') }}" id="btnActivateFaceId" style="display:none;align-items:center;gap:8px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;padding:10px 20px;border-radius:12px;font-weight:600;text-decoration:none;font-size:13px;">
+                                    <i class="fas fa-camera"></i> Activer Face ID
+                                </a>
+
+                                <button type="button" id="btnDisableFaceId" style="display:none;align-items:center;gap:8px;background:#fff;color:#ef4444;border:2px solid #fee2e2;padding:10px 20px;border-radius:12px;font-weight:600;cursor:pointer;font-size:13px;">
+                                    <i class="fas fa-times-circle"></i> Desactiver Face ID
+                                </button>
+                            </div>
+                        </div>
 
                         <div class="form-actions">
                             <a href="{{ path('app_user_profile') }}" class="btn-cancel">
@@ -458,7 +484,7 @@
                         </div>
                     </form>
 
-                    {# ===== FORMULAIRE DESACTIVATION 2FA SEPARE (en dehors du form principal) ===== #}
+                    {# ===== FORMULAIRE DESACTIVATION 2FA SEPARE ===== #}
                     {% set has2fa_check = false %}
                     {% for tfa in app.user.user_2fas %}
                         {% if tfa.enabled %}
@@ -734,6 +760,80 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!isValid) {
             e.preventDefault();
+        }
+    });
+
+    // ===== GESTION FACE ID =====
+    const faceIdStatus = document.getElementById('faceIdStatus');
+    const faceIdActions = document.getElementById('faceIdActions');
+    const btnActivateFaceId = document.getElementById('btnActivateFaceId');
+    const btnDisableFaceId = document.getElementById('btnDisableFaceId');
+
+    function renderFaceIdStatus(enabled) {
+        faceIdActions.style.display = 'block';
+
+        if (enabled) {
+            faceIdStatus.style.background = 'rgba(34,197,94,0.08)';
+            faceIdStatus.innerHTML = `
+                <div style="width:42px;height:42px;background:rgba(34,197,94,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-check-circle" style="color:#22c55e;font-size:18px;"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">Face ID Active</div>
+                    <div style="font-size:12px;color:#6b7280;">Vous pouvez vous connecter avec votre visage</div>
+                </div>
+            `;
+            btnActivateFaceId.style.display = 'none';
+            btnDisableFaceId.style.display = 'inline-flex';
+        } else {
+            faceIdStatus.style.background = 'rgba(245,158,11,0.08)';
+            faceIdStatus.innerHTML = `
+                <div style="width:42px;height:42px;background:rgba(245,158,11,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-exclamation-triangle" style="color:#f59e0b;font-size:18px;"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">Face ID Non active</div>
+                    <div style="font-size:12px;color:#6b7280;">Activez Face ID pour vous connecter avec votre visage</div>
+                </div>
+            `;
+            btnActivateFaceId.style.display = 'inline-flex';
+            btnDisableFaceId.style.display = 'none';
+        }
+    }
+
+    fetch('{{ path("app_face_id_check") }}')
+        .then(r => r.json())
+        .then(data => renderFaceIdStatus(data.enabled || false))
+        .catch(() => {
+            faceIdStatus.innerHTML = `
+                <div style="width:42px;height:42px;background:rgba(239,68,68,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-times-circle" style="color:#ef4444;font-size:18px;"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">Serveur Face ID hors ligne</div>
+                    <div style="font-size:12px;color:#6b7280;">Impossible de verifier le statut</div>
+                </div>
+            `;
+        });
+
+    btnDisableFaceId.addEventListener('click', async function() {
+        if (!confirm('Etes-vous sur de vouloir desactiver Face ID ?')) return;
+
+        try {
+            const response = await fetch('{{ path("app_face_id_disable") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                renderFaceIdStatus(false);
+                alert('Face ID desactive avec succes');
+            } else {
+                alert('Erreur : ' + (result.message || 'Echec de la desactivation'));
+            }
+        } catch (err) {
+            alert('Erreur de communication avec le serveur');
         }
     });
 });
