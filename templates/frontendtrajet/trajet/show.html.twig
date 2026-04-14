@@ -167,6 +167,34 @@
                     </div>
                 </div>
 
+                <!-- Détails Financiers -->
+                {% if trajet.idVoiture and trajet.distanceKm %}
+                <div class="info-card-fe" data-aos="fade-up" data-aos-delay="180">
+                    <div class="ic-head">
+                        <div class="ic-icon" style="background: linear-gradient(135deg, rgba(147,197,114,0.2), rgba(135,206,235,0.1));">
+                            <i class="fas fa-hand-holding-usd" style="color: var(--vert-pistache-dark);"></i>
+                        </div>
+                        <div class="ic-title">Détails Financiers</div>
+                    </div>
+                    <div class="info-row-fe">
+                        <span class="ir-key"><i class="fas fa-tag"></i> Prix au KM (Véhicule)</span>
+                        <span class="ir-val">{{ trajet.idVoiture.prixKM|number_format(3) }} DT / km</span>
+                    </div>
+                    <div class="info-row-fe">
+                        <span class="ir-key"><i class="fas fa-calculator"></i> Coût Total du Trajet</span>
+                        <span class="ir-val">{{ (trajet.idVoiture.prixKM * trajet.distanceKm)|number_format(3) }} DT</span>
+                    </div>
+                    <div class="info-row-fe" style="background: rgba(147,197,114,0.05);">
+                        <span class="ir-key" style="color: var(--vert-pistache-dark); font-weight: 700;">
+                            <i class="fas fa-coins"></i> Prix par Personne
+                        </span>
+                        <span class="ir-val" style="color: var(--vert-pistache-dark); font-size: 18px; font-weight: 800;">
+                            {{ ((trajet.idVoiture.prixKM * trajet.distanceKm) / (trajet.nbPersonnes > 0 ? trajet.nbPersonnes : 1))|number_format(3) }} DT
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Véhicule assigné -->
                 {% if trajet.idVoiture %}
                 <div class="info-card-fe" data-aos="fade-up" data-aos-delay="150">

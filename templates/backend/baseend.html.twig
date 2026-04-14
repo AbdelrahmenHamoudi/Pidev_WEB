@@ -132,6 +132,55 @@ tr:last-child td{border-bottom:none;}
   .stat-cards-row{grid-template-columns:1fr;}
   .user-chip span{display:none;}
 }
+
+/* ===== GLOBAL TOAST NOTIFICATIONS ===== */
+#mercure-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+.m-toast {
+  pointer-events: auto;
+  width: 380px;
+  background: white;
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border-left: 5px solid #ddd;
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+}
+.m-toast.show { transform: translateX(0); opacity: 1; }
+.m-toast-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: white; flex-shrink: 0; z-index: 1;
+}
+.m-toast-content { flex: 1; z-index: 1; }
+.m-toast-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; opacity: 0.6; }
+.m-toast-msg { font-size: 13px; font-weight: 500; color: #2C3E50; line-height: 1.4; }
+.m-toast-close { background: none; border: none; color: #94a3b8; cursor: pointer; padding: 5px; font-size: 14px; z-index: 1; transition: 0.2s; }
+.m-toast-close:hover { color: #ef4444; }
+
+/* Types */
+.m-toast-add   { border-left-color: #1ABC9C; }
+.m-toast-add .m-toast-icon { background: linear-gradient(135deg, #1ABC9C, #16a085); box-shadow: 0 4px 12px rgba(26,188,156,0.3); }
+.m-toast-edit  { border-left-color: #F39C12; }
+.m-toast-edit .m-toast-icon { background: linear-gradient(135deg, #F39C12, #e67e22); box-shadow: 0 4px 12px rgba(243,156,18,0.3); }
+.m-toast-delete { border-left-color: #e74c3c; }
+.m-toast-delete .m-toast-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 4px 12px rgba(231,76,60,0.3); }
 </style>
 {% block stylesheets %}{% endblock %}
 </head>
@@ -300,6 +349,92 @@ tr:last-child td{border-bottom:none;}
         this.style.color = (this.textContent.trim() === 'Déconnexion') ? '#ef4444' : '#2C3E50';
       });
     });
+  });
+</script>
+
+<!-- Global Mercure Listener -->
+<div id="mercure-toast-container"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const showNotification = (data) => {
+      const container = document.getElementById('mercure-toast-container');
+      const toast = document.createElement('div');
+      
+      let typeClass = 'm-toast-add';
+      let icon = 'fa-info-circle';
+      let title = 'Information';
+      
+      if (data.action.includes('add')) {
+        typeClass = 'm-toast-add';
+        icon = 'fa-plus-circle';
+        title = 'Nouveau';
+      } else if (data.action.includes('edit')) {
+        typeClass = 'm-toast-edit';
+        icon = 'fa-pen-to-square';
+        title = 'Modification';
+      } else if (data.action.includes('delete')) {
+        typeClass = 'm-toast-delete';
+        icon = 'fa-trash-can';
+        title = 'Suppression';
+      }
+
+      toast.className = `m-toast ${typeClass}`;
+      toast.innerHTML = `
+        <div class="m-toast-icon"><i class="fas ${icon}"></i></div>
+        <div class="m-toast-content">
+          <div class="m-toast-title">${title}</div>
+          <div class="m-toast-msg">${data.message}</div>
+        </div>
+        <button class="m-toast-close"><i class="fas fa-times"></i></button>
+      `;
+
+      container.appendChild(toast);
+      
+      // Animate in
+      setTimeout(() => toast.classList.add('show'), 100);
+
+      // Close button
+      toast.querySelector('.m-toast-close').onclick = () => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+      };
+
+      // Auto remove
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.classList.remove('show');
+          setTimeout(() => { if (toast.parentElement) toast.remove(); }, 500);
+        }
+      }, 7000);
+    };
+
+    // Subscriptions
+    const topics = [
+      "{{ mercure('https://re7la.com/voitures')|escape('js') }}",
+      "{{ mercure('https://re7la.com/trajets')|escape('js') }}"
+    ];
+
+    topics.forEach(topic => {
+      try {
+        const eventSource = new EventSource(topic);
+        eventSource.onmessage = event => {
+          const data = JSON.parse(event.data);
+          showNotification(data);
+          
+          // Debug console
+          console.log('Mercure Global Notification:', data);
+        };
+        eventSource.onerror = () => {
+          console.warn('Mercure connection closed for topic:', topic);
+        };
+      } catch (e) {
+        console.error('Error connecting to Mercure:', e);
+      }
+    });
+
+    // Expose for debugging or manual testing
+    window.showGlobalNotification = showNotification;
   });
 </script>
 {% block javascripts %}{% endblock %}

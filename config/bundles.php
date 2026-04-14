@@ -7,8 +7,5 @@ return [
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
-<<<<<<< HEAD
-=======
     Symfony\Bundle\MercureBundle\MercureBundle::class => ['all' => true],
->>>>>>> 389a046 (ajout d'autre FA et API)
 ];

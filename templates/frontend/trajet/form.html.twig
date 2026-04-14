@@ -143,6 +143,27 @@ select.form-input-fe { cursor: pointer; }
     <div class="container">
 
         <form method="POST" action="{{ path('app_trajet_create') }}" id="trajetForm">
+            <!-- ===== DRAFT PANEL ===== -->
+            <div class="form-card-fe mb-4" style="border-left: 5px solid var(--bleu-ceil);">
+                <div style="padding: 15px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                    <div class="d-flex align-items: center; gap: 12px;">
+                        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(135,206,235,0.1); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-magic" style="color: var(--bleu-ceil); font-size: 14px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px; color: var(--dark);">Récupérer un brouillon ?</div>
+                            <div style="font-size: 11px; color: #94a3b8;">Saisissez votre code pour remplir le formulaire</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <input type="text" id="draftCodeInput" class="form-control form-control-sm" placeholder="Ex: BR-X9Z2" style="width: 140px; border-radius: 50px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                        <button type="button" id="btnLoadDraft" class="btn btn-sm" style="background: var(--dark); color: white; border-radius: 50px; padding: 5px 15px; font-size: 12px; font-weight: 600;">
+                            <i class="fas fa-download me-1"></i>Charger
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="row g-4">
 
                 <!-- ===== LEFT : FORM ===== -->
@@ -290,6 +311,9 @@ select.form-input-fe { cursor: pointer; }
                         <a href="{{ path('app_trajet') }}" class="btn" style="background: white; color: #64748b; border: 2px solid #e0e7ff; border-radius: 50px; padding: 13px 28px; font-weight: 600;">
                             <i class="fas fa-times me-2"></i>Annuler
                         </a>
+                        <button type="button" id="btnSaveDraft" class="btn" style="background: #f1f5f9; color: var(--dark); border-radius: 50px; padding: 13px 28px; font-weight: 600; border: 1px solid #e2e8f0;">
+                            <i class="fas fa-save me-2"></i>Sauvegarder Brouillon
+                        </button>
                         <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 13px 32px; font-weight: 700; border: none; font-family: 'Poppins', sans-serif; font-size: 15px; box-shadow: 0 10px 30px rgba(135,206,235,0.4); transition: all 0.3s;">
                             <i class="fas fa-route me-2"></i>
                             Confirmer la réservation
@@ -463,6 +487,52 @@ if (depInput && arrInput) {
     arrInput.addEventListener('input', () => { arrPrev.textContent = arrInput.value || '—'; });
 }
 
+// --- DYNAMIC CAR AVAILABILITY ---
+const dateReservationInput = document.querySelector('input[name="date_reservation"]');
+const voitureSelect = document.querySelector('select[name="id_voiture"]');
+const trajetId = "{{ trajet.id ?? '' }}";
+
+if (dateReservationInput && voitureSelect) {
+    dateReservationInput.addEventListener('change', async function() {
+        const selectedDate = dateReservationInput.value;
+        if (!selectedDate) return;
+
+        // Show loading state
+        voitureSelect.innerHTML = '<option value="">— Chargement des voitures disponibles... —</option>';
+        voitureSelect.disabled = true;
+
+        try {
+            const url = `{{ path('api_trajet_available_cars') }}?date=${encodeURIComponent(selectedDate)}${trajetId ? '&exclude=' + trajetId : ''}`;
+            const response = await fetch(url);
+            const cars = await response.json();
+
+            voitureSelect.innerHTML = '<option value="">— Sélectionner une voiture —</option>';
+            
+            if (cars.length === 0) {
+                voitureSelect.innerHTML = '<option value="">⚠️ Aucune voiture disponible ce jour-là</option>';
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Disponibilité',
+                    text: 'Toutes les voitures sont déjà réservées pour cette date. Veuillez choisir un autre jour.',
+                    confirmButtonColor: 'var(--bleu-ceil)'
+                });
+            } else {
+                cars.forEach(car => {
+                    const option = document.createElement('option');
+                    option.value = car.id;
+                    option.textContent = car.text;
+                    voitureSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching available cars:", error);
+            voitureSelect.innerHTML = '<option value="">Erreur lors du chargement</option>';
+        } finally {
+            voitureSelect.disabled = false;
+        }
+    });
+}
+
 // --- INPUT FOCUS STYLES ---
 document.querySelectorAll('.form-input-fe').forEach(input => {
     input.addEventListener('focus', () => {
@@ -476,6 +546,99 @@ document.querySelectorAll('.form-input-fe').forEach(input => {
         input.style.background  = '#fafcff';
     });
 });
+
+    // --- DRAFT SYSTEM LOGIC ---
+    const btnSaveDraft = document.getElementById('btnSaveDraft');
+    const btnLoadDraft = document.getElementById('btnLoadDraft');
+    const draftCodeInput = document.getElementById('draftCodeInput');
+
+    if (btnSaveDraft) {
+        btnSaveDraft.addEventListener('click', async function() {
+            const formData = new FormData(document.getElementById('trajetForm'));
+            const data = {};
+            formData.forEach((value, key) => { 
+                if (key !== '_csrf_token') data[key] = value; 
+            });
+
+            btnSaveDraft.disabled = true;
+            btnSaveDraft.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enregistrement...';
+
+            try {
+                const response = await fetch("{{ path('api_trajet_brouillon_save') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Brouillon enregistré !',
+                        html: `Voici votre code : <b style="font-size: 24px; color: var(--bleu-ceil); letter-spacing: 2px;">${result.code}</b><br><br>Conservez ce code pour retrouver vos données plus tard.`,
+                        confirmButtonColor: 'var(--bleu-ceil)'
+                    });
+                }
+            } catch (error) {
+                console.error("Error saving draft:", error);
+                Swal.fire({ icon: 'error', title: 'Erreur', text: 'Impossible de sauvegarder le brouillon.' });
+            } finally {
+                btnSaveDraft.disabled = false;
+                btnSaveDraft.innerHTML = '<i class="fas fa-save me-2"></i>Sauvegarder Brouillon';
+            }
+        });
+    }
+
+    if (btnLoadDraft) {
+        btnLoadDraft.addEventListener('click', async function() {
+            const code = draftCodeInput.value.trim().toUpperCase();
+            if (!code) {
+                Swal.fire({ icon: 'warning', title: 'Code manquant', text: 'Veuillez saisir un code de brouillon.' });
+                return;
+            }
+
+            btnLoadDraft.disabled = true;
+            btnLoadDraft.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>...';
+
+            try {
+                const response = await fetch(`{{ path('app_trajet') }}/api/brouillon/${code}`);
+                const data = await response.json();
+
+                if (data.status === 'error') {
+                    Swal.fire({ icon: 'error', title: 'Erreur', text: data.message });
+                } else {
+                    // Populate fields
+                    Object.keys(data).forEach(key => {
+                        const input = document.querySelector(`[name="${key}"]`);
+                        if (input) {
+                            input.value = data[key];
+                            // Trigger input event for previews
+                            input.dispatchEvent(new Event('input'));
+                        }
+                    });
+
+                    // Special triggers
+                    if (depInput && arrInput) {
+                        depPrev.textContent = depInput.value || '—';
+                        arrPrev.textContent = arrInput.value || '—';
+                    }
+                    
+                    // Trigger car availability update
+                    if (dateReservationInput) {
+                        dateReservationInput.dispatchEvent(new Event('change'));
+                    }
+
+                    Swal.fire({ icon: 'success', title: 'Brouillon chargé !', text: 'Vos données ont été restaurées.', timer: 1500, showConfirmButton: false });
+                }
+            } catch (error) {
+                console.error("Error loading draft:", error);
+                Swal.fire({ icon: 'error', title: 'Erreur', text: 'Impossible de charger le brouillon.' });
+            } finally {
+                btnLoadDraft.disabled = false;
+                btnLoadDraft.innerHTML = '<i class="fas fa-download me-1"></i>Charger';
+            }
+        });
+    }
 
 // --- FORM VALIDATION ---
 document.getElementById('trajetForm').addEventListener('submit', function(e) {

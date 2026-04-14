@@ -90,42 +90,138 @@
       </div>
     </div>
 
-    <!-- ===== SECTION 2 : Capacité & Options ===== -->
+    </div>
+
+    <!-- ===== SECTION 2 : Options du Véhicule ===== -->
     <div style="margin-bottom:32px;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">
         <div style="width:36px;height:36px;background:linear-gradient(135deg,#1ABC9C,#16a085);border-radius:8px;display:flex;align-items:center;justify-content:center;">
           <i class="fas fa-sliders-h" style="color:#fff;font-size:14px;"></i>
         </div>
         <div>
-          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Capacité & Options</div>
-          <div style="font-size:12px;color:#94a3b8;">Places et services disponibles</div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Options du Véhicule</div>
+          <div style="font-size:12px;color:#94a3b8;">Disponibilité, chauffeur et capacité</div>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">
 
+        <!-- Disponibilité -->
         <div>
-          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Nombre de places</label>
-          <input type="number" name="nb_places" value="{{ voiture.nbPlaces ?? 5 }}" min="1" max="20" required
-                 style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:10px;font-size:14px;">
+            <i class="fas fa-circle" style="color:#1ABC9C;font-size:10px;margin-right:6px;"></i>Disponibilité
+          </label>
+          <div style="display:flex;gap:10px;">
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="disponibilite" value="1" id="dispo-oui"
+                     {% if voiture.disponibilite is not defined or voiture.disponibilite is null or voiture.disponibilite %}checked{% endif %}
+                     style="display:none;" onchange="updateToggle('dispo')">
+              <div id="label-dispo-oui" style="text-align:center;padding:12px 8px;border-radius:12px;border:2px solid #1ABC9C;background:rgba(26,188,156,0.08);transition:all 0.2s;">
+                <i class="fas fa-check-circle" style="color:#1ABC9C;font-size:18px;display:block;margin-bottom:4px;"></i>
+                <span style="font-size:12px;font-weight:700;color:#1ABC9C;">Disponible</span>
+              </div>
+            </label>
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="disponibilite" value="0" id="dispo-non"
+                     {% if voiture.disponibilite is defined and voiture.disponibilite is not null and not voiture.disponibilite %}checked{% endif %}
+                     style="display:none;" onchange="updateToggle('dispo')">
+              <div id="label-dispo-non" style="text-align:center;padding:12px 8px;border-radius:12px;border:2px solid #e8ecf0;background:#f8fafc;transition:all 0.2s;">
+                <i class="fas fa-times-circle" style="color:#94a3b8;font-size:18px;display:block;margin-bottom:4px;"></i>
+                <span style="font-size:12px;font-weight:700;color:#94a3b8;">Indisponible</span>
+              </div>
+            </label>
+          </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:12px;justify-content:flex-end;">
-
-          <label style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:#f8fafc;border:2px solid #e8ecf0;border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:14px;color:#64748b;" class="toggle-opt">
-            <input type="checkbox" name="avec_chauffeur" value="1" {% if voiture.avecChauffeur %}checked{% endif %}
-                   style="width:17px;height:17px;accent-color:#F7B731;flex-shrink:0;">
-            <i class="fas fa-user-tie" style="color:#F7B731;"></i>
-            Avec chauffeur disponible
+        <!-- Avec Chauffeur -->
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:10px;font-size:14px;">
+            <i class="fas fa-user-tie" style="color:#2C3E50;font-size:10px;margin-right:6px;"></i>Service Chauffeur
           </label>
+          <div style="display:flex;gap:10px;">
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="avec_chauffeur" value="1" id="chauffeur-oui"
+                     {% if voiture.avecChauffeur is defined and voiture.avecChauffeur %}checked{% endif %}
+                     style="display:none;" onchange="updateToggle('chauffeur')">
+              <div id="label-chauffeur-oui" style="text-align:center;padding:12px 8px;border-radius:12px;border:2px solid #e8ecf0;background:#f8fafc;transition:all 0.2s;">
+                <i class="fas fa-user-tie" style="color:#94a3b8;font-size:18px;display:block;margin-bottom:4px;"></i>
+                <span style="font-size:12px;font-weight:700;color:#94a3b8;">Avec chauffeur</span>
+              </div>
+            </label>
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="avec_chauffeur" value="0" id="chauffeur-non"
+                     {% if voiture.avecChauffeur is not defined or voiture.avecChauffeur is null or not voiture.avecChauffeur %}checked{% endif %}
+                     style="display:none;" onchange="updateToggle('chauffeur')">
+              <div id="label-chauffeur-non" style="text-align:center;padding:12px 8px;border-radius:12px;border:2px solid #2C3E50;background:rgba(44,62,80,0.05);transition:all 0.2s;">
+                <i class="fas fa-key" style="color:#2C3E50;font-size:18px;display:block;margin-bottom:4px;"></i>
+                <span style="font-size:12px;font-weight:700;color:#2C3E50;">Auto-conduit</span>
+              </div>
+            </label>
+          </div>
+        </div>
 
-          <label style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:#f8fafc;border:2px solid #e8ecf0;border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:14px;color:#64748b;" class="toggle-opt">
-            <input type="checkbox" name="disponibilite" value="1" {% if voiture.disponibilite %}checked{% endif %}
-                   style="width:17px;height:17px;accent-color:#1ABC9C;flex-shrink:0;">
-            <i class="fas fa-check-circle" style="color:#1ABC9C;"></i>
-            Disponible à la réservation
+        <!-- Nombre de Places -->
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:10px;font-size:14px;">
+            <i class="fas fa-users" style="color:#6366f1;font-size:10px;margin-right:6px;"></i>Nombre de Places
           </label>
+          <div style="display:flex;align-items:stretch;">
+            <input type="number" name="nb_places" value="{{ voiture.nbPlaces ?? 5 }}" min="1" max="20" required
+                   placeholder="Ex : 5"
+                   style="flex:1;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px 0 0 12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+            <div style="background:#f8fafc;border:2px solid #e8ecf0;border-left:none;border-radius:0 12px 12px 0;padding:12px 14px;display:flex;align-items:center;color:#64748b;font-weight:500;white-space:nowrap;">
+              <i class="fas fa-user" style="font-size:13px;"></i>
+            </div>
+          </div>
+          <small style="font-size:10px;color:#94a3b8;margin-top:4px;display:block;">Entre 1 et 20 passagers</small>
+        </div>
 
+      </div>
+    </div>
+
+    <!-- ===== SECTION 2.5 : Performances Techniques (AI Powered) ===== -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-bolt" style="color:#fff;font-size:14px;"></i>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Performances Techniques</div>
+          <div style="font-size:12px;color:#94a3b8;">Saisissez le modèle pour voir la magie opérer ✨</div>
+        </div>
+        <button type="button" id="btn-suggest-specs" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;color:#6366f1;cursor:pointer;display:flex;align-items:center;gap:6px;transition:0.2s;" onmouseover="this.style.background='#fff'">
+            <i class="fas fa-magic"></i> Forcer la suggestion
+        </button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;">
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Puissance (ch)</label>
+          <input type="number" name="puissance" id="puissanceInput" value="{{ voiture.puissance ?? '' }}" 
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;" class="spec-input">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Vitesse Max (km/h)</label>
+          <input type="number" name="vitesse_max" id="vitesseInput" value="{{ voiture.vitesseMax ?? '' }}" 
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;" class="spec-input">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">0-100 km/h (s)</label>
+          <input type="number" name="acceleration" id="accelInput" value="{{ voiture.acceleration ?? '' }}" step="0.1"
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;" class="spec-input">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Consommation (L/100)</label>
+          <input type="number" name="consommation" id="consoInput" value="{{ voiture.consommation ?? '' }}" step="0.1"
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;" class="spec-input">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Boîte de Vitesse</label>
+          <select name="boite_vitesse" id="boiteInput"
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;cursor:pointer;">
+             <option value="Manuelle" {% if (voiture.boiteVitesse ?? '') == 'Manuelle' %}selected{% endif %}>Manuelle</option>
+             <option value="Automatique" {% if (voiture.boiteVitesse ?? '') == 'Automatique' %}selected{% endif %}>Automatique</option>
+          </select>
         </div>
       </div>
     </div>
@@ -188,7 +284,7 @@
 
       <!-- Tab URL -->
       <div id="tab-url" style="display:none;">
-        <input type="url" name="image_url" id="imageUrl"
+        <input type="text" name="image_url" id="imageUrl"
                value="{{ (voiture.image is defined and voiture.image and voiture.image starts with 'http') ? voiture.image : '' }}"
                placeholder="https://exemple.com/image.jpg"
                oninput="previewUrl(this.value)"
@@ -259,6 +355,42 @@
 {% block javascripts %}
 <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
 <script>
+// ── Toggle visual cards (Disponibilité + Chauffeur) ──────────────
+function updateToggle(type) {
+  if (type === 'dispo') {
+    const isOui = document.getElementById('dispo-oui').checked;
+    // OUI card
+    document.getElementById('label-dispo-oui').style.borderColor  = isOui ? '#1ABC9C' : '#e8ecf0';
+    document.getElementById('label-dispo-oui').style.background   = isOui ? 'rgba(26,188,156,0.08)' : '#f8fafc';
+    document.getElementById('label-dispo-oui').querySelector('i').style.color   = isOui ? '#1ABC9C' : '#94a3b8';
+    document.getElementById('label-dispo-oui').querySelector('span').style.color = isOui ? '#1ABC9C' : '#94a3b8';
+    // NON card
+    document.getElementById('label-dispo-non').style.borderColor  = !isOui ? '#e63946' : '#e8ecf0';
+    document.getElementById('label-dispo-non').style.background   = !isOui ? 'rgba(230,57,70,0.07)' : '#f8fafc';
+    document.getElementById('label-dispo-non').querySelector('i').style.color   = !isOui ? '#e63946' : '#94a3b8';
+    document.getElementById('label-dispo-non').querySelector('span').style.color = !isOui ? '#e63946' : '#94a3b8';
+  }
+  if (type === 'chauffeur') {
+    const isOui = document.getElementById('chauffeur-oui').checked;
+    // OUI card (avec chauffeur)
+    document.getElementById('label-chauffeur-oui').style.borderColor  = isOui ? '#2C3E50' : '#e8ecf0';
+    document.getElementById('label-chauffeur-oui').style.background   = isOui ? 'rgba(44,62,80,0.07)' : '#f8fafc';
+    document.getElementById('label-chauffeur-oui').querySelector('i').style.color   = isOui ? '#2C3E50' : '#94a3b8';
+    document.getElementById('label-chauffeur-oui').querySelector('span').style.color = isOui ? '#2C3E50' : '#94a3b8';
+    // NON card (auto-conduit)
+    document.getElementById('label-chauffeur-non').style.borderColor  = !isOui ? '#2C3E50' : '#e8ecf0';
+    document.getElementById('label-chauffeur-non').style.background   = !isOui ? 'rgba(44,62,80,0.05)' : '#f8fafc';
+    document.getElementById('label-chauffeur-non').querySelector('i').style.color   = !isOui ? '#2C3E50' : '#94a3b8';
+    document.getElementById('label-chauffeur-non').querySelector('span').style.color = !isOui ? '#2C3E50' : '#94a3b8';
+  }
+}
+// Init on page load to reflect edit-mode pre-selected values
+function initToggles() {
+  updateToggle('dispo');
+  updateToggle('chauffeur');
+}
+document.addEventListener('DOMContentLoaded', initToggles);
+
 function switchTab(tab) {
   const uploadEl  = document.getElementById('tab-upload');
   const urlEl     = document.getElementById('tab-url');
@@ -520,6 +652,18 @@ document.getElementById('magic-search-btn').addEventListener('click', async func
       
       // Visual feedback
       urlInput.style.borderColor = '#1ABC9C';
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Image Générée !',
+        text: 'La photo a été générée et sauvegardée sur votre serveur.',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+      
       setTimeout(() => urlInput.style.borderColor = '#e8ecf0', 2000);
     }
   } catch (err) {
@@ -530,6 +674,64 @@ document.getElementById('magic-search-btn').addEventListener('click', async func
     btn.style.opacity = '1';
     btn.disabled = false;
   }
+  // AI Specs Auto-complete
+  const marqueInput = document.getElementById('marqueInput');
+  const modeleInput = document.getElementById('modeleInput');
+  const btnSuggest = document.getElementById('btn-suggest-specs');
+
+  async function updateSpecs() {
+    const marque = marqueInput.value;
+    const modele = modeleInput.value;
+
+    if (!marque || !modele || modele.includes('d\'abord')) return;
+
+    // Show loading state
+    btnSuggest.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyse...';
+    
+    try {
+      const response = await fetch('/api/car-specs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ marque, modele })
+      });
+
+      if (response.ok) {
+        const specs = await response.json();
+        
+        // Populate fields with a nice fade effect
+        const fields = {
+            'puissanceInput': specs.puissance,
+            'vitesseInput': specs.vitesse_max,
+            'accelInput': specs.acceleration,
+            'consoInput': specs.consommation,
+            'boiteInput': specs.boite_vitesse
+        };
+
+        Object.keys(fields).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = fields[id];
+                el.style.borderColor = '#6366f1';
+                setTimeout(() => el.style.borderColor = '#e8ecf0', 1000);
+            }
+        });
+
+        // Show success
+        btnSuggest.innerHTML = '<i class="fas fa-check text-success"></i> Suggéré !';
+      }
+    } catch (e) {
+      console.error('Error fetching specs:', e);
+    } finally {
+      setTimeout(() => {
+        btnSuggest.innerHTML = '<i class="fas fa-magic"></i> Suggérer';
+      }, 2000);
+    }
+  }
+
+  // Listeners
+  modeleInput.addEventListener('change', updateSpecs);
+  btnSuggest.addEventListener('click', updateSpecs);
+
 });
 </script>
 {% endblock %}

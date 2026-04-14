@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmation de Réservation — RE7LA</title>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
+
+  <!-- Wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <!-- ── HEADER ── -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);border-radius:20px 20px 0 0;padding:40px 40px 30px;text-align:center;">
+              <!-- Logo / Brand -->
+              <div style="margin-bottom:20px;">
+                <span style="display:inline-block;background:linear-gradient(135deg,#87CEEB,#4FC3F7);border-radius:50%;width:64px;height:64px;line-height:64px;font-size:28px;text-align:center;">🚗</span>
+              </div>
+              <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:800;letter-spacing:-0.5px;">RE7LA</h1>
+              <p style="margin:6px 0 0;color:#87CEEB;font-size:14px;letter-spacing:2px;text-transform:uppercase;">Plateforme de Transport</p>
+              <!-- Divider -->
+              <div style="margin:24px auto 0;width:60px;height:3px;background:linear-gradient(90deg,#87CEEB,#4FC3F7);border-radius:2px;"></div>
+            </td>
+          </tr>
+
+          <!-- ── SUCCESS BADGE ── -->
+          <tr>
+            <td style="background:#ffffff;padding:0 40px;text-align:center;">
+              <div style="margin-top:-1px;background:#ffffff;border-top:none;">
+                <div style="display:inline-block;background:linear-gradient(135deg,#2ecc71,#27ae60);border-radius:50%;width:72px;height:72px;line-height:72px;font-size:34px;text-align:center;margin-top:30px;box-shadow:0 8px 25px rgba(46,204,113,0.3);">✓</div>
+                <h2 style="margin:20px 0 8px;color:#1a1a2e;font-size:24px;font-weight:800;">Réservation Confirmée !</h2>
+                <p style="margin:0 0 30px;color:#64748b;font-size:15px;line-height:1.6;">Votre trajet a été enregistré avec succès sur la plateforme RE7LA.</p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ── ROUTE CARD ── -->
+          <tr>
+            <td style="background:#ffffff;padding:0 40px 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#1a1a2e,#0f3460);border-radius:16px;overflow:hidden;">
+                <tr>
+                  <td style="padding:28px 30px;">
+                    <p style="margin:0 0 16px;color:#87CEEB;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Itinéraire</p>
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="text-align:center;width:42%;">
+                          <p style="margin:0;color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Départ</p>
+                          <p style="margin:6px 0 0;color:#ffffff;font-size:18px;font-weight:800;">{{ trajet.pointDepart }}</p>
+                        </td>
+                        <td style="text-align:center;width:16%;">
+                          <div style="background:rgba(135,206,235,0.2);border-radius:50%;width:40px;height:40px;margin:0 auto;line-height:40px;font-size:18px;color:#87CEEB;">→</div>
+                        </td>
+                        <td style="text-align:center;width:42%;">
+                          <p style="margin:0;color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Arrivée</p>
+                          <p style="margin:6px 0 0;color:#87CEEB;font-size:18px;font-weight:800;">{{ trajet.pointArrivee }}</p>
+                        </td>
+                      </tr>
+                    </table>
+                    <!-- Distance pill -->
+                    <div style="text-align:center;margin-top:20px;">
+                      <span style="display:inline-block;background:rgba(135,206,235,0.15);color:#87CEEB;border:1px solid rgba(135,206,235,0.3);border-radius:50px;padding:6px 18px;font-size:13px;font-weight:600;">
+                        📍 {{ trajet.distanceKm }} km
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── DETAILS GRID ── -->
+          <tr>
+            <td style="background:#ffffff;padding:0 40px 30px;">
+              <p style="margin:0 0 16px;color:#1a1a2e;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Détails de la réservation</p>
+              <table width="100%" cellpadding="0" cellspacing="8">
+                <!-- Row 1 -->
+                <tr>
+                  <td width="48%" style="background:#f8fafc;border-radius:12px;padding:16px 18px;border-left:4px solid #87CEEB;">
+                    <p style="margin:0 0 4px;color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">📅 Date</p>
+                    <p style="margin:0;color:#1a1a2e;font-size:14px;font-weight:700;">{{ trajet.dateReservation|date('d MMMM Y', 'fr') }}</p>
+                  </td>
+                  <td width="4%"></td>
+                  <td width="48%" style="background:#f8fafc;border-radius:12px;padding:16px 18px;border-left:4px solid #2ecc71;">
+                    <p style="margin:0 0 4px;color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">👥 Voyageurs</p>
+                    <p style="margin:0;color:#1a1a2e;font-size:14px;font-weight:700;">{{ trajet.nbPersonnes }} personne{{ trajet.nbPersonnes > 1 ? 's' : '' }}</p>
+                  </td>
+                </tr>
+                <tr><td colspan="3" style="height:10px;"></td></tr>
+                <!-- Row 2 -->
+                <tr>
+                  <td width="48%" style="background:#f8fafc;border-radius:12px;padding:16px 18px;border-left:4px solid #f39c12;">
+                    <p style="margin:0 0 4px;color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">🚘 Véhicule</p>
+                    <p style="margin:0;color:#1a1a2e;font-size:14px;font-weight:700;">
+                      {% if trajet.idVoiture %}
+                        {{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}
+                      {% else %}
+                        Transport RE7LA
+                      {% endif %}
+                    </p>
+                  </td>
+                  <td width="4%"></td>
+                  <td width="48%" style="background:#f8fafc;border-radius:12px;padding:16px 18px;border-left:4px solid #e74c3c;">
+                    <p style="margin:0 0 4px;color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">🔢 Référence</p>
+                    <p style="margin:0;color:#1a1a2e;font-size:14px;font-weight:700;">#TRJ-{{ '%05d'|format(trajet.id) }}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── PRICE BLOCK ── -->
+          <tr>
+            <td style="background:#ffffff;padding:0 40px 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#f39c12,#e67e22);border-radius:14px;">
+                <tr>
+                  <td style="padding:22px 26px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <p style="margin:0;color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">💰 Montant total</p>
+                          <p style="margin:4px 0 0;color:rgba(255,255,255,0.7);font-size:12px;">Statut : En attente de paiement</p>
+                        </td>
+                        <td style="text-align:right;">
+                          <p style="margin:0;color:#ffffff;font-size:30px;font-weight:900;">
+                            {{ (trajet.distanceKm * (trajet.idVoiture ? trajet.idVoiture.prixKM : 0.5))|number_format(3) }}
+                            <span style="font-size:16px;font-weight:500;">DT</span>
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── CTA BUTTON ── -->
+          <tr>
+            <td style="background:#ffffff;padding:0 40px 36px;text-align:center;">
+              <a href="{{ app.request.schemeAndHttpHost }}/paiement/checkout/{{ trajet.id }}"
+                 style="display:inline-block;background:linear-gradient(135deg,#87CEEB,#4FC3F7);color:#1a1a2e;text-decoration:none;padding:16px 40px;border-radius:50px;font-size:15px;font-weight:800;letter-spacing:0.5px;box-shadow:0 8px 20px rgba(135,206,235,0.4);">
+                💳 Procéder au Paiement
+              </a>
+              <p style="margin:14px 0 0;color:#94a3b8;font-size:12px;">Lien valable 24h — Sécurisé SSL</p>
+            </td>
+          </tr>
+
+          <!-- ── FOOTER ── -->
+          <tr>
+            <td style="background:#1a1a2e;border-radius:0 0 20px 20px;padding:28px 40px;text-align:center;">
+              <p style="margin:0 0 8px;color:#87CEEB;font-size:16px;font-weight:800;">RE7LA 🚗</p>
+              <p style="margin:0 0 16px;color:rgba(255,255,255,0.4);font-size:12px;">La mobilité intelligente en Tunisie</p>
+              <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">
+                <p style="margin:0;color:rgba(255,255,255,0.3);font-size:11px;">
+                  Cet email a été envoyé automatiquement. Ne pas répondre.<br>
+                  © {{ "now"|date("Y") }} RE7LA — Tous droits réservés.
+                </p>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

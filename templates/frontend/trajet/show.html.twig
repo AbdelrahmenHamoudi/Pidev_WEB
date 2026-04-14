@@ -3,6 +3,7 @@
 {% block title %}Trajet {{ trajet.pointDepart }} → {{ trajet.pointArrivee }} - RE7LA{% endblock %}
 
 {% block extra_styles %}
+<style>
 :root {
     --bleu-ceil: #87CEEB;
     --bleu-ceil-dark: #5dade2;
@@ -48,19 +49,37 @@
 .ir-key { color: #94a3b8; display: flex; align-items: center; gap: 8px; }
 .ir-val { font-weight: 600; color: var(--dark); }
 
-.badge-fe { display: inline-block; padding: 6px 18px; border-radius: 50px; font-size: 12px; font-weight: 700; }
-.badge-reserved  { background: rgba(135,206,235,0.15); color: #3b82f6; }
-.badge-confirmed { background: rgba(147,197,114,0.15); color: #16a34a; }
-.badge-cancelled { background: rgba(231,76,60,0.15);   color: #dc2626; }
-.badge-completed { background: rgba(44,62,80,0.08);    color: #475569; }
+#map-container {
+    height: 500px;
+    width: 100%;
+    border-radius: 25px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.12);
+    border: 1px solid rgba(135,206,235,0.2);
+    background: #f8fafc;
+}
+#map { height: 100%; width: 100%; z-index: 1; }
+.map-overlay-title {
+    position: absolute; top: 20px; left: 20px; z-index: 1000;
+    background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+    padding: 10px 20px; border-radius: 12px; font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05);
+}
+.kiosque-popup h6 { margin: 0 0 5px; font-weight: 700; color: var(--dark); font-size: 14px; }
+.badge-type { font-size: 10px; color: white; padding: 2px 8px; border-radius: 50px; text-transform: uppercase; margin-top: 5px; display: inline-block; }
+
+</style>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
 {% endblock %}
 
 {% block body %}
-
-<!-- ===== HERO ===== -->
 <section class="trajet-hero-show">
     <div class="container position-relative">
-        <!-- Breadcrumb -->
         <nav class="mb-4">
             <ol class="breadcrumb" style="background: rgba(255,255,255,0.08); padding: 10px 20px; border-radius: 50px; display: inline-flex;">
                 <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: rgba(255,255,255,0.6); text-decoration: none;">Accueil</a></li>
@@ -79,19 +98,6 @@
                     <span style="color: rgba(255,255,255,0.3); font-size: 1.5rem; margin: 0 12px;"><i class="fas fa-arrow-right"></i></span>
                     <span style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ trajet.pointArrivee }}</span>
                 </h1>
-                {% if trajet.dateReservation %}
-                <p style="color: rgba(255,255,255,0.5); font-size: 14px;">
-                    <i class="fas fa-calendar me-2"></i>Réservé le {{ trajet.dateReservation|date('d/m/Y à H:i') }}
-                </p>
-                {% endif %}
-            </div>
-            <div class="col-lg-4 d-flex gap-2 justify-content-lg-end mt-4 mt-lg-0">
-                <a href="{{ path('app_trajet') }}" class="btn" style="background: rgba(255,255,255,0.1); color: white; border-radius: 50px; padding: 11px 24px; font-weight: 600; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
-                    <i class="fas fa-arrow-left me-2"></i>Liste des trajets
-                </a>
-                <a href="{{ path('app_trajet_create') }}" class="btn" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 11px 24px; font-weight: 600; box-shadow: 0 8px 25px rgba(135,206,235,0.4);">
-                    <i class="fas fa-plus me-2"></i>Nouveau trajet
-                </a>
             </div>
         </div>
     </div>
@@ -100,139 +106,243 @@
 <section class="py-5" style="background: #f8f9fa;">
     <div class="container">
         <div class="row g-4">
-
-            <!-- ===== MAIN CONTENT ===== -->
-            <div class="col-lg-8" data-aos="fade-up">
-
-                <!-- Route visual card -->
+            <div class="col-lg-8">
                 <div class="info-card-fe">
                     <div style="background: linear-gradient(135deg, var(--dark), #1a2f42); padding: 32px 28px; display: flex; align-items: center;">
                         <div style="flex: 1;">
-                            <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px;">Départ</div>
+                            <div style="font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase;">Départ</div>
                             <div style="font-size: 26px; font-weight: 800; color: white;">{{ trajet.pointDepart }}</div>
-                            <div style="width: 40px; height: 3px; background: var(--bleu-ceil); border-radius: 2px; margin-top: 10px;"></div>
                         </div>
-                        <div style="padding: 0 24px; text-align: center; flex-shrink: 0;">
-                            <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
-                                <i class="fas fa-bus" style="font-size: 22px; background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
-                            </div>
-                            {% if trajet.distanceKm %}
-                            <div style="font-size: 13px; color: rgba(255,255,255,0.5); white-space: nowrap;">{{ trajet.distanceKm|number_format(1) }} km</div>
-                            {% endif %}
+                        <div style="flex: 0 0 60px; text-align: center; color: rgba(255,255,255,0.2);">
+                            <i class="fas fa-long-arrow-alt-right fa-2x"></i>
                         </div>
                         <div style="flex: 1; text-align: right;">
-                            <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px;">Arrivée</div>
+                            <div style="font-size: 11px; letter-spacing: 2px; color: rgba(255,255,255,0.4); text-transform: uppercase;">Arrivée</div>
                             <div style="font-size: 26px; font-weight: 800; color: white;">{{ trajet.pointArrivee }}</div>
-                            <div style="width: 40px; height: 3px; background: var(--vert-pistache); border-radius: 2px; margin-top: 10px; margin-left: auto;"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Détails du trajet -->
-                <div class="info-card-fe" data-aos="fade-up" data-aos-delay="100">
-                    <div class="ic-head">
-                        <div class="ic-icon" style="background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(135,206,235,0.1));">
-                            <i class="fas fa-list" style="color: var(--bleu-ceil);"></i>
-                        </div>
-                        <div class="ic-title">Détails du trajet</div>
-                    </div>
-                    <div class="info-row-fe">
-                        <span class="ir-key"><i class="fas fa-info-circle"></i> Statut</span>
-                        <span>
-                            {% set s = trajet.statut %}
-                            <span class="badge-fe
-                                {% if s == 'Réservé' %}badge-reserved
-                                {% elseif s == 'Confirmé' %}badge-confirmed
-                                {% elseif s == 'Annulé' %}badge-cancelled
-                                {% else %}badge-completed{% endif %}">
-                                {{ s }}
-                            </span>
-                        </span>
-                    </div>
-                    <div class="info-row-fe">
-                        <span class="ir-key"><i class="fas fa-calendar-alt"></i> Date de réservation</span>
-                        <span class="ir-val">{% if trajet.dateReservation %}{{ trajet.dateReservation|date('d/m/Y à H:i') }}{% else %}—{% endif %}</span>
-                    </div>
-                    <div class="info-row-fe">
-                        <span class="ir-key"><i class="fas fa-road"></i> Distance</span>
-                        <span class="ir-val">{% if trajet.distanceKm %}{{ trajet.distanceKm|number_format(1) }} km{% else %}—{% endif %}</span>
-                    </div>
-                    <div class="info-row-fe">
-                        <span class="ir-key"><i class="fas fa-users"></i> Passagers</span>
-                        <span class="ir-val">{{ trajet.nbPersonnes }} personne{{ trajet.nbPersonnes > 1 ? 's' : '' }}</span>
-                    </div>
-                    <div class="info-row-fe">
-                        <span class="ir-key"><i class="fas fa-hashtag"></i> Réf.</span>
-                        <span class="ir-val">#{{ trajet.id }}</span>
-                    </div>
+                <div id="map-container" class="mb-4">
+                    <div class="map-overlay-title"><i class="fas fa-map-marked-alt me-2 text-primary"></i> Navigation du Trajet</div>
+                    <div id="map"></div>
                 </div>
 
-                <!-- Véhicule assigné -->
+                <div class="info-card-fe">
+                    <div class="ic-head"><div class="ic-title"><i class="fas fa-info-circle me-2 text-primary"></i>Détails du Trajet</div></div>
+                    <div class="row g-0 p-3">
+                        <div class="col-md-6 border-end">
+                            <div class="info-row-fe"><span class="ir-key"><i class="far fa-calendar-alt"></i> Date</span><span class="ir-val">{{ trajet.dateReservation|date('d/m/Y') }}</span></div>
+                            <div class="info-row-fe"><span class="ir-key"><i class="fas fa-route"></i> Distance</span><span class="ir-val">{{ trajet.distanceKm }} km</span></div>
+                            <div class="info-row-fe"><span class="ir-key"><i class="fas fa-users"></i> Passagers</span><span class="ir-val">{{ trajet.nbPersonnes }}</span></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-row-fe">
+                                <span class="ir-key"><i class="fas fa-tag"></i> Statut</span>
+                                <span class="badge 
+                                    {% if trajet.statut == 'Confirmé' %}bg-success
+                                    {% elseif trajet.statut == 'En attente' %}bg-warning
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ trajet.statut }}
+                                </span>
+                            </div>
+                            <div class="info-row-fe">
+                                <span class="ir-key"><i class="fas fa-money-bill-wave"></i> Prix Total Estimé</span>
+                                <span class="ir-val text-primary" style="font-size: 1.1rem; font-weight: 800;">
+                                    {% if trajet.idVoiture %}
+                                        {{ (trajet.distanceKm * trajet.idVoiture.prixKM)|number_format(2, ',', ' ') }} TND
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="info-row-fe" style="background: #f1f5f9; border-radius: 10px; margin-top: 5px;">
+                                <span class="ir-key"><i class="fas fa-user-tag"></i> Prix par personne</span>
+                                <span class="ir-val" style="font-weight: 700; color: var(--dark);">
+                                    {% if trajet.idVoiture and trajet.nbPersonnes > 0 %}
+                                        {{ ((trajet.distanceKm * trajet.idVoiture.prixKM) / trajet.nbPersonnes)|number_format(2, ',', ' ') }} TND
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
                 {% if trajet.idVoiture %}
-                <div class="info-card-fe" data-aos="fade-up" data-aos-delay="150">
-                    <div class="ic-head">
-                        <div class="ic-icon" style="background: linear-gradient(135deg, rgba(147,197,114,0.2), rgba(147,197,114,0.1));">
-                            <i class="fas fa-car" style="color: var(--vert-pistache);"></i>
+                <div class="info-card-fe mb-4">
+                    <div class="ic-head"><div class="ic-title"><i class="fas fa-car me-2 text-primary"></i>Véhicule Assigné</div></div>
+                    <div style="padding: 24px; text-align: center;">
+                        {% if trajet.idVoiture.image %}
+                            <img src="{{ trajet.idVoiture.image }}" alt="Car" style="width: 100%; height: 160px; object-fit: cover; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        {% endif %}
+                        <h5 style="font-weight: 700; margin-bottom: 5px;">{{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}</h5>
+                        <div style="font-size: 13px; color: #64748b; margin-bottom: 15px;">{{ trajet.idVoiture.immatriculation }}</div>
+                        <div class="d-flex justify-content-center gap-2">
+                             <span class="badge bg-light text-dark border"><i class="fas fa-gas-pump me-1"></i> {{ trajet.idVoiture.consommation }}L/100</span>
+                             <span class="badge bg-light text-dark border"><i class="fas fa-cog me-1"></i> {{ trajet.idVoiture.boiteVitesse }}</span>
                         </div>
-                        <div class="ic-title">Véhicule assigné</div>
                     </div>
-                    <div class="info-row-fe">
-                        <span class="ir-key"><i class="fas fa-tag"></i> Marque</span>
-                        <span class="ir-val">{{ trajet.idVoiture.marque }}</span>
+                    <div style="padding: 0 24px 24px;">
+                        <a href="{{ path('app_voiture_guide') }}" class="btn btn-outline-primary btn-sm w-100">Fiche Technique</a>
                     </div>
-                    <div class="info-row-fe">
-                        <span class="ir-key"><i class="fas fa-car-side"></i> Modèle</span>
-                        <span class="ir-val">{{ trajet.idVoiture.modele }}</span>
-                    </div>
-                    {% if trajet.idVoiture.immatriculation is defined %}
-                    <div class="info-row-fe">
-                        <span class="ir-key"><i class="fas fa-id-card"></i> Immatriculation</span>
-                        <span class="ir-val" style="font-family: monospace;">{{ trajet.idVoiture.immatriculation }}</span>
-                    </div>
-                    {% endif %}
                 </div>
                 {% endif %}
 
-            </div>
-
-            <!-- ===== SIDEBAR ===== -->
-            <div class="col-lg-4">
-
-                <!-- Quick summary -->
-                <div class="info-card-fe" data-aos="fade-up">
-                    <div class="ic-head">
-                        <div class="ic-icon" style="background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(147,197,114,0.1));">
-                            <i class="fas fa-bolt" style="color: var(--bleu-ceil);"></i>
-                        </div>
-                        <div class="ic-title">Résumé rapide</div>
-                    </div>
-                    <div style="padding: 10px 0;">
-                        <div class="info-row-fe"><span class="ir-key">Départ</span><span class="ir-val">{{ trajet.pointDepart }}</span></div>
-                        <div class="info-row-fe"><span class="ir-key">Arrivée</span><span class="ir-val">{{ trajet.pointArrivee }}</span></div>
-                        <div class="info-row-fe"><span class="ir-key">Distance</span><span class="ir-val">{{ trajet.distanceKm ? trajet.distanceKm|number_format(1) ~ ' km' : '—' }}</span></div>
-                        <div class="info-row-fe"><span class="ir-key">Passagers</span><span class="ir-val">{{ trajet.nbPersonnes }}</span></div>
-                        <div class="info-row-fe"><span class="ir-key">Date</span><span class="ir-val">{{ trajet.dateReservation ? trajet.dateReservation|date('d/m/Y') : '—' }}</span></div>
-                        <div class="info-row-fe"><span class="ir-key">Véhicule</span><span class="ir-val">{{ trajet.idVoiture ? trajet.idVoiture.marque ~ ' ' ~ trajet.idVoiture.modele : '—' }}</span></div>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div style="background: white; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); padding: 24px; border: 1px solid rgba(135,206,235,0.1);" data-aos="fade-up" data-aos-delay="100">
-                    <h6 style="font-weight: 700; color: var(--dark); margin-bottom: 16px;"><i class="fas fa-cogs me-2" style="color: var(--bleu-ceil);"></i>Actions</h6>
-
-                    <div class="d-flex flex-column gap-2">
-                        <a href="{{ path('app_trajet') }}" class="btn w-100" style="background: rgba(135,206,235,0.12); color: var(--bleu-ceil); border-radius: 50px; padding: 12px; font-weight: 600;">
-                            <i class="fas fa-list me-2"></i>Retour à la liste
+                <div class="info-card-fe">
+                    <div class="ic-head"><div class="ic-title">Actions</div></div>
+                    <div style="padding: 20px;">
+                        <a href="{{ path('app_trajet') }}" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-chevron-left me-2"></i>Retour aux trajets
                         </a>
-                        <a href="{{ path('app_trajet_create') }}" class="btn w-100" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 12px; font-weight: 600;">
-                            <i class="fas fa-plus me-2"></i>Nouveau trajet
+                        <a href="{{ path('app_trajet_receipt_pdf', {id: trajet.id}) }}" class="btn btn-outline-secondary w-100" target="_blank">
+                            <i class="fas fa-file-pdf me-2"></i>Imprimer le reçu
                         </a>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </section>
+{% endblock %}
 
+{% block javascripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('map').setView([36.8, 10.1], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    async function geocode(address) {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+        const data = await res.json();
+        return data && data.length > 0 ? [data[0].lat, data[0].lon] : null;
+    }
+
+    // Layers
+    const markerLayer = L.layerGroup().addTo(map);
+
+    // Icons Factory
+    function createKiosqueIcon(type) {
+        let color = '#3b82f6';
+        let iconClass = 'fa-gas-pump';
+        if (type === 'fuel') { color = '#e74c3c'; iconClass = 'fa-gas-pump'; }
+        else if (type === 'cafe') { color = '#f39c12'; iconClass = 'fa-coffee'; }
+        else if (type === 'restaurant') { color = '#10b981'; iconClass = 'fa-utensils'; }
+        else if (type === 'parking') { color = '#2c3e50'; iconClass = 'fa-parking'; }
+        
+        const html = `
+            <div style="position: relative; width: 40px; height: 46px;">
+                <!-- Main Pin -->
+                <svg width="40" height="46" viewBox="0 0 44 50" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.3));">
+                    <path d="M22 0C9.8 0 0 9.8 0 22C0 34.2 22 50 22 50C22 50 44 34.2 44 22C44 9.8 34.2 0 22 0Z" fill="${color}"/>
+                    <circle cx="22" cy="21" r="15" fill="white"/>
+                </svg>
+                <!-- Main Icon (Balanced) -->
+                <div style="position: absolute; top: 11px; left: 11px; width: 18px; text-align: center; color: ${color}; font-size: 16px;">
+                    <i class="fas ${iconClass}"></i>
+                </div>
+                <!-- Service Wrench Badge (Balanced) -->
+                <div style="position: absolute; top: -3px; right: -3px; width: 18px; height: 18px; background: #2c3e50; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                    <i class="fas fa-wrench" style="color: white; font-size: 10px;"></i>
+                </div>
+            </div>
+        `;
+
+        return L.divIcon({
+            className: 'custom-balanced-icon',
+            html: html,
+            iconSize: [40, 46],
+            iconAnchor: [20, 46],
+            popupAnchor: [0, -42]
+        });
+    }
+
+    // Overpass API fetcher (Ultra-Reliable Version)
+    async function fetchKiosks(coordinates) {
+        if (!coordinates || coordinates.length === 0) return;
+        
+        // Use 4 strategic points (Start, 1/3, 2/3, End) with 10km radius
+        const indices = [
+            0, 
+            Math.floor(coordinates.length * 0.33), 
+            Math.floor(coordinates.length * 0.66), 
+            coordinates.length - 1
+        ];
+        
+        let queryParts = "";
+        indices.forEach(idx => {
+            const p = coordinates[idx];
+            queryParts += `node(around:10000,${p.lat},${p.lng})["amenity"~"fuel|cafe|restaurant|parking"];`;
+        });
+
+        const q = `[out:json][timeout:25];(${queryParts});out body;`;
+        
+        try {
+            const r = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q });
+            const d = await r.json();
+            
+            markerLayer.clearLayers();
+            const seen = new Set();
+            
+            if (d.elements) {
+                d.elements.forEach(el => {
+                    if (seen.has(el.id)) return;
+                    seen.add(el.id);
+                    
+                    const type = el.tags.amenity || 'service';
+                    const name = el.tags.name || (type.charAt(0).toUpperCase() + type.slice(1));
+                    L.marker([el.lat, el.lon], { icon: createKiosqueIcon(type) })
+                        .addTo(markerLayer)
+                        .bindPopup(`
+                            <div class="kiosque-popup">
+                                <h6>${name}</h6>
+                                <span class="badge bg-primary text-uppercase" style="font-size:10px;">${type}</span>
+                                <hr style="margin:8px 0;">
+                                <small class="text-muted"><i class="fas fa-tools me-1"></i> Services disponibles</small>
+                            </div>
+                        `);
+                });
+            }
+        } catch (e) { console.error("Overpass Failure:", e); }
+    }
+
+    async function setup() {
+        console.log("Starting geocoding...");
+        const startAddr = "{{ trajet.pointDepart|escape('js') }}";
+        const endAddr = "{{ trajet.pointArrivee|escape('js') }}";
+        
+        const s = await geocode(startAddr);
+        const e = await geocode(endAddr);
+        
+        console.log("Geocoding results:", s, e);
+
+        if(s && e) {
+            const control = L.Routing.control({
+                waypoints: [L.latLng(s[0], s[1]), L.latLng(e[0], e[1])],
+                show: false,
+                lineOptions: { styles: [{ color: '#3b82f6', weight: 6, opacity: 0.8 }] },
+                routeWhileDragging: false,
+                createMarker: function() { return null; } // Use custom markers or none
+            }).addTo(map);
+
+            control.on('routesfound', function(ev) {
+                console.log("Route found, fetching kiosks...");
+                fetchKiosks(ev.routes[0].coordinates);
+            });
+            
+            control.on('routingerror', function(err) {
+                console.error("Routing error:", err);
+            });
+        } else {
+            console.error("Geocoding failed for one of the addresses.");
+        }
+    }
+    setup();
+});
+</script>
 {% endblock %}

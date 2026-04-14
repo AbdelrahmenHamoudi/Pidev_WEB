@@ -289,6 +289,16 @@
                             <span class="ir-key"><i class="fas fa-car"></i> Véhicule</span>
                             <span class="ir-val">{% if trajet.idVoiture %}{{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}{% else %}—{% endif %}</span>
                         </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-coins"></i> Prix / personne</span>
+                            <span class="ir-val" style="color: var(--vert-pistache-dark);">
+                                {% if trajet.idVoiture and trajet.distanceKm and (trajet.nbPersonnes > 0) %}
+                                    {{ ((trajet.idVoiture.prixKM * trajet.distanceKm) / trajet.nbPersonnes)|number_format(3) }} DT
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </span>
+                        </div>
                         <div class="info-row-fe" style="border-bottom: none; padding-top: 14px;">
                             <span class="ir-key"><i class="fas fa-info-circle"></i> Statut</span>
                             <span>

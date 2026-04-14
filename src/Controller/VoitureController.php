@@ -16,9 +16,16 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 
+use App\Service\PdfService;
+
 #[Route('/voitures')]
 final class VoitureController extends AbstractController
 {
+    private $pdfService;
+
+    public function __construct(PdfService $pdfService) {
+        $this->pdfService = $pdfService;
+    }
     #[Route('/dashboard', name: 'app_admin_voiture_dashboard')]
     public function adminDashboard(): Response
     {
@@ -92,6 +99,17 @@ final class VoitureController extends AbstractController
             'sortBy'   => $sortBy,
             'order'    => $order,
         ]);
+    }
+
+    #[Route('/export/pdf', name: 'app_voiture_export_pdf', methods: ['GET'])]
+    public function exportPdf(VoitureRepository $voitureRepo): Response
+    {
+        $voitures = $voitureRepo->findAll();
+        $html = $this->renderView('backend/pdf/voitures.html.twig', [
+            'voitures' => $voitures
+        ]);
+
+        return $this->pdfService->showPdfFile($html, "Catalogue_Voitures_" . date('d_m_Y'));
     }
 
     #[Route('/ajouter', name: 'app_voiture_create', methods: ['GET', 'POST'])]
@@ -241,10 +259,17 @@ final class VoitureController extends AbstractController
         $voiture->setModele($request->request->get('modele'));
         $voiture->setImmatriculation($request->request->get('immatriculation'));
         $voiture->setPrixKM((float) $request->request->get('prix_KM'));
-        $voiture->setAvecChauffeur(null !== $request->request->get('avec_chauffeur'));
-        $voiture->setDisponibilite(null !== $request->request->get('disponibilite'));
+        $voiture->setAvecChauffeur($request->request->get('avec_chauffeur') === '1');
+        $voiture->setDisponibilite($request->request->get('disponibilite') === '1');
         $voiture->setDescription($request->request->get('description'));
         $voiture->setNbPlaces((int) $request->request->get('nb_places'));
+        
+        // AI Specs fields
+        $voiture->setPuissance((int) $request->request->get('puissance'));
+        $voiture->setVitesseMax((int) $request->request->get('vitesse_max'));
+        $voiture->setAcceleration((float) $request->request->get('acceleration'));
+        $voiture->setConsommation((float) $request->request->get('consommation'));
+        $voiture->setBoiteVitesse($request->request->get('boite_vitesse'));
     }
 
     private function handleImageUpload(Voiture $voiture, Request $request, SluggerInterface $slugger): void
@@ -284,18 +309,39 @@ final class VoitureController extends AbstractController
     }
 
     #[Route('/api/fetch-image', name: 'api_voiture_fetch_image', methods: ['GET'])]
-    public function fetchImage(Request $request): JsonResponse
+    public function fetchImage(Request $request, SluggerInterface $slugger): JsonResponse
     {
         $query = $request->query->get('query');
         if (!$query) {
             return new JsonResponse(['error' => 'No query provided'], 400);
         }
 
-        // We use LoremFlickr which provides relevant car images
-        $seed = rand(1, 1000);
-        $encodedQuery = urlencode($query);
-        $imageUrl = "https://loremflickr.com/800/600/car," . $encodedQuery . "?lock=" . $seed;
+        // Utilisation de Pollinations AI pour une véritable génération d'image par IA
+        $seed = rand(1, 10000);
+        $prompt = "A professional photography of a " . $query . " car, studio lighting, hyperrealistic, 4k, high resolution";
+        $externalUrl = "https://image.pollinations.ai/prompt/" . urlencode($prompt) . "?width=800&height=600&nologo=true&seed=" . $seed;
 
-        return new JsonResponse(['url' => $imageUrl]);
+        try {
+            // Téléchargement de l'image (Générée par IA, stockée en local)
+            $content = @file_get_contents($externalUrl);
+            if ($content === false) {
+                return new JsonResponse(['error' => 'Impossible de générer l\'image pour le moment.'], 500);
+            }
+
+            $safeName = $slugger->slug($query);
+            $fileName = $safeName . '-' . uniqid() . '.jpg';
+
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/voitures';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            file_put_contents($uploadDir . '/' . $fileName, $content);
+            $localUrl = '/uploads/voitures/' . $fileName;
+
+            return new JsonResponse(['url' => $localUrl]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Erreur lors de la génération : ' . $e->getMessage()], 500);
+        }
     }
 }

@@ -210,9 +210,23 @@ tr:last-child td{border-bottom:none;}
             <i class="fas fa-search"></i>
             <input type="text" placeholder="Rechercher...">
           </div>
-          <div class="header-icon-btn">
+          <div class="header-icon-btn" onclick="toggleNotifMenu()" style="cursor:pointer;position:relative;">
             <i class="far fa-bell"></i>
-            <div class="notif-dot">3</div>
+            <div class="notif-dot" id="global-notif-badge">0</div>
+            
+            <!-- Notifications Dropdown -->
+            <div id="notifMenu" style="position:absolute;top:100%;right:0;margin-top:12px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.15);min-width:300px;z-index:1000;display:none;">
+              <div style="padding:16px;border-bottom:1px solid #f0f2f5;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:700;color:#2C3E50;">Notifications</span>
+                <span onclick="clearNotifs()" style="font-size:11px;color:#F39C12;cursor:pointer;font-weight:600;">Tout effacer</span>
+              </div>
+              <div id="notifList" style="max-height:350px;overflow-y:auto;padding:8px;">
+                <div id="notif-empty-state" style="padding:30px 20px;text-align:center;color:#94a3b8;">
+                  <i class="far fa-bell-slash" style="font-size:24px;margin-bottom:10px;display:block;"></i>
+                  Pas de nouvelles notifications
+                </div>
+              </div>
+            </div>
           </div>
           <div class="header-icon-btn">
             <i class="fas fa-cog"></i>
@@ -278,13 +292,33 @@ tr:last-child td{border-bottom:none;}
     console.log('Menu display:', menu.style.display);
   }
   
-  // Close menu when clicking outside
+  function toggleNotifMenu() {
+    const menu = document.getElementById('notifMenu');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function clearNotifs() {
+      document.getElementById('notifList').innerHTML = `
+        <div id="notif-empty-state" style="padding:30px 20px;text-align:center;color:#94a3b8;">
+            <i class="far fa-bell-slash" style="font-size:24px;margin-bottom:10px;display:block;"></i>
+            Pas de nouvelles notifications
+        </div>`;
+      document.getElementById('global-notif-badge').innerText = '0';
+      document.getElementById('global-notif-badge').style.display = 'none';
+  }
+  
+  // Close menus when clicking outside
   document.addEventListener('click', function(event) {
     const userChip = document.querySelector('.user-chip');
-    const menu = document.getElementById('profileMenu');
+    const profileMenu = document.getElementById('profileMenu');
+    const notifBtn = document.querySelector('.header-icon-btn[onclick="toggleNotifMenu()"]');
+    const notifMenu = document.getElementById('notifMenu');
     
-    if (!userChip.contains(event.target)) {
-      menu.style.display = 'none';
+    if (userChip && !userChip.contains(event.target)) {
+        if(profileMenu) profileMenu.style.display = 'none';
+    }
+    if (notifBtn && !notifBtn.contains(event.target)) {
+        if(notifMenu) notifMenu.style.display = 'none';
     }
   });
   
@@ -303,16 +337,14 @@ tr:last-child td{border-bottom:none;}
     });
   });
 
-  // --- GLOBAL REAL TIME NOTIFICATIONS (TRAJETS) ---
+  // --- GLOBAL NOTIFICATIONS (MERCURE + LOCAL BROADCAST) ---
   document.addEventListener('DOMContentLoaded', function() {
-      const url = "{{ mercure('https://re7la.com/admin/trajets')|escape('js') }}";
+      // 1. Mercure (Remote)
+      const url = "{{ mercure('https://re7la.com/trajets')|escape('js') }}";
       const eventSource = new EventSource(url);
       
-      eventSource.onmessage = event => {
-          const data = JSON.parse(event.data);
-          
-          if(data.action === 'add_trajet') {
-              // Notification globale SweetAlert2 Toast
+      const showNotification = (data) => {
+          if(data.action === 'add_trajet' || data.action === 'delete_trajet') {
               const Toast = Swal.mixin({
                 toast: true,
                 position: "top-end",
@@ -325,23 +357,61 @@ tr:last-child td{border-bottom:none;}
                 }
               });
               
+              const isDelete = data.action === 'delete_trajet';
+              
               Toast.fire({
-                icon: "success",
-                title: "<span style='font-size:15px;font-weight:700;color:#2C3E50;'>Nouvelle Réservation !</span>",
-                html: `<div style='font-size:13px;color:#64748b;margin-top:4px;'>${data.message}<br><b style='color:#2C3E50;'>Auto:</b> ${data.voiture_marque} ${data.voiture_modele}</div>`,
+                icon: isDelete ? "warning" : "success",
+                title: `<span style='font-size:15px;font-weight:700;color:#2C3E50;'>${isDelete ? 'Trajet Supprimé' : 'Nouvelle Réservation !'}</span>`,
+                html: `<div style='font-size:13px;color:#64748b;margin-top:4px;'>${data.message}${!isDelete ? `<br><b style='color:#2C3E50;'>Auto:</b> ${data.voiture_marque || '---'} ${data.voiture_modele || ''}` : ''}</div>`,
                 background: '#ffffff',
-                iconColor: '#1ABC9C',
+                iconColor: isDelete ? '#ef4444' : '#1ABC9C',
                 showCloseButton: true
               });
               
-              // Met à jour la bulle de notification dans le header (point rouge)
-              const notifDot = document.querySelector('.notif-dot');
+              // Met à jour la liste des notifications
+              const notifList = document.getElementById('notifList');
+              const emptyState = document.getElementById('notif-empty-state');
+              if(emptyState) emptyState.remove();
+
+              const newNotif = document.createElement('div');
+              newNotif.style.padding = '12px';
+              newNotif.style.borderBottom = '1px solid #f8fafc';
+              newNotif.style.display = 'flex';
+              newNotif.style.gap = '12px';
+
+              const iconBg = isDelete ? '#fee2e2' : '#d1fae5';
+              const iconCol = isDelete ? '#ef4444' : '#1ABC9C';
+              const iconClass = isDelete ? 'fa-trash' : 'fa-calendar-check';
+
+              newNotif.innerHTML = `
+                <div style="width:36px;height:36px;border-radius:10px;background:${iconBg};color:${iconCol};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas ${iconClass}" style="font-size:14px;"></i>
+                </div>
+                <div>
+                    <div style="font-size:13px;font-weight:700;color:#2C3E50;">${isDelete ? 'Trajet Supprimé' : 'Nouveau Trajet'}</div>
+                    <div style="font-size:11px;color:#64748b;margin-top:2px;">${data.message}</div>
+                    <div style="font-size:9px;color:#94a3b8;margin-top:4px;">À l'instant</div>
+                </div>
+              `;
+              if(notifList) notifList.prepend(newNotif);
+
+              // Met à jour la bulle de notification
+              const notifDot = document.getElementById('global-notif-badge');
               if(notifDot) {
                   let count = parseInt(notifDot.innerText) || 0;
                   notifDot.innerText = count + 1;
-                  notifDot.style.animation = 'pulse 1s infinite alternate';
+                  notifDot.style.display = 'flex';
               }
           }
+      };
+
+      eventSource.onmessage = event => showNotification(JSON.parse(event.data));
+
+      // 2. Local Broadcast (No-Server Fallback)
+      const bc = new BroadcastChannel('re7la_notifications');
+      bc.onmessage = event => {
+          console.log("Notification filtrée par BroadcastChannel:", event.data);
+          showNotification(event.data);
       };
   });
 </script>

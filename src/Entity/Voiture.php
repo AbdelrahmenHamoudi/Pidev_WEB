@@ -43,6 +43,21 @@ class Voiture
     #[ORM\Column(type: "integer")]
     private ?int $nb_places = null;
 
+    #[ORM\Column(type: "integer", nullable: true)]
+    private ?int $puissance = null;
+
+    #[ORM\Column(type: "integer", nullable: true)]
+    private ?int $vitesse_max = null;
+
+    #[ORM\Column(type: "float", nullable: true)]
+    private ?float $acceleration = null;
+
+    #[ORM\Column(type: "float", nullable: true)]
+    private ?float $consommation = null;
+
+    #[ORM\Column(type: "string", length: 50, nullable: true)]
+    private ?string $boite_vitesse = null;
+
     public function getId_voiture()
     {
         return $this->id_voiture;
@@ -155,6 +170,21 @@ class Voiture
     public function setAvecChauffeur($v) { $this->avec_chauffeur = $v; return $this; }
     public function getNbPlaces() { return $this->nb_places; }
     public function setNbPlaces($v) { $this->nb_places = $v; return $this; }
+
+    public function getPuissance(): ?int { return $this->puissance; }
+    public function setPuissance(?int $v): self { $this->puissance = $v; return $this; }
+
+    public function getVitesseMax(): ?int { return $this->vitesse_max; }
+    public function setVitesseMax(?int $v): self { $this->vitesse_max = $v; return $this; }
+
+    public function getAcceleration(): ?float { return $this->acceleration; }
+    public function setAcceleration(?float $v): self { $this->acceleration = $v; return $this; }
+
+    public function getConsommation(): ?float { return $this->consommation; }
+    public function setConsommation(?float $v): self { $this->consommation = $v; return $this; }
+
+    public function getBoiteVitesse(): ?string { return $this->boite_vitesse; }
+    public function setBoiteVitesse(?string $v): self { $this->boite_vitesse = $v; return $this; }
 
     #[ORM\OneToMany(mappedBy: "id_voiture", targetEntity: Trajet::class, cascade: ["remove"])]
     private Collection $trajets;
