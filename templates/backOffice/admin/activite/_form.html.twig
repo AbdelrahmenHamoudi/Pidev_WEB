@@ -41,9 +41,6 @@
                 {{ form_errors(form.lieu) }}
             </div>
 
-            {# Type #}
-        
-
             {# Prix #}
             <div>
                 {{ form_label(form.prixParPersonne, 'Prix par personne (DT)', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
@@ -58,20 +55,35 @@
                 {{ form_errors(form.capaciteMax) }}
             </div>
 
-            {# Statut #}
-            
-
             {# Image #}
             <div style="grid-column:1/-1;">
                 {{ form_label(form.imageFile, 'Image (JPG, PNG — max 2Mo)', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
+                
+                {# Aperçu image actuelle #}
                 {% if activite.image %}
                     <div style="margin-bottom:10px;">
-                        <img src="/uploads/activites/{{ activite.image }}"
-                             style="height:80px;border-radius:10px;object-fit:cover;">
+                        <img src="{{ asset('uploads/activites/' ~ activite.image) }}"
+                             style="height:80px;border-radius:10px;object-fit:cover;"
+                             alt="Image actuelle">
                         <span style="font-size:11px;color:#94a3b8;margin-left:10px;">Image actuelle</span>
                     </div>
                 {% endif %}
-                {{ form_widget(form.imageFile, {attr: {style: 'width:100%;padding:8px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;'}}) }}
+
+                {# Aperçu image avant envoi #}
+                <div style="margin-bottom:10px;">
+                    <img id="preview"
+                         src="#"
+                         alt="Aperçu"
+                         style="display:none;height:80px;border-radius:10px;object-fit:cover;">
+                    <span id="preview-label" style="display:none;font-size:11px;color:#94a3b8;margin-left:10px;">Nouvelle image</span>
+                </div>
+
+                {# ✅ Input file : accept="image/*" permet de choisir depuis n'importe quel dossier #}
+                {{ form_widget(form.imageFile, {attr: {
+                    style: 'width:100%;padding:8px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;',
+                    accept: 'image/*',
+                    onchange: 'previewImage(event)'
+                }}) }}
                 {{ form_errors(form.imageFile) }}
             </div>
 
@@ -95,3 +107,21 @@
 
     {{ form_end(form) }}
 </div>
+
+{# ── Script aperçu image ── #}
+<script>
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview');
+                const label   = document.getElementById('preview-label');
+                preview.src          = e.target.result;
+                preview.style.display = 'block';
+                label.style.display   = 'inline';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>

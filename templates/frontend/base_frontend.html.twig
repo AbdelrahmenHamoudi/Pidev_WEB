@@ -305,6 +305,19 @@
                         <li class="nav-item">
                             <a class="nav-link {{ app.request.attributes.get('_route') == 'app_reservations_list' ? 'active' : '' }}" href="{{ path('app_reservations_list') }}">Mes Voyages</a>
                         </li>
+                        {% if app.session.get('user_id') or app.user %}
+    <li class="nav-item">
+        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_reservations_list' ? 'active' : '' }}" href="{{ path('app_reservations_list') }}">Mes Voyages</a>
+    </li>
+    {# ── AJOUTER CES LIGNES ── #}
+    <li class="nav-item">
+        <a class="nav-link {{ app.request.attributes.get('_route') == 'mes_reservations_activite' ? 'active' : '' }}" 
+           href="{{ path('mes_reservations_activite') }}">
+            <i class="fas fa-calendar-check" style="color:var(--bleu-ceil);margin-right:5px;"></i>
+            Mes Réservations
+        </a>
+    </li>
+{% endif %}
                     {% endif %}
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_promotions' ? 'active' : '' }}" href="{{ path('app_promotions_list') }}">Promotions</a>

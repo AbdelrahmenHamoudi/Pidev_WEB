@@ -1,0 +1,65 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}RE7LA Admin — Réservations Activité{% endblock %}
+{% block breadcrumb %}Activités / Réservations{% endblock %}
+{% block page_title %}Réservations de l'activité{% endblock %}
+
+{% block body %}
+
+<div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+            <div class="card-title">Liste des réservations</div>
+            <div class="card-sub">{{ reservations|length }} réservation(s)</div>
+        </div>
+        <a href="{{ path('activite_show', {id: idActivite}) }}"
+           style="background:#f0f2f5;color:#64748b;padding:10px 16px;border-radius:10px;
+                  font-size:13px;font-weight:600;text-decoration:none;">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Client</th>
+                    <th>Email</th>
+                    <th>Planning</th>
+                    <th>Date réservation</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reservations %}
+                <tr>
+                    <td style="color:#94a3b8;">#{{ r.id }}</td>
+                    <td style="font-weight:600;">{{ r.nomAffiche }}</td>
+                    <td>{{ r.emailAffiche }}</td>
+                    <td>
+                        {{ r.planning.datePlanning|date('d/m/Y') }}
+                        <span style="color:#94a3b8;font-size:11px;">
+                            {{ r.planning.heureDebut }}–{{ r.planning.heureFin }}
+                        </span>
+                    </td>
+                    <td>{{ r.dateReservation|date('d/m/Y H:i') }}</td>
+                    <td>
+                        <span class="status-badge {{ r.statut == 'Confirmee' ? 's-ok' : (r.statut == 'Annulee' ? 's-cancel' : 's-pend') }}">
+                            {{ r.statut }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align:center;color:#94a3b8;padding:32px;">
+                        Aucune réservation pour cette activité
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
