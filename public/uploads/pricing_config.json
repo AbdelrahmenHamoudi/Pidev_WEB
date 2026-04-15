@@ -1,0 +1,31 @@
+{
+    "accommodations": {
+        "18": {
+            "enabled": false
+        },
+        "17": {
+            "enabled": false
+        },
+        "32": {
+            "enabled": false
+        },
+        "19": {
+            "enabled": false
+        },
+        "22": {
+            "enabled": false
+        },
+        "29": {
+            "enabled": false
+        },
+        "28": {
+            "enabled": true
+        },
+        "31": {
+            "enabled": false
+        }
+    },
+    "global_settings": {
+        "auto_apply": false
+    }
+}

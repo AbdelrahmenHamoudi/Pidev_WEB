@@ -222,7 +222,11 @@
                     Des expériences uniques vous attendent.
                 </p>
                 <div class="d-flex gap-3 flex-wrap">
+<<<<<<< HEAD
                     <a href="#services" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+=======
+                    <a href="{{ path('app_explore') }}" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+>>>>>>> 22258ed ( integration user + hebergement)
                         <i class="fas fa-compass me-2"></i>Explorer
                     </a>
                     <a href="{{ path('app_login') }}" class="btn btn-lg btn-outline-dark" style="border-radius: 50px; padding: 15px 40px; font-weight: 600;">
@@ -249,11 +253,13 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" style="font-weight: 500; color: #555;">Type</label>
-                                <select name="type" class="form-control form-control-re7la">
+                                <select name="type" class="form-control form-control-re7la" style="cursor: pointer; border-radius: 12px; height: 50px; border-color: #cbd5e1 !important;">
                                     <option value="all">Choisissez...</option>
-                                    <option value="Hôtel">Hôtel</option>
-                                    <option value="Appartement">Appart'hôtel</option>
-                                    <option value="Maison d'hôtes">Maison d'hôtes</option>
+                                    <option value="Villa">Villa</option>
+                                    <option value="Appartement">Appartement</option>
+                                    <option value="Maison">Maison</option>
+                                    <option value="Hotel">Hôtel</option>
+                                    <option value="Maison d'hôte">Maison d'hôte</option>
                                 </select>
                             </div>
                             <div class="col-md-6">

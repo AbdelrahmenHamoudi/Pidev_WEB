@@ -7,7 +7,23 @@
     .search-page-container {
         background: #f8fafc;
         min-height: 100vh;
-        padding-top: 40px;
+    }
+
+    .reservation-hero {
+        background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('{{ asset('uploads/hotel_hero.png') }}');
+        background-size: cover;
+        background-position: center;
+        padding: 100px 0 140px;
+        margin-bottom: -60px;
+        text-align: center;
+        color: white;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
     /* TOP SEARCH BAR (PILL STYLE) */
@@ -17,18 +33,22 @@
         padding: 10px 15px;
         display: flex;
         align-items: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         border: 1px solid rgba(0,0,0,0.03);
         max-width: 950px;
-        margin: 0 auto 50px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 10;
     }
 
     .pill-input-group {
         flex: 1;
-        padding: 0 20px;
+        padding: 0 30px;
         border-right: 1px solid #f1f5f9;
         display: flex;
         flex-direction: column;
+        align-items: flex-start; /* Ensure everything starts from the left */
+        text-align: left;
     }
 
     .pill-input-group:last-of-type { border-right: none; }
@@ -36,18 +56,21 @@
     .pill-label {
         font-size: 0.7rem;
         font-weight: 800;
-        color: var(--dark);
+        color: #1e293b;
         text-transform: uppercase;
         margin-bottom: 2px;
+        width: 100%;
     }
 
     .pill-input {
         border: none;
         outline: none;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         color: #475569;
         background: transparent;
         font-weight: 500;
+        width: 100%;
+        padding: 0;
     }
 
     .pill-search-btn {
@@ -167,7 +190,6 @@
         padding: 10px 24px;
         font-weight: 600;
         font-size: 0.9rem;
-        margin-top: 15px;
         transition: 0.3s;
         text-decoration: none;
         display: inline-block;
@@ -175,7 +197,9 @@
 
     .btn-availability:hover { box-shadow: 0 4px 15px rgba(135, 206, 235, 0.4); transform: scale(1.02); color: white; }
 
-    .category-tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+
+
+    .category-tabs { display: flex; gap: 10px; margin-top: 30px; margin-bottom: 25px; }
     .tab-pill {
         background: white;
         padding: 8px 24px;
@@ -212,31 +236,73 @@
         .search-hero-pill { flex-direction: column; border-radius: 30px; }
         .pill-input-group { border-right: none; border-bottom: 1px solid #f1f5f9; width: 100%; padding: 15px; }
     }
+
+    /* CUSTOM DUAL SLIDER */
+    .custom-range-input {
+        position: absolute;
+        width: 100%;
+        bottom: 8px; /* Adjusted to align perfectly with the track */
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+        pointer-events: none;
+        margin: 0;
+    }
+    .custom-range-input::-webkit-slider-thumb {
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: #0f172a;
+        cursor: pointer;
+        -webkit-appearance: none;
+        pointer-events: auto;
+        border: 2px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .custom-range-input::-moz-range-thumb {
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: #0f172a;
+        cursor: pointer;
+        pointer-events: auto;
+        border: 2px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .feature-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.08) !important; border-color: #87CEEB !important; }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="search-page-container">
-    <div class="container py-4">
+    <!-- Hero Section -->
+    <section class="reservation-hero">
+        <div class="container">
+            <h1 class="hero-title" data-aos="fade-up">{{ 'search.hero_title'|trans }}</h1>
+            
+            <!-- Search Pill Overlay -->
+            <form method="get" action="{{ path('app_hebergements_search') }}" class="search-hero-pill" data-aos="fade-up" data-aos-delay="100">
+                <div class="pill-input-group">
+                    <span class="pill-label">{{ 'search.where'|trans }}</span>
+                    <input type="text" name="titre" class="pill-input" placeholder="{{ 'search.filter_name'|trans }}..." value="{{ current_titre }}">
+                </div>
+                <div class="pill-input-group">
+                    <span class="pill-label">{{ 'search.dates'|trans }}</span>
+                    <input type="text" name="dates" class="pill-input" placeholder="{{ 'search.dates'|trans }}" onfocus="(this.type='date')">
+                </div>
+                <div class="pill-input-group">
+                    <span class="pill-label">{{ 'search.travelers'|trans }}</span>
+                    <input type="number" name="capacite" class="pill-input" placeholder="{{ 'search.travelers'|trans }}" value="{{ current_capacite }}">
+                </div>
+                <button type="submit" class="pill-search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <div class="container py-4" style="margin-top: 100px;">
         
-        <!-- Search Pill -->
-        <form method="get" action="{{ path('app_hebergements_search') }}" class="search-hero-pill" data-aos="fade-down">
-            <div class="pill-input-group">
-                <span class="pill-label">Où allez-vous ?</span>
-                <input type="text" name="titre" class="pill-input" placeholder="Rechercher..." value="{{ current_titre }}">
-            </div>
-            <div class="pill-input-group">
-                <span class="pill-label">Dates</span>
-                <input type="text" name="dates" class="pill-input" placeholder="Ajouter des dates" onfocus="(this.type='date')">
-            </div>
-            <div class="pill-input-group">
-                <span class="pill-label">Voyageurs</span>
-                <input type="number" name="capacite" class="pill-input" placeholder="Personnes" value="{{ current_capacite }}">
-            </div>
-            <button type="submit" class="pill-search-btn">
-                <i class="fas fa-search"></i>
-            </button>
-        </form>
 
         <div class="row">
             <!-- Sidebar -->
@@ -244,135 +310,311 @@
                 <div class="filter-card shadow-sm" data-aos="fade-right">
                     <form id="filterForm" method="get" action="{{ path('app_hebergements_search') }}">
                         <div class="filter-section">
-                            <h6 class="filter-header">Filtrer par nom</h6>
-                            <input type="text" name="titre" value="{{ current_titre }}" class="filter-input" placeholder="Hébergement...">
+                            <h6 class="filter-header">{{ 'search.filter_name'|trans }}</h6>
+                            <input type="text" name="titre" value="{{ current_titre }}" class="filter-input" placeholder="{{ 'search.filter_name'|trans }}...">
                         </div>
 
                         <div class="filter-section">
-                            <h6 class="filter-header">Type d'établissement</h6>
-                            <label class="filter-check">
-                                <input type="radio" name="type" value="all" {{ current_type == 'all' or current_type is empty ? 'checked' : '' }}> Tous
-                            </label>
-                            <label class="filter-check">
-                                <input type="radio" name="type" value="Appartement" {{ current_type == 'Appartement' ? 'checked' : '' }}> Appart'hôtel
-                            </label>
-                            <label class="filter-check">
-                                <input type="radio" name="type" value="Hôtel" {{ current_type == 'Hôtel' ? 'checked' : '' }}> Hôtel
-                            </label>
-                            <label class="filter-check">
-                                <input type="radio" name="type" value="Maison d'hôtes" {{ current_type == "Maison d'hôtes" ? 'checked' : '' }}> Maison d'hôtes
-                            </label>
-                        </div>
-
-                        <div class="filter-section">
-                            <h6 class="filter-header">Capacité (personnes)</h6>
-                            <select name="capacite" class="filter-input">
-                                <option value="">Toutes capacités</option>
-                                <option value="1" {{ current_capacite == '1' ? 'selected' : '' }}>1 personne</option>
-                                <option value="2" {{ current_capacite == '2' ? 'selected' : '' }}>2 personnes</option>
-                                <option value="4" {{ current_capacite == '4' ? 'selected' : '' }}>4 personnes</option>
-                                <option value="6" {{ current_capacite == '6' ? 'selected' : '' }}>6+ personnes</option>
+                            <h6 class="filter-header">{{ 'search.property_type'|trans }}</h6>
+                            <select name="type" class="filter-input" onchange="applyFilters()" style="cursor: pointer; border-color: #cbd5e1 !important; font-weight: 600; border-radius: 12px; height: 50px;">
+                                <option value="all" {{ current_type == 'all' or current_type is empty ? 'selected' : '' }}>{{ 'search.all_stays'|trans }}</option>
+                                <option value="Villa" {{ current_type == 'Villa' ? 'selected' : '' }}>{{ 'search.villa'|trans }}</option>
+                                <option value="Appartement" {{ current_type == 'Appartement' ? 'selected' : '' }}>{{ 'search.apartment'|trans }}</option>
+                                <option value="Maison" {{ current_type == 'Maison' ? 'selected' : '' }}>{{ 'search.maison'|trans }}</option>
+                                <option value="Hotel" {{ current_type == 'Hotel' ? 'selected' : '' }}>{{ 'search.hotel'|trans }}</option>
+                                <option value="Maison d'hôte" {{ current_type == "Maison d'hôte" ? 'selected' : '' }}>{{ 'search.guesthouse'|trans }}</option>
                             </select>
                         </div>
 
                         <div class="filter-section">
-                            <h6 class="filter-header">Disponibilité</h6>
+                            <h6 class="filter-header">{{ 'search.capacity'|trans }}</h6>
+                            <select name="capacite" class="filter-input">
+                                <option value="">{{ 'search.all_stays'|trans }}</option>
+                                <option value="1" {{ current_capacite == '1' ? 'selected' : '' }}>1 person</option>
+                                <option value="2" {{ current_capacite == '2' ? 'selected' : '' }}>2 persons</option>
+                                <option value="4" {{ current_capacite == '4' ? 'selected' : '' }}>4 persons</option>
+                                <option value="6" {{ current_capacite == '6' ? 'selected' : '' }}>6+ persons</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-section">
+                            <h6 class="filter-header">Prix par nuit ({{ current_currency_symbol }})</h6>
+                            <div class="d-flex justify-content-between mb-3 gap-2">
+                                <div class="border rounded-4 p-2 w-50" style="border-color: #cbd5e1 !important;">
+                                    <small class="text-muted d-block" style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">Min</small>
+                                    <div class="d-flex align-items-center">
+                                        <span class="text-muted me-1 fw-bold">{{ current_currency_symbol }}</span>
+                                        <input type="number" name="min_price" id="minPriceInput" value="{{ current_min_price|default('0') }}" class="border-0 bg-transparent w-100 p-0 shadow-none fw-bold text-dark" style="outline: none;">
+                                    </div>
+                                </div>
+                                <div class="border rounded-4 p-2 w-50" style="border-color: #cbd5e1 !important;">
+                                    <small class="text-muted d-block" style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">Max</small>
+                                    <div class="d-flex align-items-center">
+                                        <span class="text-muted me-1 fw-bold">{{ current_currency_symbol }}</span>
+                                        <input type="number" name="max_price" id="maxPriceInput" value="{{ current_max_price|default('500') }}" class="border-0 bg-transparent w-100 p-0 shadow-none fw-bold text-dark" style="outline: none;">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom Dual Range Slider UI -->
+                            <div class="range-slider-container mt-4 mb-2 position-relative" style="height: 45px;">
+                                <!-- Fake Histogram for visual flair -->
+                                <div class="d-flex align-items-end justify-content-between px-2 position-absolute w-100" style="bottom: 22px; height: 35px; opacity: 0.8; pointer-events: none;">
+                                     <div style="width: 8%; background: #93c5fd; height: 20%; border-radius: 2px 2px 0 0;"></div>
+                                     <div style="width: 8%; background: #93c5fd; height: 40%; border-radius: 2px 2px 0 0;"></div>
+                                     <div style="width: 8%; background: #93c5fd; height: 100%; border-radius: 2px 2px 0 0;"></div>
+                                     <div style="width: 8%; background: #93c5fd; height: 60%; border-radius: 2px 2px 0 0;"></div>
+                                     <div style="width: 8%; background: #93c5fd; height: 30%; border-radius: 2px 2px 0 0;"></div>
+                                     <div style="width: 8%; background: #3b82f6; height: 80%; border-radius: 2px 2px 0 0;"></div>
+                                     <div style="width: 8%; background: #3b82f6; height: 50%; border-radius: 2px 2px 0 0;"></div>
+                                     <div style="width: 8%; background: #93c5fd; height: 20%; border-radius: 2px 2px 0 0;"></div>
+                                     <div style="width: 8%; background: #93c5fd; height: 10%; border-radius: 2px 2px 0 0;"></div>
+                                </div>
+                                
+                                <div class="slider-track" style="position: absolute; width: 100%; height: 4px; background: #e2e8f0; bottom: 18px; border-radius: 4px;"></div>
+                                <div class="slider-fill" id="sliderFill" style="position: absolute; height: 4px; background: #0f172a; bottom: 18px; z-index: 1;"></div>
+                                
+                                <input type="range" id="minRange" min="0" max="1000" value="{{ current_min_price|default('0') }}" class="custom-range-input" style="z-index: 3;">
+                                <input type="range" id="maxRange" min="0" max="1000" value="{{ current_max_price|default('350') }}" class="custom-range-input" style="z-index: 4;">
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <h6 class="filter-header">{{ 'search.availability'|trans }}</h6>
                             <label class="filter-check">
-                                <input type="radio" name="disponible" value="all" {{ current_disponible != '1' and current_disponible != '0' ? 'checked' : '' }}> Tous
+                                <input type="radio" name="disponible" value="all" {{ current_disponible != '1' and current_disponible != '0' ? 'checked' : '' }}> {{ 'search.all_options'|trans }}
                             </label>
                             <label class="filter-check">
-                                <input type="radio" name="disponible" value="1" {{ current_disponible == '1' ? 'checked' : '' }}> Disponible
+                                <input type="radio" name="disponible" value="1" {{ current_disponible == '1' ? 'checked' : '' }}> {{ 'search.available'|trans }}
                             </label>
                             <label class="filter-check">
-                                <input type="radio" name="disponible" value="0" {{ current_disponible == '0' ? 'checked' : '' }}> Non disponible
+                                <input type="radio" name="disponible" value="0" {{ current_disponible == '0' ? 'checked' : '' }}> {{ 'search.unavailable'|trans }}
                             </label>
                         </div>
 
                         <!-- Hidden sort if needed -->
                         <input type="hidden" name="sort" value="{{ current_sort }}">
 
-                        <button type="submit" class="btn w-100 py-3 mt-2" style="background: var(--bleu-ceil); color: white; border-radius: 12px; font-weight: 600;">Appliquer</button>
                     </form>
                 </div>
             </div>
 
             <!-- Results -->
-            <div class="col-lg-9">
-                <div class="category-tabs" data-aos="fade-up">
-                    <a href="{{ path('app_hebergements_search') }}" class="tab-pill {{ current_type == 'all' or current_type is empty ? 'active' : '' }}">Tous les séjours</a>
-                    <a href="{{ path('app_hebergements_search', {type: 'Hôtel'}) }}" class="tab-pill {{ current_type == 'Hôtel' ? 'active' : '' }}">Hôtels</a>
-                    <a href="{{ path('app_hebergements_search', {type: "Maison d'hôtes"}) }}" class="tab-pill {{ current_type == "Maison d'hôtes" ? 'active' : '' }}">Maisons</a>
-                </div>
+            <div class="col-lg-9" id="results-wrapper">
+                {% include 'frontend/reservation/_search_results.html.twig' %}
+            </div>
+        </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">{{ hebergements|length }} établissement(s) trouvé(s)</h5>
-                    <div class="sort-box">
-                        Trier par :
-                        <select class="sort-select" onchange="applySort(this.value)">
-                            <option value="default" {{ current_sort == 'default' ? 'selected' : '' }}>Recommandé</option>
-                            <option value="price_asc" {{ current_sort == 'price_asc' ? 'selected' : '' }}>Prix croissant</option>
-                            <option value="price_desc" {{ current_sort == 'price_desc' ? 'selected' : '' }}>Prix décroissant</option>
-                        </select>
-                    </div>
-                </div>
-
-                {% for hebergement in hebergements %}
-                <div class="hotel-card-horiz" data-aos="fade-up">
-                    <div class="card-img-side">
-                        {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
-                        {% if imgName and '.' in imgName %}
-                            <img src="{{ asset('uploads/hebergements/' ~ imgName) }}" alt="{{ hebergement.titre }}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500';">
-                        {% else %}
-                            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500" alt="{{ hebergement.titre }}">
-                        {% endif %}
-                        <div class="fav-btn"><i class="fas fa-heart"></i></div>
-                    </div>
-                    <div class="card-content-side">
-                        <div class="hotel-title-row">
+        <!-- Top Feature Cards Section -->
+        <div class="mb-5 mt-5" data-aos="fade-up">
+            <h3 class="fw-bold mb-4" style="color: #1e293b; font-family: 'Outfit', sans-serif;">Pour les pros du voyage</h3>
+            <div class="row g-4">
+                
+                <!-- Card 1: RE7LA.ai -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <a href="{{ path('app_re7la_ai') }}" class="text-decoration-none">
+                        <div class="feature-card h-100 p-4 bg-white" style="border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); border: 1px solid rgba(241, 245, 249, 0.8); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; flex-direction: column;">
                             <div>
-                                <h4 class="hotel-name">{{ hebergement.titre }}</h4>
-                                <div class="stars-box">
-                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                </div>
-                                <div class="hotel-loc">
-                                    <i class="fas fa-map-marker-alt me-1"></i> {{ hebergement.typeHebergement }}
-                                </div>
-                                <div class="amenities-row">
-                                    <span><i class="fas fa-wifi me-1"></i> Wifi gratuit</span>
-                                    <span><i class="fas fa-swimming-pool me-1"></i> Piscine</span>
-                                    <span><i class="fas fa-parking me-1"></i> Parking</span>
-                                </div>
+                                <h5 class="fw-bold" style="color: #1e293b; font-size: 1.15rem; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 8px;">
+                                    RE7LA.ai <span class="badge bg-dark" style="font-size: 0.65rem; border-radius: 6px; padding: 4px 6px;">BÉTA</span>
+                                </h5>
+                                <p class="text-muted mt-2 mb-0" style="font-size: 0.9rem; line-height: 1.4;">Posez vos questions de voyage à notre IA</p>
+                            </div>
+                            <div class="mt-auto text-center pt-4">
+                                <img src="{{ asset('assets_frontend/img/features/RE7LA_ai.png') }}" alt="RE7LA.ai" style="height: 140px; width: 100%; object-fit: contain;">
                             </div>
                         </div>
+                    </a>
+                </div>
 
-                        <div class="text-end">
-                            <div class="price-side-box">
-                                <div class="price-val">{{ hebergement.prixParNuit }} DT</div>
-                                <div class="price-info">pour 1 nuit, taxes incluses</div>
+                <!-- Card 2: Meilleur moment -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <a href="{{ path('app_best_time', {city: 'Tunis'}) }}" class="text-decoration-none">
+                        <div class="feature-card h-100 p-4 bg-white" style="border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); border: 1px solid rgba(241, 245, 249, 0.8); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; flex-direction: column;">
+                            <div>
+                                <h5 class="fw-bold" style="color: #1e293b; font-size: 1.15rem; font-family: 'Outfit', sans-serif;">Meilleur moment<br>pour voyager</h5>
+                                <p class="text-muted mt-2 mb-0" style="font-size: 0.9rem; line-height: 1.4;">Économisez grâce au bon timing</p>
                             </div>
-                            <a href="{{ path('app_hebergement_detail', {id: hebergement.idHebergement}) }}" class="btn-availability">
-                                Voir les disponibilités
-                            </a>
+                            <div class="mt-auto text-center pt-4">
+                                <img src="{{ asset('assets_frontend/img/features/best_time.png') }}" alt="Timing" style="height: 140px; width: 100%; object-fit: contain;">
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
-                {% else %}
-                <div class="text-center py-5 bg-white rounded-4 border border-dashed mt-4">
-                    <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
-                    <h5>Aucun résultat trouvé</h5>
-                    <p class="text-muted">Essayez d'élargir vos critères de recherche.</p>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <a href="{{ path('app_explore') }}" class="text-decoration-none">
+                        <div class="feature-card h-100 p-4 bg-white" style="border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); border: 1px solid rgba(241, 245, 249, 0.8); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; flex-direction: column;">
+                            <div>
+                                <h5 class="fw-bold" style="color: #1e293b; font-size: 1.15rem; font-family: 'Outfit', sans-serif;">Explore</h5>
+                                <p class="text-muted mt-2 mb-0" style="font-size: 0.9rem; line-height: 1.4;">Découvrez des destinations adaptées à votre budget</p>
+                            </div>
+                            <div class="mt-auto text-center pt-4">
+                                <img src="{{ asset('assets_frontend/img/features/explore.png') }}" alt="Explore" style="height: 140px; width: 100%; object-fit: contain;">
+                            </div>
+                        </div>
+                    </a>
                 </div>
-                {% endfor %}
+
+                <!-- Card 4: Matching intelligent utilisateur ↔ destination -->
+                <div class="col-12 col-md-6 col-lg-3">
+                    <a href="{{ path('app_matching_quiz') }}" class="text-decoration-none">
+                        <div class="feature-card h-100 p-4 bg-white" style="border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); border: 1px solid rgba(241, 245, 249, 0.8); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; flex-direction: column;">
+                            <div>
+                                <h5 class="fw-bold" style="color: #1e293b; font-size: 1.15rem; font-family: 'Outfit', sans-serif;">Matching intelligent utilisateur ↔ destination</h5>
+                                <p class="text-muted mt-2 mb-0" style="font-size: 0.9rem; line-height: 1.4;">Trouvez votre destination idéale en 3 questions</p>
+                            </div>
+                            <div class="mt-auto text-center pt-4">
+                                <img src="{{ asset('assets_frontend/img/features/trips.png') }}" alt="Matching intelligent utilisateur ↔ destination" style="height: 140px; width: 100%; object-fit: contain;">
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function applySort(sortVal) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('sort', sortVal);
-        window.location.href = url.toString();
+    const resultsWrapper = document.getElementById('results-wrapper');
+    const filterForm = document.getElementById('filterForm');
+
+    function applyFilters() {
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(formData);
+        
+        // Add AJAX flag
+        params.append('ajax', '1');
+
+        // Update URL
+        const newUrl = window.location.pathname + '?' + params.toString().replace('&ajax=1', '');
+        window.history.pushState({ path: newUrl }, '', newUrl);
+
+        // Fetch new results
+        fetch(filterForm.action + '?' + params.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.text())
+        .then(html => {
+            resultsWrapper.innerHTML = html;
+            // Re-trigger AOS if used
+            if (typeof AOS !== 'undefined') {
+                AOS.refresh();
+            }
+        })
+        .catch(error => console.error('Error:', error));
     }
+
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    const debouncedApplyFilters = debounce(applyFilters, 300);
+
+    function applySort(sortVal) {
+        // Update hidden sort input
+        const sortInput = filterForm.querySelector('input[name="sort"]');
+        if (sortInput) {
+            sortInput.value = sortVal;
+        }
+        applyFilters();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const minRange = document.getElementById('minRange');
+        const maxRange = document.getElementById('maxRange');
+        const minInput = document.getElementById('minPriceInput');
+        const maxInput = document.getElementById('maxPriceInput');
+        const sliderFill = document.getElementById('sliderFill');
+        
+        function updateSlider() {
+            let minVal = parseInt(minRange.value);
+            let maxVal = parseInt(maxRange.value);
+            
+            if (minVal > maxVal) {
+                minRange.value = maxVal;
+                minVal = maxVal;
+            }
+            
+            minInput.value = minVal;
+            maxInput.value = maxVal;
+            
+            const percent1 = (minVal / minRange.max) * 100;
+            const percent2 = (maxVal / maxRange.max) * 100;
+            
+            sliderFill.style.left = percent1 + '%';
+            sliderFill.style.width = (percent2 - percent1) + '%';
+        }
+
+        function updateSliderFromInput() {
+            let minVal = parseInt(minInput.value) || 0;
+            let maxVal = parseInt(maxInput.value) || 1000;
+
+            if (minVal > maxVal) minVal = maxVal;
+            
+            minRange.value = minVal;
+            maxRange.value = maxVal;
+            updateSlider();
+            applyFilters();
+        }
+
+        if(minRange && maxRange) {
+            minRange.addEventListener('input', () => {
+                updateSlider();
+                debouncedApplyFilters();
+            });
+            maxRange.addEventListener('input', () => {
+                updateSlider();
+                debouncedApplyFilters();
+            });
+            
+            minInput.addEventListener('change', updateSliderFromInput);
+            maxInput.addEventListener('change', updateSliderFromInput);
+            
+            // Initial call
+            updateSlider();
+        }
+
+        // Add listeners to other form elements
+        if (filterForm) {
+            filterForm.querySelectorAll('input[type="text"], input[type="radio"], input[type="number"]').forEach(input => {
+                if (input.id !== 'minRange' && input.id !== 'maxRange' && input.id !== 'minPriceInput' && input.id !== 'maxPriceInput') {
+                    input.addEventListener('input', debouncedApplyFilters);
+                    input.addEventListener('change', applyFilters);
+                }
+            });
+
+            // Handle tab-pill clicks with AJAX
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('tab-pill')) {
+                    e.preventDefault();
+                    
+                    // Get type from URL or data attribute
+                    const url = new URL(e.target.href);
+                    const type = url.searchParams.get('type') || 'all';
+                    
+                    // Update the sidebar select value to stay in sync
+                    const typeSelect = document.querySelector('select[name="type"]');
+                    if (typeSelect) {
+                        typeSelect.value = type;
+                    }
+                    
+                    // Trigger the AJAX filter
+                    applyFilters();
+                    
+                    // Update active class immediately for UI responsiveness
+                    document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+        }
+    });
 </script>
+
 {% endblock %}

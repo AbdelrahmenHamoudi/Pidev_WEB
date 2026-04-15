@@ -4,13 +4,29 @@
 parameters:
     upload_directory: '%kernel.project_dir%/public/uploads/activite'
     profile_images_directory: '%kernel.project_dir%/public/uploads/profiles'
+<<<<<<< HEAD
     publication_images_directory: '%kernel.project_dir%/public/uploads/publications'
+=======
+<<<<<<< Updated upstream
+=======
+    publication_images_directory: '%kernel.project_dir%/public/uploads/publications'
+    GROQ_API_KEY: '%env(GROQ_API_KEY)%'
+    GEOAPIFY_API_KEY: '%env(GEOAPIFY_API_KEY)%'
+>>>>>>> Stashed changes
+>>>>>>> 22258ed ( integration user + hebergement)
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true
         autoconfigure: true
+<<<<<<< Updated upstream
+=======
+        public: false
+        bind:
+            $geoapifyKey: '%GEOAPIFY_API_KEY%'
+            $projectDir: '%kernel.project_dir%'
+>>>>>>> Stashed changes
 
     # makes classes in src/ available to be used as services
     App\:
@@ -23,4 +39,34 @@ services:
     # Configuration explicite pour ActiviteService
     App\Service\ActiviteService:
         arguments:
+<<<<<<< Updated upstream
             $uploadDir: '%upload_directory%'
+=======
+            $uploadDir: '%upload_directory%'
+
+    App\Service\RecaptchaValidator:
+        arguments:
+            $secret: '%env(RECAPTCHA_SECRET_KEY)%'
+
+    App\EventListener\RecaptchaRequestListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 100 }
+
+    App\EventListener\TwoFactorListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 50 }
+
+    App\Service\Hebergement\DynamicPricingService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Service\Hebergement\SafeZoneService:
+        arguments:
+            $geoapifyKey: '%env(GEOAPIFY_API_KEY)%'
+
+    App\Service\Hebergement\GroqService: ~
+
+    App\Service\Hebergement\TravelIntelligenceService:
+        arguments:
+            $rapidApiKey: '%env(RAPIDAPI_KEY)%'
+>>>>>>> Stashed changes

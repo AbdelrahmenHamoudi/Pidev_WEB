@@ -7,6 +7,11 @@ use App\Form\ReservationType;
 use App\Repository\HebergementRepository;
 use App\Repository\ReservationRepository;
 use App\Repository\UsersRepository;
+<<<<<<< Updated upstream
+=======
+use App\Service\Hebergement\SafeZoneService;
+use App\Service\Hebergement\TravelSimulationService;
+>>>>>>> Stashed changes
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,6 +45,7 @@ final class FrontendController extends AbstractController
         
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
+<<<<<<< Updated upstream
 
         return $this->render('frontend/login.html.twig', [
             'error' => $error,
@@ -54,19 +60,95 @@ final class FrontendController extends AbstractController
     }
 
     // ==================== HEBERGEMENTS (UNDER /RESERVATION) ====================
+=======
+>>>>>>> Stashed changes
 
+        return $this->render('frontend/login.html.twig', [
+            'error' => $error,
+            'last_username' => $lastUsername,
+        ]);
+    }
+
+    #[route('/forgot-password', name: 'app_forgot_password')]
+    public function forgotPassword(): Response
+    {
+        return $this->render('frontend/forgot_password.html.twig');
+    }
+
+    // ==================== HEBERGEMENTS (UNDER /RESERVATION) ====================
+    
     #[Route('/reservation/details/{id}', name: 'app_hebergement_detail')]
-    public function hebergementDetail($id, HebergementRepository $repository): Response
+    public function hebergementDetail($id, Request $request, HebergementRepository $repository, SafeZoneService $safeZoneService, EntityManagerInterface $em): Response
     {
         $hebergement = $repository->find($id);
         
-        if (!$hebergement || !$hebergement->isDisponibleHeberg()) {
-            throw $this->createNotFoundException('Hébergement non disponible');
+        if (!$hebergement) {
+            throw $this->createNotFoundException('Hébergement introuvable');
         }
+
+        // Fetch safety data dynamically (no DB changes)
+        $safetyData = $safeZoneService->getSafetyData($hebergement);
+
+        // --- NEW EMBEDDED RESERVATION FORM LOGIC ---
+        $reservation = new Reservation();
+        $reservation->setHebergement($hebergement);
+        $user = $this->getUser();
+        if ($user) {
+            $reservation->setUser($user);
+        }
+
+        $form = $this->createForm(ReservationType::class, $reservation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            if (!$user) {
+                $this->addFlash('error', 'flash.login_required');
+                // Could redirect back to self or login, going to login
+                return $this->redirectToRoute('app_login');
+            }
+
+            if ($form->isValid()) {
+                $reservation->setStatutR('CONFIRMÉE');
+                $em->persist($reservation);
+                $em->flush();
+
+                $this->addFlash('success', 'flash.reservation_created');
+                return $this->redirectToRoute('app_reservations_list');
+            }
+        }
+        // -------------------------------------------
         
         return $this->render('frontend/hebergement/detail.html.twig', [
-            'hebergement' => $hebergement
+            'hebergement' => $hebergement,
+            'safetyData' => $safetyData,
+            'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/hebergement/simulate/{id}', name: 'app_hebergement_simulate', methods: ['POST'])]
+    public function simulateTravel(
+        int $id,
+        Request $request,
+        HebergementRepository $repository,
+        TravelSimulationService $simulationService
+    ): Response {
+        $hebergement = $repository->find($id);
+        if (!$hebergement) {
+            return $this->json(['error' => 'Hébergement introuvable'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        
+        $preferences = [
+            'profile' => $data['profile'] ?? 'Aventure',
+            'budget' => $data['budget'] ?? 'Moyen',
+            'noise' => $data['noise'] ?? 'faible',
+            'crowd' => $data['crowd'] ?? 'moyen',
+        ];
+
+        $simulation = $simulationService->generateSimulation($hebergement, $preferences);
+
+        return $this->json($simulation);
     }
 
     // ==================== RESERVATION CRUD ====================
@@ -79,7 +161,7 @@ final class FrontendController extends AbstractController
         $user = $this->getUser();
         
         if (!$user) {
-            $this->addFlash('error', 'Veuillez vous connecter pour accéder à vos voyages.');
+            $this->addFlash('error', 'flash.login_required');
             return $this->redirectToRoute('app_login');
         }
 
@@ -118,6 +200,7 @@ final class FrontendController extends AbstractController
         ]);
     }
 
+<<<<<<< Updated upstream
     #[Route('/reservation/reserver/{hebergementId}', name: 'app_reservation_new')]
     public function reservationNew(
         Request $request,
@@ -163,6 +246,9 @@ final class FrontendController extends AbstractController
             'hebergement' => $hebergement
         ]);
     }
+=======
+    // ReservationNew method removed since the form is now embedded in the detail page.
+>>>>>>> Stashed changes
 
     #[Route('/reservation/{id}/edit', name: 'app_reservation_edit')]
     public function reservationEdit(
@@ -179,7 +265,11 @@ final class FrontendController extends AbstractController
 
         // Only allow editing if status is pending
         if (!in_array($reservation->getStatutR(), ['EN ATTENTE', 'PENDING'])) {
+<<<<<<< Updated upstream
             $this->addFlash('error', 'Vous ne pouvez modifier que les réservations en attente');
+=======
+            $this->addFlash('error', 'flash.edit_not_allowed');
+>>>>>>> Stashed changes
             return $this->redirectToRoute('app_reservations_list');
         }
 
@@ -188,7 +278,11 @@ final class FrontendController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
+<<<<<<< Updated upstream
             $this->addFlash('success', 'Réservation modifiée avec succès');
+=======
+            $this->addFlash('success', 'flash.reservation_updated');
+>>>>>>> Stashed changes
             return $this->redirectToRoute('app_reservations_list');
         }
 
@@ -219,7 +313,11 @@ final class FrontendController extends AbstractController
         if ($this->isCsrfTokenValid('cancel' . $reservation->getIdReservation(), $request->request->get('_token'))) {
             $reservation->setStatutR('Annulée');
             $em->flush();
+<<<<<<< Updated upstream
             $this->addFlash('success', 'Réservation annulée avec succès');
+=======
+            $this->addFlash('success', 'flash.reservation_cancelled');
+>>>>>>> Stashed changes
         }
 
         return $this->redirectToRoute('app_reservations_list');
@@ -246,7 +344,11 @@ final class FrontendController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $reservation->getIdReservation(), $request->request->get('_token'))) {
             $em->remove($reservation);
             $em->flush();
+<<<<<<< Updated upstream
             $this->addFlash('success', 'Réservation supprimée avec succès');
+=======
+            $this->addFlash('success', 'flash.reservation_deleted');
+>>>>>>> Stashed changes
         }
 
         return $this->redirectToRoute('app_reservations_list');
@@ -259,6 +361,8 @@ final class FrontendController extends AbstractController
         $titre = $request->query->get('titre');
         $capacite = $request->query->get('capacite');
         $disponible = $request->query->get('disponible');
+        $minPrice = $request->query->get('min_price');
+        $maxPrice = $request->query->get('max_price');
         $sort = $request->query->get('sort', 'default');
         
         // Build criteria array
@@ -295,6 +399,21 @@ final class FrontendController extends AbstractController
             });
         }
         
+<<<<<<< Updated upstream
+=======
+        // Filter by price range
+        if ($minPrice !== null && is_numeric($minPrice)) {
+            $hebergements = array_filter($hebergements, function($h) use ($minPrice) {
+                return $h->getPrixParNuit() >= (float)$minPrice;
+            });
+        }
+        if ($maxPrice !== null && is_numeric($maxPrice)) {
+            $hebergements = array_filter($hebergements, function($h) use ($maxPrice) {
+                return $h->getPrixParNuit() <= (float)$maxPrice;
+            });
+        }
+        
+>>>>>>> Stashed changes
         // Sort by price
         if ($sort === 'price_asc') {
             usort($hebergements, function($a, $b) {
@@ -309,12 +428,18 @@ final class FrontendController extends AbstractController
         // Reset array keys
         $hebergements = array_values($hebergements);
         
-        return $this->render('frontend/reservation/search.html.twig', [
+        $template = $request->isXmlHttpRequest() || $request->query->get('ajax')
+            ? 'frontend/reservation/_search_results.html.twig'
+            : 'frontend/reservation/search.html.twig';
+
+        return $this->render($template, [
             'hebergements' => $hebergements,
             'current_type' => $type,
             'current_titre' => $titre,
             'current_capacite' => $capacite,
             'current_disponible' => $disponible,
+            'current_min_price' => $minPrice,
+            'current_max_price' => $maxPrice,
             'current_sort' => $sort
         ]);
     }

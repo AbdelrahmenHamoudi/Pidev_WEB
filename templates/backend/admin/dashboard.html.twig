@@ -37,10 +37,17 @@
           <i class="fas fa-car"></i>
           Gérer les Voitures
         </a>
-        <a href="{{ path('activite_index') }}" style="background:#f8fafc;color:#2C3E50;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1px solid #e8ecf0;transition:all 0.3s;" onmouseover="this.style.background='#1ABC9C';this.style.color='#fff';" onmouseout="this.style.background='#f8fafc';this.style.color='#2C3E50';">
-    <i class="fas fa-running"></i>
-    Gérer les Activités
-</a>
+        {# Activités #}
+        <a href="{{ path('activite_index') }}" style="background:#f8fafc;color:#2C3E50;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1px solid #e8ecf0;transition:all 0.3s;min-width:210px;" onmouseover="this.style.background='#9B59B6';this.style.color='#fff';" onmouseout="this.style.background='#f8fafc';this.style.color='#2C3E50';">
+          <i class="fas fa-running"></i>
+          Gérer les Activités
+        </a>
+
+        {# Pricing Intelligence (Le Cerveau) #}
+        <a href="{{ path('app_admin_pricing_dashboard') }}" style="background:linear-gradient(135deg, #FFF9E6, #FFF); color:#D4AF37; padding:12px 24px; border-radius:12px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; border:1px solid #F1C40F; transition:all 0.3s; min-width:210px; box-shadow: 0 4px 15px rgba(241, 196, 15, 0.1);" onmouseover="this.style.background='#F1C40F';this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, #FFF9E6, #FFF)';this.style.color='#D4AF37';">
+          <i class="fas fa-brain"></i>
+          Pricing Intelligence
+        </a>
       </div>
     </div>
   </div>

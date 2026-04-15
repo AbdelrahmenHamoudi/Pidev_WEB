@@ -176,10 +176,23 @@ tr:last-child td{border-bottom:none;}
         <i class="fas fa-route"></i><span>Flotte & Trajets</span>
       </a>
 
+<<<<<<< HEAD
       <a href="{{ path('activite_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'activite_' ? 'active' : '' }}">
         <i class="fas fa-hiking"></i><span>Activités</span>
       </a>
       
+=======
+<<<<<<< Updated upstream
+=======
+      <a href="{{ path('activite_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'activite_' ? 'active' : '' }}">
+        <i class="fas fa-hiking"></i><span>Activités</span>
+      </a>
+
+      <a href="{{ path('app_admin_pricing_dashboard') }}" class="nav-item {{ app.request.attributes.get('_route') == 'app_admin_pricing_dashboard' ? 'active' : '' }}">
+        <i class="fas fa-brain"></i><span>Pricing Intelligence Center</span>
+      </a>
+
+>>>>>>> 22258ed ( integration user + hebergement)
       <a href="{{ path('app_admin_publication_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'app_admin_publication' ? 'active' : '' }}">
         <i class="fas fa-newspaper"></i><span>Publications</span>
       </a>
@@ -187,6 +200,10 @@ tr:last-child td{border-bottom:none;}
       <a href="{{ path('app_admin_commentaire_index') }}" class="nav-item {{ app.request.attributes.get('_route') starts with 'app_admin_commentaire' ? 'active' : '' }}">
         <i class="fas fa-comments"></i><span>Commentaires</span>
       </a>
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> 22258ed ( integration user + hebergement)
 
       <div class="nav-section-title">Gestion</div>
 

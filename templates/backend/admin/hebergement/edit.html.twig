@@ -89,6 +89,16 @@
           {% for image in hebergement.images %}
             <div style="position:relative;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);border:2px solid #fff;">
               <img src="{{ asset(image.filename) }}" style="width:100%;height:120px;object-fit:cover;" alt="Photo {{ loop.index }}">
+              
+              <!-- Bouton de suppression (Croix) -->
+              <a href="{{ path('app_admin_hebergement_delete_image', {id: hebergement.id, filename: image.filename|split('/')|last}) }}" 
+                 style="position:absolute;top:5px;left:5px;background:#ef4444;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:12px;z-index:10;box-shadow:0 2px 5px rgba(0,0,0,0.2);transition:all 0.2s;"
+                 onmouseover="this.style.transform='scale(1.2)';" 
+                 onmouseout="this.style.transform='scale(1)';"
+                 title="Supprimer cette photo">
+                <i class="fas fa-times"></i>
+              </a>
+
               <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);color:#fff;border:none;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;">
                 {{ loop.index }}
               </div>
@@ -111,14 +121,27 @@
           <i class="fas fa-plus-circle" style="font-size:24px;color:#fff;"></i>
         </div>
         <h3 style="font-size:16px;font-weight:600;color:#2C3E50;margin-bottom:8px;">Ajouter des photos</h3>
-        <p style="color:#64748b;font-size:14px;margin-bottom:16px;">Cliquez pour sélectionner ou glissez-déposez</p>
-        {{ form_widget(form.imageFiles, {'attr': {'style': 'display:none;', 'multiple': 'multiple'}}) }}
+        <p id="file-count-text-edit" style="color:#64748b;font-size:14px;margin-bottom:16px;">Cliquez pour sélectionner ou glissez-déposez</p>
+        {{ form_widget(form.imageFiles, {'attr': {'style': 'display:none;', 'multiple': 'multiple', 'onchange': 'updateFileCountEdit(this)'}}) }}
         <button type="button" style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:500;font-size:13px;cursor:pointer;" 
-                onclick="document.querySelector('input[type=file]').click();">
+                onclick="document.getElementById('{{ form.imageFiles.vars.id }}').click();">
           <i class="fas fa-folder-open" style="margin-right:8px;"></i>
           Parcourir les fichiers
         </button>
       </div>
+      <script>
+        function updateFileCountEdit(input) {
+            const count = input.files.length;
+            const text = document.getElementById('file-count-text-edit');
+            if (count > 0) {
+                text.innerHTML = `<strong>${count}</strong> nouveau(x) fichier(s) sélectionné(s)`;
+                text.style.color = '#1ABC9C';
+            } else {
+                text.innerText = 'Cliquez pour sélectionner ou glissez-déposez';
+                text.style.color = '#64748b';
+            }
+        }
+      </script>
       <p style="color:#64748b;font-size:12px;margin-top:8px;">
         <i class="fas fa-info-circle" style="color:#1ABC9C;margin-right:4px;"></i>
         Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs photos. Les nouvelles photos seront ajoutées à la galerie existante.

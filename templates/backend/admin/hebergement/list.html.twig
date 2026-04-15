@@ -108,14 +108,17 @@
               <span>{{ hebergement.capacite }}</span>
             </div>
           </div>
+
           <!-- Actions -->
           <div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid #e8ecf0;padding-top:12px;">
             <a href="{{ path('app_admin_hebergement_show', {id: hebergement.id}) }}" class="action-btn view-btn">
               <i class="fas fa-eye"></i> Voir
             </a>
+
             <a href="{{ path('app_admin_hebergement_edit', {id: hebergement.id}) }}" class="action-btn edit-btn">
               <i class="fas fa-pen"></i> Éditer
             </a>
+            
             <form method="post" action="{{ path('app_admin_hebergement_delete', {id: hebergement.id}) }}" style="flex:0.5;" onsubmit="return confirm('Supprimer cet hébergement ?');">
               <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.id) }}">
               <button type="submit" class="action-btn delete-btn">
@@ -195,6 +198,18 @@
     background: #e63946;
     color: #fff;
   }
+  .insight-btn {
+    background: rgba(59,130,246,0.1);
+    color: #3B82F6;
+  }
+  .insight-btn:hover, .insight-btn.active {
+    background: #3B82F6;
+    color: #fff;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
   .slider-wrap button { outline:none; }
 </style>
 
@@ -273,6 +288,8 @@ function slidePrev(hId, total) {
   const state = getState(hId, total);
   const prev = state.current <= 1 ? total : state.current - 1;
   goToSlide(hId, prev, total);
+}
+
 }
 </script>
 {% endblock %}

@@ -1,0 +1,435 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Matching Intelligent - RE7LA Intelligence{% endblock %}
+
+{% block extra_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --re7la-blue: #87CEEB;
+        --re7la-blue-glow: rgba(135, 206, 235, 0.4);
+        --re7la-green: #93C572;
+        --dark-blue: #0f172a;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --premium-shadow: 0 25px 80px rgba(0,0,0,0.07);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f0f4f8;
+        background-image: 
+            radial-gradient(at 0% 0%, rgba(135, 206, 235, 0.1) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(147, 197, 114, 0.1) 0px, transparent 50%);
+    }
+
+    .matching-container {
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        padding: 40px 0;
+    }
+
+    .quiz-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 40px;
+        padding: 60px;
+        box-shadow: var(--premium-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        max-width: 900px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .progress-wrapper {
+        margin-bottom: 50px;
+    }
+    
+    .progress-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+        display: block;
+        text-align: center;
+    }
+
+    .progress-container {
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--re7la-blue), var(--re7la-green));
+        border-radius: 10px;
+        transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .quiz-step {
+        display: none;
+        animation: slideUpFade 0.6s ease;
+    }
+
+    .quiz-step.active {
+        display: block;
+    }
+
+    .quiz-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--dark-blue);
+        margin-bottom: 40px;
+        text-align: center;
+        letter-spacing: -1px;
+    }
+
+    .option-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+    }
+
+    .option-card {
+        background: white;
+        border: 2px solid transparent;
+        border-radius: 28px;
+        padding: 40px 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .option-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        border-color: var(--re7la-blue);
+    }
+
+    .option-card.selected {
+        background: var(--dark-blue);
+        border-color: var(--dark-blue);
+    }
+
+    .option-card.selected .option-title, 
+    .option-card.selected .option-desc {
+        color: white;
+    }
+
+    .option-card.selected .option-icon {
+        background: var(--re7la-blue);
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .option-icon {
+        width: 80px;
+        height: 80px;
+        background: #f1f5f9;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        margin: 0 auto 25px;
+        color: var(--dark-blue);
+        transition: all 0.4s ease;
+    }
+
+    .option-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark-blue);
+        margin-bottom: 10px;
+        transition: color 0.3s;
+    }
+
+    .option-desc {
+        font-size: 0.9rem;
+        color: #64748b;
+        line-height: 1.5;
+        transition: color 0.3s;
+    }
+
+    /* Result page styles */
+    .result-hero {
+        background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('{{ top.image|default('') }}');
+        background-size: cover;
+        background-position: center;
+        border-radius: 40px;
+        padding: 100px 40px;
+        color: white;
+        text-align: center;
+        margin-bottom: 60px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+    }
+
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .match-score-badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(15px);
+        padding: 15px 30px;
+        border-radius: 99px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        font-size: 1.5rem;
+        border: 1px solid rgba(255,255,255,0.3);
+        margin-bottom: 20px;
+        box-shadow: 0 0 30px var(--re7la-blue-glow);
+    }
+
+    .alternative-card {
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: var(--card-shadow);
+        transition: 0.3s;
+        border: 1px solid #f1f5f9;
+    }
+
+    .alternative-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .btn-re7la {
+        background: linear-gradient(135deg, var(--re7la-blue), var(--re7la-green));
+        color: white;
+        border: none;
+        padding: 14px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        transition: 0.3s;
+    }
+
+    .btn-re7la:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 25px rgba(135, 206, 235, 0.4);
+        color: white;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleDown {
+        from { transform: scale(1.1); }
+        to { transform: scale(1); }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="matching-container">
+    <div class="container">
+        
+        {% if step == 'quiz' %}
+        <div class="quiz-card" data-aos="zoom-in">
+            <div class="progress-wrapper">
+                <span class="progress-label" id="progressLabel">Étape 1 sur 3</span>
+                <div class="progress-container">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 33%"></div>
+                </div>
+            </div>
+
+            <form id="matchingForm" action="{{ path('app_matching_result') }}" method="POST">
+                <!-- Step 1: Budget -->
+                <div class="quiz-step active" id="step1">
+                    <h2 class="quiz-title">Quel est votre budget pour ce voyage ?</h2>
+                    <div class="option-grid">
+                        <div class="option-card" onclick="selectOption('budget', 'low', 1, this)">
+                            <div class="option-icon"><i class="fas fa-wallet"></i></div>
+                            <div class="option-title">Moins de 200 DT</div>
+                            <p class="option-desc">Idéal pour une escapade authentique et économique.</p>
+                        </div>
+                        <div class="option-card" onclick="selectOption('budget', 'medium', 1, this)">
+                            <div class="option-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="option-title">200 – 500 DT</div>
+                            <p class="option-desc">Un équilibre parfait entre confort et découverte.</p>
+                        </div>
+                        <div class="option-card" onclick="selectOption('budget', 'high', 1, this)">
+                            <div class="option-icon"><i class="fas fa-gem"></i></div>
+                            <div class="option-title">Plus de 500 DT</div>
+                            <p class="option-desc">Une expérience premium et luxueuse sans compromis.</p>
+                        </div>
+                        <input type="hidden" name="budget" id="input_budget">
+                    </div>
+                </div>
+
+                <!-- Step 2: Ambiance -->
+                <div class="quiz-step" id="step2">
+                    <h2 class="quiz-title">Quelle ambiance recherchez-vous ?</h2>
+                    <div class="option-grid">
+                        <div class="option-card" onclick="selectOption('ambiance', 'calme', 2, this)">
+                            <div class="option-icon"><i class="fas fa-spa"></i></div>
+                            <div class="option-title">Calme & Détente</div>
+                            <p class="option-desc">Pour se ressourcer loin de l'agitation quotidienne.</p>
+                        </div>
+                        <div class="option-card" onclick="selectOption('ambiance', 'festif', 2, this)">
+                            <div class="option-icon"><i class="fas fa-cocktail"></i></div>
+                            <div class="option-title">Festif & Sorties</div>
+                            <p class="option-desc">Vie nocturne, rencontres et énergie débordante.</p>
+                        </div>
+                        <div class="option-card" onclick="selectOption('ambiance', 'nature', 2, this)">
+                            <div class="option-icon"><i class="fas fa-leaf"></i></div>
+                            <div class="option-title">Nature & Respiration</div>
+                            <p class="option-desc">Grands espaces, air pur et paysages sauvages.</p>
+                        </div>
+                        <div class="option-card" onclick="selectOption('ambiance', 'aventure', 2, this)">
+                            <div class="option-icon"><i class="fas fa-mountain"></i></div>
+                            <div class="option-title">Aventure & Sport</div>
+                            <p class="option-desc">Adrénaline, exploration et activités physiques.</p>
+                        </div>
+                        <input type="hidden" name="ambiance" id="input_ambiance">
+                    </div>
+                </div>
+
+                <!-- Step 3: Duration -->
+                <div class="quiz-step" id="step3">
+                    <h2 class="quiz-title">Combien de temps partirez-vous ?</h2>
+                    <div class="option-grid">
+                        <div class="option-card" onclick="selectOption('duration', 'short', 3, this)">
+                            <div class="option-icon"><i class="fas fa-calendar-day"></i></div>
+                            <div class="option-title">1 – 2 jours</div>
+                            <p class="option-desc">Un weekend express pour déconnecter rapidement.</p>
+                        </div>
+                        <div class="option-card" onclick="selectOption('duration', 'mid', 3, this)">
+                            <div class="option-icon"><i class="fas fa-calendar-week"></i></div>
+                            <div class="option-title">3 – 5 jours</div>
+                            <p class="option-desc">Une vraie coupure pour explorer en profondeur.</p>
+                        </div>
+                        <div class="option-card" onclick="selectOption('duration', 'long', 3, this)">
+                            <div class="option-icon"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="option-title">Plus d'une semaine</div>
+                            <p class="option-desc">Une immersion totale dans la culture locale.</p>
+                        </div>
+                        <input type="hidden" name="duration" id="input_duration">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {% else %}
+        <!-- Step: Result -->
+        <div class="result-hero" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('{{ top.image }}');">
+            <div data-aos="fade-down">
+                <div class="match-score-badge">
+                    <i class="fas fa-magic"></i> Match à {{ top.match_score * 10 }}%
+                </div>
+                <h1 class="display-3 fw-bold mb-3" style="font-family: 'Outfit', sans-serif;">Destination parfaite : {{ top.name }}</h1>
+                <p class="lead mb-4 mx-auto" style="max-width: 700px; opacity: 0.9;">{{ top.description }}</p>
+                
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ path('app_hebergements_search', {titre: top.name}) }}" class="btn btn-re7la btn-lg">Voir les hébergements</a>
+                    <button class="btn btn-light btn-lg rounded-pill fw-bold" style="color: var(--dark-blue);">Ajouter au trip</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="alternative-card text-center" data-aos="fade-up">
+                    <div class="text-muted mb-2 small fw-bold text-uppercase">Budget Moyen</div>
+                    <h4 class="fw-bold" style="color: var(--dark-blue);">{{ top.budget_avg }}</h4>
+                    <p class="mb-0 text-muted">Par personne</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alternative-card text-center" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-muted mb-2 small fw-bold text-uppercase">Meilleure Période</div>
+                    <h4 class="fw-bold" style="color: var(--dark-blue);">{{ top.best_period }}</h4>
+                    <p class="mb-0 text-muted">Météo idéale</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alternative-card text-center" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-muted mb-2 small fw-bold text-uppercase">Météo en Direct</div>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <h4 class="fw-bold m-0" style="color: var(--dark-blue);">24°C</h4>
+                        <i class="fas fa-sun text-warning"></i>
+                    </div>
+                    <p class="mb-0 text-muted">Ciel dégagé</p>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="fw-bold mb-4 mt-5" style="font-family: 'Outfit', sans-serif;">Alternatives recommandées</h3>
+        <div class="row g-4">
+            {% for alt in alternatives %}
+            <div class="col-md-6">
+                <div class="alternative-card d-flex gap-4 align-items-center" data-aos="fade-right">
+                    <div style="width: 120px; height: 120px; border-radius: 18px; overflow: hidden; flex-shrink: 0;">
+                        <img src="{{ alt.image }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div>
+                        <div class="badge bg-light text-primary mb-2">Match {{ alt.match_score * 10 }}%</div>
+                        <h4 class="fw-bold mb-1">{{ alt.name }}</h4>
+                        <p class="text-muted small mb-2 line-clamp-2">{{ alt.description }}</p>
+                        <a href="{{ path('app_hebergements_search', {titre: alt.name}) }}" class="text-decoration-none fw-bold" style="color: var(--re7la-blue);">Explorer <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ path('app_matching_quiz') }}" class="btn btn-outline-secondary rounded-pill px-4">Refaire le test</a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+    function selectOption(category, value, currentStep, element) {
+        // Update input
+        document.getElementById('input_' + category).value = value;
+        
+        // Visual selection
+        const stepElement = document.getElementById('step' + currentStep);
+        stepElement.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+        if (element) {
+            element.classList.add('selected');
+        }
+
+        // Go to next step if not final, else submit
+        if (currentStep < 3) {
+            setTimeout(() => {
+                goToStep(currentStep + 1);
+            }, 400);
+        } else {
+            setTimeout(() => {
+                document.getElementById('matchingForm').submit();
+            }, 400);
+        }
+    }
+
+    function goToStep(step) {
+        document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + step).classList.add('active');
+        
+        // Update progress bar
+        const progress = (step / 3) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+        
+        // Update label
+        document.getElementById('progressLabel').innerText = `Étape ${step} sur 3`;
+    }
+</script>
+{% endblock %}

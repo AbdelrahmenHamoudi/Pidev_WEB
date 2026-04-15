@@ -133,14 +133,6 @@
 
             <!-- Action Buttons -->
             <div style="display:flex;gap:8px;border-top:1px solid #e8ecf0;padding-top:16px;">
-              {% if 'CONFIRM' not in r_statut %}
-              <form method="post" action="{{ path('app_admin_reservation_confirm', {id: reservation.id}) }}" style="flex:1;">
-                <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ reservation.id) }}">
-                <button type="submit" class="action-btn confirm-btn" style="width:100%;" onclick="return confirm('Confirmer cette réservation ?')">
-                  <i class="fas fa-check"></i> CONFIRMER
-                </button>
-              </form>
-              {% endif %}
               <form method="post" action="{{ path('app_admin_reservation_cancel', {id: reservation.id}) }}" style="flex:1;">
                 <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
                 <button type="submit" class="action-btn reject-btn" style="width:100%;" onclick="return confirm('Êtes-vous sûr de vouloir SUPPRIMER définitivement cette réservation ?')">
