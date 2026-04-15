@@ -14,8 +14,6 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-<<<<<<< Updated upstream
-=======
         # Firewall pour l'inscription API (public, pas de sécurité)
         api_register:
             pattern: ^/api/register
@@ -54,7 +52,6 @@ security:
             jwt: ~
 
         # Ton firewall web existant (intact)
->>>>>>> Stashed changes
         main:
             lazy: true
             provider: app_user_provider
@@ -70,13 +67,6 @@ security:
                 target: app_login
 
     access_control:
-<<<<<<< Updated upstream
-        - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
-        - { path: ^/account, roles: ROLE_USER }
-        - { path: ^/admin, roles: ROLE_ADMIN }
-=======
     - { path: ^/api/login, roles: PUBLIC_ACCESS }
     - { path: ^/api/register, roles: PUBLIC_ACCESS }
     - { path: ^/api/test-email, roles: PUBLIC_ACCESS }
@@ -93,7 +83,6 @@ security:
     - { path: ^/2fa, roles: PUBLIC_ACCESS }
     - { path: ^/face-login, roles: PUBLIC_ACCESS }
     - { path: ^/face-api, roles: PUBLIC_ACCESS }
->>>>>>> Stashed changes
 
 when@test:
     security:

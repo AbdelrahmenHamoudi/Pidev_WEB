@@ -186,108 +186,6 @@
 
         main.site-main { padding-top: calc(var(--navbar-height) + 24px); }
 
-        .hero-section {
-            min-height: calc(100vh - var(--navbar-height));
-            background: linear-gradient(135deg, rgba(135, 206, 235, 0.1), rgba(147, 197, 114, 0.1));
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-        }
-
-        .hero-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3') center/cover;
-            opacity: 0.15;
-        }
-
-        .hero-content { position: relative; z-index: 2; }
-        .hero-title { font-size: 4.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
-
-        .hero-title .gradient-text {
-            background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache), var(--rouge));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle { font-size: 1.3rem; color: #666; margin-bottom: 40px; font-weight: 400; }
-
-        .booking-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .booking-card h3 { color: var(--dark); font-weight: 700; margin-bottom: 30px; text-align: center; }
-
-        .form-control-re7la {
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 15px 20px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-control-re7la:focus { border-color: var(--bleu-ceil); box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.2); }
-
-        .btn-rechercher {
-            background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 16px;
-            width: 100%;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-rechercher:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(135, 206, 235, 0.4); }
-
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-        .floating-shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 20s infinite ease-in-out;
-        }
-
-        .shape-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--bleu-ceil);
-            top: -200px;
-            right: -100px;
-            animation-delay: 0s;
-        }
-
-        .shape-2 {
-            width: 300px;
-            height: 300px;
-            background: var(--vert-pistache);
-            bottom: -150px;
-            left: -100px;
-            animation-delay: 5s;
-        }
-
-        .shape-3 {
-            width: 200px;
-            height: 200px;
-            background: var(--rouge);
-            top: 50%;
-            left: 10%;
-            animation-delay: 10s;
-        }
-=======
         .btn-localization-trigger {
             background: rgba(135, 206, 235, 0.1);
             color: var(--bleu-ceil-dark) !important;
@@ -315,15 +213,10 @@
         .loc-flag { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 15px; }
         html[dir="rtl"] .loc-flag { margin-right: 0; margin-left: 15px; }
 
->>>>>>> 22258ed ( integration user + hebergement)
         .floating-shape { position: absolute; border-radius: 50%; opacity: 0.1; animation: float 20s infinite ease-in-out; }
         .shape-1 { width: 400px; height: 400px; background: var(--bleu-ceil); top: -200px; right: -100px; animation-delay: 0s; }
         .shape-2 { width: 300px; height: 300px; background: var(--vert-pistache); bottom: -150px; left: -100px; animation-delay: 5s; }
         .shape-3 { width: 200px; height: 200px; background: var(--rouge); top: 50%; left: 10%; animation-delay: 10s; }
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> 22258ed ( integration user + hebergement)
 
         @keyframes float {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -377,14 +270,10 @@
                         <a class="nav-link" href="#services">Services</a>
                     </li>
                     <li class="nav-item">
-<<<<<<< HEAD
                         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'activite_index_front' ? 'active' : '' }}" href="{{ path('activite_index_front') }}">Activités</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_hebergements_search' ? 'active' : '' }}" href="{{ path('app_hebergements_search') }}">Réservation</a>
-=======
                         <a class="nav-link {{ app.request.attributes.get('_route') == 'app_hebergements_search' ? 'active' : '' }}" href="{{ path('app_hebergements_search') }}">Hébergements</a>
->>>>>>> 22258ed ( integration user + hebergement)
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_trajet' ? 'active' : '' }}" href="{{ path('app_trajet') }}">Mes Trajets</a>
@@ -523,14 +412,6 @@
                     <h5 style="font-weight: 600; margin-bottom: 20px; color: var(--vert-pistache);">Liens rapides</h5>
                     <ul style="list-style: none; padding: 0;">
                         <li style="margin-bottom: 10px;"><a href="{{ path('app_home') }}" style="color: #aaa; text-decoration: none;">Accueil</a></li>
-<<<<<<< HEAD
-
-=======
-<<<<<<< Updated upstream
-                        <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">Destinations</a></li>
-=======
->>>>>>> Stashed changes
->>>>>>> 22258ed ( integration user + hebergement)
                         <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">Services</a></li>
                         <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">Contact</a></li>
                     </ul>
@@ -729,9 +610,4 @@
     </script>
     {% block javascripts %}{% endblock %}
 </body>
-<<<<<<< HEAD
 </html>
-=======
-</html>>
-</html>
->>>>>>> 22258ed ( integration user + hebergement)
