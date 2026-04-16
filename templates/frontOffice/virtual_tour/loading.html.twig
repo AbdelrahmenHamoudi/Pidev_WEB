@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+{% block title %}RE7LA — Visite Virtuelle {{ lieu }}{% endblock %}
+
+{% block body %}
+<div id="loading" style="min-height:100vh;display:flex;align-items:center;
+     justify-content:center;flex-direction:column;gap:20px;">
+    <div style="font-size:60px;">🎬</div>
+    <h2 style="font-weight:800;color:var(--dark);">Génération en cours...</h2>
+    <p style="color:#888;">Notre IA prépare votre visite de <strong>{{ lieu }}</strong></p>
+    <div class="spinner-border" style="color:var(--bleu-ceil);width:48px;height:48px;" role="status"></div>
+</div>
+
+<div id="tour" style="display:none;">
+
+    {# ── Diaporama photos ── #}
+    <section style="padding:80px 0 40px;">
+        <div class="container">
+            <div id="slideshow" style="position:relative;border-radius:24px;overflow:hidden;
+                 height:480px;background:#000;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+
+                <div id="slides" style="display:flex;transition:transform 0.6s ease;height:100%;"></div>
+
+                {# Flèches navigation #}
+                <button onclick="changerSlide(-1)"
+                    style="position:absolute;left:20px;top:50%;transform:translateY(-50%);
+                           background:rgba(0,0,0,0.6);color:#fff;border:none;width:50px;
+                           height:50px;border-radius:50%;font-size:20px;cursor:pointer;z-index:10;">
+                    ◀
+                </button>
+                <button onclick="changerSlide(1)"
+                    style="position:absolute;right:20px;top:50%;transform:translateY(-50%);
+                           background:rgba(0,0,0,0.6);color:#fff;border:none;width:50px;
+                           height:50px;border-radius:50%;font-size:20px;cursor:pointer;z-index:10;">
+                    ▶
+                </button>
+
+                {# Compteur #}
+                <div id="counter"
+                    style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.7);
+                           color:#fff;padding:6px 14px;border-radius:20px;font-size:14px;font-weight:600;">
+                    1/6
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# ── Narration + Audio ── #}
+    <section style="padding:20px 0 80px;">
+        <div class="container" style="max-width:800px;">
+
+            {# Lecteur audio HTML5 #}
+            <div style="background:linear-gradient(135deg,var(--bleu-ceil),var(--vert-pistache));
+                        border-radius:20px;padding:24px;margin-bottom:24px;color:#fff;">
+                <h5 style="font-weight:700;margin-bottom:16px;">
+                    <i class="fas fa-headphones"></i> Narration Audio
+                </h5>
+                <audio id="audioPlayer" controls style="width:100%;border-radius:10px;">
+                    Votre navigateur ne supporte pas l'audio.
+                </audio>
+            </div>
+
+            {# Texte narration #}
+            <div style="background:#fff;border-radius:20px;padding:28px;
+                        box-shadow:0 4px 20px rgba(0,0,0,0.07);
+                        border-left:4px solid var(--bleu-ceil);">
+                <h5 style="font-weight:700;color:var(--dark);margin-bottom:12px;">
+                    <i class="fas fa-quote-left" style="color:var(--bleu-ceil);margin-right:8px;"></i>
+                    Narration
+                </h5>
+                <p id="narration" style="color:#555;line-height:1.9;font-size:15px;"></p>
+            </div>
+
+        </div>
+    </section>
+</div>
+
+<script>
+// ── Charger la visite via API ──────────────────────────────────────────────
+let indexActuel = 0;
+let photos = [];
+
+fetch('/visite-virtuelle/api/{{ lieu|url_encode }}')
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) return;
+
+        photos = data.photos;
+
+        // Construire les slides
+        const slidesEl = document.getElementById('slides');
+        photos.forEach((url, i) => {
+            const slide = document.createElement('div');
+            slide.style.cssText = 'min-width:100%;height:100%;';
+            slide.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;"
+                                    onerror="this.src='https://via.placeholder.com/1200x480?text=Photo+${i+1}'">`;
+            slidesEl.appendChild(slide);
+        });
+
+        // Narration
+        document.getElementById('narration').textContent = data.narration;
+
+        // Audio
+        if (data.audio) {
+            document.getElementById('audioPlayer').src = data.audio;
+        }
+
+        // Afficher le tour, cacher loading
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('tour').style.display = 'block';
+
+        // Auto-play diaporama
+        setInterval(() => changerSlide(1), 5000);
+    })
+    .catch(err => {
+        document.getElementById('loading').innerHTML =
+            '<p style="color:red;">Erreur de génération. Réessayez.</p>';
+    });
+
+// ── Navigation diaporama ───────────────────────────────────────────────────
+function changerSlide(direction) {
+    indexActuel = (indexActuel + direction + photos.length) % photos.length;
+    document.getElementById('slides').style.transform =
+        `translateX(-${indexActuel * 100}%)`;
+    document.getElementById('counter').textContent =
+        `${indexActuel + 1}/${photos.length}`;
+}
+</script>
+{% endblock %}

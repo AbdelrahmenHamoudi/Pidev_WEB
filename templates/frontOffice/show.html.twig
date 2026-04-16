@@ -496,7 +496,15 @@
 
   <div class="r7-scroll-hint">
     <div class="r7-scroll-arrow"><div class="r7-scroll-dot"></div></div>
-    <span>Découvrir</span>
+    <span>
+    <a href="{{ path('virtual_tour_generer', {lieu: activite.lieu}) }}"
+   style="background:linear-gradient(135deg,var(--bleu-ceil),var(--vert-pistache));
+          color:#fff;padding:14px 28px;border-radius:50px;
+          font-weight:600;font-size:15px;text-decoration:none;display:inline-flex;
+          align-items:center;gap:10px;">
+    <i class="fas fa-vr-cardboard"></i> Découvrir Visite Virtuelle
+</a>
+</span>
   </div>
 
   <svg class="r7-wave" viewBox="0 0 1440 90" preserveAspectRatio="none" style="height:60px;">

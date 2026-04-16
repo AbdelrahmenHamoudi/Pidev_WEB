@@ -64,10 +64,11 @@ class ActiviteType extends AbstractType
                 'attr'  => ['min' => 1],
                 'constraints' => [
                     new NotBlank(message: 'La capacité est obligatoire'),
-                    new Range(
-                        min: 1, minMessage: 'La capacité doit être au moins {{ limit }}',
-                        max: 1000, maxMessage: 'La capacité ne peut pas dépasser {{ limit }}'
-                    ),
+                    new Range([
+                        'min' => 1,
+                        'max' => 1000,
+                        'notInRangeMessage' => 'Entre {{ min }} et {{ max }}'
+                    ]),
                 ],
             ])
             ->add('type', ChoiceType::class, [

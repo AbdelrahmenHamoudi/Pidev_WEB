@@ -103,4 +103,31 @@ public function setImage(?string $image): self
 {
     return $this->planningactivites; // ou le nom exact de ta propriété existante
 }
+
+#[ORM\Column(type: "string", length: 255)]
+private ?string $type = null;
+
+public function getType(): ?string
+{
+    return $this->type;
+}
+
+public function setType(?string $type): self
+{
+    $this->type = $type;
+    return $this;
+}
+#[ORM\Column(type: "string", length: 255, nullable: true)]
+private ?string $statut = null;
+
+public function getStatut(): ?string
+{
+    return $this->statut;
+}
+
+public function setStatut(?string $statut): self
+{
+    $this->statut = $statut;
+    return $this;
+}
 }

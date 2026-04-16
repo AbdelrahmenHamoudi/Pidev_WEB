@@ -52,7 +52,12 @@ class Promotion
 
     /** Réduction en %  */
     #[ORM\Column(type: 'float', nullable: true)]
-    #[Assert\Range(min: 1, max: 100, notInRangeMessage: 'La réduction doit être entre {{ min }}% et {{ max }}%')]
+    #[Assert\Range(
+        min: 1, 
+        max: 100, 
+        notInRangeMessage: 
+        'La réduction doit être entre {{ min }}% et {{ max }}%'
+        )]
     private ?float $discountPercentage = null;
 
     /** Réduction montant fixe en DT */
