@@ -48,6 +48,7 @@ security:
         api:
             pattern: ^/api
             stateless: true
+            security: false
             provider: app_user_provider
             jwt: ~
 
@@ -83,6 +84,8 @@ security:
     - { path: ^/2fa, roles: PUBLIC_ACCESS }
     - { path: ^/face-login, roles: PUBLIC_ACCESS }
     - { path: ^/face-api, roles: PUBLIC_ACCESS }
+    - { path: ^/api/ably, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:

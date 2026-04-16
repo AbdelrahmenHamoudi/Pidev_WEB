@@ -46,3 +46,17 @@ services:
     App\Service\Hebergement\TravelIntelligenceService:
         arguments:
             $rapidApiKey: '%env(RAPIDAPI_KEY)%'
+
+    # Configuration de Messenger Ably        
+    App\Service\AblyService:
+        arguments:
+            $apiKey: '%env(ABLY_API_KEY)%'  
+
+    #Configuration de ChatBot de Communaute
+    App\Service\CommunityChatbotService:
+        autowire: true
+        autoconfigure: true      
+
+    App\Service\CommunauteChatbotService:
+        arguments:
+            $huggingfaceApiToken: '%env(HUGGINGFACE_API_TOKEN)%'              

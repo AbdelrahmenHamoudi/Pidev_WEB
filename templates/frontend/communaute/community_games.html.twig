@@ -1,0 +1,526 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Jeux - Communauté RE7LA{% endblock %}
+
+{% block extra_styles %}
+.game-hero {
+    background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1));
+    border-bottom: 1px solid rgba(99,102,241,0.2);
+    padding: 48px 0 36px;
+    margin-bottom: 20px;
+}
+.game-hero h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+.game-hero p {
+    color: #64748b;
+    font-size: 1.05rem;
+}
+.game-section {
+    padding: 20px 0 60px;
+}
+.game-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+.game-tab {
+    padding: 12px 24px;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 50px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.game-tab:hover {
+    border-color: var(--bleu-ceil);
+    color: var(--bleu-ceil-dark);
+}
+.game-tab.active {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    border-color: transparent;
+    color: white;
+}
+.game-container {
+    background: white;
+    border-radius: 28px;
+    padding: 40px;
+    box-shadow: 0 8px 40px rgba(44,62,80,0.09);
+    border: 1px solid rgba(44,62,80,0.06);
+}
+.game-board-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+/* Tic-Tac-Toe Board Styles */
+.tictactoe-board {
+    display: inline-block;
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+}
+.board-row {
+    display: flex;
+}
+.board-cell {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    color: #1e293b;
+}
+.board-cell:hover {
+    background: #f8fafc;
+    border-color: #6366f1;
+}
+.board-cell.X {
+    color: #3b82f6;
+}
+.board-cell.O {
+    color: #ef4444;
+}
+.board-cell:first-child { border-left: none; }
+.board-cell:last-child { border-right: none; }
+.board-row:first-child .board-cell { border-top: none; }
+.board-row:last-child .board-cell { border-bottom: none; }
+.game-info {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 50px;
+}
+.game-status {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.player-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+}
+.player-indicator.X {
+    background: rgba(59,130,246,0.1);
+    color: #3b82f6;
+}
+.player-indicator.O {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+}
+.game-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+}
+.game-btn {
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.game-btn-primary {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+}
+.game-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(99,102,241,0.3);
+}
+.game-btn-secondary {
+    background: #f1f5f9;
+    color: #64748b;
+}
+.game-btn-secondary:hover {
+    background: #e2e8f0;
+}
+.coming-soon {
+    text-align: center;
+    padding: 60px 20px;
+    color: #94a3b8;
+}
+.coming-soon i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+.coming-soon h3 {
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--bleu-ceil-dark);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: gap 0.2s;
+}
+.back-link:hover {
+    gap: 12px;
+}
+@media (max-width: 600px) {
+    .board-cell {
+        width: 80px;
+        height: 80px;
+        font-size: 36px;
+    }
+    .game-container {
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="game-hero">
+    <div class="container">
+        <a href="{{ path('app_communaute_index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour à la communauté
+        </a>
+        <h1 style="margin-top:16px;" data-aos="fade-right">
+            <i class="fas fa-gamepad me-3" style="background:linear-gradient(135deg,#6366f1,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>
+            Espace Jeux
+        </h1>
+        <p data-aos="fade-right" data-aos-delay="80">Détendez-vous avec des jeux classiques entre membres de la communauté !</p>
+    </div>
+</div>
+
+<div class="container game-section">
+    <div class="game-tabs" data-aos="fade-up">
+        <button class="game-tab active" data-game="tictactoe">
+            <i class="fas fa-times"></i>
+            <i class="fas fa-circle"></i>
+            Tic-Tac-Toe
+        </button>
+        <button class="game-tab" data-game="coming1">
+            <i class="fas fa-chess-board"></i>
+            Puissance 4
+        </button>
+        <button class="game-tab" data-game="coming2">
+            <i class="fas fa-dice"></i>
+            Memory
+        </button>
+    </div>
+
+    <div class="game-container" data-aos="fade-up" data-aos-delay="100">
+        {# Tic-Tac-Toe Game #}
+        <div id="tictactoe-game" class="game-content">
+            <div class="game-info">
+                <div class="game-status" id="gameStatus">
+                    <span class="player-indicator X" id="playerXIndicator">
+                        <i class="fas fa-times"></i> Joueur X
+                    </span>
+                    <span>VS</span>
+                    <span class="player-indicator O" id="playerOIndicator">
+                        <i class="fas fa-circle"></i> Joueur O
+                    </span>
+                </div>
+                <div id="turnIndicator" style="margin-top:12px;font-size:14px;color:#64748b;">
+                    Tour du Joueur <span id="currentPlayerDisplay">X</span>
+                </div>
+            </div>
+            
+            <div class="game-board-wrapper">
+                <div class="tictactoe-board" id="tictactoeBoard"></div>
+            </div>
+            
+            <div class="game-actions">
+                <button class="game-btn game-btn-primary" id="resetGameBtn">
+                    <i class="fas fa-redo-alt"></i> Nouvelle partie
+                </button>
+            </div>
+        </div>
+
+        {# Coming Soon Games #}
+        <div id="coming1-game" class="game-content" style="display:none;">
+            <div class="coming-soon">
+                <i class="fas fa-chess-board"></i>
+                <h3>Puissance 4</h3>
+                <p>Bientôt disponible !</p>
+            </div>
+        </div>
+        <div id="coming2-game" class="game-content" style="display:none;">
+            <div class="coming-soon">
+                <i class="fas fa-dice"></i>
+                <h3>Memory</h3>
+                <p>Bientôt disponible !</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/boardgame.io@0.50.0/dist/boardgameio.min.js"></script>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Game Definition
+    const TicTacToe = {
+        name: 'tic-tac-toe',
+        
+        setup: () => ({
+            cells: Array(9).fill(null),
+        }),
+        
+        moves: {
+            clickCell: ({ G, playerID }, id) => {
+                if (G.cells[id] !== null) {
+                    return boardgameio.INVALID_MOVE;
+                }
+                G.cells[id] = playerID;
+            },
+        },
+        
+        turn: {
+            moveLimit: 1,
+        },
+        
+        endIf: ({ G, ctx }) => {
+            if (IsVictory(G.cells)) {
+                return { winner: ctx.currentPlayer };
+            }
+            if (IsDraw(G.cells)) {
+                return { draw: true };
+            }
+        },
+        
+        ai: {
+            enumerate: (G, ctx) => {
+                let moves = [];
+                for (let i = 0; i < 9; i++) {
+                    if (G.cells[i] === null) {
+                        moves.push({ move: 'clickCell', args: [i] });
+                    }
+                }
+                return moves;
+            },
+        },
+    };
+    
+    // Victory condition
+    function IsVictory(cells) {
+        const positions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+            [0, 4, 8], [2, 4, 6]             // diagonals
+        ];
+        
+        return positions.some(row => {
+            const symbols = row.map(i => cells[i]);
+            return symbols.every(i => i !== null && i === symbols[0]);
+        });
+    }
+    
+    // Draw condition
+    function IsDraw(cells) {
+        return cells.every(c => c !== null);
+    }
+    
+    // Game state
+    let client;
+    let currentState;
+    let unsubscribe;
+    
+    // DOM Elements
+    const boardEl = document.getElementById('tictactoeBoard');
+    const gameStatus = document.getElementById('gameStatus');
+    const turnIndicator = document.getElementById('turnIndicator');
+    const currentPlayerDisplay = document.getElementById('currentPlayerDisplay');
+    const resetBtn = document.getElementById('resetGameBtn');
+    const playerXIndicator = document.getElementById('playerXIndicator');
+    const playerOIndicator = document.getElementById('playerOIndicator');
+    
+    // Initialize game
+    function initGame() {
+        if (client) {
+            if (unsubscribe) unsubscribe();
+            client.stop();
+        }
+        
+        client = boardgameio.Client({
+            game: TicTacToe,
+            numPlayers: 2,
+        });
+        
+        client.start();
+        
+        unsubscribe = client.subscribe(state => {
+            currentState = state;
+            renderBoard();
+            updateUI();
+        });
+        
+        renderBoard();
+        updateUI();
+    }
+    
+    // Render the game board
+    function renderBoard() {
+        if (!boardEl || !currentState) return;
+        
+        const cells = currentState.G.cells;
+        let html = '';
+        
+        for (let i = 0; i < 3; i++) {
+            html += '<div class="board-row">';
+            for (let j = 0; j < 3; j++) {
+                const id = 3 * i + j;
+                const value = cells[id];
+                const cellClass = value ? `board-cell ${value}` : 'board-cell';
+                const symbol = value === '0' ? 'O' : (value === '1' ? 'X' : '');
+                
+                html += `<div class="${cellClass}" data-id="${id}">${symbol}</div>`;
+            }
+            html += '</div>';
+        }
+        
+        boardEl.innerHTML = html;
+        
+        // Attach click handlers
+        boardEl.querySelectorAll('.board-cell').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const id = parseInt(cell.dataset.id);
+                handleCellClick(id);
+            });
+        });
+    }
+    
+    // Handle cell click
+    function handleCellClick(id) {
+        if (!currentState) return;
+        
+        // Check if game is over
+        if (currentState.ctx.gameover) return;
+        
+        // Check if cell is empty
+        if (currentState.G.cells[id] !== null) return;
+        
+        // Make move
+        client.moves.clickCell(id);
+    }
+    
+    // Update UI (status, turn indicator, etc.)
+    function updateUI() {
+        if (!currentState) return;
+        
+        const { ctx, G } = currentState;
+        
+        // Update turn indicator
+        if (ctx.gameover) {
+            if (ctx.gameover.winner !== undefined) {
+                const winnerSymbol = ctx.gameover.winner === '0' ? 'O' : 'X';
+                turnIndicator.innerHTML = `🎉 Partie terminée ! Le joueur <strong>${winnerSymbol}</strong> a gagné !`;
+            } else if (ctx.gameover.draw) {
+                turnIndicator.innerHTML = '🤝 Match nul !';
+            }
+        } else {
+            const currentPlayerSymbol = ctx.currentPlayer === '0' ? 'O' : 'X';
+            currentPlayerDisplay.textContent = currentPlayerSymbol;
+            turnIndicator.innerHTML = `C'est au tour du Joueur <strong>${currentPlayerSymbol}</strong>`;
+        }
+        
+        // Update player indicators
+        if (playerXIndicator && playerOIndicator) {
+            if (ctx.currentPlayer === '1' && !ctx.gameover) {
+                playerXIndicator.style.opacity = '1';
+                playerXIndicator.style.transform = 'scale(1.05)';
+                playerOIndicator.style.opacity = '0.5';
+                playerOIndicator.style.transform = 'scale(1)';
+            } else if (ctx.currentPlayer === '0' && !ctx.gameover) {
+                playerOIndicator.style.opacity = '1';
+                playerOIndicator.style.transform = 'scale(1.05)';
+                playerXIndicator.style.opacity = '0.5';
+                playerXIndicator.style.transform = 'scale(1)';
+            } else {
+                playerXIndicator.style.opacity = '0.7';
+                playerOIndicator.style.opacity = '0.7';
+            }
+        }
+    }
+    
+    // Reset game
+    function resetGame() {
+        if (client) {
+            if (unsubscribe) unsubscribe();
+            client.stop();
+        }
+        initGame();
+    }
+    
+    // Tab switching
+    function initTabs() {
+        const tabs = document.querySelectorAll('.game-tab');
+        const contents = {
+            'tictactoe': document.getElementById('tictactoe-game'),
+            'coming1': document.getElementById('coming1-game'),
+            'coming2': document.getElementById('coming2-game')
+        };
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const game = tab.dataset.game;
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show selected game content
+                Object.entries(contents).forEach(([key, el]) => {
+                    if (el) el.style.display = key === game ? 'block' : 'none';
+                });
+            });
+        });
+    }
+    
+    // Initialize everything
+    function init() {
+        initGame();
+        initTabs();
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', resetGame);
+        }
+    }
+    
+    init();
+})();
+</script>
+{% endblock %}

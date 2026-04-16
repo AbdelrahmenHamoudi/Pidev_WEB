@@ -245,13 +245,40 @@ textarea.form-input { resize: vertical; min-height: 110px; }
 </div>
 
 <script>
-    // Character counter
+    // Forbidden words list
+    const FORBIDDEN_WORDS = ['bhim', 'kalb', 'couchon'];
+    
+    function containsForbiddenWords(text) {
+        const lowerText = text.toLowerCase();
+        return FORBIDDEN_WORDS.filter(word => lowerText.includes(word));
+    }
+    
+    // Character counter with forbidden words check
     const desc = document.getElementById('DescriptionP');
     const counter = document.getElementById('descCounter');
+    
     desc?.addEventListener('input', () => {
         const len = desc.value.length;
         counter.textContent = len + ' / 200';
         counter.className = 'char-counter' + (len > 180 ? ' warn' : '') + (len >= 200 ? ' over' : '');
+        
+        // Check for forbidden words
+        const forbiddenFound = containsForbiddenWords(desc.value);
+        const submitBtn = document.querySelector('.btn-submit-pub');
+        
+        if (forbiddenFound.length > 0) {
+            desc.style.borderColor = 'var(--rouge)';
+            counter.insertAdjacentHTML('afterend', 
+                '<div style="color:var(--rouge);font-size:11px;margin-top:4px;" id="forbidden-warning">' +
+                '🚫 Mots interdits : ' + forbiddenFound.join(', ') +
+                '</div>');
+            if (submitBtn) submitBtn.disabled = true;
+        } else {
+            desc.style.borderColor = '';
+            const warning = document.getElementById('forbidden-warning');
+            if (warning) warning.remove();
+            if (submitBtn) submitBtn.disabled = false;
+        }
     });
 
     // Image preview
