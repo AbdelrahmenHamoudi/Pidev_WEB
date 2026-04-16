@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Activite;
 use App\Form\ActiviteType;
 use App\Service\ActiviteService;
+use App\Service\MeteoService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -123,7 +124,6 @@ class ActiviteController extends AbstractController
 
     // ══════════════════════════════════════════════════════
     //  FRONT OFFICE
-    //  IMPORTANT : /catalogue/new AVANT /catalogue/{id}
     // ══════════════════════════════════════════════════════
 
     // ── Catalogue (liste publique) ─────────────────────────
@@ -145,17 +145,21 @@ class ActiviteController extends AbstractController
     }
 
     // ── Detail public ──────────────────────────────────────
-    #[Route('/catalogue/{id}', name: 'activite_show_front', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function showFront(int $id): Response
-    {
-        $activite = $this->service->findById($id);
-
-        if (!$activite) {
-            throw $this->createNotFoundException("Activite introuvable");
-        }
-
-        return $this->render('frontOffice/show.html.twig', [
-            'activite' => $activite,
-        ]);
+    #[Route('/catalogue/{id}', name: 'activite_show_front', methods: ['GET'])]
+public function showFront(int $id, MeteoService $meteoService): Response
+{
+    $activite = $this->service->findById($id);
+    if (!$activite) {
+        throw $this->createNotFoundException("Activité introuvable");
     }
+
+    // Appel météo + géocodage
+    $meteoData = $meteoService->getMeteoEtCoordonnees($activite->getLieu());
+
+    return $this->render('frontOffice/show.html.twig', [
+        'activite' => $activite,
+        'meteo'    => $meteoData['meteo'],
+        'coords'   => $meteoData['coords'],
+    ]);
+}
 }

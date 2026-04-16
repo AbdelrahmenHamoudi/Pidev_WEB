@@ -18,3 +18,6 @@ services:
     App\Service\ActiviteService:
         arguments:
             $uploadDir: '%upload_directory%'
+    App\Service\MeteoService:
+        arguments:
+            $openweatherKey: '%env(OPENWEATHER_API_KEY)%'
