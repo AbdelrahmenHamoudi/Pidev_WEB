@@ -1,0 +1,29 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ directory configure your dependencies.
+
+parameters:
+    upload_directory: '%kernel.project_dir%/public/uploads/activite'
+    profile_images_directory: '%kernel.project_dir%/public/uploads/profiles'
+    publication_images_directory: '%kernel.project_dir%/public/uploads/publications'
+    qr_coder_api_key: '%env(QRCODER_API_KEY)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            string $qrCoderApiKey: '%qr_coder_api_key%'
+
+    # makes classes in src/ available to be used as services
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Configuration explicite pour ActiviteService
+    App\Service\ActiviteService:
+        arguments:
+            $uploadDir: '%upload_directory%'

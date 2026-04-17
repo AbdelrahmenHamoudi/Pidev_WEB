@@ -1,0 +1,324 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Détails Promotion - RE7LA Admin{% endblock %}
+{% block breadcrumb %}Promotions{% endblock %}
+{% block page_title %}Détails de la Promotion{% endblock %}
+
+{% block body %}
+
+{#
+  PAGE NOUVELLE : show.html.twig
+  Affiche tous les détails d'une promotion :
+    - Nom, description
+    - Période et statut (Active / Bientôt / Expirée) avec la bonne couleur
+    - Type (individuelle / pack) et réduction
+    - Offres incluses (1 offre pour individuelle, liste pour pack)
+  Boutons : Modifier | Retour | Supprimer
+#}
+
+{% set status       = promotion.status %}
+{% set statusColors = promotion.statusColors %}
+
+<div class="row">
+ <div class="col-md-8 mx-auto">
+
+  {# ── Header avec boutons ─────────────────────────────────────────────── #}
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <a href="{{ path('app_admin_promotion_list') }}"
+       style="color:#6c757d;text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px;">
+      <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+    <div style="display:flex;gap:10px;">
+      <a href="{{ path('app_admin_promotion_pdf', {id: promotion.id}) }}" target="_blank"
+         style="background:linear-gradient(135deg,#3498DB,#2980B9);color:#fff;padding:9px 20px;border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;display:flex;align-items:center;gap:6px;">
+        <i class="fas fa-file-pdf"></i> Exporter PDF
+      </a>
+      <a href="{{ path('app_admin_promotion_edit', {id: promotion.id}) }}"
+         style="background:linear-gradient(135deg,#F7B731,#E67E22);color:#fff;padding:9px 20px;border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;display:flex;align-items:center;gap:6px;">
+        <i class="fas fa-edit"></i> Modifier
+      </a>
+      <form method="post" action="{{ path('app_admin_promotion_delete', {id: promotion.id}) }}" style="display:inline;">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promotion.id) }}">
+        <button type="submit"
+          style="background:rgba(230,57,70,0.1);color:#e63946;border:1.5px solid rgba(230,57,70,0.2);padding:9px 20px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;"
+          onclick="return confirm('Supprimer la promotion « {{ promotion.name }} » ?')">
+          <i class="fas fa-trash-alt me-1"></i> Supprimer
+        </button>
+      </form>
+    </div>
+  </div>
+
+  {# ── Card principale ──────────────────────────────────────────────────── #}
+  <div class="card" style="border-radius:20px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.06);overflow:hidden;">
+
+    {# Image en-tête #}
+    {% if promotion.image %}
+      <div style="text-align:center; padding: 24px 24px 0;">
+        <img src="{{ asset(promotion.image) }}" alt="{{ promotion.name }}" style="width:100%; max-width:450px; height:250px; object-fit:cover; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.1);">
+      </div>
+    {% else %}
+      <div style="text-align:center; padding: 24px 24px 0;">
+        <div style="height:180px; max-width:450px; margin:0 auto; background:linear-gradient(135deg,#F7B731,#E67E22); border-radius:16px; display:flex; align-items:center; justify-content:center;">
+          <i class="fas fa-tags" style="font-size:3rem;color:rgba(255,255,255,0.5);"></i>
+        </div>
+      </div>
+    {% endif %}
+
+    <div style="padding:28px;">
+
+      {# ── Badges type + statut ─────────────────────────────────────────── #}
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+
+        {# Badge type promo #}
+        <span style="padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;
+          background:{{ promotion.isPack() ? 'rgba(26,188,156,0.12)' : 'rgba(52,152,219,0.12)' }};
+          color:{{ promotion.isPack() ? '#1ABC9C' : '#3498DB' }};">
+          {{ promotion.isPack() ? '📦 Pack' : '🎫 Individuelle' }}
+        </span>
+
+        {#
+          Badge statut dynamique :
+          vert   = Active (période en cours)
+          orange = Bientôt (période future)
+          rouge  = Expirée (période passée)
+        #}
+        <span style="padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;
+          background:{{ statusColors.bg }};color:{{ statusColors.color }};">
+          {{ promotion.statusLabel }}
+        </span>
+
+      </div>
+
+      {# ── Titre + Description ──────────────────────────────────────────── #}
+      <h2 style="font-size:22px;font-weight:700;color:#2C3E50;margin-bottom:8px;">{{ promotion.name }}</h2>
+
+      {% if promotion.description %}
+        <p style="color:#64748b;font-size:14px;line-height:1.6;margin-bottom:20px;">
+          {{ promotion.description }}
+        </p>
+      {% else %}
+        <p style="color:#94a3b8;font-size:13px;font-style:italic;margin-bottom:20px;">Aucune description.</p>
+      {% endif %}
+
+      {# ── Stats: Trending / Locked / Vues / Réservations ─────────────── #}
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+
+        {# Trending #}
+        <div style="background:{% if isTrending %}linear-gradient(135deg,#E53E3E,#C53030){% else %}#f8fafc{% endif %};border-radius:12px;padding:14px;border:1px solid {% if isTrending %}transparent{% else %}#e8ecf0{% endif %};text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">{% if isTrending %}🔥{% else %}💤{% endif %}</div>
+          <div style="font-size:11px;font-weight:700;color:{% if isTrending %}#fff{% else %}#94a3b8{% endif %};text-transform:uppercase;letter-spacing:0.5px;">Tendance</div>
+          <div style="font-size:13px;font-weight:700;color:{% if isTrending %}#fff{% else %}#2C3E50{% endif %};margin-top:4px;">{% if isTrending %}Oui{% else %}Non{% endif %}</div>
+        </div>
+
+        {# Locked #}
+        <div style="background:{% if promotion.isVerrouille() %}rgba(44,62,80,0.9){% else %}#f8fafc{% endif %};border-radius:12px;padding:14px;border:1px solid {% if promotion.isVerrouille() %}transparent{% else %}#e8ecf0{% endif %};text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">{% if promotion.isVerrouille() %}🔐{% else %}🔓{% endif %}</div>
+          <div style="font-size:11px;font-weight:700;color:{% if promotion.isVerrouille() %}#fff{% else %}#94a3b8{% endif %};text-transform:uppercase;letter-spacing:0.5px;">Verrouillée</div>
+          <div style="font-size:13px;font-weight:700;color:{% if promotion.isVerrouille() %}#fff{% else %}#2C3E50{% endif %};margin-top:4px;">{% if promotion.isVerrouille() %}Oui{% else %}Non{% endif %}</div>
+        </div>
+
+        {# Vues #}
+        <div style="background:#f8fafc;border-radius:12px;padding:14px;border:1px solid #e8ecf0;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">👁️</div>
+          <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Vues</div>
+          <div style="font-size:20px;font-weight:800;color:#3498DB;margin-top:4px;">{{ nbVues }}</div>
+        </div>
+
+        {# Réservations #}
+        <div style="background:#f8fafc;border-radius:12px;padding:14px;border:1px solid #e8ecf0;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">📦</div>
+          <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Réservations</div>
+          <div style="font-size:20px;font-weight:800;color:#1ABC9C;margin-top:4px;">{{ nbReservations }}</div>
+        </div>
+
+      </div>
+
+      {# ── Code Promo (si verrouillée) ─────────────────────────────────── #}
+      {% if promotion.isVerrouille() and promoCode %}
+      <div style="background:linear-gradient(135deg,rgba(229,57,70,0.07),rgba(243,156,18,0.07));border-radius:14px;padding:20px;margin-bottom:24px;border:1.5px solid rgba(229,57,70,0.2);">
+        <h5 style="font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:14px;">
+          <i class="fas fa-lock" style="color:#E53E3E;margin-right:6px;"></i> Code Promo Associé
+        </h5>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">Code</div>
+            <div style="font-size:20px;font-weight:800;color:#E53E3E;letter-spacing:2px;font-family:monospace;">{{ promoCode.code }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">
+              {% if promoCode.isUsed() %}
+                <span style="color:#e63946;">❌ Utilisé</span>
+              {% else %}
+                <span style="color:#1ABC9C;">✅ Disponible</span>
+              {% endif %}
+            </div>
+          </div>
+          {% if qrUrl %}
+          <div style="text-align:center;">
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:6px;">QR Code</div>
+            <img src="{{ qrUrl }}" alt="QR Code" style="width:120px;height:120px;border:2px solid #e8ecf0;border-radius:10px;">
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% elseif promotion.isVerrouille() %}
+      <div style="background:#fef3c7;border-radius:12px;padding:14px;margin-bottom:24px;border:1px solid #fbbf24;">
+        <i class="fas fa-exclamation-triangle" style="color:#f59e0b;margin-right:6px;"></i>
+        <span style="color:#92400e;font-size:13px;">Promotion verrouillée mais aucun code promo généré. 
+          <a href="{{ path('app_admin_promotion_generate_qr', {id: promotion.id}) }}" 
+             onclick="event.preventDefault(); generateQrFromShow({{ promotion.id }})"
+             style="color:#E53E3E;font-weight:600;">Générer maintenant</a>
+        </span>
+      </div>
+      {% endif %}
+
+      {# ── Grille de détails ───────────────────────────────────────────── #}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+
+        {# Réduction #}
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;border:1px solid #e8ecf0;">
+          <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+            <i class="fas fa-percent me-1"></i>Réduction
+          </div>
+          <div style="font-size:22px;font-weight:800;color:#F7B731;">{{ promotion.reductionLabel }}</div>
+          {% if promotion.discountPercentage and promotion.discountFixed %}
+            <small style="color:#94a3b8;font-size:11px;">Pourcentage + Fixe</small>
+          {% elseif promotion.discountPercentage %}
+            <small style="color:#94a3b8;font-size:11px;">Pourcentage</small>
+          {% elseif promotion.discountFixed %}
+            <small style="color:#94a3b8;font-size:11px;">Montant fixe</small>
+          {% endif %}
+        </div>
+
+        {# Statut détaillé #}
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;border:1px solid #e8ecf0;">
+          <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+            <i class="fas fa-info-circle me-1"></i>Statut
+          </div>
+          <div style="font-size:16px;font-weight:700;color:{{ statusColors.color }};">
+            {{ promotion.statusLabel }}
+          </div>
+          <small style="color:#94a3b8;font-size:11px;">
+            {% if status == 'upcoming' %}
+              Commence dans {{ promotion.startDate|date('d/m/Y') }}
+            {% elseif status == 'active' %}
+              Se termine le {{ promotion.endDate|date('d/m/Y') }}
+            {% else %}
+              Terminée le {{ promotion.endDate|date('d/m/Y') }}
+            {% endif %}
+          </small>
+        </div>
+
+        {# Date début #}
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;border:1px solid #e8ecf0;">
+          <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+            <i class="far fa-calendar-alt me-1"></i>Date de début
+          </div>
+          <div style="font-size:16px;font-weight:700;color:#2C3E50;">{{ promotion.startDate|date('d/m/Y') }}</div>
+        </div>
+
+        {# Date fin #}
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;border:1px solid #e8ecf0;">
+          <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+            <i class="far fa-calendar-check me-1"></i>Date de fin
+          </div>
+          <div style="font-size:16px;font-weight:700;color:#2C3E50;">{{ promotion.endDate|date('d/m/Y') }}</div>
+        </div>
+
+      </div>
+
+      {# ── Section Offres incluses ──────────────────────────────────────── #}
+      <div style="border-top:1px solid #f0f2f5;padding-top:20px;">
+        <h5 style="font-size:14px;font-weight:700;color:#2C3E50;margin-bottom:16px;">
+          <i class="fas fa-layer-group me-2" style="color:#F7B731;"></i>
+          {% if promotion.isPack() %}
+            Offres incluses dans le pack
+          {% else %}
+            Offre ciblée par la promotion
+          {% endif %}
+        </h5>
+
+        {% if promotion.isPack() %}
+
+          {# ── Pack : liste des items ──────────────────────────────────── #}
+          {% set packItems = promotion.packItemsDecoded %}
+          {% if packItems|length > 0 %}
+            {% for item in packItems %}
+              {% set icon  = item.type == 'hebergement' ? 'fa-home' : (item.type == 'activite' ? 'fa-hiking' : 'fa-car') %}
+              {% set color = item.type == 'hebergement' ? '#87CEEB' : (item.type == 'activite' ? '#1ABC9C' : '#F7B731') %}
+              {% set typeLabel = item.type == 'hebergement' ? 'Hébergement' : (item.type == 'activite' ? 'Activité' : 'Voiture') %}
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:#f8fafc;border-radius:12px;margin-bottom:8px;border:1px solid #e8ecf0;">
+                <div style="width:40px;height:40px;background:{{ color }};border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:0.85;">
+                  <i class="fas {{ icon }}" style="color:#fff;font-size:1rem;"></i>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-weight:600;color:#2C3E50;font-size:13px;">{{ item.label ?? (typeLabel ~ ' #' ~ item.id) }}</div>
+                  <div style="font-size:11px;color:#94a3b8;">{{ typeLabel }} — ID {{ item.id }}</div>
+                </div>
+                <span style="font-size:10px;background:{{ color }};color:#fff;padding:2px 8px;border-radius:20px;font-weight:600;opacity:0.85;">
+                  {{ typeLabel }}
+                </span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p style="color:#94a3b8;font-size:13px;font-style:italic;">Aucune offre enregistrée dans ce pack.</p>
+          {% endif %}
+
+        {% else %}
+
+          {# ── Individuelle : 1 offre ──────────────────────────────────── #}
+          {% if promotion.offerType and promotion.referenceId %}
+            {% set icon  = promotion.offerType == 'hebergement' ? 'fa-home' : (promotion.offerType == 'activite' ? 'fa-hiking' : 'fa-car') %}
+            {% set color = promotion.offerType == 'hebergement' ? '#87CEEB' : (promotion.offerType == 'activite' ? '#1ABC9C' : '#F7B731') %}
+            <div style="display:flex;align-items:center;gap:12px;padding:16px;background:#f8fafc;border-radius:12px;border:1.5px solid {{ color }};opacity:0.9;">
+              <div style="width:48px;height:48px;background:{{ color }};border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fas {{ icon }}" style="color:#fff;font-size:1.2rem;"></i>
+              </div>
+              <div style="flex:1;">
+                {% if offerDetail %}
+                  {# Affichage détaillé si l'objet a été trouvé en BD #}
+                  {% if promotion.offerType == 'hebergement' %}
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">{{ offerDetail.titre }}</div>
+                    <div style="font-size:12px;color:#64748b;">{{ offerDetail.typeHebergement }} — {{ offerDetail.prixParNuit }} DT/nuit</div>
+                  {% elseif promotion.offerType == 'activite' %}
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">{{ offerDetail.nomA }}</div>
+                    <div style="font-size:12px;color:#64748b;">{{ offerDetail.lieu }} — {{ offerDetail.prixParPersonne }} DT/pers</div>
+                  {% elseif promotion.offerType == 'voiture' %}
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">{{ offerDetail.marque }} {{ offerDetail.modele }}</div>
+                    <div style="font-size:12px;color:#64748b;">{{ offerDetail.immatriculation }} — {{ offerDetail.prix_KM }} DT/km</div>
+                  {% endif %}
+                {% else %}
+                  <div style="font-weight:600;color:#2C3E50;font-size:14px;">{{ promotion.offerTypeLabel }} #{{ promotion.referenceId }}</div>
+                  <div style="font-size:12px;color:#94a3b8;">Offre introuvable en base de données</div>
+                {% endif %}
+              </div>
+              <span style="font-size:11px;background:{{ color }};color:#fff;padding:3px 10px;border-radius:20px;font-weight:600;">
+                {{ promotion.offerTypeLabel }}
+              </span>
+            </div>
+          {% else %}
+            <p style="color:#94a3b8;font-size:13px;font-style:italic;">Aucune offre associée.</p>
+          {% endif %}
+
+        {% endif %}
+      </div>
+
+    </div>{# /padding #}
+  </div>{# /card #}
+
+ </div>
+</div>
+
+<script>
+function generateQrFromShow(promoId) {
+    fetch(`/admin/promotion/${promoId}/generate-qr`, {
+        method: "POST",
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) { location.reload(); }
+        else { alert("Erreur: " + (data.message || "Impossible de generer le QR")); }
+    });
+}
+</script>
+{% endblock %}
+

@@ -1,0 +1,204 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Détail Réservation - RE7LA{% endblock %}
+
+{% block body %}
+<section class="py-5" style="background:#f0f4f8; min-height:100vh;">
+<div class="container" style="max-width:700px;">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{{ path('promo_mes_reservations') }}"
+           style="background:#fff; border:2px solid #e8ecf0; color:#475569;
+                  border-radius:50px; padding:9px 20px; font-size:13px;
+                  font-weight:600; text-decoration:none;">
+            ← Retour
+        </a>
+        <h4 style="font-weight:800; color:#2c3e50; margin:0;">🔍 Détail de la réservation</h4>
+    </div>
+
+    <div style="background:#fff; border-radius:24px; box-shadow:0 8px 40px rgba(0,0,0,0.08);
+                 overflow:hidden;">
+
+        {# Bande de couleur #}
+        <div style="height:6px; background:{{
+            resa.offerType == 'hebergement' ? 'linear-gradient(90deg,#87CEEB,#5ba4d4)'
+            : resa.offerType == 'voiture' ? 'linear-gradient(90deg,#F7B731,#E67E22)'
+            : resa.offerType == 'activite' ? 'linear-gradient(90deg,#1ABC9C,#16a085)'
+            : 'linear-gradient(90deg,#9b59b6,#8e44ad)'
+        }};"></div>
+
+        <div class="p-4 p-lg-5">
+
+            {# ── En-tête ── #}
+            <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+                <div>
+                    <div style="font-size:13px; color:#94a3b8; font-weight:600; margin-bottom:4px;">
+                        Réservation #{{ resa.id }}
+                    </div>
+                    <h5 style="font-weight:800; color:#2c3e50; margin:0;">
+                        {% if resa.promotion %}{{ resa.promotion.name }}{% else %}Promotion supprimée{% endif %}
+                    </h5>
+                </div>
+                <div>
+                    <span style="padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700;
+                                  background:{{ resa.statut == 'EN_ATTENTE' ? 'rgba(247,183,49,0.15)' : 'rgba(26,188,156,0.15)' }};
+                                  color:{{ resa.statut == 'EN_ATTENTE' ? '#E67E22' : '#1ABC9C' }};">
+                        {{ resa.statut }}
+                    </span>
+                </div>
+            </div>
+
+            {# ── Détails de l'offre ── #}
+            <div style="background:#f8f9fa; border-radius:16px; padding:20px; margin-bottom:24px;">
+                <div style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase;
+                              letter-spacing:1px; margin-bottom:16px;">Détails de l'offre</div>
+
+                {% if resa.offerType == 'hebergement' %}
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">Type</div>
+                            <div style="font-weight:700; color:#2c3e50;">🏨 Hébergement</div>
+                        </div>
+                        {% if offerDetail %}
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">Établissement</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ offerDetail.titre }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">📅 Arrivée</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.dateDebut ? resa.dateDebut|date('d/m/Y') : '—' }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">📅 Départ</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.dateFin ? resa.dateFin|date('d/m/Y') : '—' }}</div>
+                        </div>
+                        {% if resa.dateDebut and resa.dateFin %}
+                        <div class="col-12">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">Durée</div>
+                            <div style="font-weight:700; color:#2c3e50;">
+                                {{ resa.dateDebut.diff(resa.dateFin).days }} nuit(s)
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                {% elseif resa.offerType == 'voiture' %}
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">Type</div>
+                            <div style="font-weight:700; color:#2c3e50;">🚗 Voiture</div>
+                        </div>
+                        {% if offerDetail %}
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">Véhicule</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ offerDetail.marque }} {{ offerDetail.modele }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">📍 Départ</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.pointDepart ?? '—' }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">📍 Arrivée</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.pointArrivee ?? '—' }}</div>
+                        </div>
+                        <div class="col-4">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">🛣️ Distance</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.distanceKm ?? 0 }} km</div>
+                        </div>
+                        <div class="col-4">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">👥 Personnes</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.nbPersonnes ?? 1 }}</div>
+                        </div>
+                        <div class="col-4">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">📅 Date</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.dateReservation ? resa.dateReservation|date('d/m/Y') : '—' }}</div>
+                        </div>
+                    </div>
+
+                {% elseif resa.offerType == 'activite' %}
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">Type</div>
+                            <div style="font-weight:700; color:#2c3e50;">🎯 Activité</div>
+                        </div>
+                        {% if offerDetail %}
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">Activité</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ offerDetail.nomA }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">📅 Date</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.dateActivite ? resa.dateActivite|date('d/m/Y') : '—' }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div style="font-size:12px; color:#94a3b8; margin-bottom:3px;">👥 Personnes</div>
+                            <div style="font-weight:700; color:#2c3e50;">{{ resa.nbPersonnes ?? 1 }}</div>
+                        </div>
+                    </div>
+
+                {% else %}{# pack #}
+                    <div style="font-weight:700; color:#2c3e50; margin-bottom:12px;">📦 Contenu du pack</div>
+                    {% for it in resa.packSnapshotDecoded %}
+                    <div style="border:1px solid #e8ecf0; border-radius:10px; padding:12px; margin-bottom:8px;">
+                        <div style="font-weight:700; color:#2c3e50; margin-bottom:6px;">
+                            {{ it.type == 'hebergement' ? '🏨' : it.type == 'voiture' ? '🚗' : '🎯' }}
+                            {{ it.label ?? it.type }}
+                        </div>
+                        {% if it.priceData is defined %}
+                        <div style="font-size:12px; color:#64748b;">
+                            Base: {{ it.priceData.base_price|number_format(2) }} DT
+                            | Réduction: -{{ it.priceData.discount|number_format(2) }} DT
+                            | <strong>{{ it.priceData.final_price|number_format(2) }} DT</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            {# ── Récap prix ── #}
+            <div style="border-top:2px dashed #e8ecf0; padding-top:20px; margin-bottom:20px;">
+                <div style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase;
+                              letter-spacing:1px; margin-bottom:14px;">Récapitulatif prix</div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span style="color:#64748b; font-size:14px;">Prix original</span>
+                    <span style="font-weight:700; color:#2c3e50;">{{ resa.prixOriginal|number_format(2) }} DT</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span style="color:#1ABC9C; font-size:14px;">Réduction appliquée</span>
+                    <span style="font-weight:700; color:#1ABC9C;">- {{ resa.reductionAppliquee|number_format(2) }} DT</span>
+                </div>
+                <div class="d-flex justify-content-between pt-2"
+                     style="border-top:1px solid #e8ecf0; margin-top:8px;">
+                    <span style="font-size:16px; font-weight:800; color:#2c3e50;">Total payé</span>
+                    <span style="font-size:22px; font-weight:800;
+                                  background:linear-gradient(135deg,#F7B731,#E67E22);
+                                  -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                        {{ resa.montantTotal|number_format(2) }} DT
+                    </span>
+                </div>
+            </div>
+
+            {# ── Timestamps + lock ── #}
+            <div style="font-size:12px; color:#94a3b8; line-height:2;">
+                <div>📆 Créée le <strong>{{ resa.createdAt|date('d/m/Y à H:i') }}</strong></div>
+                <div>🔄 Mise à jour le <strong>{{ resa.updatedAt|date('d/m/Y à H:i') }}</strong></div>
+                {% if not resa.editable %}
+                    <div style="color:#e63946; font-weight:600; margin-top:8px;">
+                        🔒 Cette réservation est verrouillée (délai de 24h dépassé)
+                    </div>
+                {% else %}
+                    <div style="color:#E67E22; font-weight:600; margin-top:8px;">
+                        ⏳ Modifiable encore {{ resa.remainingEditHours }}h
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+</section>
+{% endblock %}

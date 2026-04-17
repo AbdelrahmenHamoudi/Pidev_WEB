@@ -1,0 +1,378 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Réservation - RE7LA{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .search-page-container {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding-top: 40px;
+    }
+
+    /* TOP SEARCH BAR (PILL STYLE) */
+    .search-hero-pill {
+        background: white;
+        border-radius: 100px;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.03);
+        max-width: 950px;
+        margin: 0 auto 50px;
+    }
+
+    .pill-input-group {
+        flex: 1;
+        padding: 0 20px;
+        border-right: 1px solid #f1f5f9;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pill-input-group:last-of-type { border-right: none; }
+
+    .pill-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--dark);
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .pill-input {
+        border: none;
+        outline: none;
+        font-size: 0.9rem;
+        color: #475569;
+        background: transparent;
+        font-weight: 500;
+    }
+
+    .pill-search-btn {
+        background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+        color: white;
+        border: none;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(135, 206, 235, 0.3);
+    }
+
+    .pill-search-btn:hover { transform: scale(1.05); }
+
+    /* SIDEBAR */
+    .filter-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        position: sticky;
+        top: 120px;
+    }
+
+    .filter-section { margin-bottom: 24px; }
+    .filter-header { font-weight: 700; font-size: 0.9rem; color: var(--dark); margin-bottom: 12px; }
+
+    .filter-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+        color: #475569;
+        cursor: pointer;
+    }
+
+    .filter-check input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--bleu-ceil);
+    }
+
+    /* HORIZONTAL CARD */
+    .hotel-card-horiz {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        display: flex;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.03);
+        transition: transform 0.3s;
+    }
+
+    .hotel-card-horiz:hover { transform: translateY(-5px); }
+
+    .card-img-side {
+        width: 280px;
+        min-width: 280px;
+        position: relative;
+    }
+
+    .card-img-side img { width: 100%; height: 100%; object-fit: cover; }
+
+    .fav-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: white;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ef4444;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        cursor: pointer;
+    }
+
+    .card-content-side {
+        flex: 1;
+        padding: 24px 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .hotel-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .hotel-name { font-weight: 700; font-size: 1.25rem; color: var(--dark); margin: 0; }
+    .stars-box { color: #facc15; font-size: 0.8rem; margin-top: 4px; }
+
+    .hotel-loc { font-size: 0.85rem; color: #64748b; margin-top: 4px; font-weight: 500; }
+
+    .amenities-row { margin-top: 15px; display: flex; gap: 15px; color: #94a3b8; font-size: 0.8rem; font-weight: 500; }
+
+    .price-side-box { text-align: right; }
+    .price-val { font-size: 1.5rem; font-weight: 800; color: var(--dark); }
+    .price-info { font-size: 0.75rem; color: #94a3b8; margin-top: -4px; }
+
+    .btn-availability {
+        background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 24px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-top: 15px;
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-availability:hover { box-shadow: 0 4px 15px rgba(135, 206, 235, 0.4); transform: scale(1.02); color: white; }
+
+    .category-tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+    .tab-pill {
+        background: white;
+        padding: 8px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #64748b;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        text-decoration: none;
+    }
+    .tab-pill.active { background: var(--bleu-ceil); color: white; }
+
+    /* SORT DROPDOWN */
+    .sort-box { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--dark); font-weight: 700; }
+    .sort-select { 
+        border: none; background: transparent; font-weight: 800; color: #475569; outline: none; cursor: pointer;
+        appearance: none; -webkit-appearance: none; padding-right: 20px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right center;
+    }
+    .sort-select:hover { color: var(--bleu-ceil); }
+
+    /* SIDEBAR INPUTS */
+    .filter-input {
+        width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; padding: 12px 15px; font-size: 0.85rem; color: #475569;
+        background: #f8fafc; outline: none; transition: 0.3s; margin-bottom: 20px;
+    }
+    .filter-input:focus { border-color: var(--bleu-ceil); box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.1); }
+
+    @media (max-width: 768px) {
+        .hotel-card-horiz { flex-direction: column; }
+        .card-img-side { width: 100%; height: 200px; }
+        .search-hero-pill { flex-direction: column; border-radius: 30px; }
+        .pill-input-group { border-right: none; border-bottom: 1px solid #f1f5f9; width: 100%; padding: 15px; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="search-page-container">
+    <div class="container py-4">
+        
+        <!-- Search Pill -->
+        <form method="get" action="{{ path('app_hebergements_search') }}" class="search-hero-pill" data-aos="fade-down">
+            <div class="pill-input-group">
+                <span class="pill-label">Où allez-vous ?</span>
+                <input type="text" name="titre" class="pill-input" placeholder="Rechercher..." value="{{ current_titre }}">
+            </div>
+            <div class="pill-input-group">
+                <span class="pill-label">Dates</span>
+                <input type="text" name="dates" class="pill-input" placeholder="Ajouter des dates" onfocus="(this.type='date')">
+            </div>
+            <div class="pill-input-group">
+                <span class="pill-label">Voyageurs</span>
+                <input type="number" name="capacite" class="pill-input" placeholder="Personnes" value="{{ current_capacite }}">
+            </div>
+            <button type="submit" class="pill-search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <div class="filter-card shadow-sm" data-aos="fade-right">
+                    <form id="filterForm" method="get" action="{{ path('app_hebergements_search') }}">
+                        <div class="filter-section">
+                            <h6 class="filter-header">Filtrer par nom</h6>
+                            <input type="text" name="titre" value="{{ current_titre }}" class="filter-input" placeholder="Hébergement...">
+                        </div>
+
+                        <div class="filter-section">
+                            <h6 class="filter-header">Type d'établissement</h6>
+                            <label class="filter-check">
+                                <input type="radio" name="type" value="all" {{ current_type == 'all' or current_type is empty ? 'checked' : '' }}> Tous
+                            </label>
+                            <label class="filter-check">
+                                <input type="radio" name="type" value="Appartement" {{ current_type == 'Appartement' ? 'checked' : '' }}> Appart'hôtel
+                            </label>
+                            <label class="filter-check">
+                                <input type="radio" name="type" value="Hôtel" {{ current_type == 'Hôtel' ? 'checked' : '' }}> Hôtel
+                            </label>
+                            <label class="filter-check">
+                                <input type="radio" name="type" value="Maison d'hôtes" {{ current_type == "Maison d'hôtes" ? 'checked' : '' }}> Maison d'hôtes
+                            </label>
+                        </div>
+
+                        <div class="filter-section">
+                            <h6 class="filter-header">Capacité (personnes)</h6>
+                            <select name="capacite" class="filter-input">
+                                <option value="">Toutes capacités</option>
+                                <option value="1" {{ current_capacite == '1' ? 'selected' : '' }}>1 personne</option>
+                                <option value="2" {{ current_capacite == '2' ? 'selected' : '' }}>2 personnes</option>
+                                <option value="4" {{ current_capacite == '4' ? 'selected' : '' }}>4 personnes</option>
+                                <option value="6" {{ current_capacite == '6' ? 'selected' : '' }}>6+ personnes</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-section">
+                            <h6 class="filter-header">Disponibilité</h6>
+                            <label class="filter-check">
+                                <input type="radio" name="disponible" value="all" {{ current_disponible != '1' and current_disponible != '0' ? 'checked' : '' }}> Tous
+                            </label>
+                            <label class="filter-check">
+                                <input type="radio" name="disponible" value="1" {{ current_disponible == '1' ? 'checked' : '' }}> Disponible
+                            </label>
+                            <label class="filter-check">
+                                <input type="radio" name="disponible" value="0" {{ current_disponible == '0' ? 'checked' : '' }}> Non disponible
+                            </label>
+                        </div>
+
+                        <!-- Hidden sort if needed -->
+                        <input type="hidden" name="sort" value="{{ current_sort }}">
+
+                        <button type="submit" class="btn w-100 py-3 mt-2" style="background: var(--bleu-ceil); color: white; border-radius: 12px; font-weight: 600;">Appliquer</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="col-lg-9">
+                <div class="category-tabs" data-aos="fade-up">
+                    <a href="{{ path('app_hebergements_search') }}" class="tab-pill {{ current_type == 'all' or current_type is empty ? 'active' : '' }}">Tous les séjours</a>
+                    <a href="{{ path('app_hebergements_search', {type: 'Hôtel'}) }}" class="tab-pill {{ current_type == 'Hôtel' ? 'active' : '' }}">Hôtels</a>
+                    <a href="{{ path('app_hebergements_search', {type: "Maison d'hôtes"}) }}" class="tab-pill {{ current_type == "Maison d'hôtes" ? 'active' : '' }}">Maisons</a>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">{{ hebergements|length }} établissement(s) trouvé(s)</h5>
+                    <div class="sort-box">
+                        Trier par :
+                        <select class="sort-select" onchange="applySort(this.value)">
+                            <option value="default" {{ current_sort == 'default' ? 'selected' : '' }}>Recommandé</option>
+                            <option value="price_asc" {{ current_sort == 'price_asc' ? 'selected' : '' }}>Prix croissant</option>
+                            <option value="price_desc" {{ current_sort == 'price_desc' ? 'selected' : '' }}>Prix décroissant</option>
+                        </select>
+                    </div>
+                </div>
+
+                {% for hebergement in hebergements %}
+                <div class="hotel-card-horiz" data-aos="fade-up">
+                    <div class="card-img-side">
+                        {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
+                        {% if imgName and '.' in imgName %}
+                            <img src="{{ asset('uploads/hebergements/' ~ imgName) }}" alt="{{ hebergement.titre }}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500';">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500" alt="{{ hebergement.titre }}">
+                        {% endif %}
+                        <div class="fav-btn"><i class="fas fa-heart"></i></div>
+                    </div>
+                    <div class="card-content-side">
+                        <div class="hotel-title-row">
+                            <div>
+                                <h4 class="hotel-name">{{ hebergement.titre }}</h4>
+                                <div class="stars-box">
+                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                </div>
+                                <div class="hotel-loc">
+                                    <i class="fas fa-map-marker-alt me-1"></i> {{ hebergement.typeHebergement }}
+                                </div>
+                                <div class="amenities-row">
+                                    <span><i class="fas fa-wifi me-1"></i> Wifi gratuit</span>
+                                    <span><i class="fas fa-swimming-pool me-1"></i> Piscine</span>
+                                    <span><i class="fas fa-parking me-1"></i> Parking</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <div class="price-side-box">
+                                <div class="price-val">{{ hebergement.prixParNuit }} DT</div>
+                                <div class="price-info">pour 1 nuit, taxes incluses</div>
+                            </div>
+                            <a href="{{ path('app_hebergement_detail', {id: hebergement.idHebergement}) }}" class="btn-availability">
+                                Voir les disponibilités
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5 bg-white rounded-4 border border-dashed mt-4">
+                    <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
+                    <h5>Aucun résultat trouvé</h5>
+                    <p class="text-muted">Essayez d'élargir vos critères de recherche.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function applySort(sortVal) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', sortVal);
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Promotion PDF</title>
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #F7B731; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { margin: 0; color: #2C3E50; }
+        .header p { margin: 5px 0 0; color: #7F8C8D; }
+        .section { margin-bottom: 20px; }
+        .section-title { font-size: 18px; color: #2C3E50; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        table th, table td { padding: 10px; border: 1px solid #eee; text-align: left; }
+        table th { background-color: #f8fafc; font-weight: bold; width: 40%; color: #2C3E50; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
+        .badge-pack { background-color: #1ABC9C; }
+        .badge-indiv { background-color: #3498DB; }
+        .badge-tendance { background-color: #E53E3E; }
+        .badge-locked { background-color: #2C3E50; }
+        .qr-container { text-align: center; margin-top: 30px; padding: 20px; border: 1px dashed #ccc; border-radius: 10px; }
+        .qr-container img { max-width: 150px; }
+        .stats { display: table; width: 100%; margin-top: 20px; }
+        .stat-box { display: table-cell; width: 50%; text-align: center; padding: 15px; background: #f8fafc; border: 1px solid #eee; }
+        .stat-val { font-size: 24px; font-weight: bold; color: #F7B731; }
+        .stat-label { font-size: 12px; color: #7F8C8D; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>{{ promotion.name }}</h1>
+    <p>{{ promotion.description }}</p>
+</div>
+
+<div class="section">
+    <div class="section-title">Informations Générales</div>
+    <table>
+        <tr>
+            <th>Type</th>
+            <td>
+                {% if promotion.isPack %}
+                    <span class="badge badge-pack">📦 Pack</span>
+                {% else %}
+                    <span class="badge badge-indiv">🎫 Individuelle ({{ promotion.offerType|capitalize }})</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Réduction</th>
+            <td><strong>-{{ promotion.reductionLabel }}</strong></td>
+        </tr>
+        <tr>
+            <th>Période de validité</th>
+            <td>
+                Du {{ promotion.startDate|date('d/m/Y') }} au {{ promotion.endDate|date('d/m/Y') }}
+            </td>
+        </tr>
+        <tr>
+            <th>Statuts Spéciaux</th>
+            <td>
+                {% if promotion.isVerrouille %}
+                    <span class="badge badge-locked">🔐 Verrouillée</span>
+                {% endif %}
+                {% if isTrending %}
+                    <span class="badge badge-tendance">🔥 Tendance</span>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="stats">
+    <div class="stat-box">
+        <div class="stat-val">{{ nbVues }}</div>
+        <div class="stat-label">Vues totales</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-val">{{ nbReservations }}</div>
+        <div class="stat-label">Réservations</div>
+    </div>
+</div>
+
+{% if promotion.isVerrouille and promoCode %}
+<div class="qr-container">
+    <h3>Code Promo Exclusif</h3>
+    <p style="font-size:24px; font-weight:bold; color:#E67E22; margin: 10px 0;">{{ promoCode.code }}</p>
+    {% if qrUrl %}
+        <img src="{{ qrUrl }}" alt="QR Code">
+    {% endif %}
+    <p style="font-size:12px; color:#7F8C8D;">Ce QR code peut être scanné pour débloquer la promotion.</p>
+</div>
+{% endif %}
+
+</body>
+</html>

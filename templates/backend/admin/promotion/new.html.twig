@@ -1,0 +1,468 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Nouvelle Promotion - RE7LA Admin{% endblock %}
+{% block breadcrumb %}Promotions{% endblock %}
+{% block page_title %}Nouvelle Promotion{% endblock %}
+
+{% block body %}
+
+{% for message in app.flashes('error') %}
+  <div style="background:#fee2e2;color:#991b1b;padding:14px 18px;border-radius:10px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+    <i class="fas fa-exclamation-circle"></i><span>{{ message }}</span>
+  </div>
+{% endfor %}
+
+<div class="row">
+ <div class="col-md-9 mx-auto">
+  <div class="card" style="border-radius:20px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.06);padding:32px;">
+
+    <div style="margin-bottom:28px;display:flex;align-items:center;gap:14px;">
+      <div style="width:50px;height:50px;background:linear-gradient(135deg,#F7B731,#E67E22);border-radius:14px;display:flex;align-items:center;justify-content:center;">
+        <i class="fas fa-tags" style="color:#fff;font-size:1.3rem;"></i>
+      </div>
+      <div>
+        <h2 style="font-size:18px;font-weight:700;color:#2C3E50;margin:0;">Créer une promotion</h2>
+        <p style="color:#94a3b8;font-size:13px;margin:2px 0 0 0;">Définissez les détails et les offres concernées</p>
+      </div>
+    </div>
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data', 'id': 'promoForm'}}) }}
+
+      {# Champs cachés pour les offres sélectionnées — remplis par JavaScript #}
+      <input type="hidden" name="offer_type"      id="hiddenOfferType">
+      <input type="hidden" name="reference_id"    id="hiddenReferenceId">
+      <input type="hidden" name="pack_items_json" id="hiddenPackItems" value="[]">
+
+      <div class="row g-4">
+
+        {# ── Colonne gauche : Infos générales ── #}
+        <div class="col-md-6">
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">
+              Titre <span style="color:#e63946;">*</span>
+            </label>
+            {{ form_widget(form.name, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
+            {{ form_errors(form.name) }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">Description</label>
+            {{ form_widget(form.description, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;','rows':3}}) }}
+            {{ form_errors(form.description) }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">
+              Type de promotion <span style="color:#e63946;">*</span>
+            </label>
+            {{ form_widget(form.promoType, {'attr': {'class':'form-select rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;','id':'promoTypeSelect'}}) }}
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">Réduction %</label>
+              {{ form_widget(form.discountPercentage, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
+              {{ form_errors(form.discountPercentage) }}
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">Réduction fixe (DT)</label>
+              {{ form_widget(form.discountFixed, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
+              {{ form_errors(form.discountFixed) }}
+            </div>
+            <div class="col-12 mt-1">
+              <small style="color:#94a3b8;font-size:11px;">
+                <i class="fas fa-info-circle me-1"></i>Remplissez au moins un des deux.
+              </small>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">
+                Date début <span style="color:#e63946;">*</span>
+              </label>
+              {{ form_widget(form.startDate, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
+              {{ form_errors(form.startDate) }}
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">
+                Date fin <span style="color:#e63946;">*</span>
+              </label>
+              {{ form_widget(form.endDate, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
+              {{ form_errors(form.endDate) }}
+            </div>
+          </div>
+
+          <div class="mb-4" style="background:#f8fafc; padding:16px; border-radius:12px; border:1px dashed #cbd5e1;">
+            <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px; display:flex; align-items:center; gap:8px;">
+              <i class="fas fa-image" style="color:#3498DB;"></i> Image (optionnelle)
+            </label>
+            <input type="file" name="promo_image" accept="image/*" class="form-control form-control-sm" style="border:1.5px solid #e8ecf0; border-radius:8px; padding:8px; font-size:13px;">
+            <div style="color:#94a3b8;font-size:11px; margin-top:6px;">
+              <i class="fas fa-info-circle"></i> Formats acceptés : JPG, PNG, WEBP (max 5 Mo)
+            </div>
+          </div>
+
+          <div class="mb-4" style="background:linear-gradient(135deg,rgba(44,62,80,0.03),rgba(44,62,80,0.06)); padding:16px; border-radius:12px; border:1px solid #e8ecf0;">
+            <div class="form-check form-switch d-flex align-items-center" style="padding-left:0; margin-bottom:4px;">
+              <div style="flex-grow:1;">
+                {{ form_label(form.isVerrouille, null, {'label_attr': {'class':'fw-bold', 'style': 'color:#2C3E50;font-size:14px;cursor:pointer;'}}) }}
+                <div style="color:#64748b;font-size:11px; margin-top:2px;">
+                  Une promotion verrouillée nécessite un code promo ou un scan QR pour être réservée.
+                </div>
+              </div>
+              <div style="margin-left:16px;">
+                {{ form_widget(form.isVerrouille, {'attr': {'class':'form-check-input', 'style': 'width:45px;height:22px;cursor:pointer;'}}) }}
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        {# ── Colonne droite : Sélecteur d'offres ── #}
+        <div class="col-md-6">
+          <div id="offerSelectorBox" style="background:#f8fafc;border-radius:16px;padding:20px;border:1.5px solid #e8ecf0;min-height:100%;">
+
+            <h6 style="font-weight:700;color:#2C3E50;margin-bottom:16px;font-size:14px;">
+              <i class="fas fa-layer-group me-2" style="color:#F7B731;"></i>
+              <span id="offerSelectorTitle">Sélection de l'offre</span>
+            </h6>
+
+            <div class="d-flex gap-2 mb-3 flex-wrap">
+              <button type="button" class="offer-type-btn" data-type="hebergement"
+                style="background:#fff;border:1.5px solid #e8ecf0;border-radius:25px;padding:7px 16px;font-size:12px;font-weight:600;color:#6c757d;cursor:pointer;transition:all 0.2s;">
+                🏨 Hébergement
+              </button>
+              <button type="button" class="offer-type-btn" data-type="activite"
+                style="background:#fff;border:1.5px solid #e8ecf0;border-radius:25px;padding:7px 16px;font-size:12px;font-weight:600;color:#6c757d;cursor:pointer;transition:all 0.2s;">
+                🎯 Activité
+              </button>
+              <button type="button" class="offer-type-btn" data-type="voiture"
+                style="background:#fff;border:1.5px solid #e8ecf0;border-radius:25px;padding:7px 16px;font-size:12px;font-weight:600;color:#6c757d;cursor:pointer;transition:all 0.2s;">
+                🚗 Voiture
+              </button>
+            </div>
+
+            <div id="offerListContainer" style="max-height:320px;overflow-y:auto;">
+              <p id="offerPlaceholder" style="color:#94a3b8;font-size:13px;text-align:center;padding:30px 0;">
+                Cliquez sur un type d'offre ci-dessus
+              </p>
+
+              <div id="list-hebergement" class="offer-list" style="display:none;">
+                {% for h in hebergements %}
+                <div class="offer-item"
+                     data-id="{{ h.idHebergement }}"
+                     data-type="hebergement"
+                     data-label="{{ h.titre }} ({{ h.typeHebergement }})"
+                     style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1.5px solid transparent;transition:all 0.2s;background:#fff;">
+                  <div style="width:36px;height:36px;background:linear-gradient(135deg,#87CEEB,#5ba4d4);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-home" style="color:#fff;font-size:0.85rem;"></i>
+                  </div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;color:#2C3E50;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.titre }}</div>
+                    <div style="color:#94a3b8;font-size:11px;">{{ h.typeHebergement }} — {{ h.prixParNuit }} DT/nuit</div>
+                  </div>
+                  <span class="check-icon" style="display:none;color:#1ABC9C;font-size:1rem;"><i class="fas fa-check-circle"></i></span>
+                </div>
+                {% else %}
+                <p style="color:#94a3b8;font-size:12px;text-align:center;padding:20px;">Aucun hébergement en base</p>
+                {% endfor %}
+              </div>
+
+              <div id="list-activite" class="offer-list" style="display:none;">
+                {% for a in activites %}
+                <div class="offer-item"
+                     data-id="{{ a.idActivite }}"
+                     data-type="activite"
+                     data-label="{{ a.nomA }} ({{ a.lieu }})"
+                     style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1.5px solid transparent;transition:all 0.2s;background:#fff;">
+                  <div style="width:36px;height:36px;background:linear-gradient(135deg,#1ABC9C,#16a085);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-hiking" style="color:#fff;font-size:0.85rem;"></i>
+                  </div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;color:#2C3E50;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.nomA }}</div>
+                    <div style="color:#94a3b8;font-size:11px;">{{ a.lieu }} — {{ a.prixParPersonne }} DT/pers</div>
+                  </div>
+                  <span class="check-icon" style="display:none;color:#1ABC9C;font-size:1rem;"><i class="fas fa-check-circle"></i></span>
+                </div>
+                {% else %}
+                <p style="color:#94a3b8;font-size:12px;text-align:center;padding:20px;">Aucune activité en base</p>
+                {% endfor %}
+              </div>
+
+              <div id="list-voiture" class="offer-list" style="display:none;">
+                {% for v in voitures %}
+                <div class="offer-item"
+                     data-id="{{ v.id_voiture }}"
+                     data-type="voiture"
+                     data-label="{{ v.marque }} {{ v.modele }} ({{ v.immatriculation }})"
+                     style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1.5px solid transparent;transition:all 0.2s;background:#fff;">
+                  <div style="width:36px;height:36px;background:linear-gradient(135deg,#F7B731,#E67E22);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-car" style="color:#fff;font-size:0.85rem;"></i>
+                  </div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;color:#2C3E50;font-size:13px;">{{ v.marque }} {{ v.modele }}</div>
+                    <div style="color:#94a3b8;font-size:11px;">{{ v.immatriculation }} — {{ v.prix_KM }} DT/km</div>
+                  </div>
+                  <span class="check-icon" style="display:none;color:#1ABC9C;font-size:1rem;"><i class="fas fa-check-circle"></i></span>
+                </div>
+                {% else %}
+                <p style="color:#94a3b8;font-size:12px;text-align:center;padding:20px;">Aucune voiture en base</p>
+                {% endfor %}
+              </div>
+
+            </div>
+
+            <div id="packSummary" style="display:none;margin-top:14px;padding:12px;background:#fff;border-radius:10px;border:1.5px solid #e8ecf0;">
+              <div style="font-size:12px;font-weight:700;color:#2C3E50;margin-bottom:8px;">📦 Offres du pack :</div>
+              <div id="packItemsList"></div>
+            </div>
+
+            <div id="indivSummary" style="display:none;margin-top:14px;padding:12px;background:#fff;border-radius:10px;border:1.5px solid #1ABC9C;">
+              <div style="font-size:12px;color:#1ABC9C;font-weight:700;margin-bottom:4px;">✅ Offre sélectionnée :</div>
+              <div id="indivLabel" style="font-size:13px;color:#2C3E50;font-weight:600;"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:20px;border-top:1px solid #f0f2f5;margin-top:20px;">
+        <a href="{{ path('app_admin_promotion_list') }}"
+           style="background:#f8fafc;color:#2C3E50;border:1.5px solid #e8ecf0;padding:12px 24px;border-radius:10px;font-weight:600;font-size:14px;text-decoration:none;">
+          Annuler
+        </a>
+        <button type="submit" id="submitBtn"
+          style="background:linear-gradient(135deg,#F7B731,#E67E22);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;">
+          <i class="fas fa-save me-2"></i> Créer la promotion
+        </button>
+      </div>
+
+      <div style="display:none;">
+        {{ form_rest(form) }}
+      </div>
+    {{ form_end(form) }}
+  </div>
+ </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+    let promoMode     = 'individuelle';
+    let selectedIndiv = null;
+    let packItems     = [];
+
+    // ── Récupérer le select promoType peu importe l'ID généré par Symfony
+    const promoTypeSelect  = document.querySelector('select[name="promotion[promoType]"]');
+    const hiddenOfferType  = document.getElementById('hiddenOfferType');
+    const hiddenRefId      = document.getElementById('hiddenReferenceId');
+    const hiddenPackItems  = document.getElementById('hiddenPackItems');
+    const offerTypeBtns    = document.querySelectorAll('.offer-type-btn');
+    const offerLists       = document.querySelectorAll('.offer-list');
+    const offerItems       = document.querySelectorAll('.offer-item');
+    const offerPlaceholder = document.getElementById('offerPlaceholder');
+    const packSummary      = document.getElementById('packSummary');
+    const packItemsList    = document.getElementById('packItemsList');
+    const indivSummary     = document.getElementById('indivSummary');
+    const indivLabel       = document.getElementById('indivLabel');
+    const selectorTitle    = document.getElementById('offerSelectorTitle');
+
+    if (promoTypeSelect) {
+        promoMode = promoTypeSelect.value || 'individuelle';
+        promoTypeSelect.addEventListener('change', function () {
+            promoMode = this.value;
+            resetSelection();
+            updateTitle();
+        });
+    }
+
+    function updateTitle() {
+        if (selectorTitle) {
+            selectorTitle.textContent = promoMode === 'pack'
+                ? 'Sélection des offres du pack (min. 2)'
+                : "Sélection de l'offre (1 seule)";
+        }
+    }
+
+    offerTypeBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const type = this.dataset.type;
+
+            offerTypeBtns.forEach(b => {
+                b.style.background  = '#fff';
+                b.style.borderColor = '#e8ecf0';
+                b.style.color       = '#6c757d';
+            });
+            this.style.background  = 'linear-gradient(135deg,#F7B731,#E67E22)';
+            this.style.borderColor = '#F7B731';
+            this.style.color       = '#fff';
+
+            offerLists.forEach(l => l.style.display = 'none');
+            if (offerPlaceholder) offerPlaceholder.style.display = 'none';
+
+            const target = document.getElementById('list-' + type);
+            if (target) target.style.display = 'block';
+
+            refreshVisuals();
+        });
+    });
+
+    offerItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+            const id    = parseInt(this.dataset.id);
+            const type  = this.dataset.type;
+            const label = this.dataset.label;
+
+            if (promoMode === 'individuelle') {
+                selectedIndiv = { type, id, label };
+                if (hiddenOfferType) hiddenOfferType.value = type;
+                if (hiddenRefId)     hiddenRefId.value     = id;
+                if (indivLabel)      indivLabel.textContent = label;
+                if (indivSummary)    indivSummary.style.display = 'block';
+                if (packSummary)     packSummary.style.display  = 'none';
+            } else {
+                const idx = packItems.findIndex(p => p.type === type && p.id === id);
+                if (idx >= 0) {
+                    packItems.splice(idx, 1);
+                } else {
+                    packItems.push({ type, id, label });
+                }
+                if (hiddenPackItems) hiddenPackItems.value = JSON.stringify(packItems);
+                renderPack();
+            }
+            refreshVisuals();
+        });
+    });
+
+    function refreshVisuals() {
+        offerItems.forEach(function (item) {
+            const id   = parseInt(item.dataset.id);
+            const type = item.dataset.type;
+            const sel  = promoMode === 'individuelle'
+                ? (selectedIndiv && selectedIndiv.type === type && selectedIndiv.id === id)
+                : packItems.some(p => p.type === type && p.id === id);
+
+            item.style.borderColor = sel ? '#1ABC9C' : 'transparent';
+            item.style.background  = sel ? 'rgba(26,188,156,0.06)' : '#fff';
+            const chk = item.querySelector('.check-icon');
+            if (chk) chk.style.display = sel ? 'inline' : 'none';
+        });
+    }
+
+    function renderPack() {
+        if (!packItemsList || !packSummary) return;
+        packItemsList.innerHTML = '';
+        packItems.forEach(function (p) {
+            const icon = p.type === 'hebergement' ? '🏨' : p.type === 'activite' ? '🎯' : '🚗';
+            const div  = document.createElement('div');
+            div.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#f8fafc;border-radius:7px;margin-bottom:4px;font-size:12px;';
+            div.innerHTML = `<span>${icon} <strong>${p.label}</strong></span>
+                <button type="button" onclick="window.removePackItem('${p.type}',${p.id})"
+                  style="background:none;border:none;color:#e63946;cursor:pointer;font-size:14px;padding:0;">✕</button>`;
+            packItemsList.appendChild(div);
+        });
+        const ok = packItems.length >= 2;
+        packSummary.style.display     = packItems.length > 0 ? 'block' : 'none';
+        packSummary.style.borderColor = ok ? '#1ABC9C' : '#F7B731';
+        if (indivSummary) indivSummary.style.display = 'none';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'font-size:11px;text-align:right;margin-top:6px;font-weight:600;color:' + (ok ? '#1ABC9C' : '#F7B731');
+        info.textContent   = packItems.length + ' offre(s) ' + (ok ? '✅' : '— min. 2 requises');
+        packItemsList.appendChild(info);
+    }
+
+    window.removePackItem = function (type, id) {
+        packItems = packItems.filter(p => !(p.type === type && p.id === id));
+        if (hiddenPackItems) hiddenPackItems.value = JSON.stringify(packItems);
+        renderPack();
+        refreshVisuals();
+    };
+
+    function resetSelection() {
+        selectedIndiv = null;
+        packItems     = [];
+        if (hiddenOfferType) hiddenOfferType.value = '';
+        if (hiddenRefId)     hiddenRefId.value     = '';
+        if (hiddenPackItems) hiddenPackItems.value  = '[]';
+        if (indivSummary)    indivSummary.style.display = 'none';
+        if (packSummary)     packSummary.style.display  = 'none';
+        refreshVisuals();
+    }
+
+    // ── Validation avant soumission
+    const promoForm = document.getElementById('promoForm');
+    if (promoForm) {
+        promoForm.addEventListener('submit', function (e) {
+            // Vérifier que le titre n'est pas vide (avant que Symfony ne crash)
+            const nameField = document.querySelector('input[name="promotion[name]"]');
+            if (nameField && nameField.value.trim().length < 3) {
+                e.preventDefault();
+                alert('⚠️ Le titre est obligatoire et doit contenir au moins 3 caractères.');
+                nameField.focus();
+                nameField.style.borderColor = '#e63946';
+                return;
+            }
+
+            // Vérifier la sélection d'offre
+            if (promoMode === 'individuelle') {
+                if (!hiddenOfferType || !hiddenOfferType.value) {
+                    e.preventDefault();
+                    alert('⚠️ Veuillez sélectionner une offre (hébergement, activité ou voiture).');
+                }
+            } else {
+                const items = JSON.parse((hiddenPackItems && hiddenPackItems.value) || '[]');
+                if (items.length < 2) {
+                    e.preventDefault();
+                    alert('⚠️ Un pack doit contenir au moins 2 offres. Actuellement : ' + items.length);
+                }
+            }
+        });
+    }
+
+    updateTitle();
+})();
+</script>
+
+<style>
+/* Modern styling for the form elements */
+.form-control, .form-select {
+    transition: all 0.3s ease;
+    border: 1.5px solid #e2e8f0 !important;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #F7B731 !important;
+    box-shadow: 0 0 0 4px rgba(247, 183, 49, 0.15) !important;
+    outline: none;
+}
+#offerSelectorBox {
+    transition: all 0.3s ease;
+}
+#offerSelectorBox:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+    border-color: #cbd5e1 !important;
+}
+#submitBtn {
+    transition: all 0.3s ease;
+}
+#submitBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(247, 183, 49, 0.4);
+}
+.form-check-input:checked {
+    background-color: #1ABC9C !important;
+    border-color: #1ABC9C !important;
+    box-shadow: 0 0 0 4px rgba(26, 188, 156, 0.2) !important;
+}
+.offer-item:hover { border-color: #F7B731 !important; background: rgba(247,183,49,0.05) !important; }
+#offerListContainer::-webkit-scrollbar { width: 4px; }
+#offerListContainer::-webkit-scrollbar-thumb { background: #F7B731; border-radius: 4px; }
+</style>
+{% endblock %}

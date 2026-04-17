@@ -1,0 +1,131 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Statistiques Promotions - RE7LA Admin{% endblock %}
+{% block breadcrumb %}Promotions / Statistiques{% endblock %}
+{% block page_title %}Dashboard Analytique{% endblock %}
+
+{% block body %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ path('app_admin_promotion_list') }}" class="btn btn-sm" style="background:linear-gradient(135deg,#3498DB,#2980B9);color:#fff;border-radius:10px;padding:8px 16px;text-decoration:none;">
+            <i class="fas fa-arrow-left"></i> Retour aux promotions
+        </a>
+    </div>
+</div>
+
+<div class="row row-2">
+    <!-- Chart 1: Types de Promo -->
+    <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+        <h3 class="card-title">Promotions par Type</h3>
+        <p class="card-sub">Individuelles vs Packs</p>
+        <div style="height: 300px; display:flex; justify-content:center;">
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 2: Top 10 Promos -->
+    <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+        <h3 class="card-title">Top Promotions</h3>
+        <p class="card-sub">Basé sur le nombre de réservations</p>
+        <div style="height: 300px;">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row row-2">
+    <!-- Chart 3: Distribution par type d'offre -->
+    <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+        <h3 class="card-title">Distribution des Offres Individuelles</h3>
+        <p class="card-sub">Hébergement, Voiture, Activité</p>
+        <div style="height: 300px; display:flex; justify-content:center;">
+            <canvas id="doughnutChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 4: Top Users -->
+    <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+        <h3 class="card-title">Utilisateurs les plus actifs</h3>
+        <p class="card-sub">Utilisateurs ayant le plus de réservations promo</p>
+        <div class="table-wrap mt-3">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Utilisateur (Email)</th>
+                        <th>Réservations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for email, count in topUsers %}
+                    <tr>
+                        <td><strong>{{ email }}</strong></td>
+                        <td><span class="status-badge s-ok" style="font-size:14px;">{{ count }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="2" class="text-center text-muted">Aucune donnée</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Pie Chart
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Individuelles', 'Packs'],
+            datasets: [{
+                data: {{ pieData|json_encode|raw }},
+                backgroundColor: ['#3498DB', '#1ABC9C'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Bar Chart
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: {{ topPromosLabels|json_encode|raw }},
+            datasets: [{
+                label: 'Réservations',
+                data: {{ topPromosData|json_encode|raw }},
+                backgroundColor: '#F7B731',
+                borderRadius: 5
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    });
+
+    // Doughnut Chart
+    const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+    new Chart(ctxDoughnut, {
+        type: 'doughnut',
+        data: {
+            labels: {{ typeDistLabels|json_encode|raw }},
+            datasets: [{
+                data: {{ typeDistData|json_encode|raw }},
+                backgroundColor: ['#9b59b6', '#e74c3c', '#f1c40f'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+});
+</script>
+{% endblock %}

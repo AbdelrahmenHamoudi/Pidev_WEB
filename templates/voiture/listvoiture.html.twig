@@ -1,0 +1,197 @@
+{% extends 'base_voiture.html.twig' %}
+
+{% block title %}{{ voiture.marque }} {{ voiture.modele }} - RE7LA Admin{% endblock %}
+{% block breadcrumb %}Voitures{% endblock %}
+{% block page_title %}{{ voiture.marque }} {{ voiture.modele }}{% endblock %}
+
+{% block body %}
+
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
+  <div>
+    <a href="{{ path('app_admin_voiture') }}" style="color:#F7B731;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <i class="fas fa-arrow-left"></i>
+      Retour aux voitures
+    </a>
+    <h1 style="font-size:24px;font-weight:700;color:#2C3E50;margin:0;">{{ voiture.marque }} {{ voiture.modele }}</h1>
+  </div>
+  <a href="{{ path('app_admin_voiture_edit', {id: voiture.id}) }}" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
+    <i class="fas fa-pen"></i> Modifier
+  </a>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;">
+
+  <!-- ===== LEFT ===== -->
+  <div>
+
+    <!-- Image principale -->
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;margin-bottom:24px;">
+      {% if voiture.image %}
+        <img src="{{ voiture.image }}" style="width:100%;height:380px;object-fit:cover;" alt="{{ voiture.marque }} {{ voiture.modele }}">
+      {% else %}
+        <div style="width:100%;height:380px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F7DC6F,#F39C12);">
+          <i class="fas fa-car" style="font-size:80px;color:#fff;opacity:0.8;"></i>
+        </div>
+      {% endif %}
+
+      <!-- Badges + titre -->
+      <div style="padding:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <span style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;">
+            <i class="fas fa-car" style="margin-right:6px;"></i>Véhicule
+          </span>
+          <span style="background:{{ voiture.disponibilite ? 'rgba(26,188,156,0.15)' : 'rgba(239,68,68,0.15)' }};color:{{ voiture.disponibilite ? '#1ABC9C' : '#ef4444' }};padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;">
+            {{ voiture.disponibilite ? 'Disponible' : 'Indisponible' }}
+          </span>
+          {% if voiture.avecChauffeur %}
+          <span style="background:rgba(44,62,80,0.1);color:#2C3E50;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;">
+            <i class="fas fa-user-tie" style="margin-right:6px;"></i>Avec chauffeur
+          </span>
+          {% endif %}
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="font-size:24px;font-weight:700;color:#2C3E50;margin:0;">{{ voiture.marque }} {{ voiture.modele }}</h2>
+          <div style="font-size:28px;font-weight:700;color:#F39C12;">
+            {{ voiture.prixKM|number_format(2) }} DT
+            <span style="font-size:14px;color:#94a3b8;font-weight:400;">/km</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    {% if voiture.description %}
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;margin-bottom:24px;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-info-circle" style="color:#F7B731;"></i>
+        Description
+      </h3>
+      <p style="color:#64748b;line-height:1.6;">{{ voiture.description }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Infos détaillées -->
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-list" style="color:#F7B731;"></i>
+        Caractéristiques
+      </h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;">
+          <div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Marque</div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">{{ voiture.marque }}</div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;">
+          <div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Modèle</div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">{{ voiture.modele }}</div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;">
+          <div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Immatriculation</div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;font-family:monospace;">{{ voiture.immatriculation }}</div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;">
+          <div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Capacité</div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">{{ voiture.nbPlaces }} personnes</div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;">
+          <div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Tarif / km</div>
+          <div style="font-size:15px;font-weight:700;color:#F39C12;">{{ voiture.prixKM|number_format(2) }} DT</div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;">
+          <div style="font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Disponibilité</div>
+          <div style="font-size:15px;font-weight:700;color:{{ voiture.disponibilite ? '#1ABC9C' : '#ef4444' }};">
+            {% if voiture.disponibilite %}<i class="fas fa-check-circle"></i> Disponible{% else %}<i class="fas fa-times-circle"></i> Indisponible{% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== RIGHT SIDEBAR ===== -->
+  <div style="display:flex;flex-direction:column;gap:24px;">
+
+    <!-- Infos rapides -->
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:20px;">Informations</h3>
+
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(247,183,49,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-car" style="color:#F7B731;font-size:16px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#64748b;">Véhicule</div>
+            <div style="font-weight:600;color:#2C3E50;">{{ voiture.marque }} {{ voiture.modele }}</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(26,188,156,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-users" style="color:#1ABC9C;font-size:16px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#64748b;">Capacité</div>
+            <div style="font-weight:600;color:#2C3E50;">{{ voiture.nbPlaces }} places</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(243,156,18,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-coins" style="color:#F39C12;font-size:16px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#64748b;">Tarif</div>
+            <div style="font-weight:600;color:#2C3E50;">{{ voiture.prixKM|number_format(2) }} DT / km</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(239,68,68,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-hashtag" style="color:#ef4444;font-size:16px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#64748b;">ID</div>
+            <div style="font-weight:600;color:#2C3E50;">#{{ voiture.id }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:20px;">Actions</h3>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <a href="{{ path('app_admin_voiture_edit', {id: voiture.id}) }}" style="background:rgba(247,183,49,0.1);color:#F7B731;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <i class="fas fa-edit"></i> Modifier
+        </a>
+        <a href="{{ path('app_admin_voiture') }}" style="background:#f8fafc;color:#64748b;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <i class="fas fa-list"></i> Retour à la liste
+        </a>
+        <form method="POST" action="{{ path('app_admin_voiture_delete', {id: voiture.id}) }}" onsubmit="return confirm('Supprimer définitivement {{ voiture.marque }} {{ voiture.modele }} ?');">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('delete' ~ voiture.id) }}">
+          <button type="submit" style="width:100%;background:rgba(239,68,68,0.1);color:#ef4444;border:none;padding:12px;border-radius:12px;font-weight:500;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;">
+            <i class="fas fa-trash"></i> Supprimer
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  a:hover, button[type=submit]:hover { transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.12); }
+</style>
+
+{% endblock %}

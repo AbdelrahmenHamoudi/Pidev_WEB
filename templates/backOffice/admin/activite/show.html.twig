@@ -1,0 +1,149 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}RE7LA Admin — {{ activite.nomA }}{% endblock %}
+{% block breadcrumb %}Activités / Détails{% endblock %}
+{% block page_title %}{{ activite.nomA }}{% endblock %}
+
+{% block body %}
+
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+
+    {# ── Colonne gauche : infos ── #}
+    <div>
+        <div class="card" style="margin-bottom:16px;">
+            {# Image #}
+            {% if activite.image %}
+                <img src="{{ asset('uploads/activites/' ~ activite.image) }}"
+                     style="width:100%;height:200px;object-fit:cover;border-radius:12px;margin-bottom:16px;">
+            {% else %}
+                <div style="width:100%;height:160px;background:linear-gradient(135deg,#F7B731,#E6C050);
+                            border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+                    <i class="fas fa-hiking" style="font-size:50px;color:#fff;"></i>
+                </div>
+            {% endif %}
+
+            {# Infos clés #}
+            {% for item in [
+                {icon: 'map-marker-alt', label: 'Lieu', value: activite.lieu},
+                {icon: 'tag', label: 'Prix', value: activite.prixParPersonne|number_format(0) ~ ' DT/pers.'},
+                {icon: 'users', label: 'Capacité', value: activite.capaciteMax ~ ' personnes'},
+            ] %}
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0f2f5;">
+                <div style="width:34px;height:34px;background:#f0f2f5;border-radius:8px;
+                            display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-{{ item.icon }}" style="color:#F7B731;font-size:13px;"></i>
+                </div>
+                <div>
+                    <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;">{{ item.label }}</div>
+                    <div style="font-size:13px;font-weight:600;color:#2C3E50;">{{ item.value }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {# Boutons actions #}
+        <div style="display:flex;flex-direction:column;gap:8px;">
+            <a href="{{ path('activite_edit', {id: activite.idActivite}) }}"
+               style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;padding:10px 16px;
+                      border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;text-align:center;">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <a href="{{ path('planning_new') }}"
+               style="background:#d1fae5;color:#065f46;padding:10px 16px;border-radius:10px;
+                      font-weight:600;font-size:13px;text-decoration:none;text-align:center;">
+                <i class="fas fa-plus"></i> Ajouter un planning
+            </a>
+            <form method="post" action="{{ path('activite_delete', {id: activite.idActivite}) }}"
+                  onsubmit="return confirm('Supprimer cette activité et tous ses plannings ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_activite_' ~ activite.idActivite) }}">
+                <button type="submit"
+                        style="width:100%;background:#fee2e2;color:#991b1b;padding:10px 16px;
+                               border-radius:10px;font-weight:600;font-size:13px;border:none;cursor:pointer;">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {# ── Colonne droite : description + plannings ── #}
+    <div>
+        <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Description</div>
+            <p style="color:#64748b;line-height:1.7;font-size:14px;margin-top:8px;">{{ activite.descriptionA }}</p>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div>
+                    <div class="card-title">Plannings</div>
+                    <div class="card-sub">{{ activite.plannings|length }} planning(s) associé(s)</div>
+                </div>
+                <a href="{{ path('planning_new') }}"
+                   style="background:#f0f2f5;color:#2C3E50;padding:7px 14px;border-radius:8px;
+                          font-size:12px;font-weight:600;text-decoration:none;">
+                    <i class="fas fa-plus"></i> Ajouter
+                </a>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Horaire</th>
+                            <th>Places</th>
+                            <th>État</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for planning in activite.plannings %}
+                        <tr>
+                            <td style="font-weight:600;">{{ planning.datePlanning|date('d/m/Y') }}</td>
+                            <td>{{ planning.heureDebut }} — {{ planning.heureFin }}</td>
+                            <td>
+                                <span style="font-weight:600;color:{{ planning.nbPlacesRestantes > 5 ? '#065f46' : '#991b1b' }};">
+                                    {{ planning.nbPlacesRestantes }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge {{ planning.etat == 'Disponible' ? 's-ok' : (planning.etat == 'Complet' ? 's-cancel' : 's-pend') }}">
+                                    {{ planning.etat }}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:6px;">
+                                    <a href="{{ path('planning_edit', {id: planning.id}) }}"
+                                       style="background:#fef3c7;color:#92400e;width:28px;height:28px;
+                                              border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas fa-edit" style="font-size:11px;"></i>
+                                    </a>
+                                    <form method="post" action="{{ path('planning_delete', {id: planning.id}) }}"
+                                          onsubmit="return confirm('Supprimer ce planning ?');" style="margin:0;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_planning_' ~ planning.id) }}">
+                                        <button type="submit"
+                                                style="background:#fee2e2;color:#991b1b;width:28px;height:28px;
+                                                       border-radius:6px;border:none;cursor:pointer;
+                                                       display:flex;align-items:center;justify-content:center;">
+                                            <i class="fas fa-trash" style="font-size:11px;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align:center;color:#94a3b8;padding:24px;">
+                                Aucun planning — <a href="{{ path('planning_new') }}" style="color:#F7B731;">Ajouter le premier</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,348 @@
+/*
+ * RECOLORATION INTERFACE ADMIN RE7LA
+ * Page Gestion des Hébergements
+ * Mapping exact des couleurs selon spécifications
+ ******************************************************************************/
+
+:root {
+    /* Palette finale RE7LA */
+    --primary: #FF6B2B;
+    --primary-dark: #CC4A12;
+    --primary-light: #FFF0E8;
+    --accent-teal: #1EC99B;
+    --accent-dark: #1A1A2E;
+    --danger: #E8455A;
+    --bg-page: #F5F5F7;
+    --bg-card: #FFFFFF;
+}
+
+/* ===== 1. HEADER (barre du haut pleine largeur) ===== */
+.layout-navbar {
+    background-color: #FF6B2B !important;
+    border-bottom: none !important;
+}
+
+.layout-navbar .navbar {
+    background-color: #FF6B2B !important;
+}
+
+.layout-navbar .navbar-brand,
+.layout-navbar .navbar-text,
+.layout-navbar .nav-link {
+    color: #FFFFFF !important;
+}
+
+/* ===== 2. SIDEBAR — item actif "Hébergements" ===== */
+.menu-item.active .menu-link {
+    background-color: #FF6B2B !important;
+    color: #FFFFFF !important;
+}
+
+.menu-item.active .menu-link .menu-icon,
+.menu-item.active .menu-link .menu-text {
+    color: #FFFFFF !important;
+}
+
+/* ===== 3. SIDEBAR — fond général (inchangé) ===== */
+.layout-menu {
+    background-color: #FFFFFF !important;
+}
+
+/* ===== 4. SIDEBAR — carte "Besoin d'aide ?" (bas) ===== */
+.sidebar-footer,
+.sidebar-help-card {
+    background-color: #1A1A2E !important;
+    color: #FFFFFF !important;
+}
+
+.sidebar-help-card .card-title,
+.sidebar-help-card .card-text {
+    color: #FFFFFF !important;
+}
+
+.sidebar-help-card .btn {
+    border-color: #FF6B2B !important;
+    color: #FF6B2B !important;
+    background-color: transparent !important;
+}
+
+.sidebar-help-card .btn:hover {
+    background-color: #FF6B2B !important;
+    color: #FFFFFF !important;
+}
+
+/* ===== 5. BOUTON "+ Nouvel Hébergement" ===== */
+.btn-add-hebergement,
+.btn-primary[href*="hebergement/new"],
+.btn-add-new,
+a[href*="hebergement/new"] {
+    background-color: #FF6B2B !important;
+    border-color: #FF6B2B !important;
+    color: #FFFFFF !important;
+}
+
+.btn-add-hebergement:hover,
+.btn-primary[href*="hebergement/new"]:hover,
+.btn-add-new:hover,
+a[href*="hebergement/new"]:hover {
+    background-color: #CC4A12 !important;
+    border-color: #CC4A12 !important;
+    color: #FFFFFF !important;
+}
+
+/* Override inline styles for specific buttons */
+a[href="{{ path('app_admin_hebergement_new') }}"],
+a[href*="/admin/hebergement/new"] {
+    background: linear-gradient(135deg, #FF6B2B, #CC4A12) !important;
+    color: #fff !important;
+}
+
+/* ===== 6. BADGE "Disponible" sur les cards ===== */
+.badge-disponible,
+.badge[data-status="disponible"],
+.badge.bg-success.hebergement-disponible {
+    background-color: #1EC99B !important;
+    color: #FFFFFF !important;
+}
+
+/* Override inline styles for availability badges */
+.h-card span[style*="#1ABC9C"],
+.h-card span[style*="#16a085"] {
+    background-color: #1EC99B !important;
+}
+
+.h-card span[style*="#e63946"] {
+    background-color: var(--danger) !important;
+}
+
+/* ===== 7. BADGE type hébergement (APPARTEMENT, HOTEL, VILLA) ===== */
+.badge-type-hebergement,
+.badge.hebergement-type,
+.badge.bg-dark.hebergement-type {
+    background-color: #1A1A2E !important;
+    color: #FFFFFF !important;
+}
+
+/* Override inline styles for type badges */
+.h-card span[style*="#2C3E50"] {
+    background-color: #1A1A2E !important;
+}
+
+/* ===== 8. PRIX (140 DT/nuit, 100 DT/nuit…) ===== */
+.hebergement-prix,
+.prix-nuit,
+.card-price,
+.price-display,
+.h-card span[style*="#1ABC9C"] {
+    color: #FF6B2B !important;
+    font-weight: 600 !important;
+}
+
+/* Override inline styles for price */
+.h-card span[style*="color:#1ABC9C"] {
+    color: #FF6B2B !important;
+}
+
+/* ===== 9. ICÔNE utilisateurs (👥 chiffre) ===== */
+.user-capacity-icon,
+.capacity-icon,
+.hebergement-users,
+.h-card div[style*="#F39C12"] {
+    color: #FF6B2B !important;
+}
+
+/* ===== 10. BOUTON "ÉDITER" ===== */
+.btn-edit-hebergement,
+.btn-outline-warning.edit-btn,
+.btn-edit,
+.edit-btn {
+    border-color: #FF6B2B !important;
+    color: #FF6B2B !important;
+    background-color: #FFF0E8 !important;
+}
+
+.btn-edit-hebergement:hover,
+.btn-outline-warning.edit-btn:hover,
+.btn-edit:hover,
+.edit-btn:hover {
+    background-color: #FF6B2B !important;
+    color: #FFFFFF !important;
+    border-color: #FF6B2B !important;
+}
+
+/* Override inline styles for edit button */
+.edit-btn[style*="rgba(243,156,18,0.1)"] {
+    background-color: #FFF0E8 !important;
+    color: #FF6B2B !important;
+}
+
+.edit-btn[style*="#F39C12"] {
+    color: #FF6B2B !important;
+}
+
+/* ===== 11. BADGE orange commandes dans sidebar (12) ===== */
+.sidebar-badge .badge,
+.menu-badge .badge,
+.badge.sidebar-counter {
+    background-color: #FF6B2B !important;
+    color: #FFFFFF !important;
+}
+
+/* Override inline styles for sidebar badges */
+.badge[style*="#F97316"] {
+    background-color: #FF6B2B !important;
+}
+
+/* ===== 12. ANALYTICS "+24%" dans sidebar ===== */
+.analytics-positive,
+.analytics-growth,
+.sidebar-analytics .text-success,
+.text-success[style*="color:green"] {
+    color: #1EC99B !important;
+}
+
+/* ===== COMPLÉMENTS POUR LA PAGE HEBERGEMENT ===== */
+
+/* Cards Hébergement */
+.hebergement-card {
+    background-color: var(--bg-card) !important;
+    border: 1px solid #E9ECEF !important;
+    border-radius: 12px !important;
+}
+
+.hebergement-card .card-header {
+    background-color: var(--bg-card) !important;
+    border-bottom: 1px solid #E9ECEF !important;
+}
+
+/* Actions buttons group */
+.hebergement-actions .btn {
+    margin: 0 2px !important;
+}
+
+/* Tableau des hébergements */
+.table-hebergement thead th {
+    background-color: #F8F9FA !important;
+    border-bottom: 2px solid #FF6B2B !important;
+    color: #2E3B4E !important;
+}
+
+.table-hebergement tbody tr:hover {
+    background-color: rgba(255, 107, 43, 0.05) !important;
+}
+
+/* Filtres et recherche */
+.hebergement-filters .form-control:focus {
+    border-color: #FF6B2B !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 43, 0.25) !important;
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: #FF6B2B !important;
+    border-color: #DEE2E6 !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #FF6B2B !important;
+    border-color: #FF6B2B !important;
+}
+
+.pagination .page-link:hover {
+    background-color: #FF6B2B !important;
+    border-color: #FF6B2B !important;
+    color: #FFFFFF !important;
+}
+
+/* Modal édition */
+.modal-hebergement .modal-header {
+    background-color: #F8F9FA !important;
+    border-bottom: 1px solid #E9ECEF !important;
+}
+
+.modal-hebergement .btn-primary {
+    background-color: #FF6B2B !important;
+    border-color: #FF6B2B !important;
+}
+
+.modal-hebergement .btn-primary:hover {
+    background-color: #CC4A12 !important;
+    border-color: #CC4A12 !important;
+}
+
+/* Status indicators */
+.status-indicator.disponible {
+    background-color: #1EC99B !important;
+}
+
+.status-indicator.indisponible {
+    background-color: var(--danger) !important;
+}
+
+/* Specific overrides for existing classes */
+.hebergement-list .btn-primary {
+    background-color: #FF6B2B !important;
+    border-color: #FF6B2B !important;
+}
+
+.hebergement-list .btn-primary:hover {
+    background-color: #CC4A12 !important;
+    border-color: #CC4A12 !important;
+}
+
+.hebergement-list .badge.bg-success {
+    background-color: #1EC99B !important;
+}
+
+.hebergement-list .badge.bg-warning {
+    background-color: #1A1A2E !important;
+}
+
+.hebergement-list .text-warning {
+    color: #FF6B2B !important;
+}
+
+.hebergement-list .btn-outline-warning {
+    border-color: #FF6B2B !important;
+    color: #FF6B2B !important;
+    background-color: #FFF0E8 !important;
+}
+
+.hebergement-list .btn-outline-warning:hover {
+    background-color: #FF6B2B !important;
+    color: #FFFFFF !important;
+}
+
+/* ===== OVERRIDES FOR INLINE STYLES ===== */
+
+/* Override all green (#1ABC9C, #16a085) to orange */
+[style*="#1ABC9C"],
+[style*="#16a085"] {
+    background-color: #FF6B2B !important;
+    color: #FF6B2B !important;
+}
+
+/* Override orange (#F39C12, #F97316) to new orange */
+[style*="#F39C12"],
+[style*="#F97316"] {
+    color: #FF6B2B !important;
+}
+
+/* Override dark backgrounds (#2C3E50) to new dark */
+[style*="#2C3E50"] {
+    background-color: #1A1A2E !important;
+}
+
+/* Special case for buttons with gradient backgrounds */
+[style*="linear-gradient"][style*="#1ABC9C"] {
+    background: linear-gradient(135deg, #FF6B2B, #CC4A12) !important;
+}
+
+/* Empty state override */
+[style*="rgba(26,188,156,0.1)"] {
+    background-color: rgba(255, 107, 43, 0.1) !important;
+}
+
+[style*="#1ABC9C"]:not([style*="background"]) {
+    color: #FF6B2B !important;
+}

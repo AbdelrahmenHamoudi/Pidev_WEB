@@ -1,0 +1,354 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Promotions - RE7LA Admin{% endblock %}
+{% block breadcrumb %}Promotions{% endblock %}
+{% block page_title %}Gestion des Promotions{% endblock %}
+
+{% block body %}
+
+{# ── Stats Cards ─────────────────────────────────────────────────────────── #}
+<div class="stat-cards-row">
+  <div class="stat-card" style="background:#F7B731;">
+    <div class="stat-card-left">
+      <div class="label" style="color:#fff;">TOTAL PROMOS</div>
+      <div class="value" style="color:#fff;">{{ total }}</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-tags" style="color:#fff;"></i>
+    </div>
+  </div>
+  <div class="stat-card" style="background:#1ABC9C;">
+    <div class="stat-card-left">
+      <div class="label" style="color:#fff;">PACKS</div>
+      <div class="value" style="color:#fff;">{{ totalPacks }}</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-box-open" style="color:#fff;"></i>
+    </div>
+  </div>
+  <div class="stat-card" style="background:#3498DB;">
+    <div class="stat-card-left">
+      <div class="label" style="color:#fff;">INDIVIDUELLES</div>
+      <div class="value" style="color:#fff;">{{ totalIndiv }}</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-ticket-alt" style="color:#fff;"></i>
+    </div>
+  </div>
+  <div class="stat-card" style="background:#1A3A4A;">
+    <div class="stat-card-left">
+      <div class="label" style="color:#fff;">ACTIVES</div>
+      <div class="value" style="color:#fff;">{{ totalActives }}</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-check-circle" style="color:#fff;"></i>
+    </div>
+  </div>
+
+  <div class="stat-card" style="background:linear-gradient(135deg,#E53E3E,#C53030);">
+    <div class="stat-card-left">
+      <div class="label" style="color:#fff;">TENDANCES</div>
+      <div class="value" style="color:#fff;">{{ totalTrending ?? 0 }}</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-fire" style="color:#fff;"></i>
+    </div>
+  </div>
+
+</div>{# ── /stat-cards-row ── #}
+
+{# ── Flash messages are now handled globally by Toastr in baseend.html.twig ── #}
+
+{# ── Liste ────────────────────────────────────────────────────────────────── #}
+<div class="row">
+ <div class="card" style="width:100%;">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid #f0f2f5;padding-bottom:20px;">
+    <div>
+      <h1 style="font-size:20px;font-weight:700;color:#2C3E50;margin:0;">Liste des Promotions</h1>
+      <p style="color:#94a3b8;margin:4px 0 0 0;font-size:13px;">Gérez vos offres et packs promotionnels</p>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <a href="{{ path('app_admin_promotion_stats') }}"
+         style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;padding:10px 20px;border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+        <i class="fas fa-chart-pie"></i> Statistiques
+      </a>
+      <a href="{{ path('app_admin_promotion_new') }}"
+         style="background:linear-gradient(135deg,#F7B731,#E67E22);color:#fff;padding:10px 20px;border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+        <i class="fas fa-plus"></i> Nouvelle Promotion
+      </a>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
+    {% for promotion in promotions %}
+
+      {#
+        CHANGEMENT :
+        On utilise promotion.status (getStatus()) au lieu de isActive().
+        promotion.statusColors retourne un array {bg, color} pour le badge.
+        promotion.statusLabel retourne le texte du badge.
+      #}
+      {% set status       = promotion.status %}
+      {% set statusColors = promotion.statusColors %}
+
+      <div class="p-card" style="background:#FAFAFA;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);border:1px solid #e8ecf0;transition:all 0.3s;">
+
+        {# Image ou placeholder #}
+        {% if promotion.image %}
+          <div style="height:130px;overflow:hidden;">
+            <img src="{{ asset(promotion.image) }}" alt="{{ promotion.name }}" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+        {% else %}
+          <div style="height:80px;background:linear-gradient(135deg,#F7B731,#E67E22);display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-tags" style="font-size:2rem;color:rgba(255,255,255,0.6);"></i>
+          </div>
+        {% endif %}
+
+        <div style="padding:18px;">
+
+          {# Badge type + Badge statut dynamique #}
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+
+            {# Badge type (Pack / Individuelle) — inchangé #}
+            <span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+              background:{{ promotion.isPack() ? 'rgba(26,188,156,0.12)' : 'rgba(52,152,219,0.12)' }};
+              color:{{ promotion.isPack() ? '#1ABC9C' : '#3498DB' }};">
+              {{ promotion.isPack() ? '📦 Pack' : '🎫 Individuelle' }}
+            </span>
+
+            {#
+              CHANGEMENT PRINCIPAL du badge statut :
+              Avant : "✅ Active" ou "❌ Expirée" (seulement 2 états)
+              Après  : "✅ Active" | "🕐 Bientôt" (orange) | "❌ Expirée" (rouge)
+              Les couleurs viennent de promotion.statusColors calculé dans l'entity.
+            #}
+            <span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+              background:{{ statusColors.bg }};color:{{ statusColors.color }};">
+              {{ promotion.statusLabel }}
+            </span>
+
+          </div>
+
+          {# Badge Verrouillée #}
+          {% if promotion.isVerrouille() %}
+          <span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+            background:rgba(44,62,80,0.9);color:#fff;margin-left:5px;">
+            <i class="fas fa-lock"></i> Verrouillée
+          </span>
+          {% endif %}
+
+          {# Badge Tendance avec animation feu #}
+          {% if trendingService.isTrending(promotion) %}
+          <span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+            background:linear-gradient(135deg,#E53E3E,#F39C12);color:#fff;margin-left:5px;
+            animation:pulse 2s infinite;">
+            <i class="fas fa-fire"></i> Tendance
+          </span>
+          <style>@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }</style>
+          {% endif %}
+
+          {# Titre #}
+          <h3 style="font-size:15px;font-weight:700;color:#2C3E50;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {{ promotion.name }}
+          </h3>
+
+          {# Offre cible #}
+          {% if not promotion.isPack() and promotion.offerType %}
+            <div style="margin-bottom:8px;">
+              <span style="font-size:11px;background:#f0f2f5;color:#555;padding:2px 8px;border-radius:5px;">
+                {{ promotion.offerTypeLabel }} #{{ promotion.referenceId }}
+              </span>
+            </div>
+          {% elseif promotion.isPack() %}
+            <div style="margin-bottom:8px;">
+              {% set items = promotion.packItemsDecoded %}
+              <span style="font-size:11px;background:#f0f2f5;color:#555;padding:2px 8px;border-radius:5px;">
+                {{ items|length }} offre(s) dans le pack
+              </span>
+            </div>
+          {% endif %}
+
+          {# Réduction + Dates #}
+          <div style="background:#fff;border-radius:10px;padding:10px;margin-bottom:14px;border:1px solid #e8ecf0;font-size:12px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="color:#64748b;"><i class="fas fa-percent me-1"></i>Réduction</span>
+              <span style="font-weight:700;color:#F7B731;">{{ promotion.reductionLabel }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="color:#64748b;"><i class="far fa-calendar-alt me-1"></i>Début</span>
+              <span style="font-weight:600;color:#2C3E50;">{{ promotion.startDate|date('d/m/Y') }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="color:#64748b;"><i class="far fa-calendar-check me-1"></i>Fin</span>
+              <span style="font-weight:600;color:#2C3E50;">{{ promotion.endDate|date('d/m/Y') }}</span>
+            </div>
+          </div>
+
+          {#
+            CHANGEMENT : Boutons d'action
+            Avant  : Modifier + Supprimer (2 boutons)
+            Après  : Détails + Modifier + Supprimer (3 boutons)
+            Le bouton Détails redirige vers app_admin_promotion_show
+          #}
+          <div style="display:flex;gap:6px;border-top:1px solid #e8ecf0;padding-top:14px;">
+
+            {# Bouton Détails — NOUVEAU #}
+            <a href="{{ path('app_admin_promotion_show', {id: promotion.id}) }}"
+               style="flex:1;text-decoration:none;text-align:center;padding:8px 4px;border-radius:8px;
+                      font-size:10px;font-weight:600;text-transform:uppercase;
+                      display:flex;align-items:center;justify-content:center;gap:4px;
+                      background:rgba(52,152,219,0.1);color:#3498DB;transition:all 0.2s;"
+               onmouseover="this.style.background='#3498DB';this.style.color='#fff';"
+               onmouseout="this.style.background='rgba(52,152,219,0.1)';this.style.color='#3498DB';">
+              <i class="fas fa-eye"></i> Détails
+            </a>
+
+            {% if promotion.isVerrouille() %}
+            <button type="button" onclick="generateQr({{ promotion.id }})"
+              style="flex:1;text-decoration:none;text-align:center;padding:8px 4px;border-radius:8px;
+                      font-size:10px;font-weight:600;text-transform:uppercase;
+                      display:flex;align-items:center;justify-content:center;gap:4px;
+                      background:rgba(26,188,156,0.1);color:#1ABC9C;transition:all 0.2s;border:none;cursor:pointer;"
+              onmouseover="this.style.background='#1ABC9C';this.style.color='#fff';"
+              onmouseout="this.style.background='rgba(26,188,156,0.1)';this.style.color='#1ABC9C';">
+              <i class="fas fa-qrcode"></i> QR Code
+            </button>
+            {% endif %}
+
+            {# Bouton Modifier — inchangé #}
+            <a href="{{ path('app_admin_promotion_edit', {id: promotion.id}) }}"
+               style="flex:1;text-decoration:none;text-align:center;padding:8px 4px;border-radius:8px;
+                      font-size:10px;font-weight:600;text-transform:uppercase;
+                      display:flex;align-items:center;justify-content:center;gap:4px;
+                      background:rgba(247,183,49,0.1);color:#F7B731;transition:all 0.2s;"
+               onmouseover="this.style.background='#F7B731';this.style.color='#fff';"
+               onmouseout="this.style.background='rgba(247,183,49,0.1)';this.style.color='#F7B731';">
+              <i class="fas fa-edit"></i> Modifier
+            </a>
+
+            {# Bouton Supprimer — inchangé #}
+            <form method="post" action="{{ path('app_admin_promotion_delete', {id: promotion.id}) }}" style="flex:1;">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promotion.id) }}">
+              <button type="submit"
+                style="width:100%;padding:8px 4px;border-radius:8px;font-size:10px;font-weight:600;
+                       text-transform:uppercase;border:none;cursor:pointer;
+                       display:flex;align-items:center;justify-content:center;gap:4px;
+                       background:rgba(230,57,70,0.1);color:#e63946;transition:all 0.2s;"
+                onmouseover="this.style.background='#e63946';this.style.color='#fff';"
+                onmouseout="this.style.background='rgba(230,57,70,0.1)';this.style.color='#e63946';"
+                onclick="return confirm('Supprimer la promotion « {{ promotion.name }} » ?')">
+                <i class="fas fa-trash-alt"></i> Supprimer
+              </button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+    {% else %}
+      <div style="grid-column:1/-1;text-align:center;padding:60px 20px;background:#FAFAFA;border-radius:16px;border:2px dashed #e8ecf0;">
+        <div style="width:64px;height:64px;background:rgba(247,183,49,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <i class="fas fa-tags" style="font-size:24px;color:#F7B731;"></i>
+        </div>
+        <h3 style="font-size:16px;font-weight:700;color:#2C3E50;margin-bottom:8px;">Aucune promotion</h3>
+        <p style="color:#94a3b8;font-size:13px;margin-bottom:20px;">Créez votre première promotion dès maintenant.</p>
+        <a href="{{ path('app_admin_promotion_new') }}"
+           style="background:linear-gradient(135deg,#F7B731,#E67E22);color:#fff;padding:10px 24px;border-radius:10px;font-weight:600;font-size:13px;text-decoration:none;">
+          <i class="fas fa-plus me-2"></i> Créer une promotion
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
+ </div>
+</div>
+
+<style>
+  .stat-cards-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 15px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  .stat-card {
+    flex: 1;
+    min-width: 130px;
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .stat-card-left .label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .stat-card-left .value {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .p-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important; } 
+</style>
+
+
+<script>
+function generateQr(promoId) {
+    fetch(`/admin/promotion/${promoId}/generate-qr`, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position:fixed; top:0; left:0; right:0; bottom:0; 
+                            background:rgba(0,0,0,0.8); z-index:9999; display:flex; 
+                            align-items:center; justify-content:center;"
+                     onclick="this.remove()">
+                    <div style="background:#fff; padding:30px; border-radius:20px; 
+                                text-align:center; max-width:400px;"
+                         onclick="event.stopPropagation()">
+                        <h3 style="margin-bottom:15px; color:#2c3e50;">
+                            <i class="fas fa-lock"></i> Code Promo
+                        </h3>
+                        <div style="font-size:24px; font-weight:800; color:#E53E3E; 
+                                    margin-bottom:20px; letter-spacing:2px;">
+                            ${data.code}
+                        </div>
+                        <img src="${data.qr_url}" style="width:250px; height:250px; 
+                             border:2px solid #e8ecf0; border-radius:10px; margin-bottom:15px;">
+                        <p style="color:#64748b; font-size:13px; margin-bottom:20px;">
+                            Scannez ce QR code ou partagez le code
+                        </p>
+                        <button onclick="this.closest('[style*=\\\\'position:fixed\\\\']').remove()" 
+                                style="background:linear-gradient(135deg,#F7B731,#E67E22); 
+                                       color:#fff; border:none; padding:10px 30px; 
+                                       border-radius:50px; font-weight:600; cursor:pointer;">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        } else {
+            alert('Erreur: ' + (data.message || 'Impossible de générer le QR'));
+        }
+    });
+}
+</script>
+{% endblock %}
