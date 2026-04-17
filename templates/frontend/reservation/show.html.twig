@@ -8,9 +8,9 @@
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">Accueil</a></li>
-                <li class="breadcrumb-item"><a href="{{ path('app_reservations_list') }}" style="color: #87CEEB;">Mes Réservations</a></li>
-                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">Détails #{{ reservation.idReservation }}</li>
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">{{ 'nav.home'|trans }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_reservations_list') }}" style="color: #87CEEB;">{{ 'nav.my_trips'|trans }}</a></li>
+                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">{{ 'reservation.list.details'|trans }} #{{ reservation.idReservation }}</li>
             </ol>
         </nav>
 
@@ -45,10 +45,11 @@
                 <div style="background: white; border-radius: 25px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
                     <div class="d-flex justify-content-between align-items-start mb-4">
                         <h4 style="font-weight: 700; color: #2c3e50; margin: 0;">
-                            <i class="bx bx-receipt me-2" style="color: #87CEEB;"></i>Détails de la Réservation
+                            <i class="bx bx-receipt me-2" style="color: #87CEEB;"></i>{{ 'reservation.list.details'|trans }}
                         </h4>
                         <span class="statut-badge statut-{{ reservation.statut|lower|replace({' ': '-'}) }}" style="padding: 8px 20px; border-radius: 25px; font-weight: 600; font-size: 0.9rem;">
-                            {{ reservation.statut }}
+                            {% set status_key = 'status.' ~ reservation.statut|lower|replace({' ': '_', 'é': 'e', 'è': 'e'}) %}
+                            {{ status_key|trans }}
                         </span>
                     </div>
 
@@ -121,19 +122,8 @@
                     <!-- Actions -->
                     <div class="d-flex gap-3">
                         <a href="{{ path('app_reservations_list') }}" class="btn" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; padding: 15px 30px; font-weight: 600;">
-                            <i class="bx bx-arrow-back me-2"></i>Retour
+                            <i class="bx bx-arrow-back me-2"></i>{{ 'search.apply'|default('Retour')|trans }}
                         </a>
-                        {% if reservation.statut|upper in ['EN ATTENTE', 'PENDING'] %}
-                            <a href="{{ path('app_reservation_edit', {id: reservation.idReservation}) }}" class="btn" style="background: rgba(243, 156, 18, 0.15); color: #f39c12; border-radius: 50px; padding: 15px 30px; font-weight: 600;">
-                                <i class="bx bx-edit me-2"></i>Modifier
-                            </a>
-                            <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.idReservation}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.idReservation) }}">
-                                <button class="btn" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c; border-radius: 50px; padding: 15px 30px; font-weight: 600; border: none;">
-                                    <i class="bx bx-x-circle me-2"></i>Annuler
-                                </button>
-                            </form>
-                        {% endif %}
                     </div>
                 </div>
             </div>

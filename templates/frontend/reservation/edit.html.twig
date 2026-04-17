@@ -8,9 +8,9 @@
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">Accueil</a></li>
-                <li class="breadcrumb-item"><a href="{{ path('app_reservations_list') }}" style="color: #87CEEB;">Mes Réservations</a></li>
-                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">Modifier</li>
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">{{ 'nav.home'|trans }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_reservations_list') }}" style="color: #87CEEB;">{{ 'nav.my_trips'|trans }}</a></li>
+                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">{{ 'reservation.list.edit'|trans }}</li>
             </ol>
         </nav>
 
@@ -46,7 +46,7 @@
             <div class="col-lg-8">
                 <div style="background: white; border-radius: 25px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
                     <h4 style="font-weight: 700; color: #2c3e50; margin-bottom: 30px;">
-                        <i class="bx bx-edit me-2" style="color: #f39c12;"></i>Modifier la Réservation
+                        <i class="bx bx-edit me-2" style="color: #f39c12;"></i>{{ 'reservation.list.edit'|trans }}
                     </h4>
 
                     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
@@ -105,10 +105,10 @@
 
                     <div class="d-flex gap-3 mt-4">
                         <a href="{{ path('app_reservations_list') }}" class="btn" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
-                            Annuler
+                            {{ 'reservation.list.cancel'|trans }}
                         </a>
                         <button type="submit" class="btn" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
-                            <i class="bx bx-save me-2"></i>Enregistrer les modifications
+                            <i class="bx bx-save me-2"></i>{{ 'search.apply'|default('Enregistrer')|trans }}
                         </button>
                     </div>
 

@@ -6,6 +6,7 @@ use App\Entity\Publication;
 use App\Entity\Commentaire;
 use App\Entity\Users;
 use App\Repository\PublicationRepository;
+use App\Service\CensorshipService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -54,6 +55,7 @@ class AdminPublicationController extends AbstractController
             'statutP'      => $statutP,
         ]);
     }
+    
     // ================================================================
     // CREATE
     // ================================================================
@@ -62,12 +64,13 @@ class AdminPublicationController extends AbstractController
     public function new(
         Request $request,
         EntityManagerInterface $em,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        CensorshipService $censorshipService
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         if ($request->isMethod('POST')) {
-            $errors = $this->validatePublicationForm($request, $em, null, $slugger);
+            $errors = $this->validatePublicationForm($request, $em, null, $slugger, $censorshipService);
 
             if (!empty($errors)) {
                 foreach ($errors as $error) {
@@ -121,12 +124,13 @@ class AdminPublicationController extends AbstractController
         Publication $publication,
         Request $request,
         EntityManagerInterface $em,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        CensorshipService $censorshipService
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         if ($request->isMethod('POST')) {
-            $errors = $this->validatePublicationForm($request, $em, $publication, $slugger);
+            $errors = $this->validatePublicationForm($request, $em, $publication, $slugger, $censorshipService);
 
             if (!empty($errors)) {
                 foreach ($errors as $error) {
@@ -216,7 +220,8 @@ class AdminPublicationController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         ?Publication $existing,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        CensorshipService $censorshipService
     ): array {
         $errors = [];
 
@@ -224,6 +229,14 @@ class AdminPublicationController extends AbstractController
         $typeCible   = trim((string) $request->request->get('typeCible', ''));
         $statutP     = trim((string) $request->request->get('statutP', ''));
         $userId      = (int) $request->request->get('id_utilisateur', 0);
+
+        // Check for forbidden words FIRST
+        if ($description !== '') {
+            $censorshipError = $censorshipService->validateText($description, 'description');
+            if ($censorshipError) {
+                $errors[] = $censorshipError;
+            }
+        }
 
         if ($description === '') {
             $errors[] = '📝 La description est requise.';

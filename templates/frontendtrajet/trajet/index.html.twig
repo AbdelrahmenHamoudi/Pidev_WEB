@@ -10,38 +10,7 @@
     --vert-pistache: #93C572;
     --vert-pistache-dark: #7cb342;
     --dark: #2c3e50;
-    --car-accent: #F39C12;
 }
-#car-3d-container {
-    width: 100%;
-    height: 400px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    perspective: 1000px;
-}
-.parallax-car {
-    width: 110%;
-    max-width: 550px;
-    height: auto;
-    object-fit: contain;
-    transition: transform 0.1s ease-out;
-    filter: drop-shadow(0 30px 50px rgba(0,0,0,0.3));
-    z-index: 2;
-}
-.car-glow {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(135,206,235,0.4) 0%, rgba(135,206,235,0) 70%);
-    border-radius: 50%;
-    z-index: 1;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    animation: pulseGlow 4s infinite alternate;
-}
-@keyframes pulseGlow { 0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); } }
 
 /* ===== HERO ===== */
 .trajet-hero {
@@ -156,10 +125,9 @@
                     <i class="fas fa-plus me-2"></i>Nouveau Trajet
                 </a>
             </div>
-            <div class="col-lg-5 d-flex justify-content-center">
-                <div id="car-3d-container">
-                    <div class="car-glow"></div>
-                    <img src="{{ asset('images/car_hero.png') }}" class="parallax-car" id="parallaxCar" alt="Jeep SUV">
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center" data-aos="fade-left">
+                <div style="width: 280px; height: 280px; background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(147,197,114,0.2)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-bus" style="font-size: 8rem; background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
                 </div>
             </div>
         </div>
@@ -321,6 +289,16 @@
                             <span class="ir-key"><i class="fas fa-car"></i> Véhicule</span>
                             <span class="ir-val">{% if trajet.idVoiture %}{{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}{% else %}—{% endif %}</span>
                         </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-coins"></i> Prix / personne</span>
+                            <span class="ir-val" style="color: var(--vert-pistache-dark);">
+                                {% if trajet.idVoiture and trajet.distanceKm and (trajet.nbPersonnes > 0) %}
+                                    {{ ((trajet.idVoiture.prixKM * trajet.distanceKm) / trajet.nbPersonnes)|number_format(3) }} DT
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </span>
+                        </div>
                         <div class="info-row-fe" style="border-bottom: none; padding-top: 14px;">
                             <span class="ir-key"><i class="fas fa-info-circle"></i> Statut</span>
                             <span>
@@ -375,25 +353,4 @@
     </div>
 </section>
 
-{% endblock %}
-
-{% block javascripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('car-3d-container');
-    const car = document.getElementById('parallaxCar');
-    if (!container || !car) return;
-
-    container.addEventListener('mousemove', (e) => {
-        const rect = container.getBoundingClientRect();
-        const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-        const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-        car.style.transform = `translate(${x * 25}px, ${y * 15}px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg)`;
-    });
-
-    container.addEventListener('mouseleave', () => {
-        car.style.transform = `translate(0, 0) rotateY(0) rotateX(0)`;
-    });
-});
-</script>
 {% endblock %}

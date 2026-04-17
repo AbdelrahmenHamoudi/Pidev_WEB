@@ -2,11 +2,17 @@ parameters:
     upload_directory: '%kernel.project_dir%/public/uploads/activites'
     profile_images_directory: '%kernel.project_dir%/public/uploads/profiles'
     publication_images_directory: '%kernel.project_dir%/public/uploads/publications'
+    GROQ_API_KEY: '%env(GROQ_API_KEY)%'
+    GEOAPIFY_API_KEY: '%env(GEOAPIFY_API_KEY)%'
 
 services:
     _defaults:
         autowire: true
         autoconfigure: true
+        public: false
+        bind:
+            $geoapifyKey: '%GEOAPIFY_API_KEY%'
+            $projectDir: '%kernel.project_dir%'
 
     App\:
         resource: '../src/'
@@ -18,3 +24,33 @@ services:
     App\Service\ActiviteService:
         arguments:
             $uploadDir: '%upload_directory%'
+
+
+
+    App\Service\Hebergement\DynamicPricingService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Service\Hebergement\SafeZoneService:
+        arguments:
+            $geoapifyKey: '%env(GEOAPIFY_API_KEY)%'
+
+    App\Service\Hebergement\GroqService: ~
+
+    App\Service\Hebergement\TravelIntelligenceService:
+        arguments:
+            $rapidApiKey: '%env(RAPIDAPI_KEY)%'
+
+    # Configuration de Messenger Ably        
+    App\Service\AblyService:
+        arguments:
+            $apiKey: '%env(ABLY_API_KEY)%'  
+
+    #Configuration de ChatBot de Communaute
+    App\Service\CommunityChatbotService:
+        autowire: true
+        autoconfigure: true      
+
+    App\Service\CommunauteChatbotService:
+        arguments:
+            $huggingfaceApiToken: '%env(HUGGINGFACE_API_TOKEN)%'              

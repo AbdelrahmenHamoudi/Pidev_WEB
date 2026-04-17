@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Commentaire;
 use App\Entity\Publication;
 use App\Entity\Users;
+use App\Service\CensorshipService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,12 +20,12 @@ class AdminCommentaireController extends AbstractController
     // CREATE - must be before {idCommentaire} routes
     // ================================================================
     #[Route('/new', name: 'app_admin_commentaire_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, CensorshipService $censorshipService): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         if ($request->isMethod('POST')) {
-            $errors = $this->validateCommentaireForm($request, $em);
+            $errors = $this->validateCommentaireForm($request, $em, $censorshipService);
 
             if (!empty($errors)) {
                 foreach ($errors as $error) {
@@ -102,12 +103,12 @@ class AdminCommentaireController extends AbstractController
     // EDIT
     // ================================================================
     #[Route('/{idCommentaire}/edit', name: 'app_admin_commentaire_edit', methods: ['GET', 'POST'], requirements: ['idCommentaire' => '\d+'])]
-    public function edit(Commentaire $commentaire, Request $request, EntityManagerInterface $em): Response
+    public function edit(Commentaire $commentaire, Request $request, EntityManagerInterface $em, CensorshipService $censorshipService): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         if ($request->isMethod('POST')) {
-            $errors = $this->validateCommentaireForm($request, $em);
+            $errors = $this->validateCommentaireForm($request, $em, $censorshipService);
 
             if (!empty($errors)) {
                 foreach ($errors as $error) {
@@ -172,13 +173,21 @@ class AdminCommentaireController extends AbstractController
     // ================================================================
     // PRIVATE HELPERS
     // ================================================================
-    private function validateCommentaireForm(Request $request, EntityManagerInterface $em): array
+    private function validateCommentaireForm(Request $request, EntityManagerInterface $em, CensorshipService $censorshipService): array
     {
         $errors = [];
 
         $contenu       = trim((string) $request->request->get('contenuC', ''));
         $publicationId = (int) $request->request->get('idPublication', 0);
         $userId        = (int) $request->request->get('id_utilisateur', 0);
+
+        // Check for forbidden words FIRST
+        if ($contenu !== '') {
+            $censorshipError = $censorshipService->validateText($contenu, 'commentaire');
+            if ($censorshipError) {
+                $errors[] = $censorshipError;
+            }
+        }
 
         // Contenu
         if ($contenu === '') {

@@ -16,28 +16,36 @@ class VoitureRepository extends ServiceEntityRepository
         parent::__construct($registry, Voiture::class);
     }
 
-    //    /**
-    //     * @return Voiture[] Returns an array of Voiture objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('v')
-    //            ->andWhere('v.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('v.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Finds cars that are NOT reserved on a specific date.
+     * Logic: A car is busy if it has a Trajet on the same YYYY-MM-DD
+     * with a status other than 'Annulé'.
+     */
+    public function findAvailableCarsForDay(\DateTimeInterface $date, ?int $excludeTrajetId = null): array
+    {
+        $dateStr = $date->format('Y-m-d');
+        
+        $qb = $this->createQueryBuilder('v');
+        
+        $sub = $this->getEntityManager()->createQueryBuilder()
+            ->select('t.id_trajet')
+            ->from(\App\Entity\Trajet::class, 't')
+            ->where('t.id_voiture = v')
+            ->andWhere('t.date_reservation LIKE :datePart')
+            ->andWhere('t.statut != :annule');
 
-    //    public function findOneBySomeField($value): ?Voiture
-    //    {
-    //        return $this->createQueryBuilder('v')
-    //            ->andWhere('v.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if ($excludeTrajetId) {
+            $sub->andWhere('t.id_trajet != :excludeId');
+        }
+
+        $qb->andWhere($qb->expr()->not($qb->expr()->exists($sub->getDQL())))
+           ->setParameter('datePart', $dateStr . '%')
+           ->setParameter('annule', 'Annulé');
+
+        if ($excludeTrajetId) {
+            $qb->setParameter('excludeId', $excludeTrajetId);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

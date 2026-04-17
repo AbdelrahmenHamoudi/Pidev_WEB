@@ -9,13 +9,13 @@
 <!-- Header -->
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
   <div>
-    <a href="{{ path('app_admin_voiture') }}" style="color:#F7B731;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <a href="{{ path('app_voiture') }}" style="color:#F7B731;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
       <i class="fas fa-arrow-left"></i>
       Retour aux voitures
     </a>
     <h1 style="font-size:24px;font-weight:700;color:#2C3E50;margin:0;">{{ voiture.marque }} {{ voiture.modele }}</h1>
   </div>
-  <a href="{{ path('app_admin_voiture_edit', {id: voiture.id}) }}" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
+  <a href="{{ path('app_voiture_edit', {id: voiture.id}) }}" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
     <i class="fas fa-pen"></i> Modifier
   </a>
 </div>
@@ -172,13 +172,13 @@
       <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:20px;">Actions</h3>
 
       <div style="display:flex;flex-direction:column;gap:12px;">
-        <a href="{{ path('app_admin_voiture_edit', {id: voiture.id}) }}" style="background:rgba(247,183,49,0.1);color:#F7B731;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <a href="{{ path('app_voiture_edit', {id: voiture.id}) }}" style="background:rgba(247,183,49,0.1);color:#F7B731;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
           <i class="fas fa-edit"></i> Modifier
         </a>
-        <a href="{{ path('app_admin_voiture') }}" style="background:#f8fafc;color:#64748b;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <a href="{{ path('app_voiture') }}" style="background:#f8fafc;color:#64748b;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
           <i class="fas fa-list"></i> Retour à la liste
         </a>
-        <form method="POST" action="{{ path('app_admin_voiture_delete', {id: voiture.id}) }}" onsubmit="return confirm('Supprimer définitivement {{ voiture.marque }} {{ voiture.modele }} ?');">
+        <form method="POST" action="{{ path('app_voiture_delete', {id: voiture.id}) }}" onsubmit="return confirm('Supprimer définitivement {{ voiture.marque }} {{ voiture.modele }} ?');">
           <input type="hidden" name="_csrf_token" value="{{ csrf_token('delete' ~ voiture.id) }}">
           <button type="submit" style="width:100%;background:rgba(239,68,68,0.1);color:#ef4444;border:none;padding:12px;border-radius:12px;font-weight:500;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;">
             <i class="fas fa-trash"></i> Supprimer

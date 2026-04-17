@@ -4,6 +4,7 @@ namespace App\Controller\Communaute;
 
 use App\Entity\Commentaire;
 use App\Entity\Publication;
+use App\Service\CensorshipService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -59,12 +60,12 @@ class FrontPublicationController extends AbstractController
     // ================================================================
 
     #[Route('/nouvelle-publication', name: 'app_communaute_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger, CensorshipService $censorshipService): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         if ($request->isMethod('POST')) {
-            $errors = $this->validatePublicationForm($request);
+            $errors = $this->validatePublicationForm($request, true, $censorshipService);
 
             if (!empty($errors)) {
                 foreach ($errors as $error) {
@@ -80,7 +81,7 @@ class FrontPublicationController extends AbstractController
             $now = (new \DateTime())->format('Y-m-d H:i:s');
             $publication->setDateCreation($now);
             $publication->setDateModif($now);
-            $publication->setStatutP('VALIDE'); // pending admin validation
+            $publication->setStatutP('VALIDE');
             $publication->setEstVerifie(false);
 
             $em->persist($publication);
@@ -112,7 +113,7 @@ class FrontPublicationController extends AbstractController
     // ================================================================
 
     #[Route('/{idPublication}/modifier', name: 'app_communaute_edit', methods: ['GET', 'POST'])]
-    public function edit(Publication $publication, Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    public function edit(Publication $publication, Request $request, EntityManagerInterface $em, SluggerInterface $slugger, CensorshipService $censorshipService): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -121,7 +122,7 @@ class FrontPublicationController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
-            $errors = $this->validatePublicationForm($request, false);
+            $errors = $this->validatePublicationForm($request, false, $censorshipService);
 
             if (!empty($errors)) {
                 foreach ($errors as $error) {
@@ -132,7 +133,7 @@ class FrontPublicationController extends AbstractController
 
             $this->hydratePublication($publication, $request, $slugger);
             $publication->setDateModif((new \DateTime())->format('Y-m-d H:i:s'));
-            $publication->setStatutP('EN_ATTENTE'); // re-submit for validation
+            $publication->setStatutP('EN_ATTENTE');
             $publication->setEstVerifie(false);
 
             $em->flush();
@@ -172,11 +173,18 @@ class FrontPublicationController extends AbstractController
     // ================================================================
 
     #[Route('/{idPublication}/commenter', name: 'app_communaute_comment_add', methods: ['POST'])]
-    public function addComment(Publication $publication, Request $request, EntityManagerInterface $em): Response
+    public function addComment(Publication $publication, Request $request, EntityManagerInterface $em, CensorshipService $censorshipService): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
         $contenu = trim((string) $request->request->get('contenuC', ''));
+
+        // Check for forbidden words
+        $censorshipError = $censorshipService->validateText($contenu, 'commentaire');
+        if ($censorshipError) {
+            $this->addFlash('error', $censorshipError);
+            return $this->redirectToRoute('app_communaute_show', ['idPublication' => $publication->getIdPublication()]);
+        }
 
         if ($contenu === '' || mb_strlen($contenu) < 2) {
             $this->addFlash('error', '💬 Le commentaire doit comporter au moins 2 caractères.');
@@ -204,7 +212,7 @@ class FrontPublicationController extends AbstractController
     // ================================================================
 
     #[Route('/commentaire/{idCommentaire}/modifier', name: 'app_communaute_comment_edit', methods: ['POST'])]
-    public function editComment(Commentaire $commentaire, Request $request, EntityManagerInterface $em): Response
+    public function editComment(Commentaire $commentaire, Request $request, EntityManagerInterface $em, CensorshipService $censorshipService): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -213,6 +221,15 @@ class FrontPublicationController extends AbstractController
         }
 
         $contenu = trim((string) $request->request->get('contenuC', ''));
+
+        // Check for forbidden words
+        $censorshipError = $censorshipService->validateText($contenu, 'commentaire');
+        if ($censorshipError) {
+            $this->addFlash('error', $censorshipError);
+            return $this->redirectToRoute('app_communaute_show', [
+                'idPublication' => $commentaire->getIdPublication()->getIdPublication(),
+            ]);
+        }
 
         if ($contenu !== '' && mb_strlen($contenu) >= 2 && mb_strlen($contenu) <= 200) {
             $commentaire->setContenuC($contenu);
@@ -253,11 +270,19 @@ class FrontPublicationController extends AbstractController
     // PRIVATE HELPERS
     // ================================================================
 
-    private function validatePublicationForm(Request $request, bool $imageRequired = true): array
+    private function validatePublicationForm(Request $request, bool $imageRequired = true, ?CensorshipService $censorshipService = null): array
     {
         $errors      = [];
         $description = trim((string) $request->request->get('DescriptionP', ''));
         $typeCible   = trim((string) $request->request->get('typeCible', ''));
+
+        // Check for forbidden words FIRST
+        if ($description !== '' && $censorshipService) {
+            $censorshipError = $censorshipService->validateText($description, 'description');
+            if ($censorshipError) {
+                $errors[] = $censorshipError;
+            }
+        }
 
         if ($description === '') {
             $errors[] = '📝 La description est requise.';
@@ -311,5 +336,14 @@ class FrontPublicationController extends AbstractController
                 // Keep old image on edit if upload fails
             }
         }
+    }
+    
+    // ================================================================
+    // SECTION DES JEUX
+    // ================================================================
+    #[Route('/jeux', name: 'app_communaute_games', methods: ['GET'])]
+    public function games(): Response
+    {
+        return $this->render('frontend/communaute/_games_fab.html.twig');
     }
 }

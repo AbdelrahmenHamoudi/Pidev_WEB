@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+
 use App\Entity\Voiture;
 
 #[ORM\Entity]
@@ -23,32 +23,21 @@ class Trajet
     private ?int $id_utilisateur = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Assert\NotBlank(message: "Le point de départ est obligatoire.")]
-    #[Assert\Length(min: 3, minMessage: "Le point de départ doit comporter au moins {{ limit }} caractères.")]
     private ?string $point_depart = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Assert\NotBlank(message: "Le point d'arrivée est obligatoire.")]
-    #[Assert\Length(min: 3, minMessage: "Le point d'arrivée doit comporter au moins {{ limit }} caractères.")]
     private ?string $point_arrivee = null;
 
     #[ORM\Column(type: "float")]
-    #[Assert\NotBlank(message: "La distance est obligatoire.")]
-    #[Assert\Positive(message: "La distance doit être un nombre positif.")]
     private ?float $distance_km = null;
 
     #[ORM\Column(type: "date")]
-    #[Assert\NotBlank(message: "La date de réservation est obligatoire.")]
-    #[Assert\GreaterThanOrEqual("today", message: "La date de réservation ne peut pas être dans le passé.")]
     private ?\DateTimeInterface $date_reservation = null;
 
     #[ORM\Column(type: "integer")]
-    #[Assert\NotBlank(message: "Le nombre de personnes est obligatoire.")]
-    #[Assert\Range(min: 1, max: 8, notInRangeMessage: "Le nombre de personnes doit être compris entre {{ min }} et {{ max }}.")]
     private ?int $nb_personnes = null;
 
     #[ORM\Column(type: "string", length: 50)]
-    #[Assert\NotBlank(message: "Le statut est obligatoire.")]
     private ?string $statut = null;
 
     public function getId_trajet()
