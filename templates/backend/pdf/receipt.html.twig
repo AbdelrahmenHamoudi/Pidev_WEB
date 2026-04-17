@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reçu de Réservation #{{ trajet.id }}</title>
+    <style>
+        @page { margin: 0; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #2c3e50; margin: 0; padding: 40px; background: #fff; }
+        
+        /* Layout */
+        .receipt-container { width: 100%; max-width: 800px; margin: 0 auto; border: 1px solid #eee; padding: 40px; border-radius: 10px; }
+        
+        /* Header */
+        .header { display: table; width: 100%; border-bottom: 2px solid #87CEEB; padding-bottom: 20px; margin-bottom: 30px; }
+        .header-left { display: table-cell; width: 50%; vertical-align: middle; }
+        .header-right { display: table-cell; width: 50%; text-align: right; vertical-align: middle; }
+        .logo { font-size: 28px; font-weight: 800; color: #2c3e50; text-decoration: none; }
+        .logo span { color: #87CEEB; }
+        .receipt-title { font-size: 20px; font-weight: 700; margin: 0; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; }
+        
+        /* Trip Banner */
+        .trip-banner { background: #f8fafc; border-radius: 15px; padding: 25px; margin-bottom: 30px; border-left: 5px solid #93C572; }
+        .route { font-size: 24px; font-weight: 800; }
+        .route-arrow { color: #87CEEB; margin: 0 10px; }
+        
+        /* Grid Info */
+        .info-grid { display: table; width: 100%; margin-bottom: 30px; border-spacing: 10px; }
+        .info-col { display: table-cell; width: 33%; background: #fff; border: 1px solid #f1f5f9; padding: 15px; border-radius: 12px; }
+        .label { font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+        .value { font-size: 14px; font-weight: 700; color: #2c3e50; }
+        
+        /* Billing Section */
+        .billing-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .billing-table th { text-align: left; background: #f1f5f9; padding: 12px; font-size: 12px; text-transform: uppercase; color: #64748b; }
+        .billing-table td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .total-row { background: #2c3e50; color: #fff; }
+        .total-row td { padding: 20px 15px; font-size: 18px; font-weight: 800; }
+        
+        /* Footer */
+        .footer { margin-top: 50px; text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 30px; }
+        .qr-code { width: 80px; height: 80px; background: #eee; margin: 0 auto 15px; }
+        .thanks { font-size: 14px; font-weight: 600; color: #2c3e50; margin-bottom: 5px; }
+        .terms { font-size: 10px; color: #94a3b8; }
+        
+        .watermark { position: fixed; top: 40%; left: 15%; font-size: 100px; color: rgba(135,206,235,0.05); transform: rotate(-45deg); z-index: -1; }
+    </style>
+</head>
+<body>
+    <div class="watermark">RE7LA CONFIRMED</div>
+
+    <div class="receipt-container">
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">RE<span>7</span>LA</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 5px;">Agence de Transport & Tourisme</div>
+            </div>
+            <div class="header-right">
+                <div class="receipt-title">REÇU DE RÉSERVATION</div>
+                <div style="font-size: 14px; font-weight: 700; color: #2c3e50; margin-top: 5px;">#R-{{ "now"|date("Ymd") }}-{{ trajet.id }}</div>
+            </div>
+        </div>
+
+        <div class="trip-banner">
+            <div class="route">
+                {{ trajet.pointDepart }} 
+                <span class="route-arrow">→</span> 
+                {{ trajet.pointArrivee }}
+            </div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
+                Identifiant du trajet : <strong>#{{ trajet.id }}</strong> | Date : <strong>{{ trajet.dateReservation|date('d F Y') }}</strong>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-col">
+                <div class="label">Véhicule</div>
+                <div class="value">{{ trajet.idVoiture ? (trajet.idVoiture.marque ~ ' ' ~ trajet.idVoiture.modele) : 'N/A' }}</div>
+                <div style="font-size: 10px; color: #94a3b8; margin-top: 3px;">{{ trajet.idVoiture ? trajet.idVoiture.immatriculation : '' }}</div>
+            </div>
+            <div class="info-col">
+                <div class="label">Distance</div>
+                <div class="value">{{ trajet.distanceKm }} km</div>
+                <div style="font-size: 10px; color: #94a3b8; margin-top: 3px;">Itinéraire calculé</div>
+            </div>
+            <div class="info-col">
+                <div class="label">Passagers</div>
+                <div class="value">{{ trajet.nbPersonnes }} Personnes</div>
+                <div style="font-size: 10px; color: #94a3b8; margin-top: 3px;">Places réservées</div>
+            </div>
+        </div>
+
+        <table class="billing-table">
+            <thead>
+                <tr>
+                    <th>Description des services</th>
+                    <th style="text-align: right;">Prix Unitaire</th>
+                    <th style="text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <strong>Transport Voyageur</strong><br>
+                        <small style="color: #64748b;">Trajet direct {{ trajet.pointDepart }} - {{ trajet.pointArrivee }}</small>
+                    </td>
+                    <td style="text-align: right;">{{ trajet.idVoiture ? trajet.idVoiture.prixKM|number_format(2) : '0.00' }} DT/km</td>
+                    <td style="text-align: right;">{{ trajet.idVoiture ? (trajet.idVoiture.prixKM * trajet.distanceKm)|number_format(2) : '0.00' }} DT</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Frais de service</strong><br>
+                        <small style="color: #64748b;">Réservation en ligne et support</small>
+                    </td>
+                    <td style="text-align: right;">Inclus</td>
+                    <td style="text-align: right;">0.00 DT</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="2">MONTANT TOTAL À RÉGLER</td>
+                    <td style="text-align: right;">{{ trajet.idVoiture ? (trajet.idVoiture.prixKM * trajet.distanceKm)|number_format(2) : '0.00' }} DT</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 20px; font-size: 12px; color: #64748b;">
+            Statut du paiement : <strong>{{ trajet.statut|upper }}</strong><br>
+            Mode de réservation : <strong>E-Plateforme RE7LA</strong>
+        </div>
+
+        <div class="footer">
+            <div class="thanks">Merci d'avoir choisi RE7LA pour votre voyage !</div>
+            <div class="terms">Cet exemplaire constitue une preuve de réservation officielle.<br>RE7LA - Siège Social Casablanca, Maroc | www.re7la.ma</div>
+            <div style="margin-top: 15px; font-size: 8px; color: #cbd5e1;">Généré électroniquement le {{ "now"|date("d/m/Y H:i:s") }}</div>
+        </div>
+    </div>
+</body>
+</html>

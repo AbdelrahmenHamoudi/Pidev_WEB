@@ -73,10 +73,10 @@
 
     <!-- Disponibilité -->
     <div>
-      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.disponibleHeberg) }}</label>
-      {{ form_widget(form.disponibleHeberg, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#f8fafc;' ~ (form.disponibleHeberg.vars.errors|length > 0 ? 'border-color:#ef4444;background:#fee2e2;' : '')}}) }}
-      {% if form.disponibleHeberg.vars.errors|length > 0 %}
-        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.disponibleHeberg) }}</div>
+      <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">{{ form_label(form.disponible) }}</label>
+      {{ form_widget(form.disponible, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#f8fafc;' ~ (form.disponible.vars.errors|length > 0 ? 'border-color:#ef4444;background:#fee2e2;' : '')}}) }}
+      {% if form.disponible.vars.errors|length > 0 %}
+        <div style="color:#ef4444;font-size:12px;margin-top:4px;">{{ form_errors(form.disponible) }}</div>
       {% endif %}
     </div>
 
@@ -90,27 +90,14 @@
           <i class="fas fa-images" style="font-size:24px;color:#fff;"></i>
         </div>
         <h3 style="font-size:16px;font-weight:600;color:#2C3E50;margin-bottom:8px;">Télécharger des images</h3>
-        <p id="file-count-text" style="color:#64748b;font-size:14px;margin-bottom:16px;">Cliquez pour sélectionner ou glissez-déposez</p>
-        {{ form_widget(form.imageFiles, {'attr': {'style': 'display:none;', 'multiple': 'multiple', 'onchange': 'updateFileCount(this)'}}) }}
+        <p style="color:#64748b;font-size:14px;margin-bottom:16px;">Cliquez pour sélectionner ou glissez-déposez</p>
+        {{ form_widget(form.imageFiles, {'attr': {'style': 'display:none;', 'multiple': 'multiple'}}) }}
         <button type="button" style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:500;font-size:13px;cursor:pointer;" 
-                onclick="document.getElementById('{{ form.imageFiles.vars.id }}').click();">
+                onclick="document.querySelector('input[type=file]').click();">
           <i class="fas fa-folder-open" style="margin-right:8px;"></i>
           Parcourir les fichiers
         </button>
       </div>
-      <script>
-        function updateFileCount(input) {
-            const count = input.files.length;
-            const text = document.getElementById('file-count-text');
-            if (count > 0) {
-                text.innerHTML = `<strong>${count}</strong> fichier(s) sélectionné(s)`;
-                text.style.color = '#1ABC9C';
-            } else {
-                text.innerText = 'Cliquez pour sélectionner ou glissez-déposez';
-                text.style.color = '#64748b';
-            }
-        }
-      </script>
       <p style="color:#64748b;font-size:12px;margin-top:8px;">
         <i class="fas fa-info-circle" style="color:#1ABC9C;margin-right:4px;"></i>
         Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs photos. La première sera l'image principale.

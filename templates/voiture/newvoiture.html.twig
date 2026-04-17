@@ -9,7 +9,7 @@
 <!-- Header -->
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
   <div>
-    <a href="{{ path('app_admin_voiture') }}" style="color:#F7B731;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <a href="{{ path('app_voiture') }}" style="color:#F7B731;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
       <i class="fas fa-arrow-left"></i>
       Retour aux voitures
     </a>
@@ -19,15 +19,7 @@
 
 <div style="background:#fff;border-radius:20px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
 
-  <!-- ===== FLASH MESSAGES (Errors) ===== -->
-  {% for message in app.flashes('error') %}
-    <div style="background:rgba(231,76,60,0.1);color:#e74c3c;padding:12px 16px;border-radius:10px;margin-bottom:15px;font-size:14px;border:1px solid rgba(231,76,60,0.2);display:flex;align-items:center;gap:10px;">
-      <i class="fas fa-exclamation-circle"></i>
-      {{ message }}
-    </div>
-  {% endfor %}
-
-  <form method="POST" enctype="multipart/form-data">
+  <form id="voitureForm" method="POST" enctype="multipart/form-data">
 
     <!-- ===== SECTION 1 : Identification ===== -->
     <div style="margin-bottom:32px;">
@@ -45,29 +37,48 @@
 
         <div>
           <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Marque</label>
-          <input type="text" name="marque" value="{{ voiture.marque ?? '' }}"
-                 placeholder="Ex : Toyota, Peugeot…"
-                 style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+          <select name="marque" id="marqueInput" required
+                  style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;cursor:pointer;">
+            <option value="">-- Choisir une marque --</option>
+            <option value="Audi">Audi</option>
+            <option value="BMW">BMW</option>
+            <option value="Dacia">Dacia</option>
+            <option value="Hyundai">Hyundai</option>
+            <option value="Kia">Kia</option>
+            <option value="Mercedes">Mercedes</option>
+            <option value="Peugeot">Peugeot</option>
+            <option value="Renault">Renault</option>
+            <option value="Toyota">Toyota</option>
+            <option value="Volkswagen">Volkswagen</option>
+          </select>
         </div>
 
         <div>
           <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Modèle</label>
-          <input type="text" name="modele" value="{{ voiture.modele ?? '' }}"
-                 placeholder="Ex : Corolla, 308…"
-                 style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+          <div style="display:flex;gap:8px;">
+            <select name="modele" id="modeleInput" required disabled
+                    style="flex:1;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;cursor:pointer;">
+              <option value="">-- Choisir une marque d'abord --</option>
+            </select>
+            <button type="button" id="magic-search-btn" title="Rechercher une image automatiquement"
+                    style="width:46px;height:46px;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:12px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 4px 10px rgba(99,102,241,0.3);">
+              <i class="fas fa-magic" id="magic-icon"></i>
+            </button>
+          </div>
         </div>
 
         <div>
           <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Immatriculation</label>
-          <input type="text" name="immatriculation" value="{{ voiture.immatriculation ?? '' }}"
+          <input type="text" name="immatriculation" value="{{ voiture.immatriculation ?? '' }}" required
                  placeholder="Ex : 123 TN 4567"
                  style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+          <small style="font-size:10px;color:#94a3b8;margin-top:4px;display:block;">Format : XXX TN XXXX</small>
         </div>
 
         <div>
           <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Tarif / km (DT)</label>
           <div style="display:flex;align-items:stretch;">
-            <input type="number" name="prix_KM" value="{{ voiture.prixKM ?? '' }}"
+            <input type="number" name="prix_KM" value="{{ voiture.prixKM ?? '' }}" step="0.01" min="0" required
                    placeholder="Ex : 4.50"
                    style="flex:1;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px 0 0 12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
             <div style="background:#f8fafc;border:2px solid #e8ecf0;border-left:none;border-radius:0 12px 12px 0;padding:12px 16px;display:flex;align-items:center;color:#64748b;font-weight:500;white-space:nowrap;">
@@ -79,42 +90,138 @@
       </div>
     </div>
 
-    <!-- ===== SECTION 2 : Capacité & Options ===== -->
+    </div>
+
+    <!-- ===== SECTION 2 : Options du Véhicule ===== -->
     <div style="margin-bottom:32px;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">
         <div style="width:36px;height:36px;background:linear-gradient(135deg,#1ABC9C,#16a085);border-radius:8px;display:flex;align-items:center;justify-content:center;">
           <i class="fas fa-sliders-h" style="color:#fff;font-size:14px;"></i>
         </div>
         <div>
-          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Capacité & Options</div>
-          <div style="font-size:12px;color:#94a3b8;">Places et services disponibles</div>
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Options du Véhicule</div>
+          <div style="font-size:12px;color:#94a3b8;">Disponibilité, chauffeur et capacité</div>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">
 
+        <!-- Disponibilité -->
         <div>
-          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:14px;">Nombre de places</label>
-          <input type="number" name="nb_places" value="{{ voiture.nbPlaces ?? 5 }}"
-                 style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:10px;font-size:14px;">
+            <i class="fas fa-circle" style="color:#1ABC9C;font-size:10px;margin-right:6px;"></i>Disponibilité
+          </label>
+          <div style="display:flex;gap:10px;">
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="disponibilite" value="1" id="dispo-oui"
+                     {% if voiture.disponibilite is not defined or voiture.disponibilite is null or voiture.disponibilite %}checked{% endif %}
+                     style="display:none;" onchange="updateToggle('dispo')">
+              <div id="label-dispo-oui" style="text-align:center;padding:12px 8px;border-radius:12px;border:2px solid #1ABC9C;background:rgba(26,188,156,0.08);transition:all 0.2s;">
+                <i class="fas fa-check-circle" style="color:#1ABC9C;font-size:18px;display:block;margin-bottom:4px;"></i>
+                <span style="font-size:12px;font-weight:700;color:#1ABC9C;">Disponible</span>
+              </div>
+            </label>
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="disponibilite" value="0" id="dispo-non"
+                     {% if voiture.disponibilite is defined and voiture.disponibilite is not null and not voiture.disponibilite %}checked{% endif %}
+                     style="display:none;" onchange="updateToggle('dispo')">
+              <div id="label-dispo-non" style="text-align:center;padding:12px 8px;border-radius:12px;border:2px solid #e8ecf0;background:#f8fafc;transition:all 0.2s;">
+                <i class="fas fa-times-circle" style="color:#94a3b8;font-size:18px;display:block;margin-bottom:4px;"></i>
+                <span style="font-size:12px;font-weight:700;color:#94a3b8;">Indisponible</span>
+              </div>
+            </label>
+          </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:12px;justify-content:flex-end;">
-
-          <label style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:#f8fafc;border:2px solid #e8ecf0;border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:14px;color:#64748b;" class="toggle-opt">
-            <input type="checkbox" name="avec_chauffeur" value="1" {% if voiture.avecChauffeur %}checked{% endif %}
-                   style="width:17px;height:17px;accent-color:#F7B731;flex-shrink:0;">
-            <i class="fas fa-user-tie" style="color:#F7B731;"></i>
-            Avec chauffeur disponible
+        <!-- Avec Chauffeur -->
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:10px;font-size:14px;">
+            <i class="fas fa-user-tie" style="color:#2C3E50;font-size:10px;margin-right:6px;"></i>Service Chauffeur
           </label>
+          <div style="display:flex;gap:10px;">
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="avec_chauffeur" value="1" id="chauffeur-oui"
+                     {% if voiture.avecChauffeur is defined and voiture.avecChauffeur %}checked{% endif %}
+                     style="display:none;" onchange="updateToggle('chauffeur')">
+              <div id="label-chauffeur-oui" style="text-align:center;padding:12px 8px;border-radius:12px;border:2px solid #e8ecf0;background:#f8fafc;transition:all 0.2s;">
+                <i class="fas fa-user-tie" style="color:#94a3b8;font-size:18px;display:block;margin-bottom:4px;"></i>
+                <span style="font-size:12px;font-weight:700;color:#94a3b8;">Avec chauffeur</span>
+              </div>
+            </label>
+            <label style="flex:1;cursor:pointer;">
+              <input type="radio" name="avec_chauffeur" value="0" id="chauffeur-non"
+                     {% if voiture.avecChauffeur is not defined or voiture.avecChauffeur is null or not voiture.avecChauffeur %}checked{% endif %}
+                     style="display:none;" onchange="updateToggle('chauffeur')">
+              <div id="label-chauffeur-non" style="text-align:center;padding:12px 8px;border-radius:12px;border:2px solid #2C3E50;background:rgba(44,62,80,0.05);transition:all 0.2s;">
+                <i class="fas fa-key" style="color:#2C3E50;font-size:18px;display:block;margin-bottom:4px;"></i>
+                <span style="font-size:12px;font-weight:700;color:#2C3E50;">Auto-conduit</span>
+              </div>
+            </label>
+          </div>
+        </div>
 
-          <label style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:#f8fafc;border:2px solid #e8ecf0;border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:14px;color:#64748b;" class="toggle-opt">
-            <input type="checkbox" name="disponibilite" value="1" {% if voiture.disponibilite %}checked{% endif %}
-                   style="width:17px;height:17px;accent-color:#1ABC9C;flex-shrink:0;">
-            <i class="fas fa-check-circle" style="color:#1ABC9C;"></i>
-            Disponible à la réservation
+        <!-- Nombre de Places -->
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:10px;font-size:14px;">
+            <i class="fas fa-users" style="color:#6366f1;font-size:10px;margin-right:6px;"></i>Nombre de Places
           </label>
+          <div style="display:flex;align-items:stretch;">
+            <input type="number" name="nb_places" value="{{ voiture.nbPlaces ?? 5 }}" min="1" max="20" required
+                   placeholder="Ex : 5"
+                   style="flex:1;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px 0 0 12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+            <div style="background:#f8fafc;border:2px solid #e8ecf0;border-left:none;border-radius:0 12px 12px 0;padding:12px 14px;display:flex;align-items:center;color:#64748b;font-weight:500;white-space:nowrap;">
+              <i class="fas fa-user" style="font-size:13px;"></i>
+            </div>
+          </div>
+          <small style="font-size:10px;color:#94a3b8;margin-top:4px;display:block;">Entre 1 et 20 passagers</small>
+        </div>
 
+      </div>
+    </div>
+
+    <!-- ===== SECTION 2.5 : Performances Techniques (AI Powered) ===== -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-bolt" style="color:#fff;font-size:14px;"></i>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:700;color:#2C3E50;">Performances Techniques</div>
+          <div style="font-size:12px;color:#94a3b8;">Saisissez le modèle pour voir la magie opérer ✨</div>
+        </div>
+        <button type="button" id="btn-suggest-specs" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;color:#6366f1;cursor:pointer;display:flex;align-items:center;gap:6px;transition:0.2s;" onmouseover="this.style.background='#fff'">
+            <i class="fas fa-magic"></i> Forcer la suggestion
+        </button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;">
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Puissance (ch)</label>
+          <input type="number" name="puissance" id="puissanceInput" value="{{ voiture.puissance ?? '' }}" 
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;" class="spec-input">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Vitesse Max (km/h)</label>
+          <input type="number" name="vitesse_max" id="vitesseInput" value="{{ voiture.vitesseMax ?? '' }}" 
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;" class="spec-input">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">0-100 km/h (s)</label>
+          <input type="number" name="acceleration" id="accelInput" value="{{ voiture.acceleration ?? '' }}" step="0.1"
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;" class="spec-input">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Consommation (L/100)</label>
+          <input type="number" name="consommation" id="consoInput" value="{{ voiture.consommation ?? '' }}" step="0.1"
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;" class="spec-input">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Boîte de Vitesse</label>
+          <select name="boite_vitesse" id="boiteInput"
+                 style="width:100%;padding:10px 14px;border:2px solid #e8ecf0;border-radius:10px;font-size:14px;background:#f8fafc;outline:none;transition:0.3s;cursor:pointer;">
+             <option value="Manuelle" {% if (voiture.boiteVitesse ?? '') == 'Manuelle' %}selected{% endif %}>Manuelle</option>
+             <option value="Automatique" {% if (voiture.boiteVitesse ?? '') == 'Automatique' %}selected{% endif %}>Automatique</option>
+          </select>
         </div>
       </div>
     </div>
@@ -158,9 +265,18 @@
                  style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;"
                  onchange="previewFile(this)">
         </div>
-        <div id="filePreviewWrap" style="display:none;margin-top:12px;position:relative;">
+        <div id="filePreviewWrap" style="display:none;margin-top:12px;position:relative;border-radius:12px;overflow:hidden;">
           <img id="filePreview" src="" alt="Aperçu" style="width:100%;max-height:240px;object-fit:cover;border-radius:12px;border:1px solid #e8ecf0;">
-          <button type="button" onclick="clearFile()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;">
+          
+          <!-- OCR Scanner Overlay -->
+          <div id="ocr-scanner-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;">
+            <div id="scan-line" style="position:absolute;top:0;left:0;width:100%;height:4px;background:rgba(247,183,49,0.8);box-shadow:0 0 15px #F7B731;animation:scan 2s linear infinite;"></div>
+            <i class="fas fa-microchip fa-spin" style="font-size:32px;margin-bottom:12px;color:#F7B731;"></i>
+            <div style="font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Analyse AI en cours...</div>
+            <div id="ocr-progress" style="font-size:11px;margin-top:5px;opacity:0.8;">Initialisation...</div>
+          </div>
+
+          <button type="button" onclick="clearFile()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;z-index:10;">
             <i class="fas fa-times"></i> Supprimer
           </button>
         </div>
@@ -168,11 +284,18 @@
 
       <!-- Tab URL -->
       <div id="tab-url" style="display:none;">
-        <input type="url" name="image_url" id="imageUrl"
+        <input type="text" name="image_url" id="imageUrl"
                value="{{ (voiture.image is defined and voiture.image and voiture.image starts with 'http') ? voiture.image : '' }}"
                placeholder="https://exemple.com/image.jpg"
                oninput="previewUrl(this.value)"
                style="width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;background:#f8fafc;font-family:'Inter',sans-serif;transition:all 0.3s;outline:none;">
+        
+        <div id="urlPreviewLoading" style="display:none;margin-top:12px;text-align:center;padding:30px;background:#f8fafc;border-radius:12px;border:1px dashed #cbd5e1;">
+           <i class="fas fa-magic fa-spin fa-2x" style="color:#F7B731;margin-bottom:10px;"></i>
+           <div style="font-size:13px;color:#64748b;font-weight:600;">Génération IA en cours...</div>
+           <div style="font-size:11px;color:#9ca3af;">L'IA dessine votre photo. Veuillez patienter quelques instants...</div>
+        </div>
+        
         <div id="urlPreviewWrap" style="display:none;margin-top:12px;">
           <img id="urlPreview" src="" alt="Aperçu" style="width:100%;max-height:240px;object-fit:cover;border-radius:12px;border:1px solid #e8ecf0;">
         </div>
@@ -200,7 +323,7 @@
 
     <!-- ===== FOOTER ===== -->
     <div style="display:flex;gap:12px;padding-top:24px;border-top:1px solid #f0f2f5;">
-      <a href="{{ path('app_admin_voiture') }}" style="background:#fff;color:#64748b;border:2px solid #e8ecf0;padding:12px 24px;border-radius:12px;font-weight:500;text-decoration:none;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;">
+      <a href="{{ path('app_voiture') }}" style="background:#fff;color:#64748b;border:2px solid #e8ecf0;padding:12px 24px;border-radius:12px;font-weight:500;text-decoration:none;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;">
         <i class="fas fa-times"></i> Annuler
       </a>
       <button type="submit" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;border:none;padding:12px 28px;border-radius:12px;font-weight:600;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-size:14px;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
@@ -223,12 +346,58 @@
   .toggle-opt:hover { border-color:#F7B731 !important;color:#2C3E50; }
   .toggle-opt:has(input:checked) { border-color:#F7B731;background:#fffbf0;color:#d97706;font-weight:600; }
   button:hover, a:hover { transform:translateY(-1px); }
+  
+  /* Animation */
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+  .fa-spin-custom { animation: spin 1s linear infinite; }
+  @keyframes scan {
+    0% { top: 0%; }
+    50% { top: 100%; }
+    100% { top: 0%; }
+  }
 </style>
 
 {% endblock %}
 
 {% block javascripts %}
+<script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
 <script>
+// ── Toggle visual cards (Disponibilité + Chauffeur) ──────────────
+function updateToggle(type) {
+  if (type === 'dispo') {
+    const isOui = document.getElementById('dispo-oui').checked;
+    // OUI card
+    document.getElementById('label-dispo-oui').style.borderColor  = isOui ? '#1ABC9C' : '#e8ecf0';
+    document.getElementById('label-dispo-oui').style.background   = isOui ? 'rgba(26,188,156,0.08)' : '#f8fafc';
+    document.getElementById('label-dispo-oui').querySelector('i').style.color   = isOui ? '#1ABC9C' : '#94a3b8';
+    document.getElementById('label-dispo-oui').querySelector('span').style.color = isOui ? '#1ABC9C' : '#94a3b8';
+    // NON card
+    document.getElementById('label-dispo-non').style.borderColor  = !isOui ? '#e63946' : '#e8ecf0';
+    document.getElementById('label-dispo-non').style.background   = !isOui ? 'rgba(230,57,70,0.07)' : '#f8fafc';
+    document.getElementById('label-dispo-non').querySelector('i').style.color   = !isOui ? '#e63946' : '#94a3b8';
+    document.getElementById('label-dispo-non').querySelector('span').style.color = !isOui ? '#e63946' : '#94a3b8';
+  }
+  if (type === 'chauffeur') {
+    const isOui = document.getElementById('chauffeur-oui').checked;
+    // OUI card (avec chauffeur)
+    document.getElementById('label-chauffeur-oui').style.borderColor  = isOui ? '#2C3E50' : '#e8ecf0';
+    document.getElementById('label-chauffeur-oui').style.background   = isOui ? 'rgba(44,62,80,0.07)' : '#f8fafc';
+    document.getElementById('label-chauffeur-oui').querySelector('i').style.color   = isOui ? '#2C3E50' : '#94a3b8';
+    document.getElementById('label-chauffeur-oui').querySelector('span').style.color = isOui ? '#2C3E50' : '#94a3b8';
+    // NON card (auto-conduit)
+    document.getElementById('label-chauffeur-non').style.borderColor  = !isOui ? '#2C3E50' : '#e8ecf0';
+    document.getElementById('label-chauffeur-non').style.background   = !isOui ? 'rgba(44,62,80,0.05)' : '#f8fafc';
+    document.getElementById('label-chauffeur-non').querySelector('i').style.color   = !isOui ? '#2C3E50' : '#94a3b8';
+    document.getElementById('label-chauffeur-non').querySelector('span').style.color = !isOui ? '#2C3E50' : '#94a3b8';
+  }
+}
+// Init on page load to reflect edit-mode pre-selected values
+function initToggles() {
+  updateToggle('dispo');
+  updateToggle('chauffeur');
+}
+document.addEventListener('DOMContentLoaded', initToggles);
+
 function switchTab(tab) {
   const uploadEl  = document.getElementById('tab-upload');
   const urlEl     = document.getElementById('tab-url');
@@ -259,6 +428,73 @@ function switchTab(tab) {
   }
 }
 
+// --- AI OCR SCANNER LOGIC ---
+async function startOcrScan(imageSrc) {
+  const overlay = document.getElementById('ocr-scanner-overlay');
+  const progressText = document.getElementById('ocr-progress');
+  const immatInput = document.querySelector('input[name="immatriculation"]');
+  
+  overlay.style.display = 'flex';
+  progressText.innerText = 'Chargement du moteur AI...';
+  
+  try {
+    const worker = await Tesseract.createWorker('eng', 1, {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          progressText.innerText = `Analyse : ${Math.round(m.progress * 100)}%`;
+        }
+      }
+    });
+
+    // Set parameters for better plate detection
+    await worker.setParameters({
+      tessedit_pageseg_mode: '7', // Single text line
+      tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ -', // Plate characters
+    });
+
+    const { data: { text } } = await worker.recognize(imageSrc);
+    await worker.terminate();
+
+    // Clean up text and try to match Tunisian format (XXX TN XXXX)
+    let cleanedText = text.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+    
+    // Try to find the "TN" part and format it
+    if (cleanedText.includes('TN')) {
+        const parts = cleanedText.split('TN');
+        if (parts.length === 2) {
+            cleanedText = `${parts[0].trim()} TN ${parts[1].trim()}`;
+        }
+    } else {
+        // Fallback: If no TN, but we have numbers, assume Tunisian format if it looks like digit+digit
+        const match = cleanedText.match(/^(\d+)([A-Z]{0,2})(\d+)$/);
+        if (match) {
+            cleanedText = `${match[1]} TN ${match[3]}`;
+        }
+    }
+    
+    if (cleanedText && cleanedText.length >= 3) {
+      immatInput.value = cleanedText;
+      immatInput.style.borderColor = '#1ABC9C';
+      immatInput.style.backgroundColor = '#E8F8F5';
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Immatriculation Détectée',
+        text: `Nous avons identifié : ${cleanedText}`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true
+      });
+    }
+  } catch (error) {
+    console.error('OCR Error:', error);
+  } finally {
+    overlay.style.display = 'none';
+  }
+}
+
 function previewFile(input) {
   const file = input.files[0];
   if (!file) return;
@@ -269,6 +505,9 @@ function previewFile(input) {
     document.getElementById('filePreviewWrap').style.display = 'block';
     document.getElementById('dropTitle').textContent = file.name;
     document.getElementById('dropSub').textContent = (file.size / 1024).toFixed(0) + ' Ko — Image chargée';
+    
+    // Start AI Scan
+    startOcrScan(e.target.result);
   };
   reader.readAsDataURL(file);
 }
@@ -288,11 +527,31 @@ function hideFilePreview() {
 function previewUrl(url) {
   const wrap = document.getElementById('urlPreviewWrap');
   const img  = document.getElementById('urlPreview');
+  const loader = document.getElementById('urlPreviewLoading');
+  
   if (url) {
-    img.src = url;
-    img.onload  = () => wrap.style.display = 'block';
-    img.onerror = () => wrap.style.display = 'none';
-  } else { wrap.style.display = 'none'; }
+    if (url.includes('pollinations.ai')) {
+      loader.style.display = 'block';
+      wrap.style.display = 'none';
+      img.onload = () => {
+        loader.style.display = 'none';
+        wrap.style.display = 'block';
+      };
+      img.onerror = () => {
+        loader.style.display = 'none';
+        wrap.style.display = 'none';
+      };
+      img.src = url;
+    } else {
+      loader.style.display = 'none';
+      img.src = url;
+      img.onload  = () => wrap.style.display = 'block';
+      img.onerror = () => wrap.style.display = 'none';
+    }
+  } else { 
+    wrap.style.display = 'none'; 
+    loader.style.display = 'none';
+  }
 }
 
 // Drag & Drop
@@ -308,10 +567,200 @@ dropZone.addEventListener('drop', e => {
     input.files = dt.files; previewFile(input);
   }
 });
-
 {% if voiture.image is defined and voiture.image and voiture.image starts with 'http' %}
   switchTab('url');
   previewUrl('{{ voiture.image }}');
 {% endif %}
+
+// --- DYNAMIC CAR SELECTION LOGIC ---
+const carData = {
+  "Audi": ["A1", "A3", "A4", "A6", "Q3", "Q5", "Q8", "e-tron"],
+  "BMW": ["Série 1", "Série 3", "Série 5", "X1", "X3", "X5", "iX"],
+  "Dacia": ["Logan", "Sandero", "Duster", "Jogger", "Spring"],
+  "Hyundai": ["i10", "i20", "i30", "Tucson", "Santa Fe", "IONIQ 5"],
+  "Kia": ["Picanto", "Rio", "Ceed", "Sportage", "Sorento", "EV6"],
+  "Mercedes": ["Classe A", "Classe C", "Classe E", "Classe G", "GLA", "GLC"],
+  "Peugeot": ["208", "308", "508", "2008", "3008", "5008", "Partner"],
+  "Renault": ["Clio", "Megane", "Captur", "Kadjar", "Austral", "Symbol", "Zoe"],
+  "Toyota": ["Yaris", "Corolla", "Camry", "RAV4", "Hilux", "Land Cruiser"],
+  "Volkswagen": ["Polo", "Golf", "Passat", "Tiguan", "Touareg", "ID.3", "ID.4"]
+};
+
+const marqueSelect = document.getElementById('marqueInput');
+const modeleSelect = document.getElementById('modeleInput');
+
+marqueSelect.addEventListener('change', function() {
+  const marque = this.value;
+  modeleSelect.innerHTML = '<option value="">-- Choisir un modèle --</option>';
+  
+  if (marque && carData[marque]) {
+    modeleSelect.disabled = false;
+    carData[marque].forEach(model => {
+      const option = document.createElement('option');
+      option.value = model;
+      option.textContent = model;
+      modeleSelect.appendChild(option);
+    });
+  } else {
+    modeleSelect.disabled = true;
+    modeleSelect.innerHTML = '<option value="">-- Choisir une marque d\'abord --</option>';
+  }
+});
+
+// Initialization if editing
+{% if voiture.marque %}
+  marqueSelect.value = "{{ voiture.marque }}";
+  marqueSelect.dispatchEvent(new Event('change'));
+  {% if voiture.modele %}
+    setTimeout(() => { modeleSelect.value = "{{ voiture.modele }}"; }, 100);
+  {% endif %}
+{% endif %}
+
+// --- FORM VALIDATION ---
+document.getElementById('voitureForm').addEventListener('submit', function(e) {
+  const marque = document.getElementById('marqueInput').value;
+  const modele = document.getElementById('modeleInput').value;
+  const immat  = document.querySelector('input[name="immatriculation"]').value;
+  const prix   = document.querySelector('input[name="prix_KM"]').value;
+  const places = document.querySelector('input[name="nb_places"]').value;
+  
+  let errors = [];
+
+  if (!marque) errors.push("Veuillez choisir une marque.");
+  if (!modele) errors.push("Veuillez choisir un modèle.");
+  
+  // Tunisian Plate Regex: numbers + TN + numbers
+  const plateRegex = /^\d+\s*TN\s*\d+$/i;
+  if (!immat || !plateRegex.test(immat)) {
+    errors.push("L'immatriculation doit être au format : XXX TN XXXX");
+  }
+
+  if (parseFloat(prix) <= 0) errors.push("Le prix par KM doit être supérieur à 0.");
+  if (parseInt(places) < 1 || parseInt(places) > 20) errors.push("Le nombre de places doit être entre 1 et 20.");
+
+  if (errors.length > 0) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur de saisie',
+      html: '<div style="text-align:left;">' + errors.join('<br>') + '</div>',
+      confirmButtonColor: '#F7B731',
+      showClass: { popup: 'animate__animated animate__fadeInDown' }
+    });
+  }
+});
+
+// --- MAGIC SEARCH LOGIC ---
+document.getElementById('magic-search-btn').addEventListener('click', async function() {
+  const marque = document.getElementById('marqueInput').value;
+  const modele = document.getElementById('modeleInput').value;
+  const icon   = document.getElementById('magic-icon');
+  const btn    = this;
+
+  if (!marque || !modele) {
+    alert('Veuillez saisir la marque et le modèle avant de rechercher une image.');
+    return;
+  }
+
+  icon.className = 'fas fa-spinner fa-spin';
+  btn.style.opacity = '0.7';
+  btn.disabled = true;
+
+  try {
+    const query = `${marque} ${modele}`;
+    const response = await fetch(`{{ path('api_voiture_fetch_image') }}?query=${encodeURIComponent(query)}`);
+    const data = await response.json();
+
+    if (data.url) {
+      switchTab('url');
+      const urlInput = document.getElementById('imageUrl');
+      urlInput.value = data.url;
+      previewUrl(data.url);
+      
+      urlInput.style.borderColor = '#1ABC9C';
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Image téléchargée !',
+        text: 'La photo a été générée et sauvegardée localement (.jpg).',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true
+      });
+      
+      setTimeout(() => urlInput.style.borderColor = '#e8ecf0', 2000);
+    } else {
+      alert("L'API PHP n'a retourné aucune image.");
+    }
+  } catch (err) {
+    console.error('Magic Search Error:', err);
+    alert('Erreur lors du téléchargement de l\'image (Timeout serveur). Veuillez réessayer ou vérifier les logs.');
+  } finally {
+    icon.className = 'fas fa-magic';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+  }
+});
+
+// AI Specs Auto-complete
+const marqueInput = document.getElementById('marqueInput');
+  const modeleInput = document.getElementById('modeleInput');
+  const btnSuggest = document.getElementById('btn-suggest-specs');
+
+  async function updateSpecs() {
+    const marque = marqueInput.value;
+    const modele = modeleInput.value;
+
+    if (!marque || !modele || modele.includes('d\'abord')) return;
+
+    // Show loading state
+    btnSuggest.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyse...';
+    
+    try {
+      const response = await fetch('/api/car-specs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ marque, modele })
+      });
+
+      if (response.ok) {
+        const specs = await response.json();
+        
+        // Populate fields with a nice fade effect
+        const fields = {
+            'puissanceInput': specs.puissance,
+            'vitesseInput': specs.vitesse_max,
+            'accelInput': specs.acceleration,
+            'consoInput': specs.consommation,
+            'boiteInput': specs.boite_vitesse
+        };
+
+        Object.keys(fields).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = fields[id];
+                el.style.borderColor = '#6366f1';
+                setTimeout(() => el.style.borderColor = '#e8ecf0', 1000);
+            }
+        });
+
+        // Show success
+        btnSuggest.innerHTML = '<i class="fas fa-check text-success"></i> Suggéré !';
+      }
+    } catch (e) {
+      console.error('Error fetching specs:', e);
+    } finally {
+      setTimeout(() => {
+        btnSuggest.innerHTML = '<i class="fas fa-magic"></i> Suggérer';
+      }, 2000);
+    }
+  }
+
+  // Listeners
+  modeleInput.addEventListener('change', updateSpecs);
+  btnSuggest.addEventListener('click', updateSpecs);
+
 </script>
 {% endblock %}

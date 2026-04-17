@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Trajet;
 
@@ -17,25 +17,15 @@ class Voiture
     private ?int $id_voiture = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Assert\NotBlank(message: "La marque est obligatoire.")]
-    #[Assert\Length(min: 2, minMessage: "La marque doit comporter au moins {{ limit }} caractères.")]
     private ?string $marque = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    #[Assert\NotBlank(message: "Le modèle est obligatoire.")]
     private ?string $modele = null;
 
     #[ORM\Column(type: "string", length: 50)]
-    #[Assert\NotBlank(message: "L'immatriculation est obligatoire.")]
-    #[Assert\Regex(
-        pattern: "/^\d{3} TN \d{4}$/",
-        message: "L'immatriculation doit respecter le format tunisien : XXX TN XXXX (Ex: 123 TN 4567)."
-    )]
     private ?string $immatriculation = null;
 
     #[ORM\Column(type: "float")]
-    #[Assert\NotBlank(message: "Le prix au km est obligatoire.")]
-    #[Assert\Positive(message: "Le prix au km doit être un nombre positif.")]
     private ?float $prix_km = null;
 
     #[ORM\Column(type: "boolean")]
@@ -45,17 +35,28 @@ class Voiture
     private ?bool $disponibilite = null;
 
     #[ORM\Column(type: "text")]
-    #[Assert\NotBlank(message: "La description est obligatoire.")]
-    #[Assert\Length(min: 10, minMessage: "La description doit comporter au moins {{ limit }} caractères.")]
     private ?string $description = null;
 
     #[ORM\Column(type: "string", length: 255)]
     private ?string $image = null;
 
     #[ORM\Column(type: "integer")]
-    #[Assert\NotBlank(message: "Le nombre de places est obligatoire.")]
-    #[Assert\Range(min: 1, max: 9, notInRangeMessage: "Le nombre de places doit être compris entre {{ min }} et {{ max }}.")]
     private ?int $nb_places = null;
+
+    #[ORM\Column(type: "integer", nullable: true)]
+    private ?int $puissance = null;
+
+    #[ORM\Column(type: "integer", nullable: true)]
+    private ?int $vitesse_max = null;
+
+    #[ORM\Column(type: "float", nullable: true)]
+    private ?float $acceleration = null;
+
+    #[ORM\Column(type: "float", nullable: true)]
+    private ?float $consommation = null;
+
+    #[ORM\Column(type: "string", length: 50, nullable: true)]
+    private ?string $boite_vitesse = null;
 
     public function getId_voiture()
     {
@@ -170,7 +171,22 @@ class Voiture
     public function getNbPlaces() { return $this->nb_places; }
     public function setNbPlaces($v) { $this->nb_places = $v; return $this; }
 
-    #[ORM\OneToMany(mappedBy: "id_voiture", targetEntity: Trajet::class)]
+    public function getPuissance(): ?int { return $this->puissance; }
+    public function setPuissance(?int $v): self { $this->puissance = $v; return $this; }
+
+    public function getVitesseMax(): ?int { return $this->vitesse_max; }
+    public function setVitesseMax(?int $v): self { $this->vitesse_max = $v; return $this; }
+
+    public function getAcceleration(): ?float { return $this->acceleration; }
+    public function setAcceleration(?float $v): self { $this->acceleration = $v; return $this; }
+
+    public function getConsommation(): ?float { return $this->consommation; }
+    public function setConsommation(?float $v): self { $this->consommation = $v; return $this; }
+
+    public function getBoiteVitesse(): ?string { return $this->boite_vitesse; }
+    public function setBoiteVitesse(?string $v): self { $this->boite_vitesse = $v; return $this; }
+
+    #[ORM\OneToMany(mappedBy: "id_voiture", targetEntity: Trajet::class, cascade: ["remove"])]
     private Collection $trajets;
 
     public function __construct()

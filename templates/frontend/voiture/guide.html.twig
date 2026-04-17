@@ -1,0 +1,308 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Guide des Performances - RE7LA{% endblock %}
+
+{% block extra_styles %}
+    <style>
+        .guide-header {
+            padding: 160px 0 80px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .guide-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3') center/cover;
+            opacity: 0.2;
+            mix-blend-mode: overlay;
+        }
+
+        .performance-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+            height: 100%;
+        }
+
+        .performance-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+
+        .car-image-wrapper {
+            position: relative;
+            height: 240px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .car-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .performance-card:hover .car-image {
+            transform: scale(1.1);
+        }
+
+        .badge-luxury {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--dark);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-content {
+            padding: 30px;
+        }
+
+        .car-marque {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--bleu-ceil-dark);
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .car-modele {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        /* Stats Bars */
+        .stat-group {
+            margin-bottom: 20px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .stat-bar-bg {
+            height: 8px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--bleu-ceil), var(--vert-pistache));
+            border-radius: 10px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(1, 0, 0, 1);
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spec-icon {
+            width: 32px;
+            height: 32px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bleu-ceil-dark);
+            font-size: 14px;
+        }
+
+        .spec-info .val {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+            display: block;
+        }
+
+        .spec-info .lbl {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(135, 206, 235, 0.1);
+            color: var(--bleu-ceil-dark);
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        [data-aos="stat-grow"].aos-animate .stat-bar-fill {
+            width: var(--target-width);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <header class="guide-header">
+        <div class="container text-center">
+            <span class="section-tag" data-aos="fade-up">Catalogue Exclusive</span>
+            <h1 class="display-3 fw-bold mb-3" data-aos="fade-up" data-aos-delay="100">Guide de Performance</h1>
+            <p class="lead opacity-75" data-aos="fade-up" data-aos-delay="200">
+                Découvrez l'excellence technologique de notre flotte de prestige. <br>
+                Puissance, précision et élégance à chaque kilomètre.
+            </p>
+
+            {# Search Bar #}
+            <div data-aos="fade-up" data-aos-delay="300" style="max-width: 600px; margin: 40px auto 60px;">
+                <form method="GET" action="{{ path('app_voiture_guide') }}" class="position-relative">
+                    <i class="fas fa-search" style="position: absolute; left: 24px; top: 50%; transform: translateY(-50%); color: var(--bleu-ceil); font-size: 18px; z-index: 10;"></i>
+                    <input type="text" name="search" value="{{ search ?? '' }}" placeholder="Rechercher une marque ou un modèle..." 
+                           style="width: 100%; padding: 18px 30px 18px 60px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.08); backdrop-filter: blur(15px); color: white; font-size: 16px; outline: none; transition: all 0.3s; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                    {% if search %}
+                        <a href="{{ path('app_voiture_guide') }}" style="position: absolute; right: 24px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px; font-weight: 600;">
+                            <i class="fas fa-times me-1"></i>Effacer
+                        </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="container py-5">
+        <div class="row">
+            {% for voiture in voitures %}
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                    <div class="performance-card">
+                        <div class="car-image-wrapper">
+                            {% set car_img = voiture.image ? (voiture.image starts with 'h' ? voiture.image : (voiture.image starts with '/' ? voiture.image : asset('uploads/voitures/' ~ voiture.image))) : 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3' %}
+                            <img src="{{ car_img }}" alt="{{ voiture.modele }}" class="car-image">
+                            <div class="badge-luxury">
+                                <i class="fas fa-gem me-1 text-warning"></i> Premium
+                            </div>
+                        </div>
+                        
+                        <div class="card-content">
+                            <div class="car-marque">{{ voiture.marque }}</div>
+                            <div class="car-modele">{{ voiture.modele }}</div>
+
+                            {# Stats Bars #}
+                            {% set power_pct = (voiture.puissance ?? 100) / 600 * 100 %}
+                            {% set speed_pct = (voiture.vitesseMax ?? 180) / 350 * 100 %}
+
+                            <div class="stat-group">
+                                <div class="stat-label">
+                                    <span>Puissance</span>
+                                    <span>{{ voiture.puissance ?? '---' }} ch</span>
+                                </div>
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill" style="--target-width: {{ power_pct }}%" data-aos="stat-grow"></div>
+                                </div>
+                            </div>
+
+                            <div class="stat-group">
+                                <div class="stat-label">
+                                    <span>Vitesse Max</span>
+                                    <span>{{ voiture.vitesseMax ?? '---' }} km/h</span>
+                                </div>
+                                <div class="stat-bar-bg">
+                                    <div class="stat-bar-fill" style="--target-width: {{ speed_pct }}%" data-aos="stat-grow"></div>
+                                </div>
+                            </div>
+
+                            {# Price per person / KM (Assuming full car) #}
+                            {% set price_per_person = (voiture.nbPlaces > 0) ? (voiture.prixKM / voiture.nbPlaces) : 0 %}
+                            <div class="stat-group">
+                                <div class="stat-label">
+                                    <span>Prix / pers / km</span>
+                                    <span style="color: var(--vert-pistache-dark);">{{ price_per_person|number_format(3) }} DT</span>
+                                </div>
+                                <div class="stat-bar-bg">
+                                    {# Scale: 0 DT to 0.500 DT #}
+                                    {% set price_pct = (price_per_person / 0.5) * 100 %}
+                                    <div class="stat-bar-fill" style="--target-width: {{ price_pct > 100 ? 100 : price_pct }}%; background: linear-gradient(90deg, var(--vert-pistache), #27ae60);" data-aos="stat-grow"></div>
+                                </div>
+                            </div>
+
+                            <div class="spec-grid">
+                                <div class="spec-item">
+                                    <div class="spec-icon"><i class="fas fa-bolt"></i></div>
+                                    <div class="spec-info">
+                                        <span class="val">{{ voiture.acceleration ?? '---' }}s</span>
+                                        <span class="lbl">0-100 km/h</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-icon"><i class="fas fa-gas-pump"></i></div>
+                                    <div class="spec-info">
+                                        <span class="val">{{ voiture.consommation ?? '---' }}L</span>
+                                        <span class="lbl">Consommation</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-icon"><i class="fas fa-cog"></i></div>
+                                    <div class="spec-info">
+                                        <span class="val">{{ voiture.boiteVitesse ?? 'Auto' }}</span>
+                                        <span class="lbl">Transmission</span>
+                                    </div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-icon"><i class="fas fa-users"></i></div>
+                                    <div class="spec-info">
+                                        <span class="val">{{ voiture.nbPlaces }}</span>
+                                        <span class="lbl">Places</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <a href="{{ path('app_trajet_create', {'voiture_id': voiture.id_voiture}) }}" class="btn btn-rechercher py-2" style="font-size: 14px; background: var(--bleu-ceil); color: white; border-radius: 50px; font-weight: 700; width: 100%; display: block; text-align: center; text-decoration: none;">
+                                    <i class="fas fa-calendar-check me-2"></i>Réserver ce véhicule
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-car-side fa-4x mb-3 text-muted"></i>
+                    <h3>Aucun véhicule disponible dans le guide actuellement.</h3>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

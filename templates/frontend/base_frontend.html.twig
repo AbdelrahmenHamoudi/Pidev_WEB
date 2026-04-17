@@ -248,7 +248,7 @@
 
         {% block extra_styles %}{% endblock %}
     </style>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
@@ -277,6 +277,10 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_trajet' ? 'active' : '' }}" href="{{ path('app_trajet') }}">Mes Trajets</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_voiture_guide' ? 'active' : '' }}" href="{{ path('app_voiture_guide') }}">Guide Voitures</a>
                     </li>
 
                     <li class="nav-item">

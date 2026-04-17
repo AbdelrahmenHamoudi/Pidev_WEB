@@ -108,6 +108,15 @@
           </div>
         </div>
         
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(239,68,68,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-hashtag" style="color:#ef4444;font-size:16px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#64748b;">ID</div>
+            <div style="font-weight:600;color:#2C3E50;">#{{ hebergement.id }}</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -140,7 +149,7 @@
           {% for reservation in hebergement.reservations %}
           <div style="background:#f8fafc;border-radius:12px;padding:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <span style="font-weight:600;color:#2C3E50;">RÉSERVATION</span>
+              <span style="font-weight:600;color:#2C3E50;">#{{ reservation.id }}</span>
               <span style="padding:4px 8px;border-radius:12px;font-size:11px;font-weight:600;background:{{ 
                 reservation.statut == 'CONFIRMEE' ? 'rgba(26,188,156,0.15)' : 
                 reservation.statut in ['EN ATTENTE', 'PENDING'] ? 'rgba(243,156,18,0.15)' : 
@@ -169,12 +178,6 @@
     </div>
   </div>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialisation
-  });
-</script>
 
 <style>
   img:hover {
