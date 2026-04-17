@@ -6,6 +6,7 @@
 {% block page_title %}Tableau de bord{% endblock %}
 
 {% block body %}
+
 <div class="row">
   <div class="card" style="width:100%;text-align:center;padding:80px 20px;">
     <div style="max-width:600px;margin:0 auto;">
@@ -14,35 +15,84 @@
       </div>
       <h1 style="font-size:28px;font-weight:700;color:#2C3E50;margin-bottom:15px;">Bienvenue sur RE7LA Admin</h1>
       <p style="font-size:15px;color:#64748b;margin-bottom:40px;line-height:1.6;">
-        Votre tableau de bord récapitulatif sera bientôt disponible ici. En attendant, utilisez le menu de navigation pour gérer vos hébergements et réservations.
+        Gérez la flotte depuis la section Voitures. Les trajets sont réservés côté site public.
       </p>
       
-      <div style="display:flex;justify-content:center;gap:20px;">
-        <a href="{{ path('app_admin_hebergement_list') }}" style="background:#f8fafc;color:#2C3E50;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1px solid #e8ecf0;transition:all 0.3s;" onmouseover="this.style.background='#1ABC9C';this.style.color='#fff';" onmouseout="this.style.background='#f8fafc';this.style.color='#2C3E50';">
-          <i class="fas fa-building"></i>
-          Gérer les Hébergements
+      <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:30px;">
+        <a href="{{ path('app_voiture') }}" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:none;transition:all 0.3s;box-shadow:0 4px 15px rgba(247,183,49,0.35);">
+          <i class="fas fa-car"></i>
+          Gérer les voitures
         </a>
         
-        <a href="{{ path('app_admin_reservation_list') }}" style="background:#f8fafc;color:#2C3E50;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1px solid #e8ecf0;transition:all 0.3s;" onmouseover="this.style.background='#F39C12';this.style.color='#fff';" onmouseout="this.style.background='#f8fafc';this.style.color='#2C3E50';">
-          <i class="fas fa-calendar-check"></i>
-          Voir les Réservations
+        <a href="{{ path('app_home') }}" target="_blank" style="background:#f8fafc;color:#2C3E50;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1px solid #e8ecf0;transition:all 0.3s;">
+          <i class="fas fa-globe"></i>
+          Voir le site public
         </a>
+      </div>
 
-        <a href="{{ path('app_admin_trajet_index') }}" style="background:#f8fafc;color:#2C3E50;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1px solid #e8ecf0;transition:all 0.3s;" onmouseover="this.style.background='#F39C12';this.style.color='#fff';" onmouseout="this.style.background='#f8fafc';this.style.color='#2C3E50';">
-          <i class="fas fa-route"></i>
-          Voir les Trajets
-        </a>
-
-        <a href="{{ path('app_admin_voiture') }}" style="background:#f8fafc;color:#2C3E50;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1px solid #e8ecf0;transition:all 0.3s;" onmouseover="this.style.background='#F39C12';this.style.color='#fff';" onmouseout="this.style.background='#f8fafc';this.style.color='#2C3E50';">
-          <i class="fas fa-car"></i>
-          Gérer les Voitures
-        </a>
-        <a href="{{ path('activite_index') }}" style="background:#f8fafc;color:#2C3E50;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border:1px solid #e8ecf0;transition:all 0.3s;" onmouseover="this.style.background='#1ABC9C';this.style.color='#fff';" onmouseout="this.style.background='#f8fafc';this.style.color='#2C3E50';">
-    <i class="fas fa-running"></i>
-    Gérer les Activités
-</a>
+      <!-- Test Notifications Section -->
+      <div style="background:#f1f5f9;border-radius:16px;padding:24px;border:1px solid #e2e8f0;">
+        <h3 style="font-size:14px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:15px;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <i class="fas fa-flask"></i> Zone de Test des Notifications
+        </h3>
+        <div style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap;">
+          <button onclick="testNotificationUI()" style="background:#fff;border:1px solid #cbd5e1;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;color:#475569;cursor:pointer;display:flex;align-items:center;gap:8px;transition:0.3s;" onmouseover="this.style.background='#f8fafc'">
+            <i class="fas fa-eye" style="color:#3b82f6;"></i> Tester UI (JS)
+          </button>
+          
+          <button id="btn-test-server" style="background:#fff;border:1px solid #cbd5e1;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;color:#475569;cursor:pointer;display:flex;align-items:center;gap:8px;transition:0.3s;" onmouseover="this.style.background='#f8fafc'">
+            <i class="fas fa-server" style="color:#10b981;"></i> Tester Serveur (Mercure)
+          </button>
+          
+        </div>
+        <p id="test-status" style="font-size:11px;color:#94a3b8;margin-top:12px;display:none;">Envoi en cours...</p>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  // --- EXISTING TEST SCRIPTS ---
+  function testNotificationUI() {
+    if (window.showGlobalNotification) {
+      window.showGlobalNotification({
+        action: 'add_trajet',
+        message: '👋 Hello ! Le système de Toast fonctionne parfaitement.'
+      });
+    } else {
+      alert('Système de notification non initialisé.');
+    }
+  }
+
+  document.getElementById('btn-test-server').addEventListener('click', async function() {
+    const btn = this;
+    const status = document.getElementById('test-status');
+    const originalContent = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+    status.style.display = 'block';
+    status.innerText = 'Appel de l\'API Mercure...';
+
+    try {
+      const response = await fetch('{{ path("app_admin_test_notif") }}', { method: 'POST' });
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        status.style.color = '#10b981';
+        status.innerText = '✅ ' + data.message;
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      status.style.color = '#ef4444';
+      status.innerText = '❌ ' + error.message;
+    } finally {
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+      }, 2000);
+    }
+  });
+</script>
 {% endblock %}

@@ -96,17 +96,75 @@
 .pub-card {
     background: white;
     border-radius: 24px;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 4px 20px rgba(44,62,80,0.07);
     border: 1px solid rgba(44,62,80,0.06);
-    transition: transform .3s, box-shadow .3s;
+    transition: transform .3s, box-shadow .3s, border-color .3s;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 .pub-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 16px 40px rgba(44,62,80,0.12);
 }
+.pub-card-inner {
+    border-radius: 24px;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── HIGHLIGHT BADGES ── */
+.pub-card.most-reacted {
+    border: 2px solid #f59e0b;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.25);
+}
+.pub-card.most-reacted:hover {
+    box-shadow: 0 16px 40px rgba(245,158,11,0.3);
+}
+.pub-card.most-commented {
+    border: 2px solid var(--bleu-ceil);
+    box-shadow: 0 4px 20px rgba(135,206,235,0.3);
+}
+.pub-card.most-commented:hover {
+    box-shadow: 0 16px 40px rgba(135,206,235,0.35);
+}
+.pub-card.most-reacted.most-commented {
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 2px #f59e0b, 0 4px 20px rgba(245,158,11,0.25);
+}
+.highlight-badge {
+    position: absolute;
+    top: -12px;
+    left: 16px;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+.badge-hot {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    left: 16px;
+}
+.badge-most-comments {
+    background: linear-gradient(135deg, var(--bleu-ceil), #6366f1);
+    color: white;
+    left: 16px;
+}
+.badge-both-left  { left: 16px; }
+.badge-both-right { left: auto; right: 16px; }
+
 .pub-card-img {
     width: 100%;
     height: 210px;
@@ -236,6 +294,147 @@
     gap: 4px;
 }
 
+/* ── REACTION SYSTEM ── */
+.reaction-section {
+    padding: 10px 22px 14px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Trigger button */
+.reaction-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.reaction-trigger-btn {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    color: #64748b;
+    transition: all .2s;
+    user-select: none;
+}
+.reaction-trigger-btn:hover {
+    border-color: var(--bleu-ceil);
+    color: var(--bleu-ceil-dark);
+    background: rgba(135,206,235,0.07);
+}
+.reaction-trigger-btn.reacted {
+    background: linear-gradient(135deg, rgba(135,206,235,0.15), rgba(147,197,114,0.15));
+    border-color: var(--bleu-ceil);
+    color: var(--bleu-ceil-dark);
+    font-weight: 600;
+}
+
+/* Floating picker */
+.reaction-picker {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: white;
+    border-radius: 50px;
+    box-shadow: 0 8px 30px rgba(44,62,80,0.18);
+    padding: 8px 12px;
+    display: flex;
+    gap: 4px;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px) scale(0.92);
+    transform-origin: bottom left;
+    transition: opacity .2s, transform .2s;
+    white-space: nowrap;
+    border: 1px solid rgba(44,62,80,0.07);
+}
+.reaction-picker.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+.reaction-emoji-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform .15s, background .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.reaction-emoji-btn:hover {
+    transform: scale(1.3) translateY(-3px);
+    background: #f1f5f9;
+}
+.reaction-emoji-btn.active-reaction {
+    background: linear-gradient(135deg, rgba(135,206,235,0.25), rgba(147,197,114,0.25));
+    transform: scale(1.15);
+}
+.reaction-emoji-btn::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15,23,42,0.85);
+    color: white;
+    font-size: 10px;
+    font-family: 'Poppins', sans-serif;
+    padding: 2px 7px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+}
+.reaction-emoji-btn:hover::after { opacity: 1; }
+
+/* Summary bubbles */
+.reaction-summary {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.reaction-bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 3px 9px 3px 6px;
+    font-size: 12px;
+    color: #475569;
+    font-weight: 500;
+    transition: background .2s;
+}
+.reaction-bubble .rb-emoji { font-size: 14px; line-height: 1; }
+.reaction-bubble .rb-count { font-size: 11px; font-weight: 600; color: #64748b; }
+.reaction-total {
+    font-size: 11.5px;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-left: 2px;
+}
+
 /* ── EMPTY STATE ── */
 .empty-state {
     text-align: center;
@@ -281,10 +480,21 @@
     .communaute-header h1 { font-size: 2rem; }
     .filter-bar { flex-direction: column; align-items: stretch; }
     .filter-bar input[type="text"] { width: 100%; }
+    .reaction-picker { left: auto; right: 0; transform-origin: bottom right; }
 }
 {% endblock %}
 
 {% block body %}
+
+{# ── Embed server-side comment counts so JS can reference them ── #}
+<script>
+    window.RE7LA_USER_ID = {{ app.user ? app.user.id : 'null' }};
+    window.RE7LA_COMMENT_COUNTS = {
+        {% for pub in publications %}
+            "{{ pub.idPublication }}": {{ pub.commentaires|length }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+</script>
 
 {# ── Flash messages ── #}
 {% if app.flashes('success') or app.flashes('error') %}
@@ -303,7 +513,9 @@
     <div class="container">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div>
-                <h1 data-aos="fade-right"><i class="fas fa-users me-3" style="background:linear-gradient(135deg,var(--bleu-ceil),var(--vert-pistache));-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>Communauté</h1>
+                <h1 data-aos="fade-right">
+                    <i class="fas fa-users me-3" style="background:linear-gradient(135deg,var(--bleu-ceil),var(--vert-pistache));-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>Communauté
+                </h1>
                 <p data-aos="fade-right" data-aos-delay="100">Partagez vos expériences de voyage avec la communauté RE7LA</p>
             </div>
             {% if app.user %}
@@ -343,7 +555,7 @@
     </form>
 
     {# ── Publication grid ── #}
-    <div class="pub-grid">
+    <div class="pub-grid" id="pubGrid">
         {% if publications is empty %}
             <div class="empty-state" data-aos="fade-up">
                 <i class="fas fa-image"></i>
@@ -353,78 +565,114 @@
         {% else %}
             {% for pub in publications %}
                 {% set isOwner = app.user and pub.id_utilisateur and pub.id_utilisateur.id == app.user.id %}
-                <div class="pub-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+                <div class="pub-card"
+                     data-aos="fade-up"
+                     data-aos-delay="{{ loop.index0 * 60 }}"
+                     data-pub-id="{{ pub.idPublication }}"
+                     data-comment-count="{{ pub.commentaires|length }}">
 
-                    {# Image #}
-                    {% if pub.imgURL %}
-                        <img src="{{ asset('uploads/publications/' ~ pub.imgURL) }}"
-                             alt="Publication"
-                             class="pub-card-img"
-                             loading="lazy">
-                    {% else %}
-                        <div class="pub-card-img-placeholder">
-                            {% if pub.typeCible == 'HEBERGEMENT' %}🏨
-                            {% elseif pub.typeCible == 'ACTIVITE' %}🏄
-                            {% else %}🚌{% endif %}
-                        </div>
-                    {% endif %}
+                    {# ── Highlight badges injected by JS ── #}
 
-                    <div class="pub-card-body">
-                        {# Type badge #}
-                        <span class="pub-type-badge badge-{{ pub.typeCible|lower }}">
-                            {% if pub.typeCible == 'HEBERGEMENT' %}<i class="fas fa-hotel"></i>
-                            {% elseif pub.typeCible == 'ACTIVITE' %}<i class="fas fa-hiking"></i>
-                            {% else %}<i class="fas fa-bus"></i>{% endif %}
-                            {{ pub.typeCible|lower|capitalize }}
-                        </span>
+                    <div class="pub-card-inner">
+                        {# Image #}
+                        {% if pub.imgURL %}
+                            <img src="{{ asset('uploads/publications/' ~ pub.imgURL) }}"
+                                 alt="Publication"
+                                 class="pub-card-img"
+                                 loading="lazy">
+                        {% else %}
+                            <div class="pub-card-img-placeholder">
+                                {% if pub.typeCible == 'HEBERGEMENT' %}🏨
+                                {% elseif pub.typeCible == 'ACTIVITE' %}🏄
+                                {% else %}🚌{% endif %}
+                            </div>
+                        {% endif %}
 
-                        {# Description #}
-                        <p class="pub-description">{{ pub.descriptionP }}</p>
+                        <div class="pub-card-body">
+                            {# Type badge #}
+                            <span class="pub-type-badge badge-{{ pub.typeCible|lower }}">
+                                {% if pub.typeCible == 'HEBERGEMENT' %}<i class="fas fa-hotel"></i>
+                                {% elseif pub.typeCible == 'ACTIVITE' %}<i class="fas fa-hiking"></i>
+                                {% else %}<i class="fas fa-bus"></i>{% endif %}
+                                {{ pub.typeCible|lower|capitalize }}
+                            </span>
 
-                        {# Meta row #}
-                        <div class="pub-meta">
-                            <div class="pub-author">
-                                <div class="pub-avatar">
-                                    {% if pub.id_utilisateur and pub.id_utilisateur.image %}
-                                        <img src="{{ asset('uploads/profiles/' ~ pub.id_utilisateur.image) }}" alt="">
-                                    {% elseif pub.id_utilisateur %}
-                                        {{ pub.id_utilisateur.prenom|slice(0,1)|upper }}{{ pub.id_utilisateur.nom|slice(0,1)|upper }}
-                                    {% else %}
-                                        ?
-                                    {% endif %}
-                                </div>
-                                <div>
-                                    <div class="pub-author-name">
-                                        {% if pub.id_utilisateur %}
-                                            {{ pub.id_utilisateur.prenom }} {{ pub.id_utilisateur.nom }}
+                            {# Description #}
+                            <p class="pub-description">{{ pub.descriptionP }}</p>
+
+                            {# Meta row #}
+                            <div class="pub-meta">
+                                <div class="pub-author">
+                                    <div class="pub-avatar">
+                                        {% if pub.id_utilisateur and pub.id_utilisateur.image %}
+                                            <img src="{{ asset('uploads/profiles/' ~ pub.id_utilisateur.image) }}" alt="">
+                                        {% elseif pub.id_utilisateur %}
+                                            {{ pub.id_utilisateur.prenom|slice(0,1)|upper }}{{ pub.id_utilisateur.nom|slice(0,1)|upper }}
                                         {% else %}
-                                            Anonyme
+                                            ?
                                         {% endif %}
                                     </div>
-                                    <div class="pub-date">{{ pub.dateCreation|date('d/m/Y') }}</div>
+                                    <div>
+                                        <div class="pub-author-name">
+                                            {% if pub.id_utilisateur %}
+                                                {{ pub.id_utilisateur.prenom }} {{ pub.id_utilisateur.nom }}
+                                            {% else %}
+                                                Anonyme
+                                            {% endif %}
+                                        </div>
+                                        <div class="pub-date">{{ pub.dateCreation|date('d/m/Y') }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="pub-actions-right">
+                                    <span class="comment-count">
+                                        <i class="fas fa-comment"></i>
+                                        {{ pub.commentaires|length }}
+                                    </span>
+                                    <a href="{{ path('app_communaute_show', {'idPublication': pub.idPublication}) }}" class="btn-see">
+                                        Voir <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                    {% if isOwner %}
+                                        <a href="{{ path('app_communaute_edit', {'idPublication': pub.idPublication}) }}" class="btn-icon-edit" title="Modifier">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <form method="POST" action="{{ path('app_communaute_delete', {'idPublication': pub.idPublication}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette publication ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_pub_' ~ pub.idPublication) }}">
+                                            <button type="submit" class="btn-icon-delete" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {# ── Reaction section (populated by JS) ── #}
+                        <div class="reaction-section" id="reaction-section-{{ pub.idPublication }}">
+
+                            {# Trigger + picker #}
+                            <div class="reaction-trigger" id="reaction-trigger-{{ pub.idPublication }}">
+                                <button class="reaction-trigger-btn"
+                                        id="reaction-btn-{{ pub.idPublication }}"
+                                        type="button"
+                                        aria-label="Réagir"
+                                        onclick="togglePicker({{ pub.idPublication }}, event)">
+                                    <span id="reaction-btn-icon-{{ pub.idPublication }}">😊</span>
+                                    <span id="reaction-btn-label-{{ pub.idPublication }}">Réagir</span>
+                                </button>
+
+                                <div class="reaction-picker" id="reaction-picker-{{ pub.idPublication }}">
+                                    <button class="reaction-emoji-btn" data-label="J'aime"    onclick="react({{ pub.idPublication }}, 'like',    event)" data-type="like">👍</button>
+                                    <button class="reaction-emoji-btn" data-label="J'adore"   onclick="react({{ pub.idPublication }}, 'love',    event)" data-type="love">❤️</button>
+                                    <button class="reaction-emoji-btn" data-label="Haha"      onclick="react({{ pub.idPublication }}, 'laugh',   event)" data-type="laugh">😂</button>
+                                    <button class="reaction-emoji-btn" data-label="Triste"    onclick="react({{ pub.idPublication }}, 'sad',     event)" data-type="sad">😢</button>
+                                    <button class="reaction-emoji-btn" data-label="En colère" onclick="react({{ pub.idPublication }}, 'angry',   event)" data-type="angry">😡</button>
+                                    <button class="reaction-emoji-btn" data-label="Je n'aime" onclick="react({{ pub.idPublication }}, 'dislike', event)" data-type="dislike">👎</button>
                                 </div>
                             </div>
 
-                            <div class="pub-actions-right">
-                                <span class="comment-count">
-                                    <i class="fas fa-comment"></i>
-                                    {{ pub.commentaires|length }}
-                                </span>
-                                <a href="{{ path('app_communaute_show', {'idPublication': pub.idPublication}) }}" class="btn-see">
-                                    Voir <i class="fas fa-arrow-right"></i>
-                                </a>
-                                {% if isOwner %}
-                                    <a href="{{ path('app_communaute_edit', {'idPublication': pub.idPublication}) }}" class="btn-icon-edit" title="Modifier">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-                                    <form method="POST" action="{{ path('app_communaute_delete', {'idPublication': pub.idPublication}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette publication ?');">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_pub_' ~ pub.idPublication) }}">
-                                        <button type="submit" class="btn-icon-delete" title="Supprimer">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                {% endif %}
-                            </div>
+                            {# Reaction summary bubbles #}
+                            <div class="reaction-summary" id="reaction-summary-{{ pub.idPublication }}"></div>
                         </div>
                     </div>
                 </div>
@@ -434,10 +682,248 @@
 </div>
 
 <script>
-    // Auto-dismiss flash messages after 4s
+// ════════════════════════════════════════════════════════════════
+//  RE7LA – Reactions Engine (localStorage)
+// ════════════════════════════════════════════════════════════════
+
+const STORAGE_KEY      = 're7la_reactions';     // { pubId: { like:0, love:0, … } }
+const USER_ID = window.RE7LA_USER_ID || 'guest';
+const MY_REACTION_KEY = 're7la_my_reactions_' + USER_ID;
+const REACTIONS = [
+    { type: 'like',    emoji: '👍', label: "J'aime"    },
+    { type: 'love',    emoji: '❤️', label: "J'adore"   },
+    { type: 'laugh',   emoji: '😂', label: 'Haha'      },
+    { type: 'sad',     emoji: '😢', label: 'Triste'    },
+    { type: 'angry',   emoji: '😡', label: 'En colère' },
+    { type: 'dislike', emoji: '👎', label: "Je n'aime" },
+];
+
+// ── Storage helpers ─────────────────────────────────────────────
+
+function loadReactions() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+    catch { return {}; }
+}
+function saveReactions(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function loadMyReactions() {
+    try { return JSON.parse(localStorage.getItem(MY_REACTION_KEY) || '{}'); }
+    catch { return {}; }
+}
+function saveMyReactions(data) {
+    localStorage.setItem(MY_REACTION_KEY, JSON.stringify(data));
+}
+
+function getPublicationReactions(pubId) {
+    const all = loadReactions();
+    if (!all[pubId]) all[pubId] = { like:0, love:0, laugh:0, sad:0, angry:0, dislike:0 };
+    return all[pubId];
+}
+
+function totalReactions(counts) {
+    return Object.values(counts).reduce((a, b) => a + b, 0);
+}
+
+// ── Picker toggle ────────────────────────────────────────────────
+
+let openPicker = null;
+
+function togglePicker(pubId, e) {
+    e.stopPropagation();
+    const picker = document.getElementById('reaction-picker-' + pubId);
+    if (!picker) return;
+
+    if (openPicker && openPicker !== picker) {
+        openPicker.classList.remove('open');
+    }
+
+    picker.classList.toggle('open');
+    openPicker = picker.classList.contains('open') ? picker : null;
+}
+
+document.addEventListener('click', function() {
+    if (openPicker) { openPicker.classList.remove('open'); openPicker = null; }
+});
+
+// ── React ────────────────────────────────────────────────────────
+
+function react(pubId, type, e) {
+    e.stopPropagation();
+
+    const allReactions = loadReactions();
+    const myReactions  = loadMyReactions();
+
+    if (!allReactions[pubId]) {
+        allReactions[pubId] = { like:0, love:0, laugh:0, sad:0, angry:0, dislike:0 };
+    }
+
+    const current = myReactions[pubId] || null;
+
+    if (current === type) {
+        // Toggle off – remove reaction
+        allReactions[pubId][type] = Math.max(0, (allReactions[pubId][type] || 0) - 1);
+        myReactions[pubId] = null;
+    } else {
+        // Remove old reaction if any
+        if (current && allReactions[pubId][current] !== undefined) {
+            allReactions[pubId][current] = Math.max(0, allReactions[pubId][current] - 1);
+        }
+        // Add new
+        allReactions[pubId][type] = (allReactions[pubId][type] || 0) + 1;
+        myReactions[pubId] = type;
+    }
+
+    saveReactions(allReactions);
+    saveMyReactions(myReactions);
+
+    // Close picker
+    const picker = document.getElementById('reaction-picker-' + pubId);
+    if (picker) picker.classList.remove('open');
+    openPicker = null;
+
+    renderCard(pubId);
+    updateHighlights();
+}
+
+// ── Render single card ───────────────────────────────────────────
+
+function renderCard(pubId) {
+    const counts   = getPublicationReactions(pubId);
+    const myRx     = loadMyReactions();
+    const myType   = myRx[pubId] || null;
+    const total    = totalReactions(counts);
+
+    // Trigger button
+    const btn      = document.getElementById('reaction-btn-' + pubId);
+    const btnIcon  = document.getElementById('reaction-btn-icon-' + pubId);
+    const btnLabel = document.getElementById('reaction-btn-label-' + pubId);
+
+    if (btn && btnIcon && btnLabel) {
+        if (myType) {
+            const rx = REACTIONS.find(r => r.type === myType);
+            btnIcon.textContent  = rx ? rx.emoji : '😊';
+            btnLabel.textContent = rx ? rx.label : 'Réagir';
+            btn.classList.add('reacted');
+        } else {
+            btnIcon.textContent  = '😊';
+            btnLabel.textContent = 'Réagir';
+            btn.classList.remove('reacted');
+        }
+    }
+
+    // Active state on picker buttons
+    REACTIONS.forEach(rx => {
+        const emojiBtn = document.querySelector(
+            '#reaction-picker-' + pubId + ' [data-type="' + rx.type + '"]'
+        );
+        if (emojiBtn) {
+            emojiBtn.classList.toggle('active-reaction', myType === rx.type);
+        }
+    });
+
+    // Summary bubbles
+    const summaryEl = document.getElementById('reaction-summary-' + pubId);
+    if (!summaryEl) return;
+
+    const sorted = REACTIONS
+        .filter(rx => counts[rx.type] > 0)
+        .sort((a, b) => counts[b.type] - counts[a.type]);
+
+    if (sorted.length === 0) {
+        summaryEl.innerHTML = '';
+        return;
+    }
+
+    const topThree = sorted.slice(0, 3);
+    let html = topThree.map(rx =>
+        `<span class="reaction-bubble">
+            <span class="rb-emoji">${rx.emoji}</span>
+            <span class="rb-count">${counts[rx.type]}</span>
+         </span>`
+    ).join('');
+
+    if (total > 0) {
+        html += `<span class="reaction-total">${total} réaction${total > 1 ? 's' : ''}</span>`;
+    }
+
+    summaryEl.innerHTML = html;
+}
+
+// ── Highlights (most reacted / most commented) ───────────────────
+
+function updateHighlights() {
+    const allRx     = loadReactions();
+    const cards     = document.querySelectorAll('.pub-card[data-pub-id]');
+
+    // Remove existing highlights & badges
+    cards.forEach(card => {
+        card.classList.remove('most-reacted', 'most-commented');
+        card.querySelectorAll('.highlight-badge').forEach(b => b.remove());
+    });
+
+    if (cards.length === 0) return;
+
+    // Find most reacted
+    let maxRxPubId = null, maxRxCount = -1;
+    cards.forEach(card => {
+        const pid   = card.dataset.pubId;
+        const cnt   = totalReactions(allRx[pid] || {});
+        if (cnt > maxRxCount) { maxRxCount = cnt; maxRxPubId = pid; }
+    });
+
+    // Find most commented (from server-injected data)
+    let maxCmtPubId = null, maxCmtCount = -1;
+    cards.forEach(card => {
+        const cnt = parseInt(card.dataset.commentCount || '0', 10);
+        if (cnt > maxCmtCount) { maxCmtCount = cnt; maxCmtPubId = card.dataset.pubId; }
+    });
+
+    // Apply highlights
+    const rxCard  = maxRxCount  > 0 ? document.querySelector(`.pub-card[data-pub-id="${maxRxPubId}"]`)  : null;
+    const cmtCard = maxCmtCount > 0 ? document.querySelector(`.pub-card[data-pub-id="${maxCmtPubId}"]`) : null;
+
+    const isSame = rxCard && cmtCard && rxCard === cmtCard;
+
+    if (rxCard) {
+        rxCard.classList.add('most-reacted');
+        const badge = document.createElement('div');
+        badge.className = 'highlight-badge badge-hot' + (isSame ? ' badge-both-left' : '');
+        badge.innerHTML = '🔥 Tendance · ' + maxRxCount + ' réaction' + (maxRxCount > 1 ? 's' : '');
+        rxCard.prepend(badge);
+    }
+
+    if (cmtCard) {
+        cmtCard.classList.add('most-commented');
+        const badge = document.createElement('div');
+        badge.className = 'highlight-badge badge-most-comments' + (isSame ? ' badge-both-right' : '');
+        badge.innerHTML = '💬 Le + commenté · ' + maxCmtCount + ' comm.';
+        cmtCard.prepend(badge);
+    }
+}
+
+// ── Bootstrap on page load ───────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.pub-card[data-pub-id]');
+    cards.forEach(card => renderCard(card.dataset.pubId));
+    updateHighlights();
+
+    // Auto-dismiss flash messages
     setTimeout(() => {
         const fw = document.getElementById('flashWrapper');
-        if (fw) fw.style.transition = 'opacity .5s', fw.style.opacity = '0', setTimeout(() => fw.remove(), 500);
+        if (fw) { fw.style.transition = 'opacity .5s'; fw.style.opacity = '0'; setTimeout(() => fw.remove(), 500); }
     }, 4000);
+});
 </script>
+
+{# Include Ably chat widget #}
+{% include 'frontend/communaute/communaute_ably_chat_widget.html.twig' %}
+
+{# Include Chatbot widget (blue FAB) #}
+{% include 'frontend/communaute/_chatbot_widget.html.twig' %}
+{# Include Games FAB widget  #}
+{% include 'frontend/communaute/_games_fab.html.twig' %}
+
+{% block javascripts %}{% endblock %}
 {% endblock %}

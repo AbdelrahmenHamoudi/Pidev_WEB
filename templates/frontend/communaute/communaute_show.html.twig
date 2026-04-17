@@ -543,13 +543,28 @@
 </div>
 
 <script>
+    // Forbidden words list
+    const FORBIDDEN_WORDS = ['bhim', 'kalb', 'couchon'];
+    
+    function containsForbiddenWords(text) {
+        const lowerText = text.toLowerCase();
+        return FORBIDDEN_WORDS.filter(word => lowerText.includes(word));
+    }
+
     function startEdit(id) {
         document.getElementById('text-' + id).style.display = 'none';
         document.getElementById('edit-form-' + id).style.display = 'block';
-        // hide the action buttons
         const item = document.getElementById('comment-' + id);
         const actions = item.querySelector('.comment-actions');
         if (actions) actions.style.display = 'none';
+        
+        // Add validation to edit textarea
+        const editTextarea = document.querySelector('#edit-form-' + id + ' textarea');
+        if (editTextarea) {
+            editTextarea.addEventListener('input', function() {
+                validateCommentInput(this);
+            });
+        }
     }
 
     function cancelEdit(id) {
@@ -558,6 +573,30 @@
         const item = document.getElementById('comment-' + id);
         const actions = item.querySelector('.comment-actions');
         if (actions) actions.style.display = '';
+    }
+    
+    function validateCommentInput(textarea) {
+        const forbiddenFound = containsForbiddenWords(textarea.value);
+        const submitBtn = textarea.closest('form')?.querySelector('button[type="submit"]');
+        const existingWarning = textarea.parentElement.querySelector('.forbidden-warning');
+        
+        if (forbiddenFound.length > 0) {
+            textarea.style.borderColor = 'var(--rouge)';
+            if (!existingWarning) {
+                const warning = document.createElement('div');
+                warning.className = 'forbidden-warning';
+                warning.style.cssText = 'color:var(--rouge);font-size:11px;margin-top:4px;';
+                warning.textContent = '🚫 Mots interdits : ' + forbiddenFound.join(', ');
+                textarea.parentElement.appendChild(warning);
+            } else {
+                existingWarning.textContent = '🚫 Mots interdits : ' + forbiddenFound.join(', ');
+            }
+            if (submitBtn) submitBtn.disabled = true;
+        } else {
+            textarea.style.borderColor = '';
+            if (existingWarning) existingWarning.remove();
+            if (submitBtn) submitBtn.disabled = false;
+        }
     }
 
     // Auto-dismiss flash messages
@@ -569,6 +608,23 @@
             setTimeout(() => fw.remove(), 500);
         }
     }, 4000);
+
+    // Add validation to new comment form
+    document.addEventListener('DOMContentLoaded', function() {
+        const commentTextarea = document.querySelector('.comment-form-wrap textarea');
+        if (commentTextarea) {
+            commentTextarea.addEventListener('input', function() {
+                validateCommentInput(this);
+            });
+        }
+        
+        // Add validation to inline edit forms
+        document.querySelectorAll('.inline-edit-form textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                validateCommentInput(this);
+            });
+        });
+    });
 
     // Scroll to anchor if coming from a post
     {% if app.flashes('success') is not empty %}

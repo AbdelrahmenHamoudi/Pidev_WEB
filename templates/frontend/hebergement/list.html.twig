@@ -45,7 +45,8 @@
                             {{ hebergement.typeHebergement }}
                         </span>
                         <span style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 25px; font-weight: 700; color: #87CEEB;">
-                            {{ hebergement.prixParNuit }} DT<span style="font-size: 0.75rem; color: #999;">/nuit</span>
+                            {{ hebergement.prixParNuit|format_price }}
+                            <span style="font-size: 0.75rem; color: #999;">/ {{ 'accommodation.night'|default('nuit')|trans }}</span>
                         </span>
                     </div>
                     <div class="card-body p-4">
@@ -65,7 +66,7 @@
                             <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}" class="btn w-50" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
                                 Voir détails
                             </a>
-                            <a href="{{ path('app_reservation_new', {hebergementId: hebergement.id}) }}" class="btn w-50" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border-radius: 50px; font-weight: 600;">
+                            <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}#reservationForm" class="btn w-50" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border-radius: 50px; font-weight: 600;">
                                 Réserver
                             </a>
                         </div>

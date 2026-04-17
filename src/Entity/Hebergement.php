@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Reservation;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: \App\Repository\HebergementRepository::class)]
 class Hebergement
 {
 
@@ -191,16 +191,58 @@ class Hebergement
      *
      * @return array<object{filename: string}>
      */
+    /**
+     * Returns images as an iterable of simple objects with a `filename` property.
+     * Checks if a folder for this accommodation exists, otherwise falls back to the main image.
+     *
+     * @return array<object{filename: string}>
+     */
     public function getImages(): array
     {
-        if (empty($this->image)) {
-            return [];
+        $images = [];
+        $id = $this->getId_hebergement();
+
+        // 1. Try to scan the specific folder for this ID (supports "unlimited" images)
+        $dirPath = 'uploads/hebergements/' . $id;
+
+        // Build absolute path to project root and normalize slashes for glob()
+        $projectRoot = str_replace('\\', '/', dirname(__DIR__, 2));
+        $fullSystemPath = $projectRoot . '/public/' . $dirPath;
+
+        if (is_dir($fullSystemPath)) {
+            // Use forward slashes for glob pattern, even on Windows
+            $pattern = $fullSystemPath . '/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}';
+            $files = glob($pattern, GLOB_BRACE);
+
+            if ($files) {
+                foreach ($files as $file) {
+                    $images[] = new class ($dirPath . '/' . basename($file)) {
+                        public string $filename;
+                        public function __construct(string $f)
+                        {
+                            $this->filename = $f; }
+                        public function getFilename(): string
+                        {
+                            return $this->filename; }
+                    };
+                }
+            }
         }
-        return [new class($this->image) {
-            public string $filename;
-            public function __construct(string $f) { $this->filename = $f; }
-            public function getFilename(): string { return $this->filename; }
-        }];
+
+        // 2. Fallback to the legacy single image field if folder is empty or non-existent
+        if (empty($images) && !empty($this->image)) {
+            $images[] = new class ($this->image) {
+                public string $filename;
+                public function __construct(string $f)
+                {
+                    $this->filename = $f; }
+                public function getFilename(): string
+                {
+                    return $this->filename; }
+            };
+        }
+
+        return $images;
     }
 
     /**
@@ -219,31 +261,31 @@ class Hebergement
     #[ORM\OneToMany(mappedBy: "hebergement_id", targetEntity: Reservation::class)]
     private Collection $reservations;
 
-        public function getReservations(): Collection
-        {
-            return $this->reservations;
+    public function getReservations(): Collection
+    {
+        return $this->reservations;
+    }
+
+    public function addReservation(Reservation $reservation): self
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations[] = $reservation;
+            $reservation->setHebergement_id($this);
         }
-    
-        public function addReservation(Reservation $reservation): self
-        {
-            if (!$this->reservations->contains($reservation)) {
-                $this->reservations[] = $reservation;
-                $reservation->setHebergement_id($this);
+
+        return $this;
+    }
+
+    public function removeReservation(Reservation $reservation): self
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            // set the owning side to null (unless already changed)
+            if ($reservation->getHebergement_id() === $this) {
+                $reservation->setHebergement_id(null);
             }
-    
-            return $this;
         }
-    
-        public function removeReservation(Reservation $reservation): self
-        {
-            if ($this->reservations->removeElement($reservation)) {
-                // set the owning side to null (unless already changed)
-                if ($reservation->getHebergement_id() === $this) {
-                    $reservation->setHebergement_id(null);
-                }
-            }
-    
-            return $this;
-        }
+
+        return $this;
+    }
 
 }

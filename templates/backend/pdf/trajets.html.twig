@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport des Trajets - RE7LA</title>
+    <style>
+        body { font-family: 'Helvetica', sans-serif; color: #333; line-height: 1.6; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3498db; padding-bottom: 20px; }
+        .logo { font-size: 28px; font-weight: bold; color: #2C3E50; }
+        .subtitle { color: #94a3b8; font-size: 14px; margin-top: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 10px; }
+        th { background-color: #f8fafc; color: #2C3E50; font-weight: bold; padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        td { padding: 10px; border-bottom: 1px solid #f1f5f9; }
+        .badge { padding: 3px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #94a3b8; padding: 20px 0; }
+        .total { margin-top: 20px; font-weight: bold; text-align: right; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">RE7LA Rapport d'Activité</div>
+        <div class="subtitle">Historique des Trajets - Généré le {{ "now"|date("d/m/Y H:i") }}</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Départ</th>
+                <th>Arrivée</th>
+                <th>Date Réservation</th>
+                <th>Passagers</th>
+                <th>Véhicule</th>
+                <th>Montant Total</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trajet in trajets %}
+            <tr>
+                <td>#{{ trajet.id }}</td>
+                <td>{{ trajet.pointDepart }}</td>
+                <td>{{ trajet.pointArrivee }}</td>
+                <td>{{ trajet.dateReservation|date('d/m/Y H:i') }}</td>
+                <td>{{ trajet.nbPersonnes }}</td>
+                <td>
+                    {% if trajet.idVoiture %}
+                        {{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>
+                    {% if trajet.idVoiture and trajet.distanceKm %}
+                        {{ (trajet.idVoiture.prixKM * trajet.distanceKm)|number_format(3) }} DT
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge">
+                        {{ trajet.statut|upper }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">
+        Total Trajets : {{ trajets|length }}
+    </div>
+
+    <div class="footer">
+        RE7LA ERP - Document confidentiel
+    </div>
+</body>
+</html>

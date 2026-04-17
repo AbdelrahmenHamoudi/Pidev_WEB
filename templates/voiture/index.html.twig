@@ -55,6 +55,146 @@
 
 </div>
 
+<!-- ===== CAR ANALYTICS (API DRIVEN) ===== -->
+<div style="margin-bottom: 28px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 14px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-chart-pie" style="color: #F39C12;"></i> Car Fleet Analytics
+        </h2>
+        <button id="refresh-car-stats" style="background: #fff; border: 1px solid #e8ecf0; border-radius: 50px; padding: 6px 16px; font-size: 11px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;">
+            <i class="fas fa-sync-alt" id="car-refresh-icon"></i> Actualiser
+        </button>
+    </div>
+
+    <div id="car-stats-content" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+        <!-- Card: Avg Price -->
+        <div class="glass-stat-card">
+            <div class="gs-icon" style="background: rgba(243, 156, 18, 0.1); color: #F39C12;">
+                <i class="fas fa-tag"></i>
+            </div>
+            <div class="gs-info">
+                <span class="gs-label">Prix Moyen</span>
+                <div class="gs-value"><span id="stat-avg-price">0</span> <small>DT/km</small></div>
+            </div>
+        </div>
+
+        <!-- Card: Availability Rate -->
+        <div class="glass-stat-card">
+            <div class="gs-icon" style="background: rgba(26, 188, 156, 0.1); color: #1ABC9C;">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <div class="gs-info">
+                <span class="gs-label">Taux Dispo</span>
+                <div class="gs-value"><span id="stat-dispo-rate">0</span> <small>%</small></div>
+            </div>
+        </div>
+
+        <!-- Card: Top Brand -->
+        <div class="glass-stat-card">
+            <div class="gs-icon" style="background: rgba(44, 62, 80, 0.1); color: #2C3E50;">
+                <i class="fas fa-award"></i>
+            </div>
+            <div class="gs-info">
+                <span class="gs-label">Marque Leader</span>
+                <div class="gs-value" id="stat-top-brand">—</div>
+            </div>
+        </div>
+
+        <!-- Card: Max Price -->
+        <div class="glass-stat-card">
+            <div class="gs-icon" style="background: rgba(230, 57, 70, 0.1); color: #e63946;">
+                <i class="fas fa-gem"></i>
+            </div>
+            <div class="gs-info">
+                <span class="gs-label">Prix Premium</span>
+                <div class="gs-value"><span id="stat-max-price">0</span> <small>DT</small></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Brand Distribution Section -->
+    <div style="margin-top: 24px; background: rgba(255,255,255,0.4); border-radius: 16px; padding: 20px; border: 1px solid #f1f5f9;">
+        <h3 style="font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 15px; text-transform: uppercase;">Répartition par Marque</h3>
+        <div id="brand-bars-container" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Will be populated by JS -->
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="card" style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,0.05);margin-bottom:28px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:1px solid #f0f2f5;padding-bottom:20px;">
+    <div>
+      <h2 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:5px;">Suivi des Trajets</h2>
+      <p style="color:#94a3b8;font-size:13px;">Aperçu des réservations récentes</p>
+    </div>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <a href="{{ path('app_trajet') }}" style="color:var(--bleu-ceil);font-weight:600;font-size:13px;text-decoration:none;">
+        Voir tout <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="text-align:left;border-bottom:2px solid #f8fafc;">
+          <th style="padding:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;font-size:10px;">Itinéraire</th>
+          <th style="padding:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;font-size:10px;">Date</th>
+          <th style="padding:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;font-size:10px;">Voyageurs</th>
+          <th style="padding:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;font-size:10px;">Statut</th>
+          <th style="padding:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;font-size:10px;">Prix/pers</th>
+          <th style="padding:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;font-size:10px;">Véhicule</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in trajets|slice(0, 5) %}
+        <tr style="border-bottom:1px solid #f8fafc;transition:background 0.2s;" onmouseover="this.style.background='#fafbfc'" onmouseout="this.style.background='transparent'">
+          <td style="padding:15px 12px;">
+            <div style="font-weight:700;color:#2C3E50;">{{ t.pointDepart }} <i class="fas fa-long-arrow-alt-right mx-1" style="color:#cbd5e1;"></i> {{ t.pointArrivee }}</div>
+            <div style="font-size:11px;color:#94a3b8;">{{ t.distanceKm }} km</div>
+          </td>
+          <td style="padding:15px 12px;color:#64748b;">{{ t.dateReservation|date('d/m/Y H:i') }}</td>
+          <td style="padding:15px 12px;color:#64748b;">
+            <i class="fas fa-users me-1" style="font-size:11px;"></i> {{ t.nbPersonnes }}
+          </td>
+          <td style="padding:15px 12px;">
+            {% set s = t.statut %}
+            <span style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;
+              {% if s == 'Réservé' %}background:rgba(59,130,246,0.1);color:#3b82f6;
+              {% elseif s == 'Confirmé' %}background:rgba(34,197,94,0.1);color:#22c55e;
+              {% elseif s == 'Annulé' %}background:rgba(239,68,68,0.1);color:#ef4444;
+              {% else %}background:rgba(148,163,184,0.1);color:#64748b;{% endif %}">
+              {{ s|upper }}
+            </span>
+          </td>
+          <td style="padding:15px 12px;color:#F39C12;font-weight:700;">
+            {% if t.idVoiture and t.distanceKm and (t.nbPersonnes > 0) %}
+              {{ ((t.idVoiture.prixKM * t.distanceKm) / t.nbPersonnes)|number_format(3) }} <small>DT</small>
+            {% else %}
+              <span style="color:#cbd5e1;">—</span>
+            {% endif %}
+          </td>
+          <td style="padding:15px 12px;">
+            {% if t.idVoiture %}
+              <div style="font-weight:600;color:#2C3E50;">{{ t.idVoiture.marque }}</div>
+              <div style="font-size:11px;color:#94a3b8;">{{ t.idVoiture.immatriculation }}</div>
+            {% else %}
+              <span style="color:#94a3b8;">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="padding:30px;text-align:center;color:#94a3b8;">Aucun trajet enregistré.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <!-- ===== LIST CARD ===== -->
 <div class="card" style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,0.05);">
 
@@ -64,14 +204,18 @@
       <h1 style="font-size:20px;font-weight:700;color:#2C3E50;margin-bottom:5px;">Catalogue des Véhicules</h1>
       <p style="color:#94a3b8;font-size:13px;">{{ voitures|length }} véhicule{{ voitures|length != 1 ? 's' : '' }} dans la flotte</p>
     </div>
-    <a href="{{ path('app_admin_voiture_create') }}" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
-      <i class="fas fa-plus"></i>
-      Nouvelle Voiture
-    </a>
+    <div style="display:flex; gap:10px;">
+      <a href="{{ path('app_voiture_export_pdf') }}" style="background:#fff; color:#2C3E50; border:1px solid #e8ecf0; padding:10px 20px; border-radius:8px; font-weight:600; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:all 0.3s; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <i class="fas fa-file-pdf" style="color:#ef4444;"></i> Exporter PDF
+      </a>
+      <a href="{{ path('app_voiture_create') }}" style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
+        <i class="fas fa-plus"></i> Nouvelle Voiture
+      </a>
+    </div>
   </div>
 
   <!-- Filters -->
-  <form method="GET" action="{{ path('app_admin_voiture') }}" style="display:flex;gap:10px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
+  <form method="GET" action="{{ path('app_voiture') }}" style="display:flex;gap:10px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
     <div style="position:relative;flex:1;min-width:220px;">
       <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;"></i>
       <input type="text" name="search" value="{{ search ?? '' }}"
@@ -88,7 +232,7 @@
       <i class="fas fa-filter"></i> Filtrer
     </button>
     {% if (search ?? '') or (marque ?? '') %}
-      <a href="{{ path('app_admin_voiture') }}" style="padding:10px 18px;background:#fff;border:1px solid #fecaca;border-radius:8px;font-size:13px;font-weight:600;color:#ef4444;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.2s;">
+      <a href="{{ path('app_voiture') }}" style="padding:10px 18px;background:#fff;border:1px solid #fecaca;border-radius:8px;font-size:13px;font-weight:600;color:#ef4444;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.2s;">
         <i class="fas fa-times"></i> Réinitialiser
       </a>
     {% endif %}
@@ -144,13 +288,13 @@
 
         <!-- Actions -->
         <div style="display:flex;gap:8px;border-top:1px solid #e8ecf0;padding-top:12px;">
-          <a href="{{ path('app_admin_voiture_show', {id: voiture.id}) }}" class="v-action-btn v-view-btn">
+          <a href="{{ path('app_voiture_show', {id: voiture.id}) }}" class="v-action-btn v-view-btn">
             <i class="fas fa-eye"></i> Voir
           </a>
-          <a href="{{ path('app_admin_voiture_edit', {id: voiture.id}) }}" class="v-action-btn v-edit-btn">
+          <a href="{{ path('app_voiture_edit', {id: voiture.id}) }}" class="v-action-btn v-edit-btn">
             <i class="fas fa-pen"></i> Éditer
           </a>
-          <form method="POST" action="{{ path('app_admin_voiture_delete', {id: voiture.id}) }}" style="flex:0.5;" onsubmit="return confirm('Supprimer {{ voiture.marque }} {{ voiture.modele }} ?');">
+          <form method="POST" action="{{ path('app_voiture_delete', {id: voiture.id}) }}" style="flex:0.5;" onsubmit="return confirm('Supprimer {{ voiture.marque }} {{ voiture.modele }} ?\nAttention : tous les trajets associés seront aussi supprimés.');">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('delete' ~ voiture.id) }}">
             <button type="submit" class="v-action-btn v-delete-btn">
               <i class="fas fa-trash"></i>
@@ -170,7 +314,7 @@
       <p style="color:#94a3b8;font-size:13px;margin-bottom:20px;">
         {% if (search ?? '') or (marque ?? '') %}Modifiez vos filtres ou ajoutez un véhicule.{% else %}Commencez par ajouter votre premier véhicule.{% endif %}
       </p>
-      <a href="{{ path('app_admin_voiture_create') }}" style="background:#F7B731;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
+      <a href="{{ path('app_voiture_create') }}" style="background:#F7B731;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
         <i class="fas fa-plus" style="margin-right:6px;"></i>Nouvelle voiture
       </a>
     </div>
@@ -178,70 +322,6 @@
     {% endfor %}
   </div>
 
-</div>
-
-<!-- ===== TRAJET LIST CARD ===== -->
-<div class="card" style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,0.05);margin-top:28px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:1px solid #f0f2f5;padding-bottom:20px;">
-    <div>
-      <h1 style="font-size:20px;font-weight:700;color:#2C3E50;margin-bottom:5px;">Réservations des Trajets</h1>
-      <p style="color:#94a3b8;font-size:13px;">{{ trajets|length }} trajet{{ trajets|length != 1 ? 's' : '' }} enregistrés</p>
-    </div>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Départ</th>
-          <th>Arrivée</th>
-          <th>Date</th>
-          <th>Passagers</th>
-          <th>Véhicule</th>
-          <th>Client</th>
-          <th>Statut</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for trajet in trajets %}
-          <tr>
-            <td>#{{ trajet.id }}</td>
-            <td style="font-weight:600;">{{ trajet.pointDepart }}</td>
-            <td style="font-weight:600;">{{ trajet.pointArrivee }}</td>
-            <td>{{ trajet.dateReservation ? trajet.dateReservation|date('d/m/Y H:i') : '—' }}</td>
-            <td style="text-align:center;">{{ trajet.nbPersonnes }}</td>
-            <td>
-              {% if trajet.idVoiture %}
-                <span style="color:#F39C12;font-weight:600;">{{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}</span>
-              {% else %}
-                <span style="color:#94a3b8;">Aucun</span>
-              {% endif %}
-            </td>
-            <td>
-              <span class="status-badge s-ok" style="background:rgba(26,188,156,0.1);color:#16a085;border-radius:8px;">
-                <i class="fas fa-user-circle"></i> {{ trajet.idUtilisateur }}
-              </span>
-            </td>
-            <td>
-              {% set s = trajet.statut %}
-              <span class="status-badge 
-                {% if s == 'Réservé' %}s-pend
-                {% elseif s == 'Confirmé' %}s-ok
-                {% elseif s == 'Annulé' %}s-cancel
-                {% else %}s-navy{% endif %}" style="padding:4px 12px;border-radius:20px;font-size:11px;">
-                {{ s }}
-              </span>
-            </td>
-          </tr>
-        {% else %}
-          <tr>
-            <td colspan="8" style="text-align:center;padding:40px;color:#94a3b8;">Aucune réservation de trajet trouvée.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
 </div>
 
 <style>
@@ -257,6 +337,137 @@
   .v-edit-btn:hover { background:#F7B731;color:#fff; }
   .v-delete-btn { width:100%;background:rgba(230,57,70,0.1);color:#e63946; }
   .v-delete-btn:hover { background:#e63946;color:#fff; }
+
+  /* Car Stats Styles */
+  .glass-stat-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+      transition: all 0.3s ease;
+  }
+  .glass-stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+  .gs-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+  }
+  .gs-info { display: flex; flex-direction: column; }
+  .gs-label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+  .gs-value { font-size: 20px; font-weight: 800; color: #2C3E50; }
+  .gs-value small { font-size: 12px; color: #94a3b8; font-weight: 500; margin-left: 2px; }
+
+  /* Animation */
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+  .fa-spin-custom { animation: spin 1s linear infinite; }
 </style>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const refreshBtn = document.getElementById('refresh-car-stats');
+        const refreshIcon = document.getElementById('car-refresh-icon');
+        
+        async function fetchCarStats() {
+            refreshIcon.classList.add('fa-spin-custom');
+            refreshBtn.disabled = true;
+            
+            try {
+                const response = await fetch('{{ path("api_stats_dashboard") }}');
+                const data = await response.json();
+                const cv = data.voitures;
+                
+                // Update Numeric Value with animations
+                animateValue("stat-avg-price", parseFloat(document.getElementById('stat-avg-price').innerText) || 0, cv.prix_moyen, 1000);
+                animateValue("stat-dispo-rate", parseFloat(document.getElementById('stat-dispo-rate').innerText) || 0, cv.taux_dispo, 1000);
+                animateValue("stat-max-price", parseFloat(document.getElementById('stat-max-price').innerText) || 0, cv.prix_max, 1000);
+                
+                // Update Text Values
+                const topBrandObj = document.getElementById('stat-top-brand');
+                if (cv.marques && cv.marques.length > 0) {
+                    topBrandObj.innerText = cv.marques[0].marque;
+                    updateBrandBars(cv.marques, cv.total);
+                }
+
+            } catch (error) {
+                console.error('Error fetching car stats:', error);
+            } finally {
+                setTimeout(() => {
+                    refreshIcon.classList.remove('fa-spin-custom');
+                    refreshBtn.disabled = false;
+                }, 500);
+            }
+        }
+
+        function animateValue(id, start, end, duration, isInt = false) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+            
+            const range = end - start;
+            if (range === 0) {
+                obj.innerHTML = isInt ? Math.round(end) : end.toFixed(1);
+                return;
+            }
+
+            const startTime = new Date().getTime();
+            const endTime = startTime + duration;
+            let timer;
+
+            function run() {
+                const now = new Date().getTime();
+                const remaining = Math.max((endTime - now) / duration, 0);
+                const value = end - (remaining * range);
+                obj.innerHTML = isInt ? Math.round(value) : value.toFixed(1);
+                if (value == end) clearInterval(timer);
+            }
+
+            timer = setInterval(run, 50);
+            run();
+        }
+
+        function updateBrandBars(marques, total) {
+            const container = document.getElementById('brand-bars-container');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            marques.forEach(m => {
+                const percent = Math.round((m.count / total) * 100);
+                container.innerHTML += `
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:#2C3E50;margin-bottom:4px;">
+                            <span>${m.marque}</span>
+                            <span>${m.count} véhicules (${percent}%)</span>
+                        </div>
+                        <div style="height:6px;width:100%;background:#e8ecf0;border-radius:10px;overflow:hidden;">
+                            <div style="height:100%;width:${percent}%;background:linear-gradient(90deg,#F39C12,#F7DC6F);border-radius:10px;transition:width 1s ease-in-out;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        refreshBtn.addEventListener('click', fetchCarStats);
+        fetchCarStats();
+
+        // --- MERCURE REAL-TIME NOTIFICATIONS ---
+        // On écoute le topic pour mettre à jour les statistiques en temps réel
+        // (La notification visuelle est maintenant gérée globalement par baseend.html.twig)
+        const eventSource = new EventSource("{{ mercure('https://re7la.com/voitures')|escape('js') }}");
+        
+        eventSource.onmessage = event => {
+            const data = JSON.parse(event.data);
+            if (['add', 'edit', 'delete'].includes(data.action)) {
+                fetchCarStats();
+            }
+        };
+    });
+</script>
 {% endblock %}

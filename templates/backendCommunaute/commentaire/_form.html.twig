@@ -58,9 +58,10 @@
             placeholder="Rédigez votre commentaire…"
             oninput="cfCounterUpdate(this,'contenu-ctr'); cfValidTA(this,2,200)">{{ com ? com.contenuC : '' }}</textarea>
   <div class="cf-counter-row">
-    <span class="cf-hint">Entre 2 et 200 caractères.</span>
+    <span class="cf-hint">Entre 2 et 200 caractères. Mots interdits : bhim, kalb, couchon</span>
     <span class="cf-counter" id="contenu-ctr">0 / 200</span>
   </div>
+  <div style="font-size:11px; margin-top:4px;" id="forbidden-words-hint"></div>
   <span class="cf-feedback" id="contenuC-fb"></span>
 </div>
 
@@ -115,6 +116,14 @@
 
 <script>
 (function(){
+  /* ── Forbidden words list ── */
+  const FORBIDDEN_WORDS = ['bhim', 'kalb', 'couchon'];
+  
+  function containsForbiddenWords(text) {
+    const lowerText = text.toLowerCase();
+    return FORBIDDEN_WORDS.filter(word => lowerText.includes(word));
+  }
+
   function cfCounterUpdate(el, cid) {
     const len=el.value.length, max=+el.getAttribute('maxlength')||200;
     const c=document.getElementById(cid); if(!c) return;
@@ -125,8 +134,23 @@
 
   function cfValidTA(el, min, max) {
     const v=el.value.trim(), fb=document.getElementById(el.id+'-fb');
+    const hintEl = document.getElementById('forbidden-words-hint');
     el.classList.remove('valid','invalid');
     if(fb){fb.textContent='';fb.className='cf-feedback';}
+    if(hintEl){ hintEl.textContent = ''; }
+    
+    // Check for forbidden words FIRST
+    const forbiddenFound = containsForbiddenWords(v);
+    if (forbiddenFound.length > 0) {
+      el.classList.add('invalid');
+      set(fb, `⚠️ Le commentaire contient des mots interdits : ${forbiddenFound.join(', ')}`, 'err');
+      if(hintEl){ 
+        hintEl.innerHTML = `🚫 Mots interdits détectés : <strong>${forbiddenFound.join(', ')}</strong>`;
+        hintEl.style.color = '#ef4444';
+      }
+      return;
+    }
+    
     if(!v)           { el.classList.add('invalid'); set(fb,'⚠ Ce champ est requis.','err'); }
     else if(v.length<min){ el.classList.add('invalid'); set(fb,`⚠ Minimum ${min} caractères (actuel : ${v.length}).`,'err'); }
     else if(v.length>max){ el.classList.add('invalid'); set(fb,`⚠ Maximum ${max} caractères dépassé.`,'err'); }

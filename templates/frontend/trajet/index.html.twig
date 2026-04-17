@@ -10,102 +10,112 @@
     --vert-pistache: #93C572;
     --vert-pistache-dark: #7cb342;
     --dark: #2c3e50;
-    --car-accent: #F39C12;
 }
-#car-3d-container {
-    width: 100%;
-    height: 400px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    perspective: 1000px;
-}
-.parallax-car {
-    width: 110%;
-    max-width: 550px;
-    height: auto;
-    object-fit: contain;
-    transition: transform 0.1s ease-out;
-    filter: drop-shadow(0 30px 50px rgba(0,0,0,0.3));
-    z-index: 2;
-}
-.car-glow {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(135,206,235,0.4) 0%, rgba(135,206,235,0) 70%);
-    border-radius: 50%;
-    z-index: 1;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    animation: pulseGlow 4s infinite alternate;
-}
-@keyframes pulseGlow { 0% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); } }
 
 /* ===== HERO ===== */
 .trajet-hero {
-    background: linear-gradient(135deg, rgba(135, 206, 235, 0.15), rgba(147, 197, 114, 0.15));
-    padding: 140px 0 80px;
+    background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
+    padding: 160px 0 100px;
     position: relative;
     overflow: hidden;
+    color: white;
 }
 .trajet-hero::before {
     content: '';
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1400') center/cover;
-    opacity: 0.07;
+    background: url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1400') center/cover;
+    opacity: 0.15;
+    mix-blend-mode: overlay;
 }
-.floating-shape { position: absolute; border-radius: 50%; opacity: 0.08; animation: float 20s infinite ease-in-out; }
-.shape-1 { width: 400px; height: 400px; background: var(--bleu-ceil); top: -150px; right: -100px; animation-delay: 0s; }
-.shape-2 { width: 250px; height: 250px; background: var(--vert-pistache); bottom: -80px; left: -60px; animation-delay: 5s; }
-@keyframes float { 0%,100%{transform:translate(0,0) rotate(0deg);} 33%{transform:translate(30px,-30px) rotate(120deg);} 66%{transform:translate(-20px,20px) rotate(240deg);} }
+
+/* Moving Traffic Animation */
+.traffic-container {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-car {
+    position: absolute;
+    color: rgba(255,255,255,0.4);
+    font-size: 24px;
+    animation: drive-right linear infinite;
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
+}
+
+.car-1 { bottom: 10px; animation-duration: 15s; animation-delay: 0s; }
+.car-2 { bottom: 40px; animation-duration: 22s; animation-delay: -5s; font-size: 20px; opacity: 0.2; }
+.car-3 { bottom: 70px; animation-duration: 18s; animation-delay: -10s; font-size: 28px; }
+
+@keyframes drive-right {
+    from { transform: translateX(-100px); }
+    to { transform: translateX(calc(100vw + 100px)); }
+}
+
+.floating-shape { position: absolute; border-radius: 50%; opacity: 0.12; animation: float 20s infinite ease-in-out; }
+.shape-1 { width: 400px; height: 400px; background: #87CEEB; top: -150px; right: -100px; }
+.shape-2 { width: 250px; height: 250px; background: #93C572; bottom: -80px; left: -60px; }
 
 /* ===== STAT CARDS ===== */
 .stat-card-fe {
-    background: white;
-    border-radius: 25px;
-    padding: 28px 24px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-    border: 1px solid rgba(135,206,235,0.15);
-    transition: all 0.3s ease;
-    text-align: center;
-}
-.stat-card-fe:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
-.stat-icon-fe {
-    width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 16px;
-    display: flex; align-items: center; justify-content: center; font-size: 24px;
-}
-
-/* ===== FILTERS ===== */
-.filters-card {
-    background: white;
-    border-radius: 25px;
-    padding: 30px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.07);
-    margin-bottom: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 28px;
+    padding: 32px 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* ===== TRAJET CARDS ===== */
 .trajet-card {
     background: white;
-    border-radius: 25px;
+    border-radius: 30px;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-    border: 1px solid rgba(135,206,235,0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.03);
+    transition: all 0.4s ease;
 }
-.trajet-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.13); }
 
 .route-banner {
-    background: linear-gradient(135deg, var(--dark), #1a2f42);
-    padding: 24px 28px;
-    display: flex; align-items: center; gap: 0; position: relative;
+    background: linear-gradient(135deg, var(--bleu-ceil-dark) 0%, var(--bleu-ceil) 100%);
+    padding: 30px 35px;
+    position: relative;
+    overflow: hidden;
 }
-.rb-city { flex: 1; }
-.rb-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
-.rb-name  { font-size: 20px; font-weight: 700; color: white; font-family: 'Poppins', sans-serif; }
-.rb-arrow { margin: 0 16px; color: rgba(255,255,255,0.3); font-size: 22px; flex-shrink: 0; }
+
+.rb-arrow { 
+    margin: 0 20px; 
+    color: rgba(255,255,255,0.4); 
+    font-size: 24px; 
+    flex: 1; 
+    text-align: center;
+    position: relative;
+    border-top: 2px dashed rgba(255,255,255,0.1);
+    height: 2px;
+    top: 10px;
+}
+
+.driving-car-icon {
+    position: absolute;
+    top: -14px;
+    left: 10%;
+    color: var(--bleu-ceil);
+    font-size: 16px;
+    transition: left 1.5s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    opacity: 0;
+}
+
+.trajet-card:hover .driving-car-icon {
+    left: 85%;
+    opacity: 1;
+}
+.rb-label { color: rgba(255,255,255,0.7) !important; }
+.rb-arrow i.fa-chevron-right { color: white !important; }
 .rb-dot-dep { position: absolute; bottom: -6px; left: 28px; width: 12px; height: 12px; border-radius: 50%; background: var(--bleu-ceil); box-shadow: 0 0 10px rgba(135,206,235,0.7); }
 .rb-dot-arr { position: absolute; bottom: -6px; right: 28px; width: 12px; height: 12px; border-radius: 50%; background: var(--vert-pistache); box-shadow: 0 0 10px rgba(147,197,114,0.7); }
 
@@ -132,12 +142,246 @@
     display: flex; gap: 8px;
     padding: 16px 28px 24px; border-top: 1px solid #f0f4f8;
 }
+
+/* ===== CHATBOT STYLES ===== */
+.chatbot-toggler {
+    position: fixed;
+    bottom: 30px;
+    right: 35px;
+    height: 60px;
+    width: 60px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 25px rgba(135,206,235,0.4);
+    z-index: 999;
+}
+.chatbot-toggler:hover { transform: scale(1.1); }
+.chatbot-toggler span {
+    color: #fff;
+    position: absolute;
+}
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child  {
+    opacity: 0;
+}
+body.show-chatbot .chatbot-toggler span:last-child {
+    opacity: 1;
+}
+
+.chatbot {
+    position: fixed;
+    right: 35px;
+    bottom: 100px;
+    width: 420px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.5);
+    transform-origin: bottom right;
+    transition: all 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    z-index: 999;
+}
+body.show-chatbot .chatbot {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+.chatbot header {
+    padding: 15px 20px;
+    position: relative;
+    text-align: center;
+    color: #fff;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chatbot header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+.header-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.a11y-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.a11y-btn:hover { background: rgba(255,255,255,0.3); }
+.a11y-btn.active { background: #fff; color: var(--bleu-ceil); }
+
+/* Sign Mode Pictograms */
+.pictogram {
+    display: block;
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    animation: bounceIn 0.5s ease;
+}
+.sign-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(135,206,235,0.1);
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bleu-ceil);
+    margin-top: 5px;
+}
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.chatbot .chatbox {
+    overflow-y: auto;
+    height: 400px;
+    padding: 25px 20px 100px;
+}
+.chatbox .chat {
+    display: flex;
+    list-style: none;
+}
+.chatbox .outgoing {
+    margin: 20px 0;
+    justify-content: flex-end;
+}
+.chatbox .incoming span {
+    width: 35px;
+    height: 35px;
+    color: #fff;
+    cursor: default;
+    text-align: center;
+    line-height: 35px;
+    align-self: flex-end;
+    background: var(--bleu-ceil);
+    border-radius: 10px;
+    margin: 0 10px 7px 0;
+}
+.chatbox .chat p {
+    white-space: pre-wrap;
+    padding: 12px 16px;
+    border-radius: 15px 15px 0 15px;
+    max-width: 75%;
+    color: #fff;
+    font-size: 0.95rem;
+    background: var(--bleu-ceil);
+}
+.chatbox .incoming p {
+    border-radius: 15px 15px 15px 0;
+}
+.chatbox .chat p.error {
+    color: #721c24;
+    background: #f8d7da;
+}
+.chatbox .incoming p {
+    color: var(--dark);
+    background: #f2f2f2;
+}
+.chatbot .chat-input {
+    display: flex;
+    gap: 5px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+    padding: 15px 20px;
+    border-top: 1px solid #ddd;
+    align-items: center;
+}
+.chat-input textarea {
+    height: 45px;
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    max-height: 180px;
+    padding: 12px 0;
+    font-size: 0.95rem;
+}
+.chat-input span {
+    align-self: flex-end;
+    color: var(--bleu-ceil);
+    cursor: pointer;
+    font-size: 1.35rem;
+    padding: 8px;
+    transition: all 0.2s;
+}
+.chat-input span:hover { color: var(--vert-pistache); }
+
+/* Voice UI */
+.voice-status {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: none;
+}
+.listening .voice-status { display: block; }
+
+.waveform {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 20px;
+}
+.waveform span {
+    width: 3px;
+    height: 10px;
+    background: #fff;
+    border-radius: 3px;
+    animation: wave 1s infinite alternate;
+}
+@keyframes wave {
+    from { height: 5px; }
+    to { height: 15px; }
+}
 {% endblock %}
 
 {% block body %}
 
 <!-- ===== HERO ===== -->
 <section class="trajet-hero">
+    <div class="traffic-container">
+        <div class="hero-car car-1"><i class="fas fa-car-side"></i></div>
+        <div class="hero-car car-2"><i class="fas fa-car"></i></div>
+        <div class="hero-car car-3"><i class="fas fa-shuttle-van"></i></div>
+        <div class="hero-car car-1" style="animation-delay: -7s;"><i class="fas fa-truck-pickup"></i></div>
+    </div>
     <div class="floating-shape shape-1"></div>
     <div class="floating-shape shape-2"></div>
     <div class="container position-relative">
@@ -152,14 +396,16 @@
                 <p style="color: #666; font-size: 1.1rem; margin-bottom: 32px;">
                     {{ trajets|length }} trajet{{ trajets|length != 1 ? 's' : '' }} enregistré{{ trajets|length != 1 ? 's' : '' }} dans votre espace
                 </p>
-                <a href="{{ path('app_trajet_create') }}" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 35px; font-weight: 600; box-shadow: 0 10px 30px rgba(135,206,235,0.4); transition: all 0.3s;">
-                    <i class="fas fa-plus me-2"></i>Nouveau Trajet
-                </a>
+                <div class="d-flex gap-3 align-items-center">
+                    <a href="{{ path('app_trajet_create') }}" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 35px; font-weight: 600; box-shadow: 0 10px 30px rgba(135,206,235,0.4); transition: all 0.3s;">
+                        <i class="fas fa-plus me-2"></i>Nouveau Trajet
+                    </a>
+
+                </div>
             </div>
-            <div class="col-lg-5 d-flex justify-content-center">
-                <div id="car-3d-container">
-                    <div class="car-glow"></div>
-                    <img src="{{ asset('images/car_hero.png') }}" class="parallax-car" id="parallaxCar" alt="Jeep SUV">
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center" data-aos="fade-left">
+                <div style="width: 280px; height: 280px; background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(147,197,114,0.2)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-bus" style="font-size: 8rem; background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
                 </div>
             </div>
         </div>
@@ -182,51 +428,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
-
-        <!-- ===== STAT CARDS ===== -->
-        {% set total     = trajets|length %}
-        {% set reserved  = trajets|filter(t => t.statut == 'Réservé')|length %}
-        {% set confirmed = trajets|filter(t => t.statut == 'Confirmé')|length %}
-        {% set cancelled = trajets|filter(t => t.statut == 'Annulé')|length %}
-
-        <div class="row g-4 mb-5" data-aos="fade-up">
-            <div class="col-6 col-md-3">
-                <div class="stat-card-fe">
-                    <div class="stat-icon-fe" style="background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(135,206,235,0.1));">
-                        <i class="fas fa-route" style="color: var(--bleu-ceil);"></i>
-                    </div>
-                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ total }}</div>
-                    <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Total trajets</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card-fe">
-                    <div class="stat-icon-fe" style="background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(135,206,235,0.1));">
-                        <i class="fas fa-clock" style="color: var(--bleu-ceil);"></i>
-                    </div>
-                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ reserved }}</div>
-                    <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Réservés</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card-fe">
-                    <div class="stat-icon-fe" style="background: linear-gradient(135deg, rgba(147,197,114,0.2), rgba(147,197,114,0.1));">
-                        <i class="fas fa-check-circle" style="color: var(--vert-pistache);"></i>
-                    </div>
-                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ confirmed }}</div>
-                    <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Confirmés</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card-fe">
-                    <div class="stat-icon-fe" style="background: linear-gradient(135deg, rgba(231,76,60,0.15), rgba(231,76,60,0.08));">
-                        <i class="fas fa-times-circle" style="color: var(--rouge);"></i>
-                    </div>
-                    <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">{{ cancelled }}</div>
-                    <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Annulés</div>
-                </div>
-            </div>
-        </div>
 
         <!-- ===== FILTERS ===== -->
         <div class="filters-card mb-5" data-aos="fade-up">
@@ -258,7 +459,7 @@
                         <select name="voiture" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e7ff; border-radius: 15px; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; background: #f8faff; cursor: pointer;">
                             <option value="">Toutes les voitures</option>
                             {% for v in voitures ?? [] %}
-                                <option value="{{ v.id }}" {{ (voitureId ?? '') == v.id ? 'selected' : '' }}>
+                                <option value="{{ v.id }}" {{ (voitureId|default('')) == (v.id ~ '') ? 'selected' : '' }}>
                                     {{ v.marque }} {{ v.modele }}
                                 </option>
                             {% endfor %}
@@ -292,7 +493,10 @@
                             <div class="rb-label">Départ</div>
                             <div class="rb-name">{{ trajet.pointDepart }}</div>
                         </div>
-                        <div class="rb-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="rb-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                            <i class="fas fa-car-side driving-car-icon"></i>
+                        </div>
                         <div class="rb-city text-end">
                             <div class="rb-label">Arrivée</div>
                             <div class="rb-name">{{ trajet.pointArrivee }}</div>
@@ -321,6 +525,16 @@
                             <span class="ir-key"><i class="fas fa-car"></i> Véhicule</span>
                             <span class="ir-val">{% if trajet.idVoiture %}{{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}{% else %}—{% endif %}</span>
                         </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-coins"></i> Prix / personne</span>
+                            <span class="ir-val" style="color: var(--vert-pistache-dark);">
+                                {% if trajet.idVoiture and trajet.distanceKm and (trajet.nbPersonnes > 0) %}
+                                    {{ ((trajet.idVoiture.prixKM * trajet.distanceKm) / trajet.nbPersonnes)|number_format(3) }} DT
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </span>
+                        </div>
                         <div class="info-row-fe" style="border-bottom: none; padding-top: 14px;">
                             <span class="ir-key"><i class="fas fa-info-circle"></i> Statut</span>
                             <span>
@@ -329,6 +543,8 @@
                                     {% if s == 'Réservé' %}badge-reserved
                                     {% elseif s == 'Confirmé' %}badge-confirmed
                                     {% elseif s == 'Annulé' %}badge-cancelled
+                                    {% elseif s == 'En attente de paiement' %}badge-payment-pending
+                                    {% elseif s == 'Payé' %}badge-paid
                                     {% else %}badge-completed{% endif %}">
                                     {{ s }}
                                 </span>
@@ -337,18 +553,23 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="trajet-actions">
-                        <a href="{{ path('app_trajet_show', {id: trajet.id}) }}" class="btn flex-fill" style="background: rgba(135,206,235,0.15); color: var(--bleu-ceil); border-radius: 50px; font-weight: 600; font-size: 13px;">
-                            <i class="fas fa-eye me-1"></i>Voir
+                    <div class="trajet-actions d-flex gap-2">
+                        {% if trajet.statut == 'En attente de paiement' %}
+                            <a href="{{ path('app_paiement_checkout', {id: trajet.id}) }}" class="btn flex-fill" style="background: #f39c12; color: white; border-radius: 50px; font-weight: 700; font-size: 13px;">
+                                <i class="fas fa-credit-card me-1"></i>Payer
+                            </a>
+                        {% endif %}
+                        <a href="{{ path('app_trajet_show', {id: trajet.id}) }}" class="btn flex-fill" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; font-weight: 600; font-size: 13px;">
+                            <i class="fas fa-eye me-1"></i>Détails
                         </a>
-                        <a href="{{ path('app_trajet_edit', {id: trajet.id}) }}" class="btn flex-fill" style="background: rgba(147,197,114,0.15); color: var(--vert-pistache-dark); border-radius: 50px; font-weight: 600; font-size: 13px;">
-                            <i class="fas fa-pen me-1"></i>Modifier
-                        </a>
-                        <form method="POST" action="{{ path('app_trajet_delete', {id: trajet.id}) }}" onsubmit="return confirm('Supprimer ce trajet ?');" style="flex: 0.6;">
+                        
+                        {# Bouton Supprimer #}
+                        <button type="button" class="btn btn-delete-trajet" data-id="{{ trajet.id }}" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(231, 76, 60, 0.2); transition: all 0.3s;">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+
+                        <form id="delete-form-{{ trajet.id }}" action="{{ path('app_trajet_delete', {id: trajet.id}) }}" method="POST" style="display: none;">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('delete' ~ trajet.id) }}">
-                            <button type="submit" class="btn w-100" style="background: rgba(231,76,60,0.12); color: var(--rouge); border-radius: 50px; font-weight: 600; font-size: 13px;">
-                                <i class="fas fa-trash"></i>
-                            </button>
                         </form>
                     </div>
 
@@ -375,34 +596,300 @@
     </div>
 </section>
 
+<!-- ===== CHATBOT UI ===== -->
+<button class="chatbot-toggler" aria-label="Ouvrir l'assistant d'accessibilité RE7LA" aria-haspopup="true">
+    <span class="fas fa-comment-dots" aria-hidden="true" style="font-size: 1.5rem;"></span>
+    <span class="fas fa-times" aria-hidden="true" style="font-size: 1.5rem;"></span>
+</button>
+
+<div class="chatbot" role="complementary" aria-label="Assistant de voyage RE7LA">
+    <header>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-universal-access" style="font-size: 1.2rem;"></i>
+            <h2>Assistant RE7LA</h2>
+        </div>
+        <div class="header-controls">
+            <button class="a11y-btn" id="toggle-sign-mode" title="Mode Signes Visuels (Sourd/Muet)">
+                <i class="fas fa-hand-paper"></i>
+            </button>
+            <button class="a11y-btn" id="toggle-speech" title="Activer/Désactiver la lecture vocale">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="a11y-btn" id="increase-font" title="Agrandir le texte">
+                <i class="fas fa-font"></i>
+            </button>
+        </div>
+        <div class="voice-status">
+            <div class="waveform">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            En écoute...
+        </div>
+    </header>
+    <ul class="chatbox" role="log" aria-live="polite">
+        <li class="chat incoming">
+            <span class="fas fa-robot"></span>
+            <div style="display:flex; flex-direction:column;">
+                <p>Bonjour ! Posez-moi vos questions sur vos trajets en Tunisie. Je suis accessible aux aveugles et sourds. 🇹🇳</p>
+                <div id="greeting-sign" class="sign-badge" style="display:none;">
+                    <i class="fas fa-hands-helping"></i> Aide visuelle activée
+                </div>
+            </div>
+        </li>
+    </ul>
+    <div class="chat-input">
+        <textarea placeholder="Posez votre question..." spellcheck="false" required aria-label="Votre message au chatbot"></textarea>
+        <span id="voice-btn" class="fas fa-microphone" title="Parler (Reconnaissance vocale)" role="button" aria-label="Commencer la reconnaissance vocale"></span>
+        <span id="send-btn" class="fas fa-paper-plane" title="Envoyer" role="button" aria-label="Envoyer le message"></span>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block javascripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('car-3d-container');
-    const car = document.getElementById('parallaxCar');
-    if (!container || !car) return;
+    const chatbotToggler = document.querySelector(".chatbot-toggler");
+    const chatbox = document.querySelector(".chatbox");
+    const chatInput = document.querySelector(".chat-input textarea");
+    const sendChatBtn = document.querySelector(".chat-input #send-btn");
+    const voiceBtn = document.querySelector("#voice-btn");
+    const chatbot = document.querySelector(".chatbot");
 
-    console.log("Parallax: Initialized");
+    // A11y Controls
+    const btnSignMode = document.getElementById("toggle-sign-mode");
+    const btnSpeech   = document.getElementById("toggle-speech");
+    const btnFontSize = document.getElementById("increase-font");
 
-    container.addEventListener('mousemove', (e) => {
-        const rect = container.getBoundingClientRect();
-        const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
-        const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+    let isSpeechEnabled = true;
+    let isSignModeEnabled = false;
+    let isLargeFont = false;
 
-        // Move the car slightly opposite to the mouse
-        const moveX = x * 25;
-        const moveY = y * 15;
-        const rotateY = x * 10;
-        const rotateX = -y * 10;
+    // --- Accessibilty Keyword Mapping (Pictograms for Sign Mode) ---
+    const pictogramMap = {
+        "tunis": "🏰", "sousse": "🏖️", "hammamet": "🏨", "sfax": "🏭", "djerba": "🏝️",
+        "distance": "📏", "km": "🚲", "prix": "💰", "argent": "💵", "merci": "🙏",
+        "bonjour": "👋", "aide": "🆘", "voiture": "🚗", "trajet": "🗺️"
+    };
 
-        car.style.transform = `translate(${moveX}px, ${moveY}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+    const getPictograms = (text) => {
+        const lowerText = text.toLowerCase();
+        let icons = "";
+        Object.keys(pictogramMap).forEach(key => {
+            if (lowerText.includes(key)) icons += pictogramMap[key] + " ";
+        });
+        return icons;
+    };
+
+    // --- Audio Feedback (Beep) ---
+    const playBeep = (freq, duration) => {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            gain.gain.value = 0.1;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            setTimeout(() => osc.stop(), duration);
+        } catch(e) {}
+    };
+
+    // --- Toggles ---
+    btnSpeech.onclick = () => {
+        isSpeechEnabled = !isSpeechEnabled;
+        btnSpeech.classList.toggle("active", isSpeechEnabled);
+        btnSpeech.innerHTML = isSpeechEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+    };
+
+    btnSignMode.onclick = () => {
+        isSignModeEnabled = !isSignModeEnabled;
+        btnSignMode.classList.toggle("active", isSignModeEnabled);
+        document.getElementById("greeting-sign").style.display = isSignModeEnabled ? "inline-flex" : "none";
+    };
+
+    btnFontSize.onclick = () => {
+        isLargeFont = !isLargeFont;
+        btnFontSize.classList.toggle("active", isLargeFont);
+        chatbox.style.fontSize = isLargeFont ? "1.2rem" : "0.95rem";
+    };
+
+    let userMessage = null; 
+    const inputInitHeight = chatInput.scrollHeight;
+
+    // --- Create Chat UI Element ---
+    const createChatLi = (message, className) => {
+        const chatLi = document.createElement("li");
+        chatLi.classList.add("chat", `${className}`);
+        
+        // Add A11y mode content
+        let signContent = "";
+        if (className === "incoming" && isSignModeEnabled) {
+            const pics = getPictograms(message);
+            if (pics) signContent = `<span class="pictogram" aria-hidden="true">${pics}</span>`;
+        }
+
+        let chatContent = className === "outgoing" 
+            ? `<p role="text"></p>` 
+            : `<span class="fas fa-robot" aria-hidden="true"></span><div style="display:flex; flex-direction:column;">${signContent}<p role="text"></p></div>`;
+        
+        chatLi.innerHTML = chatContent;
+        chatLi.querySelector("p").textContent = message;
+        return chatLi; 
+    }
+
+    // --- API Call ---
+    const generateResponse = (chatLi) => {
+        const messageElement = chatLi.querySelector("p");
+
+        fetch("{{ path('api_chatbot_ask') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: userMessage })
+        })
+        .then(res => res.json())
+        .then(data => {
+            messageElement.textContent = data.text;
+            
+            // Re-apply sign mode if needed since we just got the real text
+            if (isSignModeEnabled) {
+                const pics = getPictograms(data.text);
+                if (pics) {
+                    const picSpan = document.createElement("span");
+                    picSpan.className = "pictogram";
+                    picSpan.setAttribute("aria-hidden", "true");
+                    picSpan.textContent = pics;
+                    messageElement.parentElement.prepend(picSpan);
+                }
+            }
+
+            if(isSpeechEnabled && data.speech) {
+                speak(data.speech);
+            }
+        })
+        .catch(() => {
+            messageElement.classList.add("error");
+            messageElement.textContent = "Erreur. Veuillez réessayer.";
+        })
+        .finally(() => chatbox.scrollTo(0, chatbox.scrollHeight));
+    }
+
+    const handleChat = () => {
+        userMessage = chatInput.value.trim(); 
+        if(!userMessage) return;
+
+        chatInput.value = "";
+        chatInput.style.height = `${inputInitHeight}px`;
+
+        chatbox.appendChild(createChatLi(userMessage, "outgoing"));
+        chatbox.scrollTo(0, chatbox.scrollHeight);
+
+        setTimeout(() => {
+            const incomingChatLi = createChatLi("...", "incoming");
+            chatbox.appendChild(incomingChatLi);
+            chatbox.scrollTo(0, chatbox.scrollHeight);
+            generateResponse(incomingChatLi);
+        }, 600);
+    }
+
+    // --- Voice Implementation (STT) ---
+    const startListening = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return;
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'fr-FR';
+        
+        recognition.onstart = () => {
+            chatbot.classList.add("listening");
+            voiceBtn.style.color = "#e74c3c";
+            playBeep(440, 100); // Start beep
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+            chatbot.classList.remove("listening");
+            voiceBtn.style.color = "var(--bleu-ceil)";
+            playBeep(330, 100); // Stop beep
+        };
+
+        recognition.onresult = (event) => {
+            chatInput.value = event.results[0][0].transcript;
+            handleChat();
+        };
+
+        recognition.start();
+    }
+
+    const speak = (text) => {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // --- Listeners ---
+    chatInput.addEventListener("input", () => {
+        chatInput.style.height = `${inputInitHeight}px`;
+        chatInput.style.height = `${chatInput.scrollHeight}px`;
     });
 
-    container.addEventListener('mouseleave', () => {
-        car.style.transform = `translate(0, 0) rotateY(0) rotateX(0)`;
+    chatInput.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+            e.preventDefault();
+            handleChat();
+        }
     });
-});
+
+    sendChatBtn.addEventListener("click", handleChat);
+    chatbotToggler.addEventListener("click", () => {
+        document.body.classList.toggle("show-chatbot");
+        if (document.body.classList.contains("show-chatbot")) {
+            playBeep(880, 50);
+        }
+    });
+    voiceBtn.addEventListener("click", startListening);
+    
+    // --- Trajet Delete Confirmation ---
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-delete-trajet').forEach(btn => {
+            btn.onclick = function() {
+                const trajetId = this.getAttribute('data-id');
+                console.log("Suppression demandée pour trajet:", trajetId);
+                
+                Swal.fire({
+                    title: 'Supprimer ce trajet ?',
+                    text: "Cette action est irréversible !",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e74c3c',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Oui, supprimer',
+                    cancelButtonText: 'Annuler',
+                    backdrop: `rgba(0,0,0,0.4)`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Signal local pour les autres onglets (Dashboard)
+                        const bc = new BroadcastChannel('re7la_notifications');
+                        bc.postMessage({
+                            action: 'delete_trajet',
+                            message: "Action locale : Suppression demandée pour le trajet #" + trajetId
+                        });
+
+                        const form = document.getElementById('delete-form-' + trajetId);
+                        if (form) {
+                            form.submit();
+                        } else {
+                            console.error("Formulaire introuvable:", 'delete-form-' + trajetId);
+                        }
+                    }
+                });
+            };
+        });
+    });
+
 </script>
 {% endblock %}

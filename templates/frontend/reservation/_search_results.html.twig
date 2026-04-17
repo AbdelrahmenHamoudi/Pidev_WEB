@@ -1,0 +1,76 @@
+<div class="category-tabs" data-aos="fade-up" style="overflow-x: auto; white-space: nowrap; padding-bottom: 10px; -webkit-overflow-scrolling: touch;">
+    <a href="{{ path('app_hebergements_search', {type: 'all'}) }}" class="tab-pill {{ current_type == 'all' or current_type is empty ? 'active' : '' }}">{{ 'search.all_stays'|trans }}</a>
+    <a href="{{ path('app_hebergements_search', {type: 'Villa'}) }}" class="tab-pill {{ current_type == 'Villa' ? 'active' : '' }}">{{ 'search.villa'|trans }}</a>
+    <a href="{{ path('app_hebergements_search', {type: 'Appartement'}) }}" class="tab-pill {{ current_type == 'Appartement' ? 'active' : '' }}">{{ 'search.apartment'|trans }}</a>
+    <a href="{{ path('app_hebergements_search', {type: 'Maison'}) }}" class="tab-pill {{ current_type == 'Maison' ? 'active' : '' }}">{{ 'search.maison'|trans }}</a>
+    <a href="{{ path('app_hebergements_search', {type: 'Hotel'}) }}" class="tab-pill {{ current_type == 'Hotel' ? 'active' : '' }}">{{ 'search.hotel'|trans }}</a>
+    <a href="{{ path('app_hebergements_search', {type: "Maison d'hôte"}) }}" class="tab-pill {{ current_type == "Maison d'hôte" ? 'active' : '' }}">{{ 'search.guesthouse'|trans }}</a>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold mb-0">{{ 'search.found'|trans({'%count%': hebergements|length}) }}</h5>
+    <div class="sort-box">
+        {{ 'search.sort_by'|trans }}
+        <select class="sort-select" onchange="applySort(this.value)">
+            <option value="default" {{ current_sort == 'default' ? 'selected' : '' }}>{{ 'search.recommended'|trans }}</option>
+            <option value="price_asc" {{ current_sort == 'price_asc' ? 'selected' : '' }}>{{ 'search.price_asc'|trans }}</option>
+            <option value="price_desc" {{ current_sort == 'price_desc' ? 'selected' : '' }}>{{ 'search.price_desc'|trans }}</option>
+        </select>
+    </div>
+</div>
+
+{% for hebergement in hebergements %}
+<div class="hotel-card-horiz" data-aos="fade-up">
+    <div class="card-img-side">
+        {% set imgName = hebergement.image|split('/')|last|split('\\')|last %}
+        {% if imgName and '.' in imgName %}
+            <img src="{{ asset('uploads/hebergements/' ~ imgName) }}" alt="{{ hebergement.titre }}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500';">
+        {% else %}
+            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500" alt="{{ hebergement.titre }}">
+        {% endif %}
+        <div class="fav-btn" 
+             data-id="{{ hebergement.idHebergement }}"
+             data-title="{{ hebergement.titre }}"
+             data-image="{% set imgName = hebergement.image|split('/')|last|split('\\')|last %}{% if imgName and '.' in imgName %}{{ asset('uploads/hebergements/' ~ imgName) }}{% else %}https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500{% endif %}"
+             data-price="{{ hebergement.prixParNuit }}">
+            <i class="far fa-heart"></i>
+        </div>
+    </div>
+    <div class="card-content-side">
+        <div class="hotel-title-row">
+            <div>
+                <h4 class="hotel-name">{{ hebergement.titre }}</h4>
+                <div class="stars-box">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <div class="hotel-loc">
+                    <i class="fas fa-map-marker-alt me-1"></i> {{ hebergement.typeHebergement }}
+                </div>
+                <div class="amenities-row">
+                    <span><i class="fas fa-wifi me-1"></i> Wifi gratuit</span>
+                    <span><i class="fas fa-swimming-pool me-1"></i> Piscine</span>
+                    <span><i class="fas fa-parking me-1"></i> Parking</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end">
+            <div class="price-side-box mb-2">
+                <div class="price-val">{{ hebergement.prixParNuit|format_price }}</div>
+                <div class="price-info">{{ 'search.price_info'|default('pour 1 nuit, taxes incluses')|trans }}</div>
+            </div>
+            <div class="d-flex justify-content-end align-items-center">
+                <a href="{{ path('app_hebergement_detail', {id: hebergement.idHebergement}) }}" class="btn-availability">
+                    {{ 'search.view_avail'|trans }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5 bg-white rounded-4 border border-dashed mt-4">
+    <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
+    <h5>{{ 'search.no_results'|trans }}</h5>
+    <p class="text-muted">{{ 'search.no_results'|trans }}</p>
+</div>
+{% endfor %}

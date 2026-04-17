@@ -42,31 +42,31 @@ class ReservationType extends AbstractType
                         ->setParameter('dispo', true)
                         ->orderBy('h.titre', 'ASC');
                 },
-                'label' => 'Hébergement',
-                'placeholder' => 'Sélectionnez un hébergement',
+                'label' => 'form.accommodation',
+                'placeholder' => 'form.select_accommodation',
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'Veuillez sélectionner un hébergement'])
+                    new Assert\NotBlank(['message' => 'validation.not_blank_accommodation'])
                 ]
             ])
             ->add('dateDebutR', DateType::class, [
-                'label' => 'Date d\'arrivée',
+                'label' => 'form.check_in',
                 'widget' => 'single_text',
                 'input' => 'datetime',
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'La date d\'arrivée est obligatoire']),
+                    new Assert\NotBlank(['message' => 'validation.not_blank_checkin']),
                     new Assert\GreaterThanOrEqual([
                         'value' => 'today',
-                        'message' => 'La date doit être aujourd\'hui ou dans le futur'
+                        'message' => 'validation.date_future'
                     ])
                 ],
                 'attr' => ['min' => (new \DateTime())->format('Y-m-d')]
             ])
             ->add('dateFinR', DateType::class, [
-                'label' => 'Date de départ',
+                'label' => 'form.check_out',
                 'widget' => 'single_text',
                 'input' => 'datetime',
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'La date de départ est obligatoire'])
+                    new Assert\NotBlank(['message' => 'validation.not_blank_checkout'])
                 ],
                 'attr' => ['min' => (new \DateTime())->format('Y-m-d')]
             ]);
@@ -83,21 +83,21 @@ class ReservationType extends AbstractType
                 if ($debut && $fin) {
                     if ($fin <= $debut) {
                         $form->get('dateFinR')->addError(new \Symfony\Component\Form\FormError(
-                            'La date de départ doit être après la date d\'arrivée'
+                            'validation.date_after'
                         ));
                     }
 
                     $diff = $debut->diff($fin);
                     if ($diff->days > 30) {
                         $form->get('dateFinR')->addError(new \Symfony\Component\Form\FormError(
-                            'La réservation ne peut pas dépasser 30 nuits'
+                            'validation.max_nights'
                         ));
                     }
 
                     // Check if at least 1 night
                     if ($diff->days < 1) {
                         $form->get('dateFinR')->addError(new \Symfony\Component\Form\FormError(
-                            'La réservation doit être d\'au moins 1 nuit'
+                            'validation.min_nights'
                         ));
                     }
                 }
@@ -105,35 +105,8 @@ class ReservationType extends AbstractType
                 $hebergement = $reservation->getHebergement();
                 if ($hebergement && !$hebergement->isDisponibleHeberg()) {
                     $form->get('hebergement')->addError(new \Symfony\Component\Form\FormError(
-                        'Cet hébergement n\'est pas disponible actuellement'
+                        'validation.not_available'
                     ));
-                }
-
-                // CONTROLE DE SAISIE: Overlapping reservations
-                if ($hebergement && $debut && $fin) {
-                    $excludeId = null;
-                    try {
-                        $excludeId = $reservation->getId_reservation();
-                    } catch (\Error $e) {
-                        // Uninitialized string property means it's a new reservation
-                    }
-
-                    $conflicts = $this->em->getRepository(Reservation::class)->findOverlappingReservations(
-                        $hebergement->getIdHebergement(),
-                        $debut,
-                        $fin,
-                        $excludeId
-                    );
-                    
-                    if (!empty($conflicts)) {
-                        $conflict = $conflicts[0];
-                        $form->get('dateDebutR')->addError(new \Symfony\Component\Form\FormError(
-                            sprintf('Indisponible : cet hébergement est déjà réservé du %s au %s.', 
-                                $conflict->getDateDebutR()->format('d/m/Y'), 
-                                $conflict->getDateFinR()->format('d/m/Y')
-                            )
-                        ));
-                    }
                 }
             }
         });

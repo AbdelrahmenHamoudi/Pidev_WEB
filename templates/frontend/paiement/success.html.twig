@@ -1,0 +1,161 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Paiement Réussi - RE7LA{% endblock %}
+
+{% block extra_styles %}
+    <style>
+        .success-container {
+            padding: 180px 0 100px;
+            background: #fff;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: #27ae60;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 30px;
+            box-shadow: 0 15px 30px rgba(39, 174, 96, 0.2);
+            animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .receipt-card {
+            max-width: 500px;
+            margin: 40px auto;
+            border: 2px dashed #eee;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: left;
+            position: relative;
+        }
+
+        .receipt-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #f8f9fa;
+            padding-bottom: 10px;
+        }
+
+        .receipt-total {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-success-view {
+            background: var(--dark);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+            margin-top: 30px;
+        }
+
+        .btn-success-view:hover {
+            background: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            color: white;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="success-container">
+    <div class="container" data-aos="fade-up">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        {% if trajet.statut == 'En attente de paiement' %}
+            <h1 class="display-4 fw-bold mb-3">Réservation Enregistrée !</h1>
+            <p class="lead opacity-75 mb-5">Votre trajet est réservé. N'oubliez pas de le régler avant le départ.</p>
+        {% else %}
+            <h1 class="display-4 fw-bold mb-3">Paiement Confirmé !</h1>
+            <p class="lead opacity-75 mb-5">Merci pour votre confiance. Votre trajet est désormais officiellement réservé.</p>
+        {% endif %}
+
+        <div class="receipt-card">
+            <h5 class="fw-bold mb-4"><i class="fas fa-file-invoice me-2"></i>Résumé de la transaction</h5>
+            
+            <div class="receipt-line">
+                <span class="text-muted">ID Trajet</span>
+                <span class="fw-bold">#{{ trajet.id }}</span>
+            </div>
+            <div class="receipt-line">
+                <span class="text-muted">Départ</span>
+                <span class="fw-bold">{{ trajet.pointDepart }}</span>
+            </div>
+            <div class="receipt-line">
+                <span class="text-muted">Arrivée</span>
+                <span class="fw-bold">{{ trajet.pointArrivee }}</span>
+            </div>
+            <div class="receipt-line">
+                <span class="text-muted">Statut</span>
+                {% if trajet.statut == 'Payé' or trajet.statut == 'Payé (D17)' %}
+                    <span class="badge bg-success">Payé</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Paiement en attente</span>
+                {% endif %}
+            </div>
+            
+            <div class="receipt-total">
+                <span>{{ trajet.statut == 'En attente de paiement' ? 'Montant à régler' : 'Total réglé' }}</span>
+                <span>{{ (trajet.distanceKm * (trajet.idVoiture ? trajet.idVoiture.prixKM : 0.5))|number_format(3) }} DT</span>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{{ path('app_trajet') }}" class="btn-success-view">Voir mes trajets</a>
+            <a href="{{ path('app_home') }}" class="btn-success-view" style="background: transparent; color: var(--dark); border: 2px solid var(--dark);">Retour à l'accueil</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Trigger Confetti
+        const duration = 3 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+    });
+</script>
+{% endblock %}

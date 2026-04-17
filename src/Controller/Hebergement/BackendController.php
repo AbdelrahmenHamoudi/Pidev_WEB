@@ -14,6 +14,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mime\Address;
+use App\Service\Hebergement\GroqService;
+use App\Service\Hebergement\SafeZoneService;
+use App\Service\Hebergement\DynamicPricingService;
 
 final class BackendController extends AbstractController
 {
@@ -86,35 +92,34 @@ final class BackendController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Handle multiple images - simplified approach
+            // Set a temporary placeholder so flush doesn't fail due to NOT NULL constraint
+            $hebergement->setImage('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800');
+            
+            // First persist to get the ID
+            $em->persist($hebergement);
+            $em->flush();
+            $id = $hebergement->getId();
+
             /** @var UploadedFile[] $uploadedFiles */
             $uploadedFiles = $form->get('imageFiles')->getData();
-            $uploadCount = 0;
+            $mainImagePath = null;
             
             if ($uploadedFiles) {
-                foreach ($uploadedFiles as $index => $file) {
-                    if (!$file || $file->getError() === UPLOAD_ERR_NO_FILE) {
-                        continue;
-                    }
+                $targetDir = $this->getParameter('kernel.project_dir') . '/public/uploads/hebergements/' . $id;
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0777, true);
+                }
+
+                foreach ($uploadedFiles as $file) {
+                    if (!$file || $file->getError() === UPLOAD_ERR_NO_FILE) continue;
                     
-                    $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+                    $newFilename = $slugger->slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) 
+                                   . '-' . uniqid() . '.' . $file->guessExtension();
                     
                     try {
-                        $targetDir = $this->getParameter('kernel.project_dir') . '/public/uploads/hebergements';
-                        if (!is_dir($targetDir)) {
-                            mkdir($targetDir, 0777, true);
-                        }
-                        
                         $file->move($targetDir, $newFilename);
-                        
-                        $imagePath = 'uploads/hebergements/' . $newFilename;
-                        $hebergement->addImage($imagePath);
-                        $uploadCount++;
-                        
-                        if ($uploadCount === 1) {
-                            $hebergement->setImage($imagePath);
+                        if (!$mainImagePath) {
+                            $mainImagePath = 'uploads/hebergements/' . $id . '/' . $newFilename;
                         }
                     } catch (\Exception $e) {
                         $this->addFlash('error', 'Erreur upload: ' . $e->getMessage());
@@ -122,15 +127,12 @@ final class BackendController extends AbstractController
                 }
             }
             
-            // Set a default placeholder if no image was uploaded
-            if ($uploadCount === 0) {
-                $hebergement->setImage('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800');
+            // Update with the real first image if any were uploaded
+            if ($mainImagePath) {
+                $hebergement->setImage($mainImagePath);
+                $em->flush();
             }
-            
-            $em->persist($hebergement);
-            $em->flush();
 
-            $this->addFlash('success', 'Hébergement créé avec succès (' . $uploadCount . ' image(s))');
             return $this->redirectToRoute('app_admin_hebergement_list');
         }
 
@@ -150,32 +152,28 @@ final class BackendController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Handle new images - simplified approach
             /** @var UploadedFile[] $uploadedFiles */
             $uploadedFiles = $form->get('imageFiles')->getData();
             
             if ($uploadedFiles) {
-                $uploadCount = 0;
-                foreach ($uploadedFiles as $index => $file) {
-                    if (!$file || $file->getError() === UPLOAD_ERR_NO_FILE) {
-                        continue;
-                    }
+                $id = $hebergement->getId();
+                $targetDir = $this->getParameter('kernel.project_dir') . '/public/uploads/hebergements/' . $id;
+                
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0777, true);
+                }
+
+                foreach ($uploadedFiles as $file) {
+                    if (!$file || $file->getError() === UPLOAD_ERR_NO_FILE) continue;
                     
-                    $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+                    $newFilename = $slugger->slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) 
+                                   . '-' . uniqid() . '.' . $file->guessExtension();
                     
                     try {
-                        $targetDir = $this->getParameter('kernel.project_dir') . '/public/uploads/hebergements';
                         $file->move($targetDir, $newFilename);
-                        
-                        $imagePath = 'uploads/hebergements/' . $newFilename;
-                        $hebergement->addImage($imagePath);
-                        $uploadCount++;
-                        
-                        // If it's the first file uploaded during this edit, make it the primary image
-                        if ($uploadCount === 1) {
-                            $hebergement->setImage($imagePath);
+                        // Optional: update main image if it was empty or placeholder
+                        if (str_contains($hebergement->getImage(), 'unsplash') || empty($hebergement->getImage())) {
+                            $hebergement->setImage('uploads/hebergements/' . $id . '/' . $newFilename);
                         }
                     } catch (\Exception $e) {
                         $this->addFlash('error', 'Erreur upload: ' . $file->getClientOriginalName());
@@ -185,7 +183,6 @@ final class BackendController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', 'Hébergement modifié avec succès');
             return $this->redirectToRoute('app_admin_hebergement_list');
         }
 
@@ -193,6 +190,42 @@ final class BackendController extends AbstractController
             'form' => $form->createView(),
             'hebergement' => $hebergement
         ]);
+    }
+
+    #[Route('/admin/hebergements/{id}/image/delete', name: 'app_admin_hebergement_delete_image')]
+    public function deleteImage(
+        Hebergement $hebergement,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $filename = $request->query->get('filename');
+        if (!$filename) {
+            return $this->redirectToRoute('app_admin_hebergement_edit', ['id' => $hebergement->getId()]);
+        }
+
+        // Security: avoid directory traversal and ensure it's in the correct folder
+        $safeFilename = basename($filename);
+        $projectRoot = str_replace('\\', '/', $this->getParameter('kernel.project_dir'));
+        $filePath = $projectRoot . '/public/uploads/hebergements/' . $hebergement->getId() . '/' . $safeFilename;
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
+            
+            // If the deleted image was the primary one in DB, update it with another one from the same folder
+            $dbPath = 'uploads/hebergements/' . $hebergement->getId() . '/' . $safeFilename;
+            if ($hebergement->getImage() === $dbPath) {
+                // We refresh images list from folder
+                $remainingImages = $hebergement->getImages();
+                if (!empty($remainingImages)) {
+                    $hebergement->setImage($remainingImages[0]->getFilename());
+                } else {
+                    $hebergement->setImage('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800');
+                }
+                $em->flush();
+            }
+        }
+
+        return $this->redirectToRoute('app_admin_hebergement_edit', ['id' => $hebergement->getId()]);
     }
 
     #[Route('/admin/hebergements/{id}/delete', name: 'app_admin_hebergement_delete', methods: ['POST'])]
@@ -215,6 +248,69 @@ final class BackendController extends AbstractController
     {
         return $this->render('backend/admin/hebergement/show.html.twig', [
             'hebergement' => $hebergement
+        ]);
+    }
+
+    #[Route('/admin/api/hebergement/{id}/dynamic-pricing', name: 'api_admin_hebergement_dynamic_pricing')]
+    public function adminHebergementDynamicPricingApi(
+        Hebergement $hebergement,
+        DynamicPricingService $pricingService
+    ): Response {
+        $pricing = $pricingService->getDynamicPricing($hebergement);
+
+        return $this->json($pricing);
+    }
+
+    #[Route('/admin/intelligence/pricing', name: 'app_admin_pricing_dashboard')]
+    public function adminPricingDashboard(
+        EntityManagerInterface $em,
+        DynamicPricingService $pricingService
+    ): Response {
+        $hebergements = $em->getRepository(Hebergement::class)->findAll();
+        $globalStats = $pricingService->getGlobalMarketDashboard($hebergements);
+
+        // Prepare simple listing data
+        $pricingList = [];
+        foreach ($hebergements as $h) {
+            $pricingList[] = [
+                'hebergement' => $h,
+                'pricing' => $pricingService->getDynamicPricing($h)
+            ];
+        }
+
+        return $this->render('backend/admin/pricing/dashboard.html.twig', [
+            'stats' => $globalStats,
+            'pricingList' => $pricingList
+        ]);
+    }
+
+    #[Route('/admin/api/pricing/toggle/{id}', name: 'api_admin_pricing_toggle', methods: ['POST'])]
+    public function togglePricing(
+        int $id,
+        EntityManagerInterface $em,
+        DynamicPricingService $pricingService
+    ): Response {
+        $hebergement = $em->getRepository(Hebergement::class)->find($id);
+        if (!$hebergement) {
+            return $this->json(['success' => false, 'error' => 'Not found'], 404);
+        }
+
+        $newState = $pricingService->toggleEnabled($id);
+        $newPrice = null;
+
+        if ($newState) {
+            // If turning ON, apply the recommended price immediately
+            $pricingData = $pricingService->getDynamicPricing($hebergement);
+            $newPrice = (string)$pricingData['recommendedPrice'];
+            $hebergement->setPrixParNuit($newPrice);
+            $em->persist($hebergement);
+            $em->flush();
+        }
+
+        return $this->json([
+            'success' => true, 
+            'enabled' => $newState,
+            'newPrice' => $newPrice
         ]);
     }
 
@@ -278,7 +374,8 @@ final class BackendController extends AbstractController
     public function cancelReservation(
         Request $request,
         Reservation $reservation,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        MailerInterface $mailer
     ): Response {
         // Prevent cancellation of already cancelled reservation
         if ($reservation->getStatutR() === 'ANNULEE') {
@@ -288,9 +385,40 @@ final class BackendController extends AbstractController
 
         if ($this->isCsrfTokenValid('cancel' . $reservation->getIdReservation(), $request->request->get('_token'))) {
             $id = $reservation->getIdReservation();
+            
+            // Get user information before deletion
+            $user = $reservation->getUser();
+            $email = $user ? $user->getE_mail() : null;
+            $userName = $user ? ($user->getPrenom() . ' ' . $user->getNom()) : 'Client';
+            
+            // Get hebergement title
+            $hebergement = $reservation->getHebergement();
+            $hebergementTitle = $hebergement ? $hebergement->getTitre() : 'votre hébergement';
+
+            if ($email) {
+                try {
+                    $templEmail = (new TemplatedEmail())
+                        ->from(new Address('hmidiiheb393@gmail.com', 'Re7la - Gestion des Réservations'))
+                        ->to($email)
+                        ->subject('Information importante concernant votre réservation #' . $id)
+                        ->htmlTemplate('emails/reservation_cancellation.html.twig')
+                        ->context([
+                            'userName' => $userName,
+                            'hebergementTitle' => $hebergementTitle,
+                            'dateDebut' => $reservation->getDateDebut(),
+                            'dateFin' => $reservation->getDateFin(),
+                        ]);
+
+                    $mailer->send($templEmail);
+                } catch (\Exception $e) {
+                    // Log error but continue deletion process
+                    $this->addFlash('error', 'Erreur d\'envoi : ' . $e->getMessage());
+                }
+            }
+
             $em->remove($reservation);
             $em->flush();
-            $this->addFlash('success', 'Réservation #' . $id . ' supprimée avec succès');
+            $this->addFlash('success', 'Réservation supprimée avec succès et notification envoyée à ' . ($email ?? 'l\'utilisateur'));
         }
 
         return $this->redirectToRoute('app_admin_reservation_list');
