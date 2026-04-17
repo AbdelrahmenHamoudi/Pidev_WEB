@@ -23,5 +23,5 @@ services:
             $openweatherKey: '%env(OPENWEATHER_API_KEY)%'
     App\Service\VirtualTourService:
         arguments:
-            $groqApiKey:  '%env(GROQ_API_KEY)%'
-            $projectDir:  '%kernel.project_dir%'
+            $groqApiKey: '%env(GROQ_API_KEY)%'
+            $projectDir: '%kernel.project_dir%'
