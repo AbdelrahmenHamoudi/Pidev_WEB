@@ -37,11 +37,15 @@ class GeminiService
                 ]
             ]);
 
-            $data = $response->toArray();
+            $data = $response->toArray(false); // pass false to not throw automatically on HTTP error codes
+            
+            if (isset($data['error'])) {
+                throw new \Exception($data['error']['message'] ?? 'Erreur API inconnue');
+            }
+            
             return $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
         } catch (\Exception $e) {
-            // Log error in a real app
-            return null;
+            throw new \Exception($e->getMessage());
         }
     }
 }

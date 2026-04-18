@@ -23,7 +23,7 @@ class RecommendationService
         $promotions = $this->promoRepo->findBy(['promoType' => Promotion::TYPE_INDIVIDUELLE]);
         
         if (count($promotions) < 2) {
-            return [];
+            throw new \Exception("Pas assez de promotions individuelles actives. Il en faut au moins 2 pour générer un pack.");
         }
 
         // 2. Prepare data for AI
@@ -57,10 +57,14 @@ class RecommendationService
         " . json_encode($promoData);
 
         // 4. Call Gemini
-        $jsonResponse = $this->geminiService->generateContent($prompt);
+        try {
+            $jsonResponse = $this->geminiService->generateContent($prompt);
+        } catch (\Exception $e) {
+            throw new \Exception("Erreur de l'API Gemini : " . $e->getMessage());
+        }
         
         if (!$jsonResponse) {
-            return [];
+            throw new \Exception("L'API Gemini n'a renvoyé aucune réponse. Veuillez vérifier votre clé API.");
         }
 
         // Clean JSON if Gemini wrapped it in markdown
@@ -68,7 +72,7 @@ class RecommendationService
 
         $recommendations = json_decode($jsonResponse, true);
         if (!is_array($recommendations)) {
-            return [];
+            throw new \Exception("Le format de réponse de l'IA est invalide. Impossible de parser le JSON.");
         }
 
         // 5. Enrich recommendations with item details (names)

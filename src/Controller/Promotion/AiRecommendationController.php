@@ -28,17 +28,21 @@ class AiRecommendationController extends AbstractController
     #[Route('/generate', name: 'app_admin_promotion_recommendations_generate', methods: ['POST'])]
     public function generate(RecommendationService $recService, Request $request): Response
     {
-        $recommendations = $recService->generateRecommendations();
-        
-        if (count($recommendations) > 0) {
-            // Assign temporary IDs (indices) to recommendations for approval/rejection
-            foreach ($recommendations as $idx => &$rec) {
-                $rec['temp_id'] = $idx;
+        try {
+            $recommendations = $recService->generateRecommendations();
+            
+            if (count($recommendations) > 0) {
+                // Assign temporary IDs (indices) to recommendations for approval/rejection
+                foreach ($recommendations as $idx => &$rec) {
+                    $rec['temp_id'] = $idx;
+                }
+                $request->getSession()->set('ai_recommendations', $recommendations);
+                $this->addFlash('success', sprintf('%d nouvelles recommandations générées par l\'IA.', count($recommendations)));
+            } else {
+                $this->addFlash('warning', 'Aucune nouvelle recommandation n\'a pu être générée.');
             }
-            $request->getSession()->set('ai_recommendations', $recommendations);
-            $this->addFlash('success', sprintf('%d nouvelles recommandations générées par l\'IA.', count($recommendations)));
-        } else {
-            $this->addFlash('warning', 'Aucune nouvelle recommandation n\'a pu être générée.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', $e->getMessage());
         }
 
         return $this->redirectToRoute('app_admin_promotion_recommendations');

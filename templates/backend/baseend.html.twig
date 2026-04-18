@@ -238,10 +238,12 @@ tr:last-child td{border-bottom:none;}
         </div>
 
         <div class="header-actions">
+          {% block top_search %}
           <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" placeholder="Rechercher...">
           </div>
+          {% endblock %}
 
           <div class="header-icon-btn">
             <i class="far fa-bell"></i>

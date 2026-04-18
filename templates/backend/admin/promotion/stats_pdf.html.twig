@@ -2,43 +2,74 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Rapport Statistique Promotions</title>
+    <title>RE7LA - Rapport Statistique Officiel</title>
     <style>
-        body { font-family: 'Helvetica', sans-serif; color: #2c3e50; }
-        .header { text-align: center; border-bottom: 3px solid #F7B731; padding-bottom: 20px; margin-bottom: 30px; }
-        .row { display: table; width: 100%; margin-bottom: 30px; }
-        .col { display: table-cell; width: 50%; vertical-align: top; padding: 10px; }
-        .card { border: 1px solid #eee; border-radius: 12px; padding: 20px; background: #fdfdfd; }
-        .kpi-row { display: table; width: 100%; margin-bottom: 20px; }
-        .kpi-box { display: table-cell; width: 25%; text-align: center; padding: 15px; background: #f8fafc; border: 1px solid #edf2f7; border-radius: 10px; }
-        .kpi-val { font-size: 22px; font-weight: bold; color: #4F46E5; }
-        .kpi-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-top: 5px; }
-        h3 { font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-top: 0; }
-        .chart-img { max-width: 100%; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        table th, table td { border: 1px solid #eee; padding: 8px; text-align: left; }
-        table th { background: #f8fafc; }
+        @page { margin: 40px; }
+        body { font-family: 'Helvetica', sans-serif; color: #1e293b; line-height: 1.5; }
+        
+        /* Header Branding */
+        .pdf-header { display: table; width: 100%; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 30px; }
+        .header-logo { display: table-cell; width: 50%; vertical-align: middle; }
+        .header-info { display: table-cell; width: 50%; text-align: right; vertical-align: middle; }
+        .logo-text { font-size: 26px; font-weight: 900; color: #2C3E50; }
+        .logo-text span { color: #F7B731; }
+        .doc-type { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+
+        .row { display: table; width: 100%; margin-bottom: 25px; table-layout: fixed; }
+        .col { display: table-cell; vertical-align: top; padding: 10px; }
+        .card { border: 1px solid #f1f5f9; border-radius: 16px; padding: 20px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        
+        /* KPI Grid */
+        .kpi-row { display: table; width: 100%; margin-bottom: 30px; border-spacing: 10px; }
+        .kpi-box { display: table-cell; text-align: center; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; }
+        .kpi-val { font-size: 24px; font-weight: 900; color: #2C3E50; }
+        .kpi-label { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-top: 5px; letter-spacing: 1px; }
+        
+        h3 { font-size: 14px; color: #334155; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-top: 0; margin-bottom: 15px; font-weight: 800; text-transform: uppercase; }
+        .chart-img { max-width: 100%; border-radius: 12px; }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 11px; }
+        table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        table th { background: #f8fafc; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 9px; }
+        
+        /* Footer & Stamps */
+        .official-footer { display: table; width: 100%; margin-top: 50px; border-top: 1px solid #f1f5f9; padding-top: 30px; }
+        .signature-block { display: table-cell; width: 60%; vertical-align: bottom; }
+        .stamp-block { display: table-cell; width: 40%; text-align: center; vertical-align: middle; }
+        
+        .stamp { width: 110px; height: 110px; border: 3px double #e11d48; border-radius: 50%; display: inline-block; position: relative; transform: rotate(-10deg); opacity: 0.7; }
+        .stamp-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #e11d48; font-weight: 900; font-size: 9px; text-align: center; line-height: 1.2; }
+        
+        .signature { border-bottom: 1px solid #2C3E50; width: 180px; padding-bottom: 5px; margin-top: 25px; font-family: 'Cursive', serif; font-size: 18px; color: #2C3E50; }
+        .footer-note { font-size: 9px; color: #94a3b8; text-align: center; margin-top: 40px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>Rapport Analytique RE7LA</h1>
-    <p>Statistiques des Promotions - {{ "now"|date('d/m/Y') }}</p>
+<div class="pdf-header">
+    <div class="header-logo">
+        <div class="logo-text">RE7<span>LA</span></div>
+        <div style="font-size: 10px; color: #64748b; font-weight: 600;">Data Intelligence Unit</div>
+    </div>
+    <div class="header-info">
+        <div class="doc-type">Rapport d'Analyse Performance</div>
+        <div style="font-size: 12px; color: #1e293b; font-weight: 700; margin-top: 5px;">Période: {{ "now"|date('F Y') }}</div>
+        <div style="font-size: 11px; color: #94a3b8;">Généré le {{ "now"|date('d/m/Y') }}</div>
+    </div>
 </div>
 
 <div class="kpi-row">
     <div class="kpi-box">
         <div class="kpi-val">{{ totalPromos }}</div>
-        <div class="kpi-label">Total Promos</div>
+        <div class="kpi-label">Catalogue</div>
     </div>
     <div class="kpi-box">
         <div class="kpi-val">{{ totalReservations }}</div>
-        <div class="kpi-label">Réservations</div>
+        <div class="kpi-label">Ventes</div>
     </div>
     <div class="kpi-box">
         <div class="kpi-val">{{ totalViews }}</div>
-        <div class="kpi-label">Total Vues</div>
+        <div class="kpi-label">Visibilité</div>
     </div>
     <div class="kpi-box">
         <div class="kpi-val">{{ engagementRate }}%</div>
@@ -49,26 +80,32 @@
 <div class="row">
     <div class="col">
         <div class="card">
-            <h3>Distribution par Type</h3>
-            <img src="{{ pieChartUrl }}" class="chart-img">
-            <p style="font-size:11px; color:#64748b; margin-top:10px;">
-                Individuelles: {{ nbIndiv }} | Packs: {{ nbPacks }}
-            </p>
+            <h3>Distribution des Offres</h3>
+            <div style="text-align: center;">
+                <img src="{{ pieChartUrl }}" class="chart-img">
+            </div>
+            <div style="font-size:10px; color:#64748b; margin-top:10px; text-align: center;">
+                Individuelles: <strong>{{ nbIndiv }}</strong> | Packs: <strong>{{ nbPacks }}</strong>
+            </div>
         </div>
     </div>
     <div class="col">
         <div class="card">
-            <h3>Répartition par Catégorie</h3>
-            <img src="{{ doughnutChartUrl }}" class="chart-img">
+            <h3>Répartition Catégories</h3>
+            <div style="text-align: center;">
+                <img src="{{ doughnutChartUrl }}" class="chart-img">
+            </div>
         </div>
     </div>
 </div>
 
 <div class="row">
-    <div class="col" style="width: 100%; display: block;">
+    <div class="col" style="width: 100%;">
         <div class="card">
-            <h3>Top 10 Performance (Réservations)</h3>
-            <img src="{{ barChartUrl }}" class="chart-img" style="width: 100%;">
+            <h3>Performance du Top 10 (Réservations)</h3>
+            <div style="text-align: center;">
+                <img src="{{ barChartUrl }}" class="chart-img" style="width: 100%;">
+            </div>
         </div>
     </div>
 </div>
@@ -76,28 +113,52 @@
 <div class="row">
     <div class="col">
         <div class="card">
-            <h3>💎 Clients les plus actifs</h3>
+            <h3>💎 Clients Ambassadeurs</h3>
             <table>
                 <thead>
-                    <tr><th>Utilisateur</th><th>Réservations</th></tr>
+                    <tr><th>E-mail Utilisateur</th><th style="text-align:right;">Actions</th></tr>
                 </thead>
                 <tbody>
                     {% for email, count in topUsers %}
-                    <tr><td>{{ email }}</td><td>{{ count }}</td></tr>
+                    <tr><td>{{ email }}</td><td style="text-align:right;"><strong>{{ count }}</strong></td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
     <div class="col">
-        <div class="card" style="border: 1px dashed #e74c3c;">
-            <h3>⚠️ Analyse de l'offre</h3>
-            <p style="font-size:12px; line-height:1.6;">
-                L'engagement moyen est de {{ engagementRate }}%. Les promotions de type pack représentent {{ (nbPacks / totalPromos * 100)|round }}% du catalogue. 
-                Une augmentation des réservations est observée sur les offres à forte tendance.
+        <div class="card" style="background: #f8fafc;">
+            <h3>🔍 Note de Synthèse</h3>
+            <p style="font-size:11px; line-height:1.7; color: #475569;">
+                L'analyse des données montre un taux d'engagement de <strong>{{ engagementRate }}%</strong>. 
+                Les offres groupées (Packs) représentent <strong>{{ (nbPacks / (totalPromos > 0 ? totalPromos : 1) * 100)|round }}%</strong> du volume promotionnel global. 
+                <br><br>
+                <strong>Recommandation :</strong> Intensifier les campagnes sur les segments à faible visibilité pour équilibrer la performance du catalogue.
             </p>
         </div>
     </div>
+</div>
+
+<div class="official-footer">
+    <div class="signature-block">
+        <div style="font-size: 11px; font-weight: 800; color: #1e293b; margin-bottom: 30px;">DÉPARTEMENT ANALYTIQUE</div>
+        <div class="signature">Analyst Team RE7LA</div>
+        <div style="font-size: 10px; color: #94a3b8; margin-top: 5px;">Validation des Données</div>
+    </div>
+    <div class="stamp-block">
+        <div class="stamp">
+            <div class="stamp-inner">
+                RAPPORT CERTIFIÉ<br>
+                RE7LA TUNISIA<br>
+                {{ "now"|date("Y") }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer-note">
+    Document confidentiel destiné à l'usage interne de RE7LA.<br>
+    www.re7la.tn | Tunis, Tunisie
 </div>
 
 </body>

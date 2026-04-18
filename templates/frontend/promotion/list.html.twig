@@ -148,36 +148,22 @@
         </div>
 
         {# Search bar #}
-        <form method="GET" action="{{ path('app_promotion_list') }}"
-              style="background:#fff; border-radius:16px; padding:16px 20px;
-                     box-shadow:0 4px 20px rgba(0,0,0,0.05); margin-bottom:28px;">
-            {% for k, v in filters %}
-                {% if k != 'nom' and k != 'q' %}
-                    <input type="hidden" name="{{ k }}" value="{{ v }}">
-                {% endif %}
-            {% endfor %}
-            <div class="row g-2 align-items-center">
-                <div class="col">
-                    <div style="position:relative;">
-                        <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%);
-                                     color:#94a3b8; font-size:16px;">🔍</span>
-                        <input type="text" name="nom" id="searchInput"
-                               class="form-control"
-                               placeholder="Rechercher par titre, description, catégorie..."
-                               value="{{ filters.nom ?? '' }}"
-                               style="border-radius:10px; border:1px solid #e8ecf0;
-                                      padding-left:40px; font-size:14px;">
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn px-4"
-                            style="background:linear-gradient(135deg,#87CEEB,#5ba4d4);
-                                   color:#fff; border-radius:10px; font-weight:600; padding:10px 20px;">
-                        Rechercher
-                    </button>
-                </div>
+        {# Advanced Dynamic Search Bar #}
+        <div style="background:#fff; border-radius:24px; padding:20px 25px;
+                     box-shadow:0 10px 40px rgba(0,0,0,0.04); margin-bottom:28px; border:1px solid #f1f5f9;" data-aos="fade-down">
+            <div style="position:relative;">
+                <span style="position:absolute; left:20px; top:50%; transform:translateY(-50%);
+                             color:#94a3b8; font-size:20px;">🔍</span>
+                <input type="text" id="searchInput"
+                       placeholder="Rechercher une promotion par nom, type, statut, tendance..."
+                       style="width:100%; border-radius:15px; border:2px solid #f1f5f9;
+                              padding:15px 20px 15px 55px; font-size:15px; font-weight:500;
+                              transition:all 0.3s; outline:none;"
+                       onfocus="this.style.borderColor='#87CEEB'; this.style.boxShadow='0 8px 25px rgba(135,206,235,0.1)';"
+                       onblur="this.style.borderColor='#f1f5f9'; this.style.boxShadow='none';"
+                       onkeyup="filterPromotions()">
             </div>
-        </form>
+        </div>
 
         {# Flash messages #}
         {% for msg in app.flashes('success') %}
@@ -240,7 +226,7 @@
         <div class="row g-4">
         {% for pid, p in promotionsData %}
 
-            <div class="col-xl-4 col-lg-6 col-md-6" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+            <div class="col-xl-4 col-lg-6 col-md-6 promo-card-wrapper" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
                 <div class="promo-card card h-100" data-promo-id="{{ p.id }}"
                      style="border-radius:20px;
                             background:{{ p.isTrending ? 'linear-gradient(135deg, #FFF5F5, #FED7D7)' : '#fff' }};
@@ -576,6 +562,23 @@ document.querySelectorAll('.btn-unlock').forEach(btn => {
         new bootstrap.Modal(document.getElementById('unlockModal')).show();
     });
 });
+
+function filterPromotions() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const wrappers = document.getElementsByClassName('promo-card-wrapper');
+
+    for (let i = 0; i < wrappers.length; i++) {
+        // We look into the inner text of the card to find matches
+        const text = wrappers[i].innerText.toLowerCase();
+        
+        if (text.includes(filter)) {
+            wrappers[i].style.display = "";
+        } else {
+            wrappers[i].style.display = "none";
+        }
+    }
+}
 
 async function verifyCode() {
     const code = document.getElementById('promoCodeInput').value.trim();

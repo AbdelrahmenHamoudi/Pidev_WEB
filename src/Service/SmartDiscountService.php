@@ -39,7 +39,7 @@ class SmartDiscountService
             $lastCheck = $promo->getLastEngineCheck();
             $cooldownPassed = !$lastCheck || (($now->getTimestamp() - $lastCheck->getTimestamp()) / 3600 > 12);
 
-            if ($ageInHours > 24 && $promo->getStatus() === Promotion::STATUS_ACTIVE && $cooldownPassed) {
+            if ($ageInHours > 1 && $promo->getStatus() === Promotion::STATUS_ACTIVE && $cooldownPassed) {
                 $views = $promo->getViews();
                 $reservations = $this->trendingService->getNbReservations($promo);
 

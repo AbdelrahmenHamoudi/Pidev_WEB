@@ -2,156 +2,128 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Promotion PDF - RE7LA</title>
+    <title>RE7LA - Official Promotion Document</title>
     <style>
-        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; margin: 0; padding: 0; }
-        .page { padding: 40px; }
-        .header { text-align: center; border-bottom: 3px solid #F7B731; padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { margin: 0; color: #2C3E50; font-size: 28px; }
-        .header p { margin: 5px 0 0; color: #7F8C8D; font-size: 14px; }
+        @page { margin: 0; }
+        body { font-family: 'Helvetica', sans-serif; color: #1e293b; margin: 0; padding: 0; background: #fff; }
+        .container { padding: 50px; }
         
-        .promo-banner { text-align: center; margin-bottom: 30px; }
-        .promo-banner img { max-width: 100%; border-radius: 12px; height: 200px; object-fit: cover; border: 1px solid #eee; }
+        /* Header */
+        .pdf-header { display: table; width: 100%; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 40px; }
+        .header-logo { display: table-cell; width: 50%; vertical-align: middle; }
+        .header-info { display: table-cell; width: 50%; text-align: right; vertical-align: middle; }
+        .logo-text { font-size: 24px; font-weight: 900; color: #2C3E50; }
+        .logo-text span { color: #F7B731; }
+        .doc-type { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
         
-        .section { margin-bottom: 25px; }
-        .section-title { font-size: 18px; color: #2C3E50; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 15px; font-weight: bold; }
+        /* Banner */
+        .promo-banner { position: relative; margin-bottom: 40px; border-radius: 20px; overflow: hidden; height: 250px; background: #1e293b; }
+        .promo-banner img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .banner-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+        .banner-title { color: #fff; font-size: 28px; font-weight: 800; margin: 0; }
         
-        table { width: 100%; border-collapse: collapse; }
-        table th, table td { padding: 12px; border: 1px solid #f1f5f9; text-align: left; font-size: 14px; }
-        table th { background-color: #f8fafc; font-weight: bold; width: 35%; color: #475569; }
+        /* Content */
+        .details-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-bottom: 30px; }
+        .details-table td { padding: 15px; background: #f8fafc; border: 1px solid #f1f5f9; }
+        .label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .value { font-size: 14px; font-weight: 700; color: #1e293b; }
         
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; color: white; text-transform: uppercase; }
-        .badge-pack { background-color: #1ABC9C; }
-        .badge-indiv { background-color: #3498DB; }
-        .badge-tendance { background-color: #E53E3E; }
-        .badge-ai { background-color: #667eea; }
-        .badge-smart { background-color: #E67E22; }
+        /* Smart Engine Box */
+        .smart-engine { background: #fffbeb; border: 2px dashed #fed7aa; border-radius: 16px; padding: 20px; margin-bottom: 30px; position: relative; }
+        .smart-badge { position: absolute; top: -10px; right: 20px; background: #ea580c; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 9px; font-weight: 800; }
         
-        .smart-box { background-color: #fff9eb; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; margin-top: 10px; }
-        .smart-title { color: #856404; font-weight: bold; font-size: 13px; margin-bottom: 5px; }
-        .smart-text { color: #856404; font-size: 13px; }
-
-        .qr-container { text-align: center; margin-top: 40px; padding: 25px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; }
-        .qr-code { background: white; padding: 10px; display: inline-block; border-radius: 8px; border: 1px solid #eee; margin: 15px 0; }
-        .qr-code img { max-width: 140px; }
+        /* Stamp & Signature */
+        .official-footer { display: table; width: 100%; margin-top: 60px; }
+        .signature-block { display: table-cell; width: 60%; vertical-align: bottom; }
+        .stamp-block { display: table-cell; width: 40%; text-align: center; vertical-align: middle; }
         
-        .footer { position: fixed; bottom: 30px; left: 0; right: 0; text-align: center; font-size: 10px; color: #94a3b8; }
+        .stamp { width: 120px; height: 120px; border: 3px double #e11d48; border-radius: 50%; display: inline-block; position: relative; transform: rotate(-15deg); opacity: 0.7; }
+        .stamp-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #e11d48; font-weight: 900; font-size: 10px; text-align: center; line-height: 1; }
+        
+        .signature { border-bottom: 1px solid #2C3E50; width: 200px; padding-bottom: 5px; margin-top: 30px; font-family: 'Cursive', serif; font-size: 20px; color: #2C3E50; }
+        .footer-note { font-size: 9px; color: #94a3b8; margin-top: 40px; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="page">
-    <div class="header">
-        <h1>RE7LA - Fiche Promotionnelle</h1>
-        <p>Document généré le {{ "now"|date("d/m/Y H:i") }}</p>
+<div class="container">
+    <div class="pdf-header">
+        <div class="header-logo">
+            <div class="logo-text">RE7<span>LA</span></div>
+            <div style="font-size: 10px; color: #64748b; font-weight: 600;">Tunisian Travel Experience</div>
+        </div>
+        <div class="header-info">
+            <div class="doc-type">Attestation Officielle de Promotion</div>
+            <div style="font-size: 12px; color: #1e293b; font-weight: 700; margin-top: 5px;">Document N&deg; PRM-{{ promotion.id }}-{{ "now"|date("Y") }}</div>
+            <div style="font-size: 11px; color: #94a3b8;">Émis le {{ "now"|date("d/m/Y") }}</div>
+        </div>
     </div>
 
-    {% if promotion.image %}
     <div class="promo-banner">
-        {# Note: In PDF generation via Api2Pdf, relative paths must be absolute URLs or base64. 
-           We use the absolute path placeholder if possible, or just the asset name. 
-           Api2Pdf usually needs absolute URLs for images. #}
-        <img src="https://{{ app.request.host }}{{ asset(promotion.image) }}" alt="{{ promotion.name }}">
+        {% if promotion.image %}
+            <img src="{{ app.request.schemeAndHttpHost ~ asset(promotion.image) }}" alt="Promotion">
+        {% endif %}
+        <div class="banner-overlay">
+            <h1 class="banner-title">{{ promotion.name }}</h1>
+        </div>
     </div>
-    {% endif %}
 
-    <div class="section">
-        <div class="section-title">Détails de l'Offre : {{ promotion.name }}</div>
-        <table>
-            <tr>
-                <th>Type de Promotion</th>
-                <td>
-                    {% if promotion.isPack %}
-                        <span class="badge badge-pack">📦 Pack Touristique</span>
-                    {% else %}
-                        <span class="badge badge-indiv">🎫 Offre {{ promotion.offerType|capitalize }}</span>
-                    {% endif %}
-                    
-                    {% if promotion.isAiGenerated %}
-                        <span class="badge badge-ai" style="margin-left:5px;">🤖 IA Générée</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <th>Réduction Actuelle</th>
-                <td style="font-size: 18px; color: #E67E22; font-weight: bold;">-{{ promotion.reductionLabel }}</td>
-            </tr>
-            <tr>
-                <th>Période de Validité</th>
-                <td>Du <strong>{{ promotion.startDate|date('d/m/Y') }}</strong> au <strong>{{ promotion.endDate|date('d/m/Y') }}</strong></td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ promotion.description }}</td>
-            </tr>
-            <tr>
-                <th>Statut et Engagement</th>
-                <td>
-                    {% if isTrending %}
-                        <span class="badge badge-tendance">🔥 Top Tendance</span>
-                    {% endif %}
-                    <span style="font-size:12px; color:#64748b; margin-left:10px;">{{ nbVues }} Vues | {{ nbReservations }} Réservations</span>
-                </td>
-            </tr>
-        </table>
+    <table class="details-table">
+        <tr>
+            <td style="border-radius: 12px 0 0 12px; width: 33%;">
+                <div class="label">Catégorie</div>
+                <div class="value">{{ promotion.isPack() ? 'Pack Touristique' : 'Offre ' ~ promotion.offerTypeLabel }}</div>
+            </td>
+            <td style="width: 33%;">
+                <div class="label">Réduction</div>
+                <div style="font-size: 20px; font-weight: 900; color: #ea580c;">-{{ promotion.reductionLabel }}</div>
+            </td>
+            <td style="border-radius: 0 12px 12px 0; width: 34%;">
+                <div class="label">Validité</div>
+                <div class="value">Jusqu'au {{ promotion.endDate|date('d/m/Y') }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="section-content" style="padding: 0 10px;">
+        <div class="label">Description Officielle</div>
+        <p style="font-size: 13px; line-height: 1.6; color: #475569; margin-bottom: 30px;">
+            {{ promotion.description ?: 'Cette promotion exclusive permet aux clients de RE7LA de bénéficier de tarifs préférentiels sur nos services de voyage. Offre soumise à conditions.' }}
+        </p>
     </div>
 
     {% if promotion.autoDiscountReason %}
-    <div class="section">
-        <div class="section-title">Analyse Smart Engine</div>
-        <div class="smart-box">
-            <div class="smart-title"><span class="badge badge-smart">Ajustement Automatique</span></div>
-            <div class="smart-text">
-                Cette promotion a été ajustée par notre algorithme Smart Engine.<br>
-                <strong>Historique :</strong> La réduction est passée de {{ promotion.originalDiscountPercentage|default('?') }}% à {{ promotion.discountPercentage }}%.<br>
-                <strong>Raison :</strong> {{ promotion.autoDiscountReason == 'low_engagement' ? 'Faible interaction détectée (boost de visibilité).' : 'Forte demande détectée.' }}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if promotion.isPack %}
-    <div class="section">
-        <div class="section-title">Composition du Pack</div>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width:70%;">Offre</th>
-                    <th style="width:30%;">Catégorie</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in promotion.packItemsDecoded %}
-                <tr>
-                    <td>{{ item.label }}</td>
-                    <td>{{ item.type|capitalize }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% endif %}
-
-    {% if promotion.isVerrouille and promoCode %}
-    <div class="qr-container">
-        <div style="font-weight: 800; color: #2C3E50; font-size: 18px;">🎫 Code Promo de Réservation</div>
-        <div style="font-size:32px; font-weight:900; color:#F7B731; margin: 10px 0; letter-spacing: 2px;">{{ promoCode.code }}</div>
-        
-        {% if qrUrl %}
-        <div class="qr-code">
-            <img src="{{ qrUrl }}" alt="QR Code">
-        </div>
-        {% endif %}
-        
-        <p style="font-size:12px; color:#64748b; font-style: italic;">
-            Présentez ce code ou scannez le QR code lors de votre réservation pour bénéficier de l'offre.
+    <div class="smart-engine">
+        <div class="smart-badge">OPTIMISÉ PAR SMART ENGINE</div>
+        <div style="font-size: 12px; color: #92400e; font-weight: 700;">ANALYSE DYNAMIQUE DE PERFORMANCE</div>
+        <p style="font-size: 11px; color: #b45309; margin: 10px 0 0;">
+            Ce document atteste que l'offre a été ajustée dynamiquement pour garantir la meilleure visibilité possible. 
+            La réduction initiale de {{ promotion.originalDiscountPercentage|default('?') }}% a été portée à {{ promotion.discountPercentage }}% 
+            pour cause de {{ promotion.autoDiscountReason == 'low_engagement' ? 'faible engagement utilisateur' : 'forte demande' }}.
         </p>
     </div>
     {% endif %}
 
-    <div class="footer">
-        RE7LA - Plateforme de Voyage & Tourisme en Tunisie &copy; {{ "now"|date("Y") }}<br>
-        Document à caractère informatif. Les tarifs peuvent varier selon la disponibilité.
+    <div class="official-footer">
+        <div class="signature-block">
+            <div style="font-size: 11px; font-weight: 800; color: #1e293b; margin-bottom: 40px;">SIGNATURE DE LA DIRECTION</div>
+            <div class="signature">Management RE7LA</div>
+            <div style="font-size: 10px; color: #94a3b8; margin-top: 5px;">Département Marketing & Promos</div>
+        </div>
+        <div class="stamp-block">
+            <div class="stamp">
+                <div class="stamp-inner">
+                    APPROUVÉ<br>
+                    RE7LA TUNISIA<br>
+                    {{ "now"|date("Y") }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        RE7LA - Siège Social, Tunis, Tunisie | www.re7la.tn<br>
+        Ce document est généré électroniquement et est valide sans signature manuscrite.
     </div>
 </div>
 

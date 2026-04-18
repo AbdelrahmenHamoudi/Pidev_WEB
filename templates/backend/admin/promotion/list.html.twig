@@ -4,6 +4,8 @@
 {% block breadcrumb %}Promotions{% endblock %}
 {% block page_title %}Gestion des Promotions{% endblock %}
 
+{% block top_search %}{% endblock %}
+
 {% block body %}
 
 {# ── Stats Cards ─────────────────────────────────────────────────────────── #}
@@ -83,56 +85,20 @@
     </div>
   </div>
 
-  {# ── Advanced Search Bar ── #}
-  <div class="card mb-4" style="border-radius:16px; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.03); padding:20px; background:#fff;">
-    <form action="{{ path('app_admin_promotion_list') }}" method="GET" style="display:grid; grid-template-columns: 2fr 1.2fr 1.2fr 1.2fr 1fr 0.6fr; gap:15px; align-items:end;">
-        <div>
-            <label style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:5px; display:block;">Recherche</label>
-            <input type="text" name="q" value="{{ q }}" placeholder="Nom ou description..." 
-                   style="width:100%; padding:10px 15px; border-radius:10px; border:1px solid #e2e8f0; font-size:13px;">
-        </div>
-        <div>
-            <label style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:5px; display:block;">Type</label>
-            <select name="type" style="width:100%; padding:10px 15px; border-radius:10px; border:1px solid #e2e8f0; font-size:13px;">
-                <option value="">Tous les types</option>
-                <option value="individuelle" {{ currentType == 'individuelle' ? 'selected' }}>Individuelle</option>
-                <option value="pack" {{ currentType == 'pack' ? 'selected' }}>Pack</option>
-            </select>
-        </div>
-        <div>
-            <label style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:5px; display:block;">Offre</label>
-            <select name="offerType" style="width:100%; padding:10px 15px; border-radius:10px; border:1px solid #e2e8f0; font-size:13px;">
-                <option value="">Toutes les offres</option>
-                <option value="hebergement" {{ currentOffer == 'hebergement' ? 'selected' }}>Hébergement</option>
-                <option value="voiture" {{ currentOffer == 'voiture' ? 'selected' }}>Voiture</option>
-                <option value="activite" {{ currentOffer == 'activite' ? 'selected' }}>Activité</option>
-            </select>
-        </div>
-        <div>
-            <label style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; margin-bottom:5px; display:block;">Statut</label>
-            <select name="status" style="width:100%; padding:10px 15px; border-radius:10px; border:1px solid #e2e8f0; font-size:13px;">
-                <option value="">Tous les statuts</option>
-                <option value="active" {{ currentStatus == 'active' ? 'selected' }}>Active</option>
-                <option value="upcoming" {{ currentStatus == 'upcoming' ? 'selected' }}>Bientôt</option>
-                <option value="expired" {{ currentStatus == 'expired' ? 'selected' }}>Expirée</option>
-            </select>
-        </div>
-        <div style="padding-bottom:12px; display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" name="tendance" value="1" id="trendingCheck" {{ app.request.query.get('tendance') ? 'checked' }} style="width:18px; height:18px;">
-            <label for="trendingCheck" style="font-size:13px; font-weight:600; color:#2c3e50; cursor:pointer;">🔥 Tendance</label>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button type="submit" style="background:#2C3E50; color:#fff; padding:11px; border-radius:10px; border:none; flex:1; cursor:pointer;">
-                <i class="fas fa-search"></i>
-            </button>
-            <a href="{{ path('app_admin_promotion_list') }}" style="background:#f1f5f9; color:#64748b; padding:11px; border-radius:10px; flex:1; text-align:center;">
-                <i class="fas fa-undo"></i>
-            </a>
-        </div>
-    </form>
+
+  {# ── Dynamic Advanced Search ── #}
+  <div class="card mb-4" style="border-radius:24px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.04); padding:25px; background:#fff; margin-top: -20px;">
+      <div style="position:relative;">
+          <i class="fas fa-search" style="position:absolute; left:20px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:18px;"></i>
+          <input type="text" id="advancedSearchInput" placeholder="Rechercher une promotion par nom, type, statut, tendance (ex: 'tendance')..." 
+                 style="width:100%; padding:18px 20px 18px 55px; border-radius:18px; border:2px solid #f1f5f9; font-size:15px; font-weight:500; transition:all 0.3s; outline:none; box-shadow: 0 4px 12px rgba(0,0,0,0.02);"
+                 onfocus="this.style.borderColor='#3498DB'; this.style.boxShadow='0 8px 25px rgba(52,152,219,0.1)';"
+                 onblur="this.style.borderColor='#f1f5f9'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.02)';"
+                 onkeyup="filterPromotions()">
+      </div>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px;">
+  <div id="promoGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px;">
     {% for promotion in promotions %}
       {% set status       = promotion.status %}
       {% set statusColors = promotion.statusColors %}
@@ -304,6 +270,21 @@
 
 
 <script>
+function filterPromotions() {
+    const input = document.getElementById('advancedSearchInput');
+    const filter = input.value.toLowerCase();
+    const wrappers = document.getElementsByClassName('promo-item-wrapper');
+
+    for (let i = 0; i < wrappers.length; i++) {
+        const text = wrappers[i].innerText.toLowerCase();
+        if (text.includes(filter)) {
+            wrappers[i].style.display = "";
+        } else {
+            wrappers[i].style.display = "none";
+        }
+    }
+}
+
 function generateQr(promoId) {
     fetch(`/admin/promotion/${promoId}/generate-qr`, {
         method: 'POST',
