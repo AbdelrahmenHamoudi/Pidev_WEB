@@ -8,7 +8,7 @@
 
 {# ── Stats Cards ─────────────────────────────────────────────────────────── #}
 <div class="stat-cards-row">
-  <div class="stat-card" style="background:#F7B731;">
+  <div class="stat-card" style="background:#F7B731;" data-aos="fade-up" data-aos-delay="0">
     <div class="stat-card-left">
       <div class="label" style="color:#fff;">TOTAL PROMOS</div>
       <div class="value" style="color:#fff;">{{ total }}</div>
@@ -17,7 +17,7 @@
       <i class="fas fa-tags" style="color:#fff;"></i>
     </div>
   </div>
-  <div class="stat-card" style="background:#1ABC9C;">
+  <div class="stat-card" style="background:#1ABC9C;" data-aos="fade-up" data-aos-delay="100">
     <div class="stat-card-left">
       <div class="label" style="color:#fff;">PACKS</div>
       <div class="value" style="color:#fff;">{{ totalPacks }}</div>
@@ -26,7 +26,7 @@
       <i class="fas fa-box-open" style="color:#fff;"></i>
     </div>
   </div>
-  <div class="stat-card" style="background:#3498DB;">
+  <div class="stat-card" style="background:#3498DB;" data-aos="fade-up" data-aos-delay="200">
     <div class="stat-card-left">
       <div class="label" style="color:#fff;">INDIVIDUELLES</div>
       <div class="value" style="color:#fff;">{{ totalIndiv }}</div>
@@ -35,7 +35,7 @@
       <i class="fas fa-ticket-alt" style="color:#fff;"></i>
     </div>
   </div>
-  <div class="stat-card" style="background:#1A3A4A;">
+  <div class="stat-card" style="background:#1A3A4A;" data-aos="fade-up" data-aos-delay="300">
     <div class="stat-card-left">
       <div class="label" style="color:#fff;">ACTIVES</div>
       <div class="value" style="color:#fff;">{{ totalActives }}</div>
@@ -45,7 +45,7 @@
     </div>
   </div>
 
-  <div class="stat-card" style="background:linear-gradient(135deg,#E53E3E,#C53030);">
+  <div class="stat-card" style="background:linear-gradient(135deg,#E53E3E,#C53030);" data-aos="fade-up" data-aos-delay="400">
     <div class="stat-card-left">
       <div class="label" style="color:#fff;">TENDANCES</div>
       <div class="value" style="color:#fff;">{{ totalTrending ?? 0 }}</div>
@@ -92,7 +92,13 @@
       {% set status       = promotion.status %}
       {% set statusColors = promotion.statusColors %}
 
-      <div class="p-card" style="background:#FAFAFA;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);border:1px solid #e8ecf0;transition:all 0.3s;">
+      {% set isTrending = trendingService.isTrending(promotion) %}
+      <div class="p-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 80 }}" 
+           style="background: {{ isTrending ? 'linear-gradient(135deg, #FFF5F5, #FED7D7)' : '#FAFAFA' }};
+                  border-radius:16px; overflow:hidden; 
+                  box-shadow:{{ isTrending ? '0 10px 25px rgba(229,62,62,0.15)' : '0 2px 10px rgba(0,0,0,0.03)' }}; 
+                  border: 1px solid {{ isTrending ? '#FEB2B2' : '#e8ecf0' }}; 
+                  transition:all 0.3s;">
 
         {# Image ou placeholder #}
         {% if promotion.image %}

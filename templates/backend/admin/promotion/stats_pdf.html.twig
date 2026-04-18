@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques Promotions - PDF</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #F7B731;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #2C3E50;
+            font-size: 28px;
+        }
+        .header p {
+            margin: 8px 0 0;
+            color: #7F8C8D;
+            font-size: 14px;
+        }
+        .summary-grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .summary-box {
+            display: table-cell;
+            width: 25%;
+            text-align: center;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #eee;
+        }
+        .summary-val {
+            font-size: 28px;
+            font-weight: bold;
+            color: #F7B731;
+        }
+        .summary-label {
+            font-size: 11px;
+            color: #7F8C8D;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+        .chart-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        .chart-title {
+            font-size: 18px;
+            color: #2C3E50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .chart-img {
+            text-align: center;
+        }
+        .chart-img img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid #eee;
+            text-align: left;
+        }
+        th {
+            background: #f8fafc;
+            color: #2C3E50;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        td {
+            font-size: 13px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            background: #1ABC9C;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📊 Statistiques des Promotions</h1>
+    <p>Rapport généré le {{ "now"|date("d/m/Y à H:i") }} — RE7LA Admin</p>
+</div>
+
+<!-- Summary KPIs -->
+<div class="summary-grid">
+    <div class="summary-box">
+        <div class="summary-val">{{ totalPromos }}</div>
+        <div class="summary-label">Total Promotions</div>
+    </div>
+    <div class="summary-box">
+        <div class="summary-val">{{ nbIndiv }}</div>
+        <div class="summary-label">Individuelles</div>
+    </div>
+    <div class="summary-box">
+        <div class="summary-val">{{ nbPacks }}</div>
+        <div class="summary-label">Packs</div>
+    </div>
+    <div class="summary-box">
+        <div class="summary-val">{{ totalReservations }}</div>
+        <div class="summary-label">Réservations</div>
+    </div>
+</div>
+
+<!-- Chart 1: Pie -->
+<div class="chart-section">
+    <div class="chart-title">Répartition des Promotions par Type</div>
+    <div class="chart-img">
+        <img src="{{ pieChartUrl }}" alt="Pie Chart" style="max-width: 380px;">
+    </div>
+</div>
+
+<!-- Chart 2: Bar -->
+<div class="chart-section">
+    <div class="chart-title">Top Promotions par Réservations</div>
+    <div class="chart-img">
+        <img src="{{ barChartUrl }}" alt="Bar Chart" style="max-width: 580px;">
+    </div>
+</div>
+
+<!-- Chart 3: Doughnut -->
+<div class="chart-section">
+    <div class="chart-title">Distribution des Offres Individuelles</div>
+    <div class="chart-img">
+        <img src="{{ doughnutChartUrl }}" alt="Doughnut Chart" style="max-width: 380px;">
+    </div>
+</div>
+
+<!-- Table: Top Users -->
+<div class="chart-section">
+    <div class="chart-title">Utilisateurs les plus actifs</div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Utilisateur (Email)</th>
+                <th>Réservations</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set rank = 1 %}
+            {% for email, count in topUsers %}
+            <tr>
+                <td><span class="badge">{{ rank }}</span></td>
+                <td><strong>{{ email }}</strong></td>
+                <td>{{ count }}</td>
+            </tr>
+            {% set rank = rank + 1 %}
+            {% else %}
+            <tr><td colspan="3" style="text-align:center;color:#94a3b8;">Aucune donnée</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="footer">
+    <p>Ce rapport a été généré automatiquement via l'API QuickChart.io & Api2Pdf — RE7LA © {{ "now"|date("Y") }}</p>
+</div>
+
+</body>
+</html>

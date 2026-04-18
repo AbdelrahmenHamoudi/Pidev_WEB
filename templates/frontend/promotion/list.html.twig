@@ -240,11 +240,12 @@
         <div class="row g-4">
         {% for pid, p in promotionsData %}
 
-            <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="col-xl-4 col-lg-6 col-md-6" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
                 <div class="promo-card card h-100" data-promo-id="{{ p.id }}"
                      style="border-radius:20px;
-                            box-shadow:{{ p.isTrending ? '0 8px 30px rgba(229,62,62,0.25)' : '0 6px 30px rgba(0,0,0,0.07)' }};
-                            border: {{ p.isTrending ? '2px solid #E53E3E !important' : '0' }};
+                            background:{{ p.isTrending ? 'linear-gradient(135deg, #FFF5F5, #FED7D7)' : '#fff' }};
+                            box-shadow:{{ p.isTrending ? '0 12px 40px rgba(229,62,62,0.2)' : '0 6px 30px rgba(0,0,0,0.07)' }};
+                            border: {{ p.isTrending ? '1px solid #FEB2B2 !important' : 'none' }};
                             transition:all .3s ease;
                             opacity:{{ p.status == 'expired' ? '0.72' : '1' }};
                             overflow:hidden;">
@@ -1036,4 +1037,120 @@ document.querySelectorAll('.promo-card').forEach(card => {
 <style>
 @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 </style>
+
+{# ══════════════════════════════════════════════════════════════════════════
+   PUSHER REAL-TIME NOTIFICATIONS (WebSocket API)
+   When admin creates/updates a promotion, all connected users see a toast.
+   
+   How to get your Pusher keys:
+   1. Go to https://pusher.com/channels → Sign up free
+   2. Create a new app (choose "EU" cluster for Europe)
+   3. Copy App ID, Key, Secret from the "App Keys" tab
+   4. Set them in .env:
+      PUSHER_APP_ID=your_app_id
+      PUSHER_KEY=your_key  
+      PUSHER_SECRET=your_secret
+      PUSHER_CLUSTER=eu
+   Free tier: 200,000 messages/day, 100 concurrent connections
+══════════════════════════════════════════════════════════════════════════ #}
+
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+(function() {
+    // Initialize Pusher with the public key (exposed via Twig global)
+    const pusherKey = '{{ pusher_key }}';
+    const pusherCluster = '{{ pusher_cluster }}';
+    
+    // Only connect if Pusher is configured (key is not a placeholder)
+    if (pusherKey && pusherKey !== 'YOUR_PUSHER_KEY' && pusherKey.length > 5) {
+        const pusher = new Pusher(pusherKey, {
+            cluster: pusherCluster || 'eu'
+        });
+        
+        const channel = pusher.subscribe('promotions');
+        
+        // 🎉 New promotion created by admin
+        channel.bind('new-promo', function(data) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: data.message || '🎉 Nouvelle promotion disponible!',
+                html: data.discount ? '<small style="color:#F7B731;font-weight:700;">-' + data.discount + '</small>' : '',
+                showConfirmButton: true,
+                confirmButtonText: '👀 Voir',
+                confirmButtonColor: '#F7B731',
+                showCancelButton: false,
+                timer: 8000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'animate__animated animate__slideInRight'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.reload();
+                }
+            });
+        });
+        
+        // 🔄 Promotion updated by admin
+        channel.bind('promo-updated', function(data) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: data.message || '🔄 Une promotion a été mise à jour',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'animate__animated animate__slideInRight'
+                }
+            });
+        });
+
+        // 🧠 Smart Discount Engine: Discount Increased
+        channel.bind('smart-increase', function(data) {
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                background: '#ffffff',
+                color: '#2c3e50',
+                showConfirmButton: true,
+                confirmButtonText: 'Voir l\'offre',
+                confirmButtonColor: '#1abc9c',
+                timer: 15000,
+                timerProgressBar: true,
+                html: `
+                    <div style="display:flex; align-items:center; gap:15px; text-align:left;">
+                        <div style="background:rgba(26,188,156,0.1); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <span style="font-size:24px;">🧠</span>
+                        </div>
+                        <div>
+                            <div style="font-weight:800; font-size:14px; margin-bottom:2px; color:#2c3e50;">SMART ENGINE</div>
+                            <div style="font-size:12px; color:#64748b; line-height:1.4;">
+                                <strong>${data.name}</strong><br>
+                                <span style="color:#e67e22; font-weight:700;">Engagement faible</span> → Promo boostée à <span style="color:#1abc9c; font-weight:800;">${data.newDiscount}</span> !
+                            </div>
+                        </div>
+                    </div>
+                `,
+                customClass: {
+                    popup: 'animate__animated animate__bounceInUp',
+                    container: 'smart-engine-toast'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.reload();
+                }
+            });
+        });
+        
+        console.log('✅ Pusher real-time notifications connected.');
+    } else {
+        console.log('ℹ️ Pusher not configured. Set PUSHER_KEY in .env to enable real-time notifications.');
+    }
+})();
+</script>
 {% endblock %}

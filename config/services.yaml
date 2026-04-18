@@ -6,6 +6,9 @@ parameters:
     profile_images_directory: '%kernel.project_dir%/public/uploads/profiles'
     publication_images_directory: '%kernel.project_dir%/public/uploads/publications'
     qr_coder_api_key: '%env(QRCODER_API_KEY)%'
+    api2pdf_key: '%env(API2PDF_KEY)%'
+    pusher_key: '%env(PUSHER_KEY)%'
+    pusher_cluster: '%env(PUSHER_CLUSTER)%'
 
 services:
     # default configuration for services in *this* file
@@ -14,6 +17,7 @@ services:
         autoconfigure: true
         bind:
             string $qrCoderApiKey: '%qr_coder_api_key%'
+            string $api2pdfKey: '%api2pdf_key%'
 
     # makes classes in src/ available to be used as services
     App\:

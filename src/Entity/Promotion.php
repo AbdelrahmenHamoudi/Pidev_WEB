@@ -7,8 +7,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: \App\Repository\PromotionRepository::class)]
 #[ORM\Table(name: 'promotion')]
+#[ORM\HasLifecycleCallbacks]
 class Promotion
 {
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+    }
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        if (!isset($this->createdAt)) {
+            $this->createdAt = new \DateTime();
+        }
+    }
     // ── Constantes type d'offre ──────────────────────────────────────────────
     const OFFER_HEBERGEMENT = 'hebergement';
     const OFFER_ACTIVITE    = 'activite';
@@ -90,6 +103,15 @@ class Promotion
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $views = 0;
 
+    #[ORM\Column(type: 'datetime', options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private \DateTimeInterface $createdAt;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $lastEngineCheck = null;
+
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $autoDiscountReason = null;
+
     // ── Getters & Setters de base ─────────────────────────────────────────────
 
     public function getId(): ?int { return $this->id; }
@@ -141,6 +163,15 @@ class Promotion
 
     public function getImage(): ?string { return $this->image; }
     public function setImage(?string $v): self { $this->image = $v; return $this; }
+
+    public function getCreatedAt(): \DateTimeInterface { return $this->createdAt; }
+    public function setCreatedAt(\DateTimeInterface $d): self { $this->createdAt = $d; return $this; }
+
+    public function getLastEngineCheck(): ?\DateTimeInterface { return $this->lastEngineCheck; }
+    public function setLastEngineCheck(?\DateTimeInterface $d): self { $this->lastEngineCheck = $d; return $this; }
+
+    public function getAutoDiscountReason(): ?string { return $this->autoDiscountReason; }
+    public function setAutoDiscountReason(?string $v): self { $this->autoDiscountReason = $v; return $this; }
 
     // ── Méthodes de STATUT ────────────────────────────────────────────────────
     //

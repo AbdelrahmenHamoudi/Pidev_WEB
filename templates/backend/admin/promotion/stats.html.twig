@@ -2,67 +2,85 @@
 
 {% block title %}Statistiques Promotions - RE7LA Admin{% endblock %}
 {% block breadcrumb %}Promotions / Statistiques{% endblock %}
-{% block page_title %}Dashboard Analytique{% endblock %}
+{% block page_title %}Tableau de Bord Analytique{% endblock %}
 
 {% block body %}
-<div class="row mb-4">
-    <div class="col-12">
-        <a href="{{ path('app_admin_promotion_list') }}" class="btn btn-sm" style="background:linear-gradient(135deg,#3498DB,#2980B9);color:#fff;border-radius:10px;padding:8px 16px;text-decoration:none;">
-            <i class="fas fa-arrow-left"></i> Retour aux promotions
+<div class="row mb-4" data-aos="fade-down">
+    <div class="col-12" style="display:flex;justify-content:space-between;align-items:center;">
+        <a href="{{ path('app_admin_promotion_list') }}" class="btn btn-sm" style="background:linear-gradient(135deg,#3498DB,#2980B9);color:#fff;border-radius:10px;padding:8px 16px;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        <a href="{{ path('app_admin_promotion_stats_pdf') }}" class="btn btn-sm" 
+           style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border-radius:10px;padding:8px 16px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-weight:600;"
+           data-aos="fade-left" data-aos-delay="200">
+            <i class="fas fa-file-pdf"></i> Télécharger le Rapport
         </a>
     </div>
 </div>
 
-<div class="row row-2">
+<div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px;">
+    
     <!-- Chart 1: Types de Promo -->
-    <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+    <div class="card" data-aos="zoom-in" data-aos-delay="100">
         <h3 class="card-title">Promotions par Type</h3>
-        <p class="card-sub">Individuelles vs Packs</p>
-        <div style="height: 300px; display:flex; justify-content:center;">
+        <p class="card-sub">Comparaison entre les offres individuelles et les packs</p>
+        <div style="height: 320px; display:flex; justify-content:center; padding: 10px;">
             <canvas id="pieChart"></canvas>
         </div>
     </div>
 
     <!-- Chart 2: Top 10 Promos -->
-    <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-        <h3 class="card-title">Top Promotions</h3>
-        <p class="card-sub">Basé sur le nombre de réservations</p>
-        <div style="height: 300px;">
+    <div class="card" data-aos="zoom-in" data-aos-delay="200">
+        <h3 class="card-title">Top 10 des Promotions</h3>
+        <p class="card-sub">Performance basée sur le volume de réservations</p>
+        <div style="height: 320px; padding: 10px;">
             <canvas id="barChart"></canvas>
         </div>
     </div>
-</div>
 
-<div class="row row-2">
     <!-- Chart 3: Distribution par type d'offre -->
-    <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
-        <h3 class="card-title">Distribution des Offres Individuelles</h3>
-        <p class="card-sub">Hébergement, Voiture, Activité</p>
-        <div style="height: 300px; display:flex; justify-content:center;">
+    <div class="card" data-aos="zoom-in" data-aos-delay="300">
+        <h3 class="card-title">Offres par Catégorie</h3>
+        <p class="card-sub">Répartition : Hébergement, Activités et Transport</p>
+        <div style="height: 320px; display:flex; justify-content:center; padding: 10px;">
             <canvas id="doughnutChart"></canvas>
         </div>
     </div>
 
     <!-- Chart 4: Top Users -->
-    <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
-        <h3 class="card-title">Utilisateurs les plus actifs</h3>
-        <p class="card-sub">Utilisateurs ayant le plus de réservations promo</p>
-        <div class="table-wrap mt-3">
-            <table>
-                <thead>
+    <div class="card" data-aos="zoom-in" data-aos-delay="400">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <h3 class="card-title">Utilisateurs VIP</h3>
+                <p class="card-sub">Clients les plus engagés sur vos promotions</p>
+            </div>
+            <i class="fas fa-crown" style="color:#F7B731; font-size: 1.5rem;"></i>
+        </div>
+        <div class="table-wrap mt-3" style="max-height: 300px; overflow-y: auto;">
+            <table style="width: 100%;">
+                <thead style="position: sticky; top: 0; background: #fff; z-index: 1;">
                     <tr>
-                        <th>Utilisateur (Email)</th>
-                        <th>Réservations</th>
+                        <th style="padding-bottom: 12px;">Client</th>
+                        <th style="padding-bottom: 12px; text-align: center;">Réservations</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for email, count in topUsers %}
                     <tr>
-                        <td><strong>{{ email }}</strong></td>
-                        <td><span class="status-badge s-ok" style="font-size:14px;">{{ count }}</span></td>
+                        <td style="padding: 12px 0;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:32px; height:32px; background:#f0f2f5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:#3498DB; font-size:12px;">
+                                    {{ email|first|upper }}
+                                </div>
+                                <span style="font-weight:600; font-size:13px; color:#2C3E50;">{{ email }}</span>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="status-badge s-ok" style="font-size:12px; font-weight:700; padding:4px 12px;">{{ count }}</span>
+                        </td>
                     </tr>
                     {% else %}
-                    <tr><td colspan="2" class="text-center text-muted">Aucune donnée</td></tr>
+                    <tr><td colspan="2" class="text-center text-muted" style="padding: 40px;">Aucune donnée disponible</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -77,6 +95,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#64748b';
+
     // Pie Chart
     const ctxPie = document.getElementById('pieChart').getContext('2d');
     new Chart(ctxPie, {
@@ -86,10 +107,17 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 data: {{ pieData|json_encode|raw }},
                 backgroundColor: ['#3498DB', '#1ABC9C'],
-                borderWidth: 0
+                borderWidth: 0,
+                hoverOffset: 15
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+            }
+        }
     });
 
     // Bar Chart
@@ -102,13 +130,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 label: 'Réservations',
                 data: {{ topPromosData|json_encode|raw }},
                 backgroundColor: '#F7B731',
-                borderRadius: 5
+                borderRadius: 8,
+                barThickness: 30
             }]
         },
         options: { 
             responsive: true, 
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            scales: { 
+                y: { beginAtZero: true, grid: { display: false }, ticks: { precision: 0 } },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { display: false }
+            }
         }
     });
 
@@ -117,14 +152,22 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(ctxDoughnut, {
         type: 'doughnut',
         data: {
-            labels: {{ typeDistLabels|json_encode|raw }},
+            labels: {{ typeDistLabels|map(l => l|capitalize)|json_encode|raw }},
             datasets: [{
                 data: {{ typeDistData|json_encode|raw }},
                 backgroundColor: ['#9b59b6', '#e74c3c', '#f1c40f'],
-                borderWidth: 0
+                borderWidth: 0,
+                cutout: '70%',
+                hoverOffset: 15
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+            }
+        }
     });
 });
 </script>

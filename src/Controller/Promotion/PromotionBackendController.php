@@ -17,9 +17,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use App\Service\PromoCodeService;
 use App\Service\TrendingService;
+use App\Service\PusherService;
+use App\Service\Api2PdfService;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 
 final class PromotionBackendController extends AbstractController
 {
@@ -54,7 +54,7 @@ final class PromotionBackendController extends AbstractController
     // DÉTAILS
     // ════════════════════════════════════════════
 
-    #[Route('/admin/promotion/{id}/show', name: 'app_admin_promotion_show')]
+    #[Route('/admin/promotion/{id}/show', name: 'app_admin_promotion_show', requirements: ['id' => '\d+'])]
     public function show(
         Promotion $promotion,
         EntityManagerInterface $em,
@@ -101,12 +101,13 @@ final class PromotionBackendController extends AbstractController
     // EXPORT PDF
     // ════════════════════════════════════════════
 
-    #[Route('/admin/promotion/{id}/pdf', name: 'app_admin_promotion_pdf')]
+    #[Route('/admin/promotion/{id}/pdf', name: 'app_admin_promotion_pdf', requirements: ['id' => '\d+'])]
     public function exportPdf(
         Promotion $promotion,
         EntityManagerInterface $em,
         TrendingService $trendingService,
-        PromoCodeService $promoCodeService
+        PromoCodeService $promoCodeService,
+        Api2PdfService $api2PdfService
     ): Response {
         $offerDetail = null;
 
@@ -128,7 +129,6 @@ final class PromotionBackendController extends AbstractController
         if ($promotion->isVerrouille()) {
             $promoCode = $promoCodeService->getActiveCode($promotion->getId());
             if ($promoCode) {
-                // If it's a URL, dompdf needs isRemoteEnabled. We use the qrContent generator
                 $qrUrl = $promoCodeService->generateQrImageUrl($promoCode->getQrContent());
             }
         }
@@ -143,23 +143,24 @@ final class PromotionBackendController extends AbstractController
             'qrUrl'          => $qrUrl,
         ]);
 
-        $pdfOptions = new Options();
-        $pdfOptions->set('defaultFont', 'Arial');
-        $pdfOptions->set('isRemoteEnabled', true);
+        // ── Use Api2Pdf REST API instead of local Dompdf ──
+        $filename = 'promotion_' . $promotion->getId() . '.pdf';
+        $result   = $api2PdfService->htmlToPdf($html, $filename);
 
-        $dompdf = new Dompdf($pdfOptions);
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
+        if ($result['success'] && $result['pdf_url']) {
+            // Download the generated PDF and return it as a file response
+            $pdfContent = $api2PdfService->downloadPdf($result['pdf_url']);
+            if ($pdfContent) {
+                return new Response($pdfContent, 200, [
+                    'Content-Type'        => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                ]);
+            }
+        }
 
-        return new Response(
-            $dompdf->output(),
-            200,
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="promotion_' . $promotion->getId() . '.pdf"',
-            ]
-        );
+        // Fallback: if Api2Pdf fails, show error
+        $this->addFlash('error', 'Erreur lors de la génération du PDF: ' . ($result['error'] ?? 'Erreur inconnue'));
+        return $this->redirectToRoute('app_admin_promotion_show', ['id' => $promotion->getId()]);
     }
 
     // ════════════════════════════════════════════
@@ -174,7 +175,8 @@ final class PromotionBackendController extends AbstractController
         ActiviteRepository    $activiteRepository,
         VoitureRepository     $voitureRepository,
         EntityManagerInterface $em,
-        PromoCodeService      $promoCodeService
+        PromoCodeService      $promoCodeService,
+        PusherService         $pusherService
     ): Response {
         $promotion = new Promotion();
         $form      = $this->createForm(PromotionType::class, $promotion);
@@ -245,6 +247,18 @@ final class PromotionBackendController extends AbstractController
                 $this->addFlash('success', '✅ Promotion créée avec succès.');
             }
 
+            // ── Pusher: broadcast real-time notification to frontend ──
+            try {
+                $pusherService->trigger('promotions', 'new-promo', [
+                    'id'       => $promotion->getId(),
+                    'name'     => $promotion->getName(),
+                    'discount' => $promotion->getReductionLabel(),
+                    'message'  => '🎉 Nouvelle promotion: ' . $promotion->getName(),
+                ]);
+            } catch (\Exception $e) {
+                // Pusher is optional — don't block on failure
+            }
+
             return $this->redirectToRoute('app_admin_promotion_list');
         }
 
@@ -261,7 +275,7 @@ final class PromotionBackendController extends AbstractController
     // QR CODE GENERATION ENDPOINT
     // ════════════════════════════════════════════
 
-    #[Route('/admin/promotion/{id}/generate-qr', name: 'app_admin_promotion_generate_qr', methods: ['POST'])]
+    #[Route('/admin/promotion/{id}/generate-qr', name: 'app_admin_promotion_generate_qr', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function generateQr(
         Promotion $promotion,
         PromoCodeService $promoCodeService,
@@ -282,13 +296,14 @@ final class PromotionBackendController extends AbstractController
     // MODIFIER
     // ════════════════════════════════════════════
 
-    #[Route('/admin/promotion/{id}/edit', name: 'app_admin_promotion_edit')]
+    #[Route('/admin/promotion/{id}/edit', name: 'app_admin_promotion_edit', requirements: ['id' => '\d+'])]
     public function edit(
         Request $request,
         Promotion $promotion,
         EntityManagerInterface $em,
         SluggerInterface $slugger,
-        PromoCodeService $promoCodeService
+        PromoCodeService $promoCodeService,
+        PusherService $pusherService
     ): Response {
         $form = $this->createForm(PromotionType::class, $promotion);
         $form->handleRequest($request);
@@ -355,6 +370,17 @@ final class PromotionBackendController extends AbstractController
                 $this->addFlash('info', '🔒 Promotion verrouillée. Code promo généré automatiquement.');
             }
 
+            // ── Pusher: broadcast real-time update notification ──
+            try {
+                $pusherService->trigger('promotions', 'promo-updated', [
+                    'id'      => $promotion->getId(),
+                    'name'    => $promotion->getName(),
+                    'message' => '🔄 Promotion mise à jour: ' . $promotion->getName(),
+                ]);
+            } catch (\Exception $e) {
+                // Pusher is optional — don't block on failure
+            }
+
             $this->addFlash('success', 'Promotion modifiée avec succès !');
             return $this->redirectToRoute('app_admin_promotion_list');
         }
@@ -382,7 +408,7 @@ final class PromotionBackendController extends AbstractController
     // SUPPRIMER
     // ════════════════════════════════════════════
 
-    #[Route('/admin/promotion/{id}/delete', name: 'app_admin_promotion_delete', methods: ['POST'])]
+    #[Route('/admin/promotion/{id}/delete', name: 'app_admin_promotion_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(
         Request $request,
         Promotion $promotion,
