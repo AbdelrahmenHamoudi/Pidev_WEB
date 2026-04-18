@@ -65,8 +65,9 @@ class ActiviteType extends AbstractType
                 'constraints' => [
                     new NotBlank(message: 'La capacité est obligatoire'),
                     new Range(
-                        min: 1, minMessage: 'La capacité doit être au moins {{ limit }}',
-                        max: 1000, maxMessage: 'La capacité ne peut pas dépasser {{ limit }}'
+                        min: 1,
+                        max: 1000,
+                        notInRangeMessage: 'La capacité doit être comprise entre {{ min }} et {{ max }}'
                     ),
                 ],
             ])

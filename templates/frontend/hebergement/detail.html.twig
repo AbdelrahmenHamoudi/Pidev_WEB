@@ -415,7 +415,7 @@
 
                 <!-- Formulaire de sélection (Visuel Booking/Airbnb connecté à Symfony) -->
                 {{ form_start(form, {'attr': {'id': 'reservationForm', 'novalidate': 'novalidate'}}) }}
-                <div class="booking-form-box border mb-3 overflow-hidden {% if not form.vars.valid %}border-danger{% endif %}">
+                <div class="booking-form-box border mb-3 overflow-hidden {% if not form.vars.valid %}border-warning{% endif %}">
                     <div class="row g-0">
                         <div class="col-6 border-bottom border-end form-cell">
                             <label class="d-block text-muted fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase;">{{ 'form.check_in'|default("Date d'arrivée")|trans }}</label>
@@ -444,13 +444,13 @@
                 </div>
 
                 {% if not form.vars.valid %}
-                    <div class="alert alert-danger p-2 small border-0 text-danger bg-opacity-10 rounded-3 mb-3 fw-bold">
+                    <div class="alert alert-warning p-2 small border-0 text-warning bg-opacity-10 rounded-3 mb-3 fw-bold" style="color: #d68910 !important; background: rgba(243,156,18,0.1) !important;">
                         <i class="bx bx-error-circle me-1"></i> Veuillez vérifier les dates sélectionnées.
                     </div>
                 {% endif %}
                 
                 <!-- JS Custom Error Message Container -->
-                <div id="customFormError" class="custom-error-msg bg-danger text-white">
+                <div id="customFormError" class="custom-error-msg bg-warning text-dark" style="background: #f39c12 !important; color: white !important;">
                     <i class="bx bx-error-circle me-1"></i> Veuillez sélectionner vos dates d'arrivée et de départ.
                 </div>
 

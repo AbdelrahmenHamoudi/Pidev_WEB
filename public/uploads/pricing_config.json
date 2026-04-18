@@ -23,6 +23,9 @@
         },
         "31": {
             "enabled": false
+        },
+        "2": {
+            "enabled": true
         }
     },
     "global_settings": {

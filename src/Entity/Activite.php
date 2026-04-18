@@ -32,6 +32,12 @@ class Activite
 
     #[ORM\Column(type: "string", length: 255)]
     private ?string $image = null;
+
+    #[ORM\Column(type: "string", length: 50)]
+    private string $type = '';
+
+    #[ORM\Column(type: "string", length: 50)]
+    private string $statut = 'Disponible';
     // ✅ RELATION CORRIGÉE
     #[ORM\OneToMany(mappedBy: "activite", targetEntity: Planningactivite::class, cascade: ["persist", "remove"])]
     private Collection $planningactivites;
@@ -73,6 +79,12 @@ public function setImage(?string $image): self
     $this->image = $image;
     return $this;
 }
+
+    public function getType(): string { return $this->type; }
+    public function setType(string $type): self { $this->type = $type; return $this; }
+
+    public function getStatut(): string { return $this->statut; }
+    public function setStatut(string $statut): self { $this->statut = $statut; return $this; }
 
     // ─── RELATION ─────────────────────────────────────
 

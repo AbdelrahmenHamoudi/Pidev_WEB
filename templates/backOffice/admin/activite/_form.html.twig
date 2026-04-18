@@ -1,114 +1,158 @@
-<div style="max-width:760px;">
-
+<div style="max-width:900px;">
     {# ── Erreurs de validation ── #}
     {% if form.vars.errors|length > 0 %}
-        <div style="background:#fee2e2;color:#991b1b;padding:14px 18px;border-radius:10px;margin-bottom:20px;">
-            <strong><i class="fas fa-exclamation-triangle"></i> Erreurs :</strong>
-            <ul style="margin:8px 0 0 16px;">
-                {% for error in form.vars.errors %}
-                    <li>{{ error.message }}</li>
-                {% endfor %}
-            </ul>
+        <div style="background:#fee2e2;color:#991b1b;padding:16px 20px;border-radius:12px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;">
+            <i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i>
+            <span>Désolé, il y a des erreurs dans votre formulaire.</span>
         </div>
     {% endif %}
 
-    {{ form_start(form, {attr: {enctype: 'multipart/form-data'}}) }}
+    {{ form_start(form, {attr: {enctype: 'multipart/form-data', novalidate: 'novalidate'}}) }}
 
-    <div class="card">
-        <div class="card-title">Informations générales</div>
-        <div class="card-sub">Renseignez les détails de l'activité</div>
+    <div style="background:#fff;border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid #e8ecf0;">
+        
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;border-bottom:1px solid #f0f2f5;padding-bottom:20px;">
+            <div>
+                <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:4px;">Informations de l'activité</h3>
+                <p style="color:#94a3b8;font-size:13px;margin:0;">Décrivez votre offre pour attirer plus de voyageurs</p>
+            </div>
+            <div style="width:48px;height:48px;background:rgba(26,188,156,0.1);color:#1ABC9C;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
+                <i class="fas fa-hiking"></i>
+            </div>
+        </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
 
             {# Nom #}
             <div style="grid-column:1/-1;">
-                {{ form_label(form.nomA, 'Nom de l\'activité', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
-                {{ form_widget(form.nomA, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;'}}) }}
+                {{ form_label(form.nomA, 'Titre de l\'activité', {label_attr: {style: 'display:block;font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;'}}) }}
+                {{ form_widget(form.nomA, {attr: {class: 'premium-input', placeholder: 'Ex: Randonnée dans le Sahara...'}}) }}
                 {{ form_errors(form.nomA) }}
             </div>
 
             {# Description #}
             <div style="grid-column:1/-1;">
-                {{ form_label(form.descriptionA, 'Description', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
-                {{ form_widget(form.descriptionA, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;resize:vertical;min-height:100px;'}}) }}
+                {{ form_label(form.descriptionA, 'Description détaillée', {label_attr: {style: 'display:block;font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;'}}) }}
+                {{ form_widget(form.descriptionA, {attr: {class: 'premium-input', style: 'min-height:120px;resize:vertical;', placeholder: 'Détaillez le programme, les points forts...'}}) }}
                 {{ form_errors(form.descriptionA) }}
             </div>
 
             {# Lieu #}
             <div>
-                {{ form_label(form.lieu, 'Lieu', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
-                {{ form_widget(form.lieu, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;'}}) }}
+                {{ form_label(form.lieu, 'Localisation / Lieu', {label_attr: {style: 'display:block;font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;'}}) }}
+                <div style="position:relative;">
+                    <i class="fas fa-map-marker-alt" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#1ABC9C;"></i>
+                    {{ form_widget(form.lieu, {attr: {class: 'premium-input', style: 'padding-left:40px;', placeholder: 'Ex: Douz, Tunisie'}}) }}
+                </div>
                 {{ form_errors(form.lieu) }}
             </div>
 
             {# Prix #}
             <div>
-                {{ form_label(form.prixParPersonne, 'Prix par personne (DT)', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
-                {{ form_widget(form.prixParPersonne, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;'}}) }}
+                {{ form_label(form.prixParPersonne, 'Prix (DT par personne)', {label_attr: {style: 'display:block;font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;'}}) }}
+                <div style="position:relative;">
+                    <i class="fas fa-coins" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#F39C12;"></i>
+                    {{ form_widget(form.prixParPersonne, {attr: {class: 'premium-input', style: 'padding-left:40px;', placeholder: '0.00'}}) }}
+                </div>
                 {{ form_errors(form.prixParPersonne) }}
             </div>
 
             {# Capacité #}
             <div>
-                {{ form_label(form.capaciteMax, 'Capacité maximale', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
-                {{ form_widget(form.capaciteMax, {attr: {style: 'width:100%;padding:10px 14px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;outline:none;'}}) }}
+                {{ form_label(form.capaciteMax, 'Nombre max. de participants', {label_attr: {style: 'display:block;font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;'}}) }}
+                <div style="position:relative;">
+                    <i class="fas fa-users" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#3498DB;"></i>
+                    {{ form_widget(form.capaciteMax, {attr: {class: 'premium-input', style: 'padding-left:40px;', placeholder: 'Ex: 15'}}) }}
+                </div>
                 {{ form_errors(form.capaciteMax) }}
             </div>
 
-            {# Image #}
-            <div style="grid-column:1/-1;">
-                {{ form_label(form.imageFile, 'Image (JPG, PNG — max 2Mo)', {label_attr: {style: 'display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;'}}) }}
-                
-                {# Aperçu image actuelle #}
-                {% if activite.image %}
-                    <div style="margin-bottom:10px;">
-                        <img src="{{ asset('uploads/activites/' ~ activite.image) }}"
-                             style="height:80px;border-radius:10px;object-fit:cover;"
-                             alt="Image actuelle">
-                        <span style="font-size:11px;color:#94a3b8;margin-left:10px;">Image actuelle</span>
-                    </div>
+            {# Type / Statut (since I added them earlier) #}
+            <div>
+                {% if form.type is defined %}
+                    {{ form_label(form.type, 'Type d\'activité', {label_attr: {style: 'display:block;font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;'}}) }}
+                    {{ form_widget(form.type, {attr: {class: 'premium-input'}}) }}
                 {% endif %}
+            </div>
 
-                {# Aperçu image avant envoi #}
-                <div style="margin-bottom:10px;">
-                    <img id="preview"
-                         src="#"
-                         alt="Aperçu"
-                         style="display:none;height:80px;border-radius:10px;object-fit:cover;">
-                    <span id="preview-label" style="display:none;font-size:11px;color:#94a3b8;margin-left:10px;">Nouvelle image</span>
+            {# Image Upload #}
+            <div style="grid-column:1/-1;margin-top:10px;">
+                <label style="display:block;font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">Visuel de l'activité</label>
+                
+                <div style="display:flex;gap:20px;align-items:flex-start;">
+                    {% if activite.image %}
+                        <div style="flex-shrink:0;">
+                            <img src="{{ asset('uploads/activites/' ~ activite.image) }}" style="width:120px;height:120px;border-radius:16px;object-fit:cover;box-shadow:0 4px 15px rgba(0,0,0,0.1);border:3px solid #fff;" alt="Actuelle">
+                            <p style="text-align:center;font-size:10px;color:#94a3b8;margin-top:5px;font-weight:600;">IMAGE ACTUELLE</p>
+                        </div>
+                    {% endif %}
+
+                    <div style="flex:1;border:3px dashed #e2e8f0;border-radius:16px;padding:30px;background:#f8fafc;text-align:center;position:relative;transition:0.3s;" id="dropzone">
+                        <img id="preview" src="#" alt="Aperçu" style="display:none;width:100px;height:100px;border-radius:12px;object-fit:cover;margin:0 auto 15px;border:3px solid #fff;box-shadow:0 10px 20px rgba(0,0,0,0.1);">
+                        
+                        <div id="uploadPlaceholder">
+                            <i class="fas fa-image" style="font-size:32px;color:#cbd5e1;margin-bottom:10px;"></i>
+                            <p style="font-size:13px;color:#64748b;margin-bottom:15px;">Sélectionnez une nouvelle photo illustrative</p>
+                        </div>
+
+                        {{ form_widget(form.imageFile, {attr: {
+                            style: 'position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;',
+                            accept: 'image/*',
+                            onchange: 'previewImage(event)'
+                        }}) }}
+                        
+                        <button type="button" style="background:#fff;border:1px solid #e2e8f0;padding:8px 20px;border-radius:8px;font-size:12px;font-weight:700;color:#2C3E50;pointer-events:none;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                            Parcourir les fichiers
+                        </button>
+                    </div>
                 </div>
-
-                {# ✅ Input file : accept="image/*" permet de choisir depuis n'importe quel dossier #}
-                {{ form_widget(form.imageFile, {attr: {
-                    style: 'width:100%;padding:8px;border:1px solid #e8ecf0;border-radius:10px;font-size:13px;',
-                    accept: 'image/*',
-                    onchange: 'previewImage(event)'
-                }}) }}
                 {{ form_errors(form.imageFile) }}
             </div>
 
         </div>
-    </div>
 
-    {# ── Boutons ── #}
-    <div style="display:flex;gap:12px;margin-top:16px;">
-        <button type="submit"
-                style="background:linear-gradient(135deg,#F7B731,#E6C050);color:#fff;padding:11px 28px;
-                       border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">
-            <i class="fas fa-save"></i>
-            {{ activite.idActivite ? 'Enregistrer les modifications' : 'Créer l\'activité' }}
-        </button>
-        <a href="{{ path('activite_index') }}"
-           style="background:#f0f2f5;color:#64748b;padding:11px 20px;border-radius:10px;
-                  font-size:13px;font-weight:600;text-decoration:none;">
-            <i class="fas fa-times"></i> Annuler
-        </a>
+        {# ── Footer Actions ── #}
+        <div style="display:flex;gap:12px;margin-top:40px;padding-top:24px;border-top:1px solid #f0f2f5;">
+            <button type="submit" style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;padding:12px 30px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:0.3s;display:flex;align-items:center;gap:10px;box-shadow:0 4px 15px rgba(26,188,156,0.3);">
+                <i class="fas fa-save"></i>
+                {{ activite.idActivite ? 'Enregistrer les modifications' : 'Créer l\'activité' }}
+            </button>
+            <a href="{{ path('activite_index') }}" style="background:#fff;color:#64748b;padding:12px 24px;border-radius:12px;border:2px solid #e8ecf0;font-size:14px;font-weight:600;text-decoration:none;transition:0.3s;display:flex;align-items:center;gap:10px;">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+        </div>
     </div>
 
     {{ form_end(form) }}
 </div>
 
-{# ── Script aperçu image ── #}
+<style>
+    .premium-input {
+        width:100%;
+        padding:12px 16px;
+        border:2px solid #e8ecf0;
+        border-radius:12px;
+        font-size:14px;
+        transition:0.3s;
+        background:#f8fafc;
+        color: #2C3E50;
+        outline: none;
+        font-family: inherit;
+    }
+    .premium-input:focus {
+        border-color: #1ABC9C;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(26,188,156,0.1);
+    }
+    #dropzone:hover {
+        border-color: #1ABC9C;
+        background: rgba(26,188,156,0.02);
+    }
+    button:hover {
+        transform: translateY(-2px);
+    }
+</style>
+
 <script>
     function previewImage(event) {
         const file = event.target.files[0];
@@ -116,10 +160,10 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const preview = document.getElementById('preview');
-                const label   = document.getElementById('preview-label');
-                preview.src          = e.target.result;
+                const placeholder = document.getElementById('uploadPlaceholder');
+                preview.src = e.target.result;
                 preview.style.display = 'block';
-                label.style.display   = 'inline';
+                placeholder.style.display = 'none';
             };
             reader.readAsDataURL(file);
         }

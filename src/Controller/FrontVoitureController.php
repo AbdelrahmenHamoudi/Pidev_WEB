@@ -14,13 +14,12 @@ final class FrontVoitureController extends AbstractController
     {
         $search = $request->query->get('search', '');
         
-        $qb = $voitureRepo->createQueryBuilder('v')
-            ->where('v.disponibilite = :dispo')
-            ->setParameter('dispo', true);
+        $qb = $voitureRepo->createQueryBuilder('v');
 
         if ($search) {
-            $qb->andWhere('v.marque LIKE :search OR v.modele LIKE :search')
-               ->setParameter('search', '%' . $search . '%');
+            $searchLower = '%' . strtolower($search) . '%';
+            $qb->andWhere('LOWER(v.marque) LIKE :search OR LOWER(v.modele) LIKE :search OR LOWER(v.description) LIKE :search')
+               ->setParameter('search', $searchLower);
         }
 
         return $this->render('frontend/voiture/guide.html.twig', [

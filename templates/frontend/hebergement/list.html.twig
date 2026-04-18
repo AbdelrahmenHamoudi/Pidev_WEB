@@ -2,85 +2,201 @@
 
 {% block title %}Nos Hébergements - RE7LA{% endblock %}
 
-{% block body %}
-<section class="py-5" style="background: #f8f9fa; min-height: 100vh;">
-    <div class="container">
-        <!-- Header -->
-        <div class="text-center mb-5">
-            <h2 style="font-weight: 700; color: #2c3e50;">
-                <span style="color: #87CEEB;">Nos</span> Hébergements
-            </h2>
-            <p style="color: #777;">Découvrez nos meilleures offres d'hébergement</p>
-        </div>
+{% block extra_styles %}
+/* ── Hebergement card styles ─────────────────────────────── */
+.heb-card {
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    background: white;
+    border: none;
+}
+.heb-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+.heb-card img { width: 100%; height: 250px; object-fit: cover; }
 
-        <!-- Flash Messages -->
+/* ── Hero (same structure as Trajets + Activités) ─────────── */
+.heb-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #0f2744 50%, #0a1f3d 100%);
+    padding: 60px 0 40px; /* Taille réduite */
+    position: relative;
+    overflow: hidden;
+    color: white;
+}
+.heb-hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600') center/cover;
+    opacity: 0.12;
+    mix-blend-mode: overlay;
+}
+
+/* Floating shapes */
+.heb-shape {
+    position: absolute; border-radius: 50%; opacity: 0.10;
+    animation: hebFloat 20s infinite ease-in-out;
+}
+.heb-shape-1 { width: 300px; height: 300px; background: #87CEEB; top: -100px; right: -80px; }
+.heb-shape-2 { width: 180px; height: 180px; background: #1ABC9C; bottom: -50px; left: -40px; animation-delay: -9s; }
+
+@keyframes hebFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33%       { transform: translateY(-22px) rotate(4deg); }
+    66%       { transform: translateY(12px) rotate(-4deg); }
+}
+
+/* Moving buildings animation */
+.building-container {
+    position: absolute; bottom: 20px; left: 0;
+    width: 100%; height: 80px;
+    pointer-events: none; z-index: 1;
+}
+.hero-building {
+    position: absolute;
+    color: rgba(255,255,255,0.3);
+    font-size: 22px;
+    animation: floatBuilding linear infinite;
+    filter: drop-shadow(0 0 10px rgba(135,206,235,0.3));
+}
+.building-1 { bottom: 8px;  animation-duration: 20s; animation-delay: 0s; }
+.building-2 { bottom: 38px; animation-duration: 26s; animation-delay: -7s; font-size: 18px; opacity: 0.2; }
+.building-3 { bottom: 62px; animation-duration: 22s; animation-delay: -13s; font-size: 28px; }
+
+@keyframes floatBuilding {
+    from { transform: translateX(-100px); }
+    to   { transform: translateX(calc(100vw + 100px)); }
+}
+{% endblock %}
+
+{% block body %}
+
+<!-- ===== HERO ===== -->
+<section class="heb-hero">
+    {# Animated buildings at the bottom #}
+    <div class="building-container">
+        <div class="hero-building building-1"><i class="fas fa-hotel"></i></div>
+        <div class="hero-building building-2"><i class="fas fa-home"></i></div>
+        <div class="hero-building building-3"><i class="fas fa-building"></i></div>
+        <div class="hero-building building-1" style="animation-delay:-10s;"><i class="fas fa-city"></i></div>
+    </div>
+    {# Floating glowing circles #}
+    <div class="heb-shape heb-shape-1"></div>
+    <div class="heb-shape heb-shape-2"></div>
+
+    <div class="container position-relative" style="z-index:2;">
+        <div class="row align-items-center">
+            {# Left: text + CTA #}
+            <div class="col-lg-7" data-aos="fade-right">
+                <span style="background:linear-gradient(135deg,#87CEEB,#1ABC9C);color:white;padding:8px 20px;border-radius:50px;font-size:13px;font-weight:600;display:inline-block;margin-bottom:20px;">
+                    <i class="fas fa-hotel me-2"></i>Hébergements &amp; Séjours
+                </span>
+                <h1 style="font-weight:800;font-size:3rem;color:white;line-height:1.2;margin-bottom:16px;">
+                    Nos <span style="background:linear-gradient(135deg,#87CEEB,#1ABC9C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Hébergements</span>
+                </h1>
+                <p style="color:rgba(255,255,255,0.7);font-size:1.1rem;margin-bottom:32px;">
+                    Découvrez nos meilleures offres d'hébergement en Tunisie
+                </p>
+                <div class="d-flex gap-3 align-items-center flex-wrap">
+                    <a href="{{ path('app_explore') }}"
+                       style="background:linear-gradient(135deg,#87CEEB,#1ABC9C);color:white;border-radius:50px;padding:15px 35px;font-weight:600;font-size:15px;text-decoration:none;box-shadow:0 10px 30px rgba(135,206,235,0.4);transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;">
+                        <i class="fas fa-map-marked-alt"></i> Carte interactive
+                    </a>
+                </div>
+            </div>
+            {# Right: big hotel icon #}
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center" data-aos="fade-left">
+                <div style="width:200px;height:200px;background:linear-gradient(135deg,rgba(135,206,235,0.2),rgba(26,188,156,0.2));border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-hotel" style="font-size:5.5rem;background:linear-gradient(135deg,#87CEEB,#1ABC9C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CONTENT ===== -->
+<section class="py-5" style="background:#f8f9fa;min-height:60vh;">
+    <div class="container">
+
+        {# Flash Messages #}
         {% for message in app.flashes('success') %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 15px; border: none; background: rgba(147, 197, 114, 0.15); color: #5a9e3b;">
-                <i class="bx bx-check-circle me-2"></i>{{ message }}
+            <div class="alert alert-dismissible fade show mb-4" role="alert"
+                 style="border-radius:15px;border:none;background:rgba(147,197,114,0.15);color:#16a34a;">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
         {% for message in app.flashes('error') %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 15px; border: none; background: rgba(231, 76, 60, 0.15); color: #c0392b;">
-                <i class="bx bx-error-circle me-2"></i>{{ message }}
+            <div class="alert alert-dismissible fade show mb-4" role="alert"
+                 style="border-radius:15px;border:none;background:rgba(243, 156, 18, 0.15);color:#d68910;">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
 
-        <!-- Grid -->
+        {# Grid #}
         <div class="row g-4">
             {% for hebergement in hebergements %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 overflow-hidden" style="border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+                <div class="heb-card h-100">
                     <div class="position-relative">
                         {% set firstImage = hebergement.images|length > 0 ? hebergement.images[0].filename : hebergement.image %}
                         {% if firstImage %}
-                            <img src="{{ asset(firstImage) }}" class="w-100" style="height: 250px; object-fit: cover;" alt="{{ hebergement.titre }}">
+                            <img src="{{ asset(firstImage) }}" alt="{{ hebergement.titre }}">
                         {% else %}
-                            <div class="w-100 d-flex align-items-center justify-content-center" style="height: 250px; background: linear-gradient(135deg, #87CEEB, #93C572);">
-                                <i class="bx bx-building-house" style="font-size: 5rem; color: white;"></i>
+                            <div style="height:250px;background:linear-gradient(135deg,#87CEEB,#1ABC9C);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-hotel" style="font-size:5rem;color:rgba(255,255,255,0.8);"></i>
                             </div>
                         {% endif %}
-                        <span style="position: absolute; top: 20px; left: 20px; background: linear-gradient(135deg, #87CEEB, #93C572); color: white; padding: 8px 20px; border-radius: 25px; font-weight: 600; font-size: 0.85rem;">
+                        <span style="position:absolute;top:20px;left:20px;background:linear-gradient(135deg,#87CEEB,#1ABC9C);color:white;padding:6px 18px;border-radius:25px;font-weight:600;font-size:0.82rem;">
                             {{ hebergement.typeHebergement }}
                         </span>
-                        <span style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 25px; font-weight: 700; color: #87CEEB;">
-                            {{ hebergement.prixParNuit|format_price }}
-                            <span style="font-size: 0.75rem; color: #999;">/ {{ 'accommodation.night'|default('nuit')|trans }}</span>
+                        <span style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);padding:6px 14px;border-radius:25px;font-weight:700;color:#2c3e50;font-size:0.9rem;">
+                            {{ hebergement.prixParNuit|number_format(0) }} DT
+                            <span style="font-size:0.72rem;color:#94a3b8;">/nuit</span>
                         </span>
                     </div>
                     <div class="card-body p-4">
-                        <h5 style="font-weight: 700; color: #2c3e50; margin-bottom: 10px;">{{ hebergement.titre }}</h5>
-                        <p style="color: #777; font-size: 0.95rem; margin-bottom: 20px;">
-                            {{ hebergement.descHebergement|slice(0, 80) }}{% if hebergement.descHebergement|length > 80 %}...{% endif %}
+                        <h5 style="font-weight:700;color:#2c3e50;margin-bottom:10px;">{{ hebergement.titre }}</h5>
+                        <p style="color:#777;font-size:0.92rem;margin-bottom:20px;line-height:1.6;">
+                            {{ hebergement.descHebergement|slice(0,80) }}{% if hebergement.descHebergement|length > 80 %}...{% endif %}
                         </p>
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span style="color: #666;">
-                                <i class="bx bx-user" style="color: #87CEEB;"></i> {{ hebergement.capacite }} personnes
+                            <span style="color:#666;font-size:0.88rem;">
+                                <i class="fas fa-users" style="color:#87CEEB;"></i> {{ hebergement.capacite }} personnes
                             </span>
-                            <span style="color: #666;">
-                                <i class="bx bx-calendar-check" style="color: #93C572;"></i> Disponible
+                            <span style="font-size:0.82rem;font-weight:600;color:#065f46;background:#d1fae5;padding:3px 12px;border-radius:20px;">
+                                <i class="fas fa-check-circle me-1"></i>Disponible
                             </span>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}" class="btn w-50" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
-                                Voir détails
+                            <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}"
+                               class="btn w-50"
+                               style="background:rgba(135,206,235,0.12);color:#5dade2;border-radius:50px;font-weight:600;border:1.5px solid rgba(135,206,235,0.3);">
+                                <i class="fas fa-eye me-1"></i>Voir
                             </a>
-                            <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}#reservationForm" class="btn w-50" style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; border-radius: 50px; font-weight: 600;">
-                                Réserver
+                            <a href="{{ path('app_hebergement_detail', {id: hebergement.id}) }}#reservationForm"
+                               class="btn w-50"
+                               style="background:linear-gradient(135deg,#87CEEB,#1ABC9C);color:white;border-radius:50px;font-weight:600;">
+                                <i class="fas fa-calendar-check me-1"></i>Réserver
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
             {% else %}
-            <div class="col-12 text-center py-5">
-                <i class="bx bx-building-house" style="font-size: 5rem; color: #ddd; margin-bottom: 20px;"></i>
-                <h4 style="color: #2c3e50; font-weight: 600;">Aucun hébergement disponible</h4>
-                <p style="color: #777;">Revenez plus tard pour découvrir nos nouvelles offres</p>
+            <div class="col-12">
+                <div class="text-center py-5" style="background:white;border-radius:25px;box-shadow:0 10px 40px rgba(0,0,0,0.07);">
+                    <div style="width:100px;height:100px;background:linear-gradient(135deg,rgba(135,206,235,0.15),rgba(26,188,156,0.15));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+                        <i class="fas fa-hotel" style="font-size:2.5rem;color:#87CEEB;"></i>
+                    </div>
+                    <h4 style="font-weight:700;color:#2c3e50;margin-bottom:10px;">Aucun hébergement disponible</h4>
+                    <p style="color:#94a3b8;">Revenez plus tard pour découvrir nos nouvelles offres.</p>
+                </div>
             </div>
             {% endfor %}
         </div>
+
     </div>
 </section>
+
 {% endblock %}

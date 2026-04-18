@@ -187,18 +187,31 @@
                 Puissance, précision et élégance à chaque kilomètre.
             </p>
 
-            {# Search Bar #}
-            <div data-aos="fade-up" data-aos-delay="300" style="max-width: 600px; margin: 40px auto 60px;">
-                <form method="GET" action="{{ path('app_voiture_guide') }}" class="position-relative">
-                    <i class="fas fa-search" style="position: absolute; left: 24px; top: 50%; transform: translateY(-50%); color: var(--bleu-ceil); font-size: 18px; z-index: 10;"></i>
-                    <input type="text" name="search" value="{{ search ?? '' }}" placeholder="Rechercher une marque ou un modèle..." 
-                           style="width: 100%; padding: 18px 30px 18px 60px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.08); backdrop-filter: blur(15px); color: white; font-size: 16px; outline: none; transition: all 0.3s; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-                    {% if search %}
-                        <a href="{{ path('app_voiture_guide') }}" style="position: absolute; right: 24px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px; font-weight: 600;">
-                            <i class="fas fa-times me-1"></i>Effacer
-                        </a>
-                    {% endif %}
+            {# Professional Search Bar #}
+            <div data-aos="fade-up" data-aos-delay="300" style="max-width: 700px; margin: 40px auto 60px;">
+                <form method="GET" action="{{ path('app_voiture_guide') }}" class="search-form-premium">
+                    <div class="input-group p-2 bg-white bg-opacity-10 backdrop-blur rounded-pill shadow-lg border border-white border-opacity-10">
+                        <span class="ps-4 pe-2 py-3"><i class="fas fa-search opacity-50" style="color: var(--dark);"></i></span>
+                        <input type="text" name="search" value="{{ search ?? '' }}" 
+                               class="form-control bg-transparent border-0 placeholder-dark" 
+                               placeholder="Marque, modèle ou description..."
+                               style="box-shadow: none; font-size: 1.1rem; color: var(--dark) !important;">
+                        {% if search %}
+                            <a href="{{ path('app_voiture_guide') }}" class="btn d-flex align-items-center opacity-50 px-3 hover-opacity-100" style="color: var(--dark);">
+                                <i class="fas fa-times-circle"></i>
+                            </a>
+                        {% endif %}
+                        <button type="submit" class="btn px-5 py-3 rounded-pill fw-bold" 
+                                style="background: var(--rouge); color: white; transition: all 0.3s; position: relative; z-index: 10;">
+                            Rechercher
+                        </button>
+                    </div>
                 </form>
+                {% if search %}
+                    <div class="mt-4 text-white opacity-75 small">
+                        Résultats pour : <span class="fw-bold fs-6">"{{ search }}"</span> ({{ voitures|length }} trouvé{{ voitures|length > 1 ? 's' : '' }})
+                    </div>
+                {% endif %}
             </div>
         </div>
     </header>
@@ -298,9 +311,17 @@
                     </div>
                 </div>
             {% else %}
-                <div class="col-12 text-center py-5">
-                    <i class="fas fa-car-side fa-4x mb-3 text-muted"></i>
-                    <h3>Aucun véhicule disponible dans le guide actuellement.</h3>
+                <div class="col-12 text-center py-5" data-aos="fade-up">
+                    <div class="mb-4">
+                        <i class="fas fa-search fa-5x text-muted opacity-25"></i>
+                    </div>
+                    {% if search %}
+                        <h3 class="fw-bold">Aucun résultat pour "{{ search }}"</h3>
+                        <p class="text-muted">Essayez d'autres mots-clés ou vérifiez l'orthographe.</p>
+                        <a href="{{ path('app_voiture_guide') }}" class="btn btn-primary rounded-pill px-4 mt-3">Voir tout le catalogue</a>
+                    {% else %}
+                        <h3 class="fw-bold">Le catalogue est actuellement vide.</h3>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>

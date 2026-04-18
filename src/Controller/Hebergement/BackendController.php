@@ -24,9 +24,13 @@ use App\Service\Hebergement\DynamicPricingService;
 final class BackendController extends AbstractController
 {
     #[Route('/admin', name: 'app_admin')]
-    public function index(): Response
+    public function index(HebergementRepository $hRepo, ReservationRepository $rRepo): Response
     {
-        return $this->render('backend/admin/dashboard.html.twig');
+        return $this->render('backend/admin/dashboard.html.twig', [
+            'totalH' => count($hRepo->findAll()),
+            'totalR' => count($rRepo->findAll()),
+            'pendingR' => count($rRepo->findBy(['statutR' => ['EN ATTENTE', 'PENDING']])),
+        ]);
     }
 
     #[Route('/admin/login', name: 'app_admin_login')]

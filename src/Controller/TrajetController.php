@@ -205,7 +205,7 @@ final class TrajetController extends AbstractController
                 try {
                     $email = (new TemplatedEmail())
                         ->from('dhiambarki001@gmail.com')
-                        ->to('jeudihama@gmail.com')
+                        ->to($user ? $user->getE_mail() : 'dhiambarki001@gmail.com')
                         ->subject('Confirmation de votre réservation RE7LA')
                         ->htmlTemplate('emails/reservation_confirmation.html.twig')
                         ->context([

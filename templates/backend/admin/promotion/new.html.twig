@@ -5,233 +5,238 @@
 {% block page_title %}Nouvelle Promotion{% endblock %}
 
 {% block body %}
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
+  <div>
+    <a href="{{ path('app_admin_promotion_list') }}" style="color:#1ABC9C;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <i class="fas fa-arrow-left"></i>
+      Retour aux promotions
+    </a>
+    <h1 style="font-size:24px;font-weight:700;color:#2C3E50;margin:0;">Créer une promotion</h1>
+  </div>
+</div>
 
 {% for message in app.flashes('error') %}
-  <div style="background:#fee2e2;color:#991b1b;padding:14px 18px;border-radius:10px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
-    <i class="fas fa-exclamation-circle"></i><span>{{ message }}</span>
+  <div style="background:#fee2e2;color:#991b1b;padding:16px 20px;border-radius:12px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:500;">
+    <i class="fas fa-exclamation-circle" style="color:#ef4444;"></i>
+    <span>{{ message }}</span>
   </div>
 {% endfor %}
 
-<div class="row">
- <div class="col-md-9 mx-auto">
-  <div class="card" style="border-radius:20px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.06);padding:32px;">
-
-    <div style="margin-bottom:28px;display:flex;align-items:center;gap:14px;">
-      <div style="width:50px;height:50px;background:linear-gradient(135deg,#F7B731,#E67E22);border-radius:14px;display:flex;align-items:center;justify-content:center;">
-        <i class="fas fa-tags" style="color:#fff;font-size:1.3rem;"></i>
-      </div>
-      <div>
-        <h2 style="font-size:18px;font-weight:700;color:#2C3E50;margin:0;">Créer une promotion</h2>
-        <p style="color:#94a3b8;font-size:13px;margin:2px 0 0 0;">Définissez les détails et les offres concernées</p>
-      </div>
-    </div>
-
+<div style="background:#fff;border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(0,0,0,0.04);border:1px solid #f0f2f5;">
     {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data', 'id': 'promoForm'}}) }}
 
-      {# Champs cachés pour les offres sélectionnées — remplis par JavaScript #}
+      {# Champs cachés pour les offres sélectionnées #}
       <input type="hidden" name="offer_type"      id="hiddenOfferType">
       <input type="hidden" name="reference_id"    id="hiddenReferenceId">
       <input type="hidden" name="pack_items_json" id="hiddenPackItems" value="[]">
 
-      <div class="row g-4">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
 
         {# ── Colonne gauche : Infos générales ── #}
-        <div class="col-md-6">
+        <div style="display:flex;flex-direction:column;gap:24px;">
+          
+          <div style="background:#f8fafc;padding:24px;border-radius:16px;border:1px solid #e8ecf0;">
+             <h3 style="font-size:16px;font-weight:700;color:#2C3E50;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                <i class="fas fa-info-circle" style="color:#F7B731;"></i>
+                Informations de base
+             </h3>
 
-          <div class="mb-3">
-            <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">
-              Titre <span style="color:#e63946;">*</span>
-            </label>
-            {{ form_widget(form.name, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
-            {{ form_errors(form.name) }}
+             <div style="display:flex;flex-direction:column;gap:16px;">
+                <div>
+                  <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Titre de la promotion <span style="color:#ef4444;">*</span></label>
+                  {{ form_widget(form.name, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#fff;'}}) }}
+                  {{ form_errors(form.name) }}
+                </div>
+
+                <div>
+                  <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Description détaillée</label>
+                  {{ form_widget(form.description, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#fff;min-height:100px;resize:vertical;'}}) }}
+                  {{ form_errors(form.description) }}
+                </div>
+             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">Description</label>
-            {{ form_widget(form.description, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;','rows':3}}) }}
-            {{ form_errors(form.description) }}
-          </div>
+          <div style="background:#f8fafc;padding:24px;border-radius:16px;border:1px solid #e8ecf0;">
+             <h3 style="font-size:16px;font-weight:700;color:#2C3E50;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                <i class="fas fa-percent" style="color:#1ABC9C;"></i>
+                Détails de l'offre
+             </h3>
 
-          <div class="mb-3">
-            <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">
-              Type de promotion <span style="color:#e63946;">*</span>
-            </label>
-            {{ form_widget(form.promoType, {'attr': {'class':'form-select rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;','id':'promoTypeSelect'}}) }}
-          </div>
+             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div style="grid-column: 1 / -1;">
+                  <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Type de promotion <span style="color:#ef4444;">*</span></label>
+                  {{ form_widget(form.promoType, {'attr': {'id':'promoTypeSelect', 'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#fff;'}}) }}
+                </div>
 
-          <div class="row mb-3">
-            <div class="col-6">
-              <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">Réduction %</label>
-              {{ form_widget(form.discountPercentage, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
-              {{ form_errors(form.discountPercentage) }}
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">Réduction fixe (DT)</label>
-              {{ form_widget(form.discountFixed, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
-              {{ form_errors(form.discountFixed) }}
-            </div>
-            <div class="col-12 mt-1">
-              <small style="color:#94a3b8;font-size:11px;">
-                <i class="fas fa-info-circle me-1"></i>Remplissez au moins un des deux.
-              </small>
-            </div>
-          </div>
+                <div>
+                  <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Réduction (%)</label>
+                  {{ form_widget(form.discountPercentage, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#fff;'}}) }}
+                  {{ form_errors(form.discountPercentage) }}
+                </div>
 
-          <div class="row mb-3">
-            <div class="col-6">
-              <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">
-                Date début <span style="color:#e63946;">*</span>
-              </label>
-              {{ form_widget(form.startDate, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
-              {{ form_errors(form.startDate) }}
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">
-                Date fin <span style="color:#e63946;">*</span>
-              </label>
-              {{ form_widget(form.endDate, {'attr': {'class':'form-control rounded-3','style':'border:1.5px solid #e8ecf0;padding:11px 14px;font-size:14px;'}}) }}
-              {{ form_errors(form.endDate) }}
-            </div>
-          </div>
+                <div>
+                  <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Réduction (DT fixe)</label>
+                  {{ form_widget(form.discountFixed, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#fff;'}}) }}
+                  {{ form_errors(form.discountFixed) }}
+                </div>
 
-          {# ✅ Image via input HTML natif — PAS form_widget(form.imageFile) #}
-          {# Ceci évite l'erreur php_fileinfo / guessExtension() #}
-          <div class="mb-3">
-            <label class="form-label fw-semibold" style="color:#2C3E50;font-size:13px;">Image (optionnelle)</label>
-            <input type="file"
-                   name="promo_image"
-                   accept=".jpg,.jpeg,.png,.webp,.gif"
-                   class="form-control rounded-3"
-                   style="border:1.5px solid #e8ecf0;padding:9px 14px;font-size:14px;">
-            <small style="color:#94a3b8;font-size:11px;">Formats acceptés : JPG, PNG, WEBP (max 5 Mo)</small>
-          </div>
+                <div>
+                  <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Date début <span style="color:#ef4444;">*</span></label>
+                  {{ form_widget(form.startDate, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#fff;'}}) }}
+                  {{ form_errors(form.startDate) }}
+                </div>
 
+                <div>
+                  <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Date fin <span style="color:#ef4444;">*</span></label>
+                  {{ form_widget(form.endDate, {'attr': {'style': 'width:100%;padding:12px 16px;border:2px solid #e8ecf0;border-radius:12px;font-size:14px;transition:all 0.3s;background:#fff;'}}) }}
+                  {{ form_errors(form.endDate) }}
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                  <label style="display:block;font-weight:600;color:#2C3E50;margin-bottom:8px;font-size:13px;">Image bannière</label>
+                   <div style="border:2px dashed #e8ecf0;border-radius:12px;padding:16px;text-align:center;background:#fff;">
+                      <i class="fas fa-cloud-upload-alt" style="font-size:24px;color:#cbd5e1;margin-bottom:10px;display:block;"></i>
+                      <input type="file" name="promo_image" accept=".jpg,.jpeg,.png,.webp,.gif" style="font-size:12px;color:#64748b;">
+                   </div>
+                </div>
+             </div>
+          </div>
         </div>
 
         {# ── Colonne droite : Sélecteur d'offres ── #}
-        <div class="col-md-6">
-          <div id="offerSelectorBox" style="background:#f8fafc;border-radius:16px;padding:20px;border:1.5px solid #e8ecf0;min-height:100%;">
+        <div style="background:#f8fafc;padding:24px;border-radius:20px;border:1px solid #e8ecf0;display:flex;flex-direction:column;">
+            <h3 style="font-size:16px;font-weight:700;color:#2C3E50;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                <i class="fas fa-bullseye" style="color:#3498DB;"></i>
+                <span id="offerSelectorTitle">Ciblage de la promotion</span>
+            </h3>
 
-            <h6 style="font-weight:700;color:#2C3E50;margin-bottom:16px;font-size:14px;">
-              <i class="fas fa-layer-group me-2" style="color:#F7B731;"></i>
-              <span id="offerSelectorTitle">Sélection de l'offre</span>
-            </h6>
-
-            <div class="d-flex gap-2 mb-3 flex-wrap">
-              <button type="button" class="offer-type-btn" data-type="hebergement"
-                style="background:#fff;border:1.5px solid #e8ecf0;border-radius:25px;padding:7px 16px;font-size:12px;font-weight:600;color:#6c757d;cursor:pointer;transition:all 0.2s;">
-                🏨 Hébergement
+            <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+              <button type="button" class="offer-type-btn" data-type="hebergement" style="flex:1;background:#fff;border:2px solid #e8ecf0;border-radius:10px;padding:10px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;transition:0.2s;display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <i class="fas fa-hotel" style="font-size:18px;"></i> Hébergements
               </button>
-              <button type="button" class="offer-type-btn" data-type="activite"
-                style="background:#fff;border:1.5px solid #e8ecf0;border-radius:25px;padding:7px 16px;font-size:12px;font-weight:600;color:#6c757d;cursor:pointer;transition:all 0.2s;">
-                🎯 Activité
+              <button type="button" class="offer-type-btn" data-type="activite" style="flex:1;background:#fff;border:2px solid #e8ecf0;border-radius:10px;padding:10px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;transition:0.2s;display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <i class="fas fa-skating" style="font-size:18px;"></i> Activités
               </button>
-              <button type="button" class="offer-type-btn" data-type="voiture"
-                style="background:#fff;border:1.5px solid #e8ecf0;border-radius:25px;padding:7px 16px;font-size:12px;font-weight:600;color:#6c757d;cursor:pointer;transition:all 0.2s;">
-                🚗 Voiture
+              <button type="button" class="offer-type-btn" data-type="voiture" style="flex:1;background:#fff;border:2px solid #e8ecf0;border-radius:10px;padding:10px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;transition:0.2s;display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <i class="fas fa-car" style="font-size:18px;"></i> Voitures
               </button>
             </div>
 
-            <div id="offerListContainer" style="max-height:320px;overflow-y:auto;">
-              <p id="offerPlaceholder" style="color:#94a3b8;font-size:13px;text-align:center;padding:30px 0;">
-                Cliquez sur un type d'offre ci-dessus
-              </p>
+            <div id="offerListContainer" style="flex:1;max-height:450px;overflow-y:auto;padding-right:10px;">
+              <div id="offerPlaceholder" style="text-align:center;padding:60px 20px;color:#94a3b8;">
+                <i class="fas fa-mouse-pointer" style="font-size:32px;opacity:0.2;margin-bottom:16px;display:block;"></i>
+                <p style="font-size:14px;">Sélectionnez un type d'offre pour voir la liste</p>
+              </div>
 
+              {# Lists (dynamically toggled via JS) #}
               <div id="list-hebergement" class="offer-list" style="display:none;">
                 {% for h in hebergements %}
-                <div class="offer-item"
-                     data-id="{{ h.idHebergement }}"
-                     data-type="hebergement"
-                     data-label="{{ h.titre }} ({{ h.typeHebergement }})"
-                     style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1.5px solid transparent;transition:all 0.2s;background:#fff;">
-                  <div style="width:36px;height:36px;background:linear-gradient(135deg,#87CEEB,#5ba4d4);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="fas fa-home" style="color:#fff;font-size:0.85rem;"></i>
+                <div class="offer-item" data-id="{{ h.idHebergement }}" data-type="hebergement" data-label="{{ h.titre }}" style="background:#fff;padding:12px 16px;border-radius:12px;border:2px solid transparent;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+                  <div style="width:40px;height:40px;background:rgba(52,152,219,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#3498DB;">
+                    <i class="fas fa-hotel"></i>
                   </div>
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-weight:600;color:#2C3E50;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.titre }}</div>
-                    <div style="color:#94a3b8;font-size:11px;">{{ h.typeHebergement }} — {{ h.prixParNuit }} DT/nuit</div>
+                  <div style="flex:1;">
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">{{ h.titre }}</div>
+                    <div style="font-size:11px;color:#94a3b8;">{{ h.typeHebergement }} — {{ h.prixParNuit }} DT</div>
                   </div>
-                  <span class="check-icon" style="display:none;color:#1ABC9C;font-size:1rem;"><i class="fas fa-check-circle"></i></span>
+                  <i class="fas fa-check-circle check-icon" style="display:none;color:#1ABC9C;font-size:18px;"></i>
                 </div>
-                {% else %}
-                <p style="color:#94a3b8;font-size:12px;text-align:center;padding:20px;">Aucun hébergement en base</p>
                 {% endfor %}
               </div>
 
               <div id="list-activite" class="offer-list" style="display:none;">
                 {% for a in activites %}
-                <div class="offer-item"
-                     data-id="{{ a.idActivite }}"
-                     data-type="activite"
-                     data-label="{{ a.nomA }} ({{ a.lieu }})"
-                     style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1.5px solid transparent;transition:all 0.2s;background:#fff;">
-                  <div style="width:36px;height:36px;background:linear-gradient(135deg,#1ABC9C,#16a085);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="fas fa-hiking" style="color:#fff;font-size:0.85rem;"></i>
+                <div class="offer-item" data-id="{{ a.idActivite }}" data-type="activite" data-label="{{ a.nomA }}" style="background:#fff;padding:12px 16px;border-radius:12px;border:2px solid transparent;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+                  <div style="width:40px;height:40px;background:rgba(26,188,156,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#1ABC9C;">
+                    <i class="fas fa-skating"></i>
                   </div>
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-weight:600;color:#2C3E50;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.nomA }}</div>
-                    <div style="color:#94a3b8;font-size:11px;">{{ a.lieu }} — {{ a.prixParPersonne }} DT/pers</div>
+                  <div style="flex:1;">
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">{{ a.nomA }}</div>
+                    <div style="font-size:11px;color:#94a3b8;">{{ a.lieu }} — {{ a.prixParPersonne }} DT</div>
                   </div>
-                  <span class="check-icon" style="display:none;color:#1ABC9C;font-size:1rem;"><i class="fas fa-check-circle"></i></span>
+                  <i class="fas fa-check-circle check-icon" style="display:none;color:#1ABC9C;font-size:18px;"></i>
                 </div>
-                {% else %}
-                <p style="color:#94a3b8;font-size:12px;text-align:center;padding:20px;">Aucune activité en base</p>
                 {% endfor %}
               </div>
 
               <div id="list-voiture" class="offer-list" style="display:none;">
                 {% for v in voitures %}
-                <div class="offer-item"
-                     data-id="{{ v.id_voiture }}"
-                     data-type="voiture"
-                     data-label="{{ v.marque }} {{ v.modele }} ({{ v.immatriculation }})"
-                     style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1.5px solid transparent;transition:all 0.2s;background:#fff;">
-                  <div style="width:36px;height:36px;background:linear-gradient(135deg,#F7B731,#E67E22);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="fas fa-car" style="color:#fff;font-size:0.85rem;"></i>
+                <div class="offer-item" data-id="{{ v.id_voiture }}" data-type="voiture" data-label="{{ v.marque }} {{ v.modele }}" style="background:#fff;padding:12px 16px;border-radius:12px;border:2px solid transparent;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+                  <div style="width:40px;height:40px;background:rgba(243,156,18,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#F39C12;">
+                    <i class="fas fa-car"></i>
                   </div>
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-weight:600;color:#2C3E50;font-size:13px;">{{ v.marque }} {{ v.modele }}</div>
-                    <div style="color:#94a3b8;font-size:11px;">{{ v.immatriculation }} — {{ v.prix_KM }} DT/km</div>
+                  <div style="flex:1;">
+                    <div style="font-weight:700;color:#2C3E50;font-size:14px;">{{ v.marque }} {{ v.modele }}</div>
+                    <div style="font-size:11px;color:#94a3b8;">{{ v.immatriculation }} — {{ v.prix_KM }} DT/km</div>
                   </div>
-                  <span class="check-icon" style="display:none;color:#1ABC9C;font-size:1rem;"><i class="fas fa-check-circle"></i></span>
+                  <i class="fas fa-check-circle check-icon" style="display:none;color:#1ABC9C;font-size:18px;"></i>
                 </div>
-                {% else %}
-                <p style="color:#94a3b8;font-size:12px;text-align:center;padding:20px;">Aucune voiture en base</p>
                 {% endfor %}
               </div>
-
             </div>
 
-            <div id="packSummary" style="display:none;margin-top:14px;padding:12px;background:#fff;border-radius:10px;border:1.5px solid #e8ecf0;">
-              <div style="font-size:12px;font-weight:700;color:#2C3E50;margin-bottom:8px;">📦 Offres du pack :</div>
-              <div id="packItemsList"></div>
+            {# Summary boxes #}
+            <div id="indivSummary" style="display:none;margin-top:20px;padding:16px;background:#fff;border-radius:12px;border:2px solid #1ABC9C;box-shadow:0 10px 25px rgba(26,188,156,0.1);">
+                <div style="color:#1ABC9C;font-weight:700;font-size:13px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">
+                   <i class="fas fa-check-circle"></i> Offre sélectionnée
+                </div>
+                <div id="indivLabel" style="font-weight:700;color:#2C3E50;font-size:15px;"></div>
             </div>
 
-            <div id="indivSummary" style="display:none;margin-top:14px;padding:12px;background:#fff;border-radius:10px;border:1.5px solid #1ABC9C;">
-              <div style="font-size:12px;color:#1ABC9C;font-weight:700;margin-bottom:4px;">✅ Offre sélectionnée :</div>
-              <div id="indivLabel" style="font-size:13px;color:#2C3E50;font-weight:600;"></div>
+            <div id="packSummary" style="display:none;margin-top:20px;padding:16px;background:#fff;border-radius:12px;border:2px solid #F7B731;box-shadow:0 10px 25px rgba(247,183,49,0.1);">
+                <div style="color:#F7B731;font-weight:700;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+                   <i class="fas fa-box-open"></i> Contenu du pack
+                </div>
+                <div id="packItemsList" style="display:flex;flex-direction:column;gap:8px;"></div>
             </div>
-
-          </div>
         </div>
-
       </div>
 
-      <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:20px;border-top:1px solid #f0f2f5;margin-top:20px;">
-        <a href="{{ path('app_admin_promotion_list') }}"
-           style="background:#f8fafc;color:#2C3E50;border:1.5px solid #e8ecf0;padding:12px 24px;border-radius:10px;font-weight:600;font-size:14px;text-decoration:none;">
-          Annuler
+      <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:32px;padding-top:24px;border-top:1px solid #f0f2f5;">
+        <a href="{{ path('app_admin_promotion_list') }}" style="background:#fff;color:#64748b;border:2px solid #e8ecf0;padding:12px 24px;border-radius:12px;font-weight:600;text-decoration:none;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;font-size:14px;">
+          <i class="fas fa-times"></i> Annuler
         </a>
-        <button type="submit" id="submitBtn"
-          style="background:linear-gradient(135deg,#F7B731,#E67E22);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;">
-          <i class="fas fa-save me-2"></i> Créer la promotion
+        <button type="submit" id="submitBtn" style="background:linear-gradient(135deg,#F7B731,#E67E22);color:#fff;border:none;padding:12px 32px;border-radius:12px;font-weight:700;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;font-size:14px;box-shadow:0 4px 15px rgba(247,183,49,0.3);">
+          <i class="fas fa-save"></i> Créer la promotion
         </button>
       </div>
 
     {{ form_end(form) }}
-  </div>
- </div>
 </div>
+
+<style>
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #F7B731 !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 4px rgba(247,183,49,0.1) !important;
+  }
+  
+  .offer-type-btn:hover {
+    border-color: #F7B731 !important;
+    color: #F7B731 !important;
+    transform: translateY(-2px);
+  }
+  .offer-type-btn.active {
+    background: linear-gradient(135deg,#F7B731,#E67E22) !important;
+    border-color: #F7B731 !important;
+    color: #fff !important;
+  }
+
+  .offer-item:hover {
+    border-color: #F7B731 !important;
+    background: #fff !important;
+    transform: translateX(5px);
+  }
+  
+  #offerListContainer::-webkit-scrollbar { width: 4px; }
+  #offerListContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+  button:hover, a:hover {
+    transform: translateY(-2px);
+  }
+</style>
 
 {% endblock %}
 
@@ -243,8 +248,7 @@
     let selectedIndiv = null;
     let packItems     = [];
 
-    // ── Récupérer le select promoType peu importe l'ID généré par Symfony
-    const promoTypeSelect  = document.querySelector('select[name="promotion[promoType]"]');
+    const promoTypeSelect  = document.getElementById('promoTypeSelect');
     const hiddenOfferType  = document.getElementById('hiddenOfferType');
     const hiddenRefId      = document.getElementById('hiddenReferenceId');
     const hiddenPackItems  = document.getElementById('hiddenPackItems');
@@ -270,8 +274,8 @@
     function updateTitle() {
         if (selectorTitle) {
             selectorTitle.textContent = promoMode === 'pack'
-                ? 'Sélection des offres du pack (min. 2)'
-                : "Sélection de l'offre (1 seule)";
+                ? 'Configuration du Pack (min. 2 offres)'
+                : "Ciblage de l'offre (Sélection unique)";
         }
     }
 
@@ -279,14 +283,8 @@
         btn.addEventListener('click', function () {
             const type = this.dataset.type;
 
-            offerTypeBtns.forEach(b => {
-                b.style.background  = '#fff';
-                b.style.borderColor = '#e8ecf0';
-                b.style.color       = '#6c757d';
-            });
-            this.style.background  = 'linear-gradient(135deg,#F7B731,#E67E22)';
-            this.style.borderColor = '#F7B731';
-            this.style.color       = '#fff';
+            offerTypeBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
 
             offerLists.forEach(l => l.style.display = 'none');
             if (offerPlaceholder) offerPlaceholder.style.display = 'none';
@@ -344,10 +342,9 @@
         if (!packItemsList || !packSummary) return;
         packItemsList.innerHTML = '';
         packItems.forEach(function (p) {
-            const icon = p.type === 'hebergement' ? '🏨' : p.type === 'activite' ? '🎯' : '🚗';
-            const div  = document.createElement('div');
-            div.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#f8fafc;border-radius:7px;margin-bottom:4px;font-size:12px;';
-            div.innerHTML = `<span>${icon} <strong>${p.label}</strong></span>
+            const div = document.createElement('div');
+            div.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f8fafc;border-radius:8px;font-size:12px;';
+            div.innerHTML = `<span style="font-weight:600;"><i class="fas fa-caret-right" style="color:#F7B731;margin-right:6px;"></i>${p.label}</span>
                 <button type="button" onclick="window.removePackItem('${p.type}',${p.id})"
                   style="background:none;border:none;color:#e63946;cursor:pointer;font-size:14px;padding:0;">✕</button>`;
             packItemsList.appendChild(div);
@@ -358,8 +355,8 @@
         if (indivSummary) indivSummary.style.display = 'none';
 
         const info = document.createElement('div');
-        info.style.cssText = 'font-size:11px;text-align:right;margin-top:6px;font-weight:600;color:' + (ok ? '#1ABC9C' : '#F7B731');
-        info.textContent   = packItems.length + ' offre(s) ' + (ok ? '✅' : '— min. 2 requises');
+        info.style.cssText = 'font-size:11px;text-align:right;margin-top:6px;font-weight:700;color:' + (ok ? '#1ABC9C' : '#F7B731');
+        info.textContent   = packItems.length + ' offre(s) ' + (ok ? '✓' : '(Min. 2 requises)');
         packItemsList.appendChild(info);
     }
 
@@ -381,31 +378,27 @@
         refreshVisuals();
     }
 
-    // ── Validation avant soumission
     const promoForm = document.getElementById('promoForm');
     if (promoForm) {
         promoForm.addEventListener('submit', function (e) {
-            // Vérifier que le titre n'est pas vide (avant que Symfony ne crash)
             const nameField = document.querySelector('input[name="promotion[name]"]');
             if (nameField && nameField.value.trim().length < 3) {
                 e.preventDefault();
-                alert('⚠️ Le titre est obligatoire et doit contenir au moins 3 caractères.');
-                nameField.focus();
                 nameField.style.borderColor = '#e63946';
+                alert('Titre de promotion trop court.');
                 return;
             }
 
-            // Vérifier la sélection d'offre
             if (promoMode === 'individuelle') {
                 if (!hiddenOfferType || !hiddenOfferType.value) {
                     e.preventDefault();
-                    alert('⚠️ Veuillez sélectionner une offre (hébergement, activité ou voiture).');
+                    alert('Veuillez sélectionner une offre.');
                 }
             } else {
                 const items = JSON.parse((hiddenPackItems && hiddenPackItems.value) || '[]');
                 if (items.length < 2) {
                     e.preventDefault();
-                    alert('⚠️ Un pack doit contenir au moins 2 offres. Actuellement : ' + items.length);
+                    alert('Un pack doit contenir au moins 2 offres.');
                 }
             }
         });
@@ -414,10 +407,4 @@
     updateTitle();
 })();
 </script>
-
-<style>
-.offer-item:hover { border-color: #F7B731 !important; background: rgba(247,183,49,0.05) !important; }
-#offerListContainer::-webkit-scrollbar { width: 4px; }
-#offerListContainer::-webkit-scrollbar-thumb { background: #F7B731; border-radius: 4px; }
-</style>
 {% endblock %}

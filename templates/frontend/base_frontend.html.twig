@@ -16,13 +16,22 @@
 
     <style>
         :root {
-            --bleu-ceil: #87CEEB;
-            --bleu-ceil-dark: #5dade2;
-            --rouge: #e74c3c;
-            --vert-pistache: #93C572;
-            --vert-pistache-dark: #7cb342;
-            --dark: #2c3e50;
-            --light: #f8f9fa;
+            /* ═══ CHARTE GRAPHIQUE RE7LA ═══ */
+            --orange:         #F39C12;
+            --orange-dark:    #d68910;
+            --yellow:         #F7DC6F;
+            --teal:           #1ABC9C;
+            --teal-dark:      #17a589;
+            --dark:           #2C3E50;
+            --light:          #FAFAFA;
+
+            /* Aliases for backward compat with existing templates */
+            --bleu-ceil:      #1ABC9C;
+            --bleu-ceil-dark: #17a589;
+            --rouge:          #F39C12;
+            --vert-pistache:  #F7DC6F;
+            --vert-pistache-dark: #f0ca2e;
+
             --navbar-height: 96px;
         }
 
@@ -31,11 +40,10 @@
         body { font-family: 'Poppins', sans-serif; overflow-x: hidden; background: var(--light); }
 
         .navbar-re7la {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            background: white;
+            backdrop-filter: none;
+            box-shadow: 0 2px 20px rgba(44,62,80,0.08);
+            border-bottom: 1px solid rgba(44,62,80,0.06);
             padding: 15px 0;
             transition: all 0.3s ease;
             min-height: var(--navbar-height);
@@ -44,7 +52,21 @@
             z-index: 1100;
         }
 
-        .navbar-re7la.scrolled { background: rgba(255, 255, 255, 0.95); padding: 10px 0; }
+        .navbar-re7la.scrolled {
+            padding: 10px 0;
+            box-shadow: 0 4px 25px rgba(44,62,80,0.12);
+        }
+
+        .navbar-re7la .nav-link { color: var(--dark) !important; }
+        .navbar-re7la .nav-link:hover { color: var(--teal) !important; }
+        .navbar-re7la .nav-link.active { color: var(--teal) !important; }
+
+        .navbar-re7la .navbar-brand {
+            background: linear-gradient(135deg, var(--teal), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
         .navbar-brand {
             font-weight: 800;
@@ -190,8 +212,11 @@
             background: rgba(135, 206, 235, 0.1);
             color: var(--bleu-ceil-dark) !important;
             border: 1px solid rgba(135, 206, 235, 0.3);
-            border-radius: 50px;
-            padding: 8px 18px !important;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            padding: 0 !important;
+            justify-content: center;
             font-weight: 700;
             transition: 0.3s;
             display: flex;
@@ -267,43 +292,16 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="#services">Services</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'activite_index_front' ? 'active' : '' }}" href="{{ path('activite_index_front') }}">Activités</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') == 'app_hebergements_search' ? 'active' : '' }}" href="{{ path('app_hebergements_search') }}">Hébergements</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_trajet' ? 'active' : '' }}" href="{{ path('app_trajet') }}">Mes Trajets</a>
-                    </li>
-<<<<<<< HEAD
-                    {% if app.session.get('user_id') or app.user %}
-                        <li class="nav-item">
-                            <a class="nav-link {{ app.request.attributes.get('_route') == 'app_reservations_list' ? 'active' : '' }}" href="{{ path('app_reservations_list') }}">Mes Voyages</a>
-                        </li>
-                        {% if app.session.get('user_id') or app.user %}
-    <li class="nav-item">
-        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_reservations_list' ? 'active' : '' }}" href="{{ path('app_reservations_list') }}">Mes Voyages</a>
-    </li>
-    {# ── AJOUTER CES LIGNES ── #}
-    <li class="nav-item">
-        <a class="nav-link {{ app.request.attributes.get('_route') == 'mes_reservations_activite' ? 'active' : '' }}" 
-           href="{{ path('mes_reservations_activite') }}">
-            <i class="fas fa-calendar-check" style="color:var(--bleu-ceil);margin-right:5px;"></i>
-            Mes Réservations
-        </a>
-    </li>
-{% endif %}
-                    {% endif %}
-=======
-
-                    <li class="nav-item">
-                        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_voiture_guide' ? 'active' : '' }}" href="{{ path('app_voiture_guide') }}">Guide Voitures</a>
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_trajet' ? 'active' : '' }}" href="{{ path('app_trajet') }}">Trajets</a>
                     </li>
 
->>>>>>> 5ab0604fd7f5727def73577ac11f8a9df3ec0376
+
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_promotions' ? 'active' : '' }}" href="{{ path('app_promotions_list') }}">Promotions</a>
                     </li>
@@ -317,8 +315,7 @@
 
                     <li class="nav-item ms-lg-3">
                         <button class="nav-link btn-localization-trigger" data-bs-toggle="modal" data-bs-target="#localizationModal">
-                            <i class="fas fa-globe-africa me-2"></i> 
-                            <span class="d-none d-xl-inline">{{ app.request.locale|upper }} / {{ current_currency }}</span>
+                            <i class="fas fa-globe-africa"></i> 
                         </button>
                     </li>
 
@@ -360,6 +357,21 @@
                                         Modifier mon compte
                                     </a>
 
+                                    <a href="{{ path('app_reservations_list') }}">
+                                        <i class="fas fa-suitcase-rolling"></i>
+                                        Mes Voyages
+                                    </a>
+
+                                    <a href="{{ path('mes_reservations_activite') }}">
+                                        <i class="fas fa-calendar-check"></i>
+                                        Mes Réservations
+                                    </a>
+
+                                    <a href="{{ path('app_voiture_guide') }}">
+                                        <i class="fas fa-car"></i>
+                                        Guide Voitures
+                                    </a>
+
                                     <form method="post" action="{{ path('app_user_account_delete') }}" onsubmit="return confirm('Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.');">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
                                         <button type="submit" class="delete-account-btn">
@@ -367,11 +379,6 @@
                                             Supprimer mon compte
                                         </button>
                                     </form>
-
-                                    <a href="{{ path('app_reservations_list') }}">
-                                        <i class="fas fa-suitcase-rolling"></i>
-                                        Mes Voyages
-                                    </a>
 
                                     <a href="{{ path('app_logout') }}">
                                         <i class="fas fa-sign-out-alt"></i>

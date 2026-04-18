@@ -6,6 +6,48 @@
 {% block page_title %}Tableau de bord{% endblock %}
 
 {% block body %}
+<!-- Stats Cards -->
+<div class="stat-cards-row">
+  <div class="stat-card" style="background:#1ABC9C;color:#fff;">
+    <div class="stat-card-left">
+      <div class="label">Hébergements</div>
+      <div class="value">{{ totalH|default(0) }}</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-hotel"></i>
+    </div>
+  </div>
+
+  <div class="stat-card" style="background:#F7B731;color:#fff;">
+    <div class="stat-card-left">
+      <div class="label">En Attente</div>
+      <div class="value">{{ pendingR|default(0) }}</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-clock"></i>
+    </div>
+  </div>
+
+  <div class="stat-card" style="background:#3498DB;color:#fff;">
+    <div class="stat-card-left">
+      <div class="label">Total Réservations</div>
+      <div class="value">{{ totalR|default(0) }}</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-shopping-cart"></i>
+    </div>
+  </div>
+
+  <div class="stat-card" style="background:#e63946;color:#fff;">
+    <div class="stat-card-left">
+      <div class="label">Utilisateurs</div>
+      <div class="value">24</div>
+    </div>
+    <div class="stat-icon" style="background:rgba(255,255,255,0.2);">
+      <i class="fas fa-users"></i>
+    </div>
+  </div>
+</div>
 
 <div class="row">
   <div class="card" style="width:100%;text-align:center;padding:80px 20px;">

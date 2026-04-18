@@ -70,7 +70,7 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: "id_utilisateur", targetEntity: Publication::class)]
     private Collection $publications;
 
-    #[ORM\OneToMany(mappedBy: "user_id", targetEntity: Reservation::class)]
+    #[ORM\OneToMany(mappedBy: "user", targetEntity: Reservation::class)]
     private Collection $reservations;
 
     #[ORM\OneToMany(mappedBy: "id_utilisateur", targetEntity: Trajet::class)]

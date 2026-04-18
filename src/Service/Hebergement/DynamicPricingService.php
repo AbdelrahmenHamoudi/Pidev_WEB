@@ -11,6 +11,7 @@ class DynamicPricingService
     private string $openWeatherApiKey;
     private string $aviationstackApiKey;
     private string $configPath;
+    private array $internalCache = [];
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -56,7 +57,7 @@ class DynamicPricingService
         
         return array_merge($priceData, [
             'score' => $totalScore,
-            'isEnabled' => $this->isEnabled($hebergement->getId()),
+            'isEnabled' => $this->isEnabled($hebergement->getId_hebergement()),
             'factors' => [
                 'flights' => $flightScore,
                 'weather' => $weatherScore,
@@ -172,6 +173,11 @@ class DynamicPricingService
 
     private function getFlightDemandScore(string $city): int
     {
+        $cacheKey = 'flights_' . $city;
+        if (isset($this->internalCache[$cacheKey])) {
+            return $this->internalCache[$cacheKey];
+        }
+
         if (!$this->aviationstackApiKey || $this->aviationstackApiKey === 'votre_cle_aviationstack_ici') {
             return 40;
         }
@@ -180,6 +186,7 @@ class DynamicPricingService
         
         try {
             $response = $this->httpClient->request('GET', 'http://api.aviationstack.com/v1/flights', [
+                'timeout' => 2,
                 'query' => [
                     'access_key' => $this->aviationstackApiKey,
                     'arr_iata' => $airportIata,
@@ -190,10 +197,13 @@ class DynamicPricingService
             $data = $response->toArray();
             $count = count($data['data'] ?? []);
 
-            if ($count > 30) return 90;
-            if ($count > 15) return 70;
-            if ($count > 5) return 50;
-            return 30;
+            if ($count > 30) $score = 90;
+            elseif ($count > 15) $score = 70;
+            elseif ($count > 5) $score = 50;
+            else $score = 30;
+
+            $this->internalCache[$cacheKey] = $score;
+            return $score;
         } catch (\Exception $e) {
             return 40;
         }
@@ -201,10 +211,16 @@ class DynamicPricingService
 
     private function getWeatherDemandScore(string $city): int
     {
+        $cacheKey = 'weather_' . $city;
+        if (isset($this->internalCache[$cacheKey])) {
+            return $this->internalCache[$cacheKey];
+        }
+
         if (!$this->openWeatherApiKey) return 40;
 
         try {
             $response = $this->httpClient->request('GET', 'https://api.openweathermap.org/data/2.5/weather', [
+                'timeout' => 2,
                 'query' => [
                     'q' => $city . ',TN',
                     'appid' => $this->openWeatherApiKey,
@@ -220,7 +236,9 @@ class DynamicPricingService
             if ($temp > 25 && $temp < 32) $score += 20;
             if ($condition === 'Rain' || $condition === 'Thunderstorm') $score -= 30;
 
-            return max(0, min(100, $score));
+            $score = max(0, min(100, $score));
+            $this->internalCache[$cacheKey] = $score;
+            return $score;
         } catch (\Exception $e) {
             return 40;
         }
