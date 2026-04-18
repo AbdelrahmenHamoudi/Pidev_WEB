@@ -2,193 +2,102 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Statistiques Promotions - PDF</title>
+    <title>Rapport Statistique Promotions</title>
     <style>
-        body {
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #333;
-            margin: 0;
-            padding: 30px;
-        }
-        .header {
-            text-align: center;
-            border-bottom: 3px solid #F7B731;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            margin: 0;
-            color: #2C3E50;
-            font-size: 28px;
-        }
-        .header p {
-            margin: 8px 0 0;
-            color: #7F8C8D;
-            font-size: 14px;
-        }
-        .summary-grid {
-            display: table;
-            width: 100%;
-            margin-bottom: 30px;
-        }
-        .summary-box {
-            display: table-cell;
-            width: 25%;
-            text-align: center;
-            padding: 15px;
-            background: #f8fafc;
-            border: 1px solid #eee;
-        }
-        .summary-val {
-            font-size: 28px;
-            font-weight: bold;
-            color: #F7B731;
-        }
-        .summary-label {
-            font-size: 11px;
-            color: #7F8C8D;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 5px;
-        }
-        .chart-section {
-            margin-bottom: 30px;
-            page-break-inside: avoid;
-        }
-        .chart-title {
-            font-size: 18px;
-            color: #2C3E50;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-        }
-        .chart-img {
-            text-align: center;
-        }
-        .chart-img img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 10px 12px;
-            border: 1px solid #eee;
-            text-align: left;
-        }
-        th {
-            background: #f8fafc;
-            color: #2C3E50;
-            font-weight: bold;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-        td {
-            font-size: 13px;
-        }
-        .footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 11px;
-            color: #94a3b8;
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-        }
-        .badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-            background: #1ABC9C;
-        }
+        body { font-family: 'Helvetica', sans-serif; color: #2c3e50; }
+        .header { text-align: center; border-bottom: 3px solid #F7B731; padding-bottom: 20px; margin-bottom: 30px; }
+        .row { display: table; width: 100%; margin-bottom: 30px; }
+        .col { display: table-cell; width: 50%; vertical-align: top; padding: 10px; }
+        .card { border: 1px solid #eee; border-radius: 12px; padding: 20px; background: #fdfdfd; }
+        .kpi-row { display: table; width: 100%; margin-bottom: 20px; }
+        .kpi-box { display: table-cell; width: 25%; text-align: center; padding: 15px; background: #f8fafc; border: 1px solid #edf2f7; border-radius: 10px; }
+        .kpi-val { font-size: 22px; font-weight: bold; color: #4F46E5; }
+        .kpi-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; margin-top: 5px; }
+        h3 { font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-top: 0; }
+        .chart-img { max-width: 100%; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table th, table td { border: 1px solid #eee; padding: 8px; text-align: left; }
+        table th { background: #f8fafc; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>📊 Statistiques des Promotions</h1>
-    <p>Rapport généré le {{ "now"|date("d/m/Y à H:i") }} — RE7LA Admin</p>
+    <h1>Rapport Analytique RE7LA</h1>
+    <p>Statistiques des Promotions - {{ "now"|date('d/m/Y') }}</p>
 </div>
 
-<!-- Summary KPIs -->
-<div class="summary-grid">
-    <div class="summary-box">
-        <div class="summary-val">{{ totalPromos }}</div>
-        <div class="summary-label">Total Promotions</div>
+<div class="kpi-row">
+    <div class="kpi-box">
+        <div class="kpi-val">{{ totalPromos }}</div>
+        <div class="kpi-label">Total Promos</div>
     </div>
-    <div class="summary-box">
-        <div class="summary-val">{{ nbIndiv }}</div>
-        <div class="summary-label">Individuelles</div>
+    <div class="kpi-box">
+        <div class="kpi-val">{{ totalReservations }}</div>
+        <div class="kpi-label">Réservations</div>
     </div>
-    <div class="summary-box">
-        <div class="summary-val">{{ nbPacks }}</div>
-        <div class="summary-label">Packs</div>
+    <div class="kpi-box">
+        <div class="kpi-val">{{ totalViews }}</div>
+        <div class="kpi-label">Total Vues</div>
     </div>
-    <div class="summary-box">
-        <div class="summary-val">{{ totalReservations }}</div>
-        <div class="summary-label">Réservations</div>
-    </div>
-</div>
-
-<!-- Chart 1: Pie -->
-<div class="chart-section">
-    <div class="chart-title">Répartition des Promotions par Type</div>
-    <div class="chart-img">
-        <img src="{{ pieChartUrl }}" alt="Pie Chart" style="max-width: 380px;">
+    <div class="kpi-box">
+        <div class="kpi-val">{{ engagementRate }}%</div>
+        <div class="kpi-label">Engagement</div>
     </div>
 </div>
 
-<!-- Chart 2: Bar -->
-<div class="chart-section">
-    <div class="chart-title">Top Promotions par Réservations</div>
-    <div class="chart-img">
-        <img src="{{ barChartUrl }}" alt="Bar Chart" style="max-width: 580px;">
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <h3>Distribution par Type</h3>
+            <img src="{{ pieChartUrl }}" class="chart-img">
+            <p style="font-size:11px; color:#64748b; margin-top:10px;">
+                Individuelles: {{ nbIndiv }} | Packs: {{ nbPacks }}
+            </p>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <h3>Répartition par Catégorie</h3>
+            <img src="{{ doughnutChartUrl }}" class="chart-img">
+        </div>
     </div>
 </div>
 
-<!-- Chart 3: Doughnut -->
-<div class="chart-section">
-    <div class="chart-title">Distribution des Offres Individuelles</div>
-    <div class="chart-img">
-        <img src="{{ doughnutChartUrl }}" alt="Doughnut Chart" style="max-width: 380px;">
+<div class="row">
+    <div class="col" style="width: 100%; display: block;">
+        <div class="card">
+            <h3>Top 10 Performance (Réservations)</h3>
+            <img src="{{ barChartUrl }}" class="chart-img" style="width: 100%;">
+        </div>
     </div>
 </div>
 
-<!-- Table: Top Users -->
-<div class="chart-section">
-    <div class="chart-title">Utilisateurs les plus actifs</div>
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Utilisateur (Email)</th>
-                <th>Réservations</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% set rank = 1 %}
-            {% for email, count in topUsers %}
-            <tr>
-                <td><span class="badge">{{ rank }}</span></td>
-                <td><strong>{{ email }}</strong></td>
-                <td>{{ count }}</td>
-            </tr>
-            {% set rank = rank + 1 %}
-            {% else %}
-            <tr><td colspan="3" style="text-align:center;color:#94a3b8;">Aucune donnée</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<div class="footer">
-    <p>Ce rapport a été généré automatiquement via l'API QuickChart.io & Api2Pdf — RE7LA © {{ "now"|date("Y") }}</p>
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <h3>💎 Clients les plus actifs</h3>
+            <table>
+                <thead>
+                    <tr><th>Utilisateur</th><th>Réservations</th></tr>
+                </thead>
+                <tbody>
+                    {% for email, count in topUsers %}
+                    <tr><td>{{ email }}</td><td>{{ count }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card" style="border: 1px dashed #e74c3c;">
+            <h3>⚠️ Analyse de l'offre</h3>
+            <p style="font-size:12px; line-height:1.6;">
+                L'engagement moyen est de {{ engagementRate }}%. Les promotions de type pack représentent {{ (nbPacks / totalPromos * 100)|round }}% du catalogue. 
+                Une augmentation des réservations est observée sur les offres à forte tendance.
+            </p>
+        </div>
+    </div>
 </div>
 
 </body>

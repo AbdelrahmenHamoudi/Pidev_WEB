@@ -1,161 +1,147 @@
 {% extends 'backend/baseend.html.twig' %}
 
-{% block title %}Statistiques Promotions - RE7LA Admin{% endblock %}
-{% block breadcrumb %}Promotions / Statistiques{% endblock %}
-{% block page_title %}Analyse des Performances{% endblock %}
+{% block title %}Statistiques Simplifiées - RE7LA{% endblock %}
+{% block breadcrumb %}Promotions / Stats{% endblock %}
 
 {% block stylesheets %}
 <style>
-    /* Animated Background */
-    #stats-canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    }
-
-    .stat-card {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        border-radius: 20px;
+    .stats-container {
+        max-width: 1200px;
+        margin: 0 auto;
         padding: 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        height: 100%;
-        transition: transform 0.3s ease;
     }
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .kpi-card {
+    .stats-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
         padding: 20px;
-        border-radius: 20px;
-        color: #fff;
+        height: 100%;
+        border: 1px solid #edf2f7;
+    }
+    .stats-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 10px;
     }
-
-    .chart-container {
+    .chart-wrapper {
         position: relative;
-        margin: auto;
-        height: 250px; /* Reduced height */
+        height: 220px; /* Smaller height as requested */
         width: 100%;
+    }
+    .user-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .user-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        font-size: 12px;
+        background: #f8fafc;
+    }
+    .badge-count {
+        background: #edf2f7;
+        color: #4a5568;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 700;
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<canvas id="stats-canvas"></canvas>
-
-<div class="row mb-4" data-aos="fade-down">
-    <div class="col-12" style="display:flex;justify-content:space-between;align-items:center;">
-        <a href="{{ path('app_admin_promotion_list') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.7);backdrop-filter:blur(5px);color:#64748b;border:1px solid #e2e8f0;border-radius:10px;padding:8px 16px;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:8px;">
-            <i class="fas fa-arrow-left"></i> Retour
-        </a>
-        <a href="{{ path('app_admin_promotion_stats_pdf') }}" class="btn btn-sm" 
-           style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border-radius:10px;padding:8px 16px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-weight:600;"
-           data-aos="fade-left" data-aos-delay="200">
-            <i class="fas fa-file-pdf"></i> Exporter PDF
-        </a>
-    </div>
-</div>
-
-<!-- KPIs -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="kpi-card" style="background: linear-gradient(135deg, #3498db, #2980b9);">
-            <div style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Promotions Actives</div>
-            <div style="font-size: 28px; font-weight: 800;">{{ totalPromos }}</div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="kpi-card" style="background: linear-gradient(135deg, #1abc9c, #16a085);">
-            <div style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Réservations</div>
-            <div style="font-size: 28px; font-weight: 800;">{{ totalReservations }}</div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="kpi-card" style="background: linear-gradient(135deg, #f1c40f, #f39c12);">
-            <div style="font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Engagement Client</div>
-            <div style="font-size: 28px; font-weight: 800;">{{ topUsers|length }} VIPs</div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Bar Chart -->
-    <div class="col-lg-7 mb-4">
-        <div class="stat-card" data-aos="fade-right">
-            <h5 style="font-weight: 700; margin-bottom: 20px; color: #2d3748; font-size: 15px;">Performance des Promotions</h5>
-            <div class="chart-container">
-                <canvas id="topPromosChart"></canvas>
-            </div>
-        </div>
-    </div>
+<div class="stats-container" style="position: relative;">
     
-    <!-- Doughnut Chart -->
-    <div class="col-lg-5 mb-4">
-        <div class="stat-card" data-aos="fade-left">
-            <h5 style="font-weight: 700; margin-bottom: 20px; color: #2d3748; font-size: 15px;">Répartition par Type</h5>
-            <div class="chart-container">
-                <canvas id="typeDistChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Users Lists -->
-    <div class="col-lg-4 mb-4">
-        <div class="stat-card" data-aos="fade-up">
-            <h5 style="font-weight: 700; margin-bottom: 20px; color: #2d3748; font-size: 14px;">
-                <i class="fas fa-crown text-warning"></i> Meilleurs Clients
-            </h5>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                {% for email, count in topUsers %}
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(26,188,156,0.05); border-radius: 12px; border: 1px solid rgba(26,188,156,0.1);">
-                    <div style="font-size: 12px; font-weight: 600; color: #2d3748; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">{{ email }}</div>
-                    <span class="badge rounded-pill" style="background: #1abc9c;">{{ count }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+    <div class="d-flex align-items-center" style="margin-bottom: 30px;">
+        <a href="{{ path('app_admin_promotion_list') }}" class="btn btn-sm" 
+           style="background:#f1f5f9; color:#64748b; border-radius:8px; font-weight:700; border:1px solid #e2e8f0;">
+            <i class="fas fa-arrow-left me-1"></i> Retour aux Promotions
+        </a>
+        
+        <a href="{{ path('app_admin_promotion_stats_pdf') }}" class="btn btn-sm" 
+           style="position: absolute; top: 0; right: 0; background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff; border-radius:8px; padding:10px 25px; font-weight:700; box-shadow:0 6px 20px rgba(231,76,60,0.3); z-index: 10;">
+            <i class="fas fa-file-pdf me-1"></i> Exporter en PDF
+        </a>
     </div>
 
-    <div class="col-lg-4 mb-4">
-        <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
-            <h5 style="font-weight: 700; margin-bottom: 20px; color: #2d3748; font-size: 14px;">
-                <i class="fas fa-arrow-down text-danger"></i> Moins Actifs
-            </h5>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                {% for email, count in leastUsers %}
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(231,76,60,0.05); border-radius: 12px; border: 1px solid rgba(231,76,60,0.1);">
-                    <div style="font-size: 12px; font-weight: 600; color: #2d3748; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">{{ email }}</div>
-                    <span class="badge rounded-pill" style="background: #e74c3c;">{{ count }}</span>
+    <div style="margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-top: 10px;">
+        <h4 style="font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px;">📊 Analyse des Performances</h4>
+        <p style="color:#94a3b8; font-size:12px; margin:5px 0 0;">Visualisation des indicateurs clés de succès de vos promotions</p>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="stats-card">
+                <div class="stats-title">🏆 Top 10 Promotions (par ventes)</div>
+                <div class="chart-wrapper">
+                    <canvas id="topPromosChart"></canvas>
                 </div>
-                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="stats-card">
+                <div class="stats-title">📊 Répartition par Type</div>
+                <div class="chart-wrapper">
+                    <canvas id="typeDistChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-4 mb-4">
-        <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
-            <h5 style="font-weight: 700; margin-bottom: 20px; color: #2d3748; font-size: 14px;">
-                <i class="fas fa-box-open text-primary"></i> Top Packs Combo
-            </h5>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                {% for pack in bestPacks %}
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(52,152,219,0.05); border-radius: 12px; border: 1px solid rgba(52,152,219,0.1);">
-                    <div style="font-size: 12px; font-weight: 600; color: #2d3748;">{{ pack.name }}</div>
-                    <span style="font-size: 11px; font-weight: 700; color: #3498db;">{{ pack.count }} v.</span>
-                </div>
-                {% endfor %}
+    <!-- Lists Row -->
+    <div class="row g-4">
+        <!-- Top Users -->
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-title">💎 Meilleurs Clients</div>
+                <ul class="user-list">
+                    {% for email, count in topUsers %}
+                    <li class="user-item">
+                        <span style="font-weight:600; color:#4a5568; overflow:hidden; text-overflow:ellipsis;">{{ email }}</span>
+                        <span class="badge-count">{{ count }} résas</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Least Users -->
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-title">❄️ Clients Inactifs</div>
+                <ul class="user-list">
+                    {% for email, count in leastUsers %}
+                    <li class="user-item">
+                        <span style="color:#718096; overflow:hidden; text-overflow:ellipsis;">{{ email }}</span>
+                        <span class="badge-count">{{ count }} résa</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Best Packs -->
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-title">📦 Meilleurs Packs</div>
+                <ul class="user-list">
+                    {% for pack in bestPacks %}
+                    <li class="user-item" style="border-left: 3px solid #1abc9c;">
+                        <span style="font-weight:700; color:#2c3e50;">{{ pack.name }}</span>
+                        <span style="color:#1abc9c; font-weight:800;">{{ pack.count }} ventes</span>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
@@ -164,99 +150,49 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Top Promotions Chart
+    // Chart.defaults.font.size = 11;
+    
+    // Top Promotions Chart
     new Chart(document.getElementById('topPromosChart'), {
         type: 'bar',
         data: {
             labels: {{ topPromosLabels|json_encode|raw }},
             datasets: [{
-                label: 'Réservations',
+                label: 'Ventes',
                 data: {{ topPromosData|json_encode|raw }},
-                backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                borderColor: '#3498db',
-                borderWidth: 1,
-                borderRadius: 5
+                backgroundColor: '#3498db',
+                borderRadius: 5,
             }]
         },
         options: {
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                y: { beginAtZero: true, ticks: { font: { size: 10 } } },
-                x: { ticks: { font: { size: 9 } } }
+                y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                x: { ticks: { font: { size: 10 } } }
             }
         }
     });
 
-    // 2. Type Distribution Chart
+    // Type Distribution Chart
     new Chart(document.getElementById('typeDistChart'), {
         type: 'doughnut',
         data: {
             labels: {{ typeDistLabels|json_encode|raw }},
             datasets: [{
                 data: {{ typeDistData|json_encode|raw }},
-                backgroundColor: ['#667eea', '#1abc9c', '#f7b731', '#e74c3c'],
-                hoverOffset: 10
+                backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444'],
+                borderWidth: 0
             }]
         },
         options: {
             maintainAspectRatio: false,
-            plugins: { 
-                legend: { 
-                    position: 'right',
-                    labels: { boxWidth: 12, font: { size: 10 } }
-                } 
+            cutout: '60%',
+            plugins: {
+                legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
             }
         }
     });
-
-    // --- Background Animation ---
-    const canvas = document.getElementById('stats-canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
-    window.dispatchEvent(new Event('resize'));
-
-    class Particle {
-        constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 3 + 1;
-            this.speedX = Math.random() * 0.5 - 0.25;
-            this.speedY = Math.random() * 0.5 - 0.25;
-            this.color = `rgba(${Math.random() * 100 + 150}, ${Math.random() * 100 + 150}, 255, 0.2)`;
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            if (this.x > canvas.width) this.x = 0;
-            if (this.x < 0) this.x = canvas.width;
-            if (this.y > canvas.height) this.y = 0;
-            if (this.y < 0) this.y = canvas.height;
-        }
-        draw() {
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
-        }
-    }
-
-    for (let i = 0; i < 50; i++) particles.push(new Particle());
-
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-            p.update();
-            p.draw();
-        });
-        requestAnimationFrame(animate);
-    }
-    animate();
 });
 </script>
 {% endblock %}

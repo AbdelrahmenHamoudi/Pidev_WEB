@@ -55,9 +55,21 @@
         {# Côté droit : Contenu #}
         <div style="padding:40px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                <span style="padding:5px 15px; border-radius:30px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; background:{{ statusColors.bg }}; color:{{ statusColors.color }}; border:1px solid {{ statusColors.color }}33;">
-                    {{ promotion.statusLabel }}
-                </span>
+                <div style="display:flex; gap:8px;">
+                    <span style="padding:5px 15px; border-radius:30px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; background:{{ statusColors.bg }}; color:{{ statusColors.color }}; border:1px solid {{ statusColors.color }}33;">
+                        {{ promotion.statusLabel }}
+                    </span>
+                    {% if promotion.isAiGenerated %}
+                        <span style="padding:5px 15px; border-radius:30px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; background:rgba(102,126,234,0.1); color:#667eea; border:1px solid #667eea33;">
+                            <i class="fas fa-robot"></i> IA GÉNÉRÉE
+                        </span>
+                    {% endif %}
+                    {% if promotion.autoDiscountReason %}
+                        <span style="padding:5px 15px; border-radius:30px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; background:rgba(247,183,49,0.1); color:#E67E22; border:1px solid #E67E2233;">
+                            <i class="fas fa-brain"></i> SMART ENGINE
+                        </span>
+                    {% endif %}
+                </div>
                 <span style="font-size:12px; color:#94a3b8; font-weight:500;">ID #{{ promotion.id }}</span>
             </div>
 
@@ -78,6 +90,22 @@
                     <div style="font-size:10px; color:#94a3b8;">Expire dans {{ promotion.endDate.diff(date('today')).days }} jours</div>
                 </div>
             </div>
+
+            {# Smart Engine Details #}
+            {% if promotion.autoDiscountReason %}
+            <div style="background:rgba(247,183,49,0.05); border:1px solid rgba(247,183,49,0.2); border-radius:16px; padding:15px; margin-bottom:25px; display:flex; align-items:center; gap:15px;">
+                <div style="background:#F7B731; color:#fff; width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px;">
+                    <i class="fas fa-magic"></i>
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:700; color:#E67E22; text-transform:uppercase;">Ajustement Automatique</div>
+                    <div style="font-size:13px; color:#2C3E50;">
+                        Réduction passée de <strong>{{ promotion.originalDiscountPercentage|default('?') }}%</strong> à <strong>{{ promotion.discountPercentage }}%</strong>
+                        ({{ promotion.autoDiscountReason == 'low_engagement' ? 'Faible interaction' : 'Forte demande' }})
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             {# Stats rapides #}
             <div style="display:flex; gap:30px; border-top:1px solid #f1f5f9; padding-top:25px;">

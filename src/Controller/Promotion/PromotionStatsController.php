@@ -72,6 +72,18 @@ class PromotionStatsController extends AbstractController
         asort($userCounts);
         $leastUsers = array_slice($userCounts, 0, 5, true);
 
+        // 4. Global Stats
+        $totalReservations = count(array_filter($reservations, fn($r) => $r->getStatut() !== \App\Entity\ReservationPromo::STATUT_ANNULEE));
+        $totalViews = 0;
+        foreach ($promotions as $p) {
+            $totalViews += $p->getViews();
+        }
+        $engagementRate = $totalViews > 0 ? ($totalReservations / $totalViews) * 100 : 0;
+
+        // 5. Smart Engine & AI Impact
+        $aiGeneratedCount = count(array_filter($promotions, fn($p) => $p->isAiGenerated()));
+        $smartAdjustedCount = count(array_filter($promotions, fn($p) => $p->getAutoDiscountReason() !== null));
+
         return $this->render('backend/admin/promotion/stats.html.twig', [
             'typeDistLabels' => array_keys($typeDistribution),
             'typeDistData' => array_values($typeDistribution),
@@ -84,7 +96,11 @@ class PromotionStatsController extends AbstractController
             'leastUsers' => $leastUsers,
 
             'totalPromos' => count($promotions),
-            'totalReservations' => count(array_filter($reservations, fn($r) => $r->getStatut() !== \App\Entity\ReservationPromo::STATUT_ANNULEE)),
+            'totalReservations' => $totalReservations,
+            'totalViews' => $totalViews,
+            'engagementRate' => round($engagementRate, 1),
+            'aiGeneratedCount' => $aiGeneratedCount,
+            'smartAdjustedCount' => $smartAdjustedCount
         ]);
     }
 
@@ -166,6 +182,13 @@ class PromotionStatsController extends AbstractController
             ]
         ]);
 
+        // 4. Global Stats
+        $totalViews = 0;
+        foreach ($promotions as $p) {
+            $totalViews += $p->getViews();
+        }
+        $engagementRate = $totalViews > 0 ? (count($reservations) / $totalViews) * 100 : 0;
+
         $html = $this->renderView('backend/admin/promotion/stats_pdf.html.twig', [
             'pieChartUrl'      => $pieChartUrl,
             'barChartUrl'      => $barChartUrl,
@@ -175,6 +198,8 @@ class PromotionStatsController extends AbstractController
             'nbIndiv'          => $nbIndiv,
             'nbPacks'          => $nbPacks,
             'totalReservations'=> count($reservations),
+            'totalViews'       => $totalViews,
+            'engagementRate'   => round($engagementRate, 1),
         ]);
 
         $result = $api2PdfService->htmlToPdf($html, 'statistiques_promotions.pdf');

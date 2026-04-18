@@ -28,17 +28,30 @@ final class PromotionBackendController extends AbstractController
     // ════════════════════════════════════════════
 
     #[Route('/admin/promotion', name: 'app_admin_promotion_list')]
-    public function list(PromotionRepository $repo, TrendingService $trendingService): Response
+    public function list(Request $request, PromotionRepository $repo, TrendingService $trendingService): Response
     {
-        $promotions   = $repo->findAll();
+        $q = $request->query->get('q');
+        $type = $request->query->get('type');
+        $offerType = $request->query->get('offerType');
+        $status    = $request->query->get('status');
+        $tendance  = $request->query->getBoolean('tendance', false);
+
+        if ($q || $type || $offerType || $status || $tendance) {
+            $promotions = $repo->search($q, $type, $offerType, $status, $tendance);
+        } else {
+            $promotions = $repo->findAll();
+        }
+
+        $allPromos    = $repo->findAll();
         $today        = new \DateTime('today');
-        $total        = count($promotions);
-        $totalPacks   = count(array_filter($promotions, fn($p) => $p->isPack()));
+        $total        = count($allPromos);
+        $totalPacks   = count(array_filter($allPromos, fn($p) => $p->isPack()));
         $totalIndiv   = $total - $totalPacks;
-        $totalActives = count(array_filter($promotions,
+        $totalActives = count(array_filter($allPromos,
             fn($p) => $p->getStartDate() && $p->getEndDate()
                    && $p->getStartDate() <= $today && $p->getEndDate() >= $today));
-        $totalTrending = $trendingService->countTrending($promotions);
+        $totalTrending = $trendingService->countTrending($allPromos);
+
         return $this->render('backend/admin/promotion/list.html.twig', [
             'promotions'     => $promotions,
             'total'          => $total,
@@ -47,6 +60,10 @@ final class PromotionBackendController extends AbstractController
             'totalActives'   => $totalActives,
             'totalTrending'  => $totalTrending,
             'trendingService'=> $trendingService,
+            'q'              => $q,
+            'currentType'    => $type,
+            'currentOffer'   => $offerType,
+            'currentStatus'  => $status
         ]);
     }
 

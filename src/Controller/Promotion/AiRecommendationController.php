@@ -67,6 +67,7 @@ class AiRecommendationController extends AbstractController
         $promotion->setPromoType(Promotion::TYPE_PACK);
         $promotion->setStartDate(new \DateTime());
         $promotion->setEndDate((new \DateTime())->modify('+1 month'));
+        $promotion->setIsAiGenerated(true);
         
         // Fetch items details to build packItems JSON
         $items = [];
@@ -75,8 +76,8 @@ class AiRecommendationController extends AbstractController
             $p = $promoRepo->find($pid);
             if ($p) {
                 $items[] = [
-                    'id' => $p->getId(),
-                    'label' => $p->getName(), // FIXED: using 'label' to match show.html.twig
+                    'id' => $p->getReferenceId(), // Use the actual offer ID, not the promotion ID
+                    'label' => $p->getName(),
                     'type' => $p->getOfferType() ?? 'unknown'
                 ];
                 $totalDiscount += $p->getDiscountPercentage() ?? 5;

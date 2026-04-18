@@ -84,6 +84,9 @@ class SmartDiscountService
 
     private function applyAdjustment(Promotion $promo, int $newDiscount, string $reason, \DateTime $now): void
     {
+        if ($promo->getOriginalDiscountPercentage() === null) {
+            $promo->setOriginalDiscountPercentage($promo->getDiscountPercentage());
+        }
         $promo->setDiscountPercentage($newDiscount);
         $promo->setDiscountFixed(null);
         $promo->setAutoDiscountReason($reason);
