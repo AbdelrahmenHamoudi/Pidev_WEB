@@ -29,7 +29,8 @@ final class PromotionFrontendController extends AbstractController
         private PriceCalculatorService $priceCalc,
         private EntityManagerInterface $em,
         private TrendingService $trendingService,
-        private PromoCodeService $promoCodeService
+        private PromoCodeService $promoCodeService,
+        private \App\Service\SmartDiscountService $smartDiscountService
 
     ) {}
 
@@ -39,6 +40,13 @@ final class PromotionFrontendController extends AbstractController
     #[Route('', name: 'app_promotion_list')]
     public function list(Request $request, PromotionRepository $repo): Response
     {
+        // 🧠 Automatic Smart Discount Engine Execution
+        try {
+            $this->smartDiscountService->runEngine();
+        } catch (\Exception $e) {
+            // Silently fail if engine has issues (e.g. database locked)
+        }
+
         $filters = [
             'nom' => $request->query->get('nom', ''),
             'promo_type' => $request->query->get('promo_type', ''),

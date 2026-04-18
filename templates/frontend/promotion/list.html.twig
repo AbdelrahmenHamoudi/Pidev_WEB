@@ -1110,39 +1110,53 @@ document.querySelectorAll('.promo-card').forEach(card => {
             });
         });
 
-        // 🧠 Smart Discount Engine: Discount Increased
+        // 🧠 Smart Discount Engine: Discount Increased (Centered Dialog)
         channel.bind('smart-increase', function(data) {
             Swal.fire({
-                toast: true,
-                position: 'bottom-end',
-                background: '#ffffff',
-                color: '#2c3e50',
-                showConfirmButton: true,
-                confirmButtonText: 'Voir l\'offre',
-                confirmButtonColor: '#1abc9c',
-                timer: 15000,
-                timerProgressBar: true,
+                title: '🧠 Opportunité Smart Engine !',
                 html: `
-                    <div style="display:flex; align-items:center; gap:15px; text-align:left;">
-                        <div style="background:rgba(26,188,156,0.1); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <span style="font-size:24px;">🧠</span>
+                    <div style="text-align:center; padding:10px;">
+                        <div style="background:rgba(26,188,156,0.1); width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+                            <span style="font-size:32px;">🔥</span>
                         </div>
-                        <div>
-                            <div style="font-weight:800; font-size:14px; margin-bottom:2px; color:#2c3e50;">SMART ENGINE</div>
-                            <div style="font-size:12px; color:#64748b; line-height:1.4;">
-                                <strong>${data.name}</strong><br>
-                                <span style="color:#e67e22; font-weight:700;">Engagement faible</span> → Promo boostée à <span style="color:#1abc9c; font-weight:800;">${data.newDiscount}</span> !
-                            </div>
-                        </div>
+                        <h4 style="color:#2c3e50; font-weight:800; margin-bottom:10px;">${data.name}</h4>
+                        <p style="color:#64748b; font-size:14px; line-height:1.6;">
+                            Nous avons détecté un faible engagement sur cette offre.<br>
+                            Pour vous faire plaisir, nous avons boosté la réduction à <br>
+                            <span style="color:#1abc9c; font-size:24px; font-weight:900;">${data.newDiscount}</span> !
+                        </p>
                     </div>
                 `,
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: '#1abc9c',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: '<i class="fas fa-calendar-check"></i> Réserver maintenant',
+                cancelButtonText: 'Ignorer',
                 customClass: {
-                    popup: 'animate__animated animate__bounceInUp',
-                    container: 'smart-engine-toast'
+                    popup: 'animate__animated animate__zoomIn'
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.reload();
+                    // Open the reservation modal for this specific promotion
+                    // Assuming currentPromo exists or we can find the card and click it
+                    const card = document.querySelector(`.promo-card[data-promo-id="${data.id}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => {
+                            // Trigger the openReservationModal function defined in list.html.twig
+                            if (typeof openReservationModal === 'function') {
+                                // Find the promo data in promotionsData
+                                if (promotionsData && promotionsData[data.id]) {
+                                    openReservationModal(promotionsData[data.id]);
+                                } else {
+                                    window.location.reload(); // Fallback
+                                }
+                            }
+                        }, 500);
+                    } else {
+                        window.location.reload();
+                    }
                 }
             });
         });
