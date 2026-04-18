@@ -112,6 +112,12 @@ class Promotion
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private ?string $autoDiscountReason = null;
 
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $originalDiscountPercentage = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isAiGenerated = false;
+
     // ── Getters & Setters de base ─────────────────────────────────────────────
 
     public function getId(): ?int { return $this->id; }
@@ -132,6 +138,12 @@ class Promotion
 
     public function getDiscountFixed(): ?float { return $this->discountFixed; }
     public function setDiscountFixed(?float $v): self { $this->discountFixed = $v; return $this; }
+
+    public function getOriginalDiscountPercentage(): ?float { return $this->originalDiscountPercentage; }
+    public function setOriginalDiscountPercentage(?float $v): self { $this->originalDiscountPercentage = $v; return $this; }
+
+    public function isAiGenerated(): bool { return $this->isAiGenerated; }
+    public function setIsAiGenerated(bool $v): self { $this->isAiGenerated = $v; return $this; }
 
     public function getStartDate(): ?\DateTimeInterface { return $this->startDate; }
     public function setStartDate(?\DateTimeInterface $d): self { $this->startDate = $d; return $this; }

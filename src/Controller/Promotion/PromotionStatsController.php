@@ -5,6 +5,7 @@ namespace App\Controller\Promotion;
 use App\Repository\PromotionRepository;
 use App\Repository\ReservationPromoRepository;
 use App\Service\Api2PdfService;
+use App\Entity\ReservationPromo;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -28,119 +29,62 @@ class PromotionStatsController extends AbstractController
         $promotions = $promoRepo->findAll();
         $reservations = $resaRepo->findAll();
 
-        // 1. Pack vs Individuelle
-        $nbPacks = 0;
-        $nbIndiv = 0;
+        // 1. Distribution by Type (Count)
+        $typeDistribution = ['hébergement' => 0, 'voiture' => 0, 'activité' => 0, 'pack' => 0];
         foreach ($promotions as $p) {
-            if ($p->isPack()) {
-                $nbPacks++;
-            } else {
-                $nbIndiv++;
+            $type = $p->isPack() ? 'pack' : strtolower($p->getOfferType() ?? 'unknown');
+            if (isset($typeDistribution[$type])) {
+                $typeDistribution[$type]++;
             }
         }
 
-        // 2. Top 10 promotions by reservations
+        // 2. Top Promotions (Reservations count)
         $promoStats = [];
         foreach ($promotions as $p) {
-            $promoStats[$p->getId()] = [
+            $resas = $resaRepo->findBy(['promotion' => $p]);
+            $count = count(array_filter($resas, fn($r) => $r->getStatut() !== \App\Entity\ReservationPromo::STATUT_ANNULEE));
+            $promoStats[] = [
                 'name' => $p->getName(),
-                'count' => 0
+                'count' => $count,
+                'isPack' => $p->isPack()
             ];
         }
         
-        foreach ($reservations as $r) {
-            if ($r->getPromotion() && $r->getStatut() !== 'ANNULEE') {
-                $id = $r->getPromotion()->getId();
-                if (isset($promoStats[$id])) {
-                    $promoStats[$id]['count']++;
-                }
-            }
-        }
-
+        // Sort for Top Promotions
         usort($promoStats, fn($a, $b) => $b['count'] <=> $a['count']);
         $topPromos = array_slice($promoStats, 0, 10);
 
-        // 3. Distribution by Type (Hebergement, Voiture, Activite) for Individuals
-        $typeDistribution = ['hebergement' => 0, 'voiture' => 0, 'activite' => 0];
-        foreach ($promotions as $p) {
-            if (!$p->isPack() && $p->getOfferType()) {
-                $type = $p->getOfferType();
-                if (isset($typeDistribution[$type])) {
-                    $typeDistribution[$type]++;
-                }
-            }
-        }
+        // Filter for Best Pack Combos (Only packs)
+        $packStats = array_filter($promoStats, fn($s) => $s['isPack']);
+        $bestPacks = array_slice($packStats, 0, 5);
 
-        // 4. Most active users
-        $userStats = [];
+        // 3. User Engagement
+        $userCounts = [];
         foreach ($reservations as $r) {
-            if ($r->getUser() && $r->getStatut() !== 'ANNULEE') {
-                $email = $r->getUser()->getE_mail() ?? 'Unknown';
-                if (!isset($userStats[$email])) {
-                    $userStats[$email] = 0;
-                }
-                $userStats[$email]++;
+            if ($r->getUser() && $r->getStatut() !== \App\Entity\ReservationPromo::STATUT_ANNULEE) {
+                $email = $r->getUser()->getE_mail() ?? 'Client #' . $r->getUser()->getId();
+                $userCounts[$email] = ($userCounts[$email] ?? 0) + 1;
             }
         }
-        arsort($userStats);
-        $topUsers = array_slice($userStats, 0, 5, true);
-
-        // ── QuickChart.io API: Generate chart image URLs ──
-        $pieChartUrl = $this->buildChartUrl([
-            'type' => 'pie',
-            'data' => [
-                'labels' => ['Individuelles', 'Packs'],
-                'datasets' => [[
-                    'data' => [$nbIndiv, $nbPacks],
-                    'backgroundColor' => ['#3498DB', '#1ABC9C'],
-                ]]
-            ],
-            'options' => [
-                'plugins' => ['datalabels' => ['display' => true, 'color' => '#fff', 'font' => ['weight' => 'bold']]]
-            ]
-        ]);
-
-        $barChartUrl = $this->buildChartUrl([
-            'type' => 'bar',
-            'data' => [
-                'labels' => array_column($topPromos, 'name'),
-                'datasets' => [[
-                    'label' => 'Réservations',
-                    'data' => array_column($topPromos, 'count'),
-                    'backgroundColor' => '#F7B731',
-                    'borderRadius' => 5,
-                ]]
-            ],
-            'options' => [
-                'scales' => ['y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]]]
-            ]
-        ], 600, 300);
-
-        $doughnutChartUrl = $this->buildChartUrl([
-            'type' => 'doughnut',
-            'data' => [
-                'labels' => array_map('ucfirst', array_keys($typeDistribution)),
-                'datasets' => [[
-                    'data' => array_values($typeDistribution),
-                    'backgroundColor' => ['#9b59b6', '#e74c3c', '#f1c40f'],
-                ]]
-            ],
-            'options' => [
-                'plugins' => ['datalabels' => ['display' => true, 'color' => '#fff', 'font' => ['weight' => 'bold']]]
-            ]
-        ]);
+        arsort($userCounts);
+        $topUsers = array_slice($userCounts, 0, 5, true);
+        
+        asort($userCounts);
+        $leastUsers = array_slice($userCounts, 0, 5, true);
 
         return $this->render('backend/admin/promotion/stats.html.twig', [
-            'pieData' => [$nbIndiv, $nbPacks],
-            'topPromosLabels' => array_column($topPromos, 'name'),
-            'topPromosData' => array_column($topPromos, 'count'),
             'typeDistLabels' => array_keys($typeDistribution),
             'typeDistData' => array_values($typeDistribution),
+            
+            'topPromosLabels' => array_column($topPromos, 'name'),
+            'topPromosData' => array_column($topPromos, 'count'),
+            
+            'bestPacks' => $bestPacks,
             'topUsers' => $topUsers,
-            // QuickChart image URLs (for PDF embedding + fallback display)
-            'pieChartUrl'      => $pieChartUrl,
-            'barChartUrl'      => $barChartUrl,
-            'doughnutChartUrl' => $doughnutChartUrl,
+            'leastUsers' => $leastUsers,
+
+            'totalPromos' => count($promotions),
+            'totalReservations' => count(array_filter($reservations, fn($r) => $r->getStatut() !== \App\Entity\ReservationPromo::STATUT_ANNULEE)),
         ]);
     }
 

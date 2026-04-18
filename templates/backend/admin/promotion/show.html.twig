@@ -136,7 +136,7 @@
                     {% for item in packItems %}
                         <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px 14px; border-radius:10px; border:1px solid #eef2f6;">
                             <i class="fas {{ item.type == 'hebergement' ? 'fa-home' : (item.type == 'activite' ? 'fa-hiking' : 'fa-car') }}" style="color:#64748b; font-size:0.9rem;"></i>
-                            <span style="font-size:12px; font-weight:600; color:#2C3E50;">{{ item.label ?: (item.type|capitalize ~ ' #' ~ item.id) }}</span>
+                            <span style="font-size:12px; font-weight:600; color:#2C3E50;">{{ item.label|default(item.name|default(item.type|capitalize ~ ' #' ~ item.id)) }}</span>
                         </div>
                     {% endfor %}
                 </div>
