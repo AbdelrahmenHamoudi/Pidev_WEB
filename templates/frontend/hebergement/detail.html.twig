@@ -1,0 +1,867 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}{{ hebergement.titre }} - RE7LA Premium{% endblock %}
+
+{% block stylesheets %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" />
+
+<style>
+    body {
+        font-family: 'Outfit', sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
+    }
+
+    /* Professional Gallery Bento Grid */
+    .bento-gallery {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-rows: repeat(2, 200px);
+        gap: 12px;
+        margin-bottom: 40px;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    .bento-item {
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
+        background: #e2e8f0;
+    }
+    .bento-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .bento-item:hover img {
+        transform: scale(1.08);
+    }
+    .bento-main {
+        grid-column: 1 / 2;
+        grid-row: 1 / 3;
+    }
+    .bento-more-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.5rem;
+        backdrop-filter: blur(4px);
+    }
+
+    /* Sticky Sidebar */
+    .sticky-card {
+        position: sticky;
+        top: 100px;
+        background: white;
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* Badges & Chips */
+    .type-badge {
+        background: linear-gradient(135deg, #87CEEB15, #93C57215);
+        color: #2c3e50;
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        border: 1px solid rgba(135, 206, 235, 0.3);
+    }
+    .status-badge-live {
+        background: #ecfdf5;
+        color: #10b981;
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+    
+    /* Safe Zone Premium */
+    .safe-zone-card-modern {
+        background: white;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        border: 1px solid #f1f5f9;
+        margin-top: 60px;
+    }
+    .safe-zone-header {
+        background: linear-gradient(135deg, #87CEEB, #93C572);
+        padding: 40px;
+        color: white;
+        position: relative;
+    }
+    .safe-glass {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    #safeMap {
+        height: 450px;
+        width: 100%;
+        border-radius: 0 0 0 30px;
+    }
+
+    .poi-side-list::-webkit-scrollbar { width: 4px; }
+    .poi-side-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+    /* Lightbox */
+    .lightbox {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 90%; max-height: 85vh; border-radius: 16px; }
+
+    /* Buttons */
+    .btn-premium {
+        background: linear-gradient(135deg, #87CEEB, #93C572);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        padding: 16px 32px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(135, 206, 235, 0.3);
+    }
+    .btn-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(135, 206, 235, 0.4);
+        color: white;
+    }
+
+    /* Divider */
+    .section-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 40px 0;
+    }
+
+    /* Digital Twin Simulation Premium Styles */
+    .simulation-box {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        border-radius: 35px;
+        padding: 50px;
+        color: white;
+        margin-top: 60px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    .simulation-box::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(135, 206, 235, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .profile-pill {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 12px 24px;
+        border-radius: 100px;
+        color: rgba(255,255,255,0.7);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .profile-pill:hover, .profile-pill.active {
+        background: white;
+        color: #0f172a;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255,255,255,0.1);
+    }
+    .simulation-result-card {
+        background: rgba(255,255,255,0.03);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 35px;
+        margin-top: 30px;
+        display: none;
+    }
+    .simulation-result-card.active {
+        display: block;
+        animation: slideUpFade 0.8s ease-out forwards;
+    }
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .score-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 8px solid rgba(255,255,255,0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .score-circle .val {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+    .score-circle .label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.6;
+    }
+    .loader-pulse {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: #87CEEB;
+    }
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #87CEEB;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Page Header -->
+<div class="py-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-muted text-decoration-none">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_hebergements_search') }}" class="text-muted text-decoration-none">Destinations</a></li>
+                <li class="breadcrumb-item active fw-bold" style="color: #87CEEB;">{{ hebergement.titre }}</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-end">
+            <div>
+                <div class="mb-2">
+                    <a href="{{ path('app_hebergements_search') }}" class="text-muted text-decoration-none small">
+                        <i class="bx bx-left-arrow-alt"></i> Retour aux réservations
+                    </a>
+                </div>
+                <h1 class="display-6 fw-800 mb-1" style="font-weight: 800; letter-spacing: -1px;">{{ hebergement.titre }}</h1>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="type-badge">{{ hebergement.typeHebergement }}</span>
+                    {% if hebergement.disponibleHeberg %}
+                        <span class="status-badge-live"><i class="bx bxs-check-circle me-1"></i>Disponible</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-light rounded-circle p-2 px-3 shadow-sm"><i class="bx bx-share-alt"></i></button>
+                <button class="btn btn-light rounded-circle p-2 px-3 shadow-sm"><i class="bx bx-heart"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <!-- Modern Bento Gallery -->
+    {% set images = hebergement.images %}
+    <div class="bento-gallery">
+        {% if images|length > 0 %}
+            <!-- Main large image -->
+            <div class="bento-item bento-main" onclick="openLightbox(0)">
+                <img src="{{ asset(images[0].filename) }}" alt="{{ hebergement.titre }}">
+            </div>
+            
+            {% for i in range(1, 4) %}
+                {% if images[i] is defined %}
+                    <div class="bento-item" onclick="openLightbox({{ i }})">
+                        <img src="{{ asset(images[i].filename) }}" alt="Photo {{ i + 1 }}">
+                        {% if i == 3 and images|length > 5 %}
+                            <div class="bento-more-overlay">+{{ images|length - 5 }}</div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="bento-item d-flex align-items-center justify-content-center">
+                        <i class="bx bx-image text-muted opacity-25" style="font-size: 3rem;"></i>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <!-- Fallback if no images -->
+            <div class="bento-item bento-main w-100" style="grid-column: 1 / 4;">
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1);">
+                    <i class="bx bx-building-house display-1 text-white opacity-50"></i>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-5">
+        <!-- Main Content Column -->
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">À propos de cet hébergement</h4>
+                <div class="text-muted small"><i class="bx bx-info-circle me-1"></i>Mis à jour récemment</div>
+            </div>
+            
+            <p class="lead text-muted mb-4" style="line-height: 1.8;">
+                {{ hebergement.descHebergement|auto_translate }}
+            </p>
+
+            <div class="section-divider"></div>
+
+            <h5 class="fw-bold mb-4">Équipements & Services</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center p-3 rounded-4 border bg-white">
+                        <i class="bx bx-group fs-3 me-3 text-primary"></i>
+                        <div>
+                            <div class="small text-muted">Capacité</div>
+                            <div class="fw-bold">{{ hebergement.capacite }} Voyageurs</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center p-3 rounded-4 border bg-white">
+                        <i class="bx bx-home-alt fs-3 me-3 text-success"></i>
+                        <div>
+                            <div class="small text-muted">Type</div>
+                            <div class="fw-bold">{{ hebergement.typeHebergement }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center p-3 rounded-4 border bg-white">
+                        <i class="bx bx-shield-check fs-3 me-3 text-warning"></i>
+                        <div>
+                            <div class="small text-muted">Sécurité</div>
+                            <div class="fw-bold">Zone Vérifiée</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Safe Zone Preview integration -->
+            <div class="mt-5 p-4 rounded-5 border bg-white d-flex align-items-center justify-content-between shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: {{ safetyData.color }}20;">
+                        <i class="bx bxs-shield-alt-2 fs-4" style="color: {{ safetyData.color }};"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">Niveau de sécurité : {{ safetyData.status }}</h6>
+                        <small class="text-muted">Découvrez notre analyse détaillée du quartier juste en dessous.</small>
+                    </div>
+                </div>
+                <a href="#safeZoneSection" class="btn btn-outline-dark rounded-pill px-4 btn-sm">Voir la carte</a>
+            </div>
+        </div>
+
+        <!-- Sticky Sidebar Column -->
+        <div class="col-lg-4">
+            <div class="sticky-card">
+                    <div>
+                        <h3 class="mb-0 fw-bold">
+                            {{ hebergement.prixParNuit|format_price }}
+                        </h3>
+                        <small class="text-muted">{{ 'accommodation.per_night'|default('par nuit (TTC)')|trans }}</small>
+                    </div>
+                    <div class="text-warning"><i class="bx bxs-star"></i><span class="fw-bold"> 4.9</span> <small class="text-muted">(12)</small></div>
+                </div>
+
+
+                <div class="section-divider my-3"></div>
+
+
+                <style>
+                    .booking-form-box { border-color: #b0b0b0 !important; border-radius: 12px; }
+                    .booking-form-box .form-cell { padding: 14px 18px; position: relative; }
+                    .booking-form-box input[type="date"]::-webkit-calendar-picker-indicator {
+                        position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+                    }
+                    .booking-form-box input, .booking-form-box select { background: transparent !important; cursor: pointer; }
+                    .booking-form-box input:focus, .booking-form-box select:focus { box-shadow: none !important; }
+                    .custom-error-msg { display: none; font-size: 0.85rem; font-weight: 600; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+                </style>
+
+                <!-- Formulaire de sélection (Visuel Booking/Airbnb connecté à Symfony) -->
+                {{ form_start(form, {'attr': {'id': 'reservationForm', 'novalidate': 'novalidate'}}) }}
+                <div class="booking-form-box border mb-3 overflow-hidden {% if not form.vars.valid %}border-warning{% endif %}">
+                    <div class="row g-0">
+                        <div class="col-6 border-bottom border-end form-cell">
+                            <label class="d-block text-muted fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase;">{{ 'form.check_in'|default("Date d'arrivée")|trans }}</label>
+                            {{ form_widget(form.dateDebutR, {'attr': {'class': 'form-control border-0 p-0 shadow-none fw-bold', 'style': 'font-size: 0.95rem; color: #334155;'}}) }}
+                        </div>
+                        <div class="col-6 border-bottom form-cell">
+                            <label class="d-block text-muted fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase;">{{ 'form.check_out'|default("Date de départ")|trans }}</label>
+                            {{ form_widget(form.dateFinR, {'attr': {'class': 'form-control border-0 p-0 shadow-none fw-bold', 'style': 'font-size: 0.95rem; color: #334155;'}}) }}
+                        </div>
+                        <div class="col-12 form-cell">
+                            <label class="d-block text-muted fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase;">Voyageurs</label>
+                            <select class="form-select border-0 p-0 shadow-none fw-bold" style="font-size: 0.95rem; color: #334155; background-position: right 0 center;">
+                                <option value="1">1 voyageur</option>
+                                <option value="2" selected>2 voyageurs</option>
+                                <option value="3">3 voyageurs</option>
+                                {% if hebergement.capacite >= 4 %}<option value="4">4 voyageurs</option>{% endif %}
+                                {% if hebergement.capacite >= 5 %}<option value="5">5 voyageurs</option>{% endif %}
+                            </select>
+                            
+                            {# Hide the required entity field behind the scenes #}
+                            <div class="d-none">
+                                {{ form_widget(form.hebergement) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if not form.vars.valid %}
+                    <div class="alert alert-warning p-2 small border-0 text-warning bg-opacity-10 rounded-3 mb-3 fw-bold" style="color: #d68910 !important; background: rgba(243,156,18,0.1) !important;">
+                        <i class="bx bx-error-circle me-1"></i> Veuillez vérifier les dates sélectionnées.
+                    </div>
+                {% endif %}
+                
+                <!-- JS Custom Error Message Container -->
+                <div id="customFormError" class="custom-error-msg bg-warning text-dark" style="background: #f39c12 !important; color: white !important;">
+                    <i class="bx bx-error-circle me-1"></i> Veuillez sélectionner vos dates d'arrivée et de départ.
+                </div>
+
+                {% if hebergement.disponibleHeberg %}
+                    <button type="submit" class="btn btn-premium w-100 mb-3 py-3" style="border-radius: 12px; font-weight: 700; font-size: 1.1rem;">
+                        {{ 'accommodation.book_now'|default('Réserver maintenant')|trans }}
+                    </button>
+                {% else %}
+                    <button type="button" class="btn btn-secondary w-100 mb-3 py-3 cursor-not-allowed" disabled style="font-size: 1.1rem;">
+                        Hébergement complet
+                    </button>
+                {% endif %}
+                {{ form_end(form) }}
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const form = document.getElementById('reservationForm');
+                    const errorMsg = document.getElementById('customFormError');
+                    const dateDebut = document.getElementById('{{ form.dateDebutR.vars.id }}');
+                    const dateFin = document.getElementById('{{ form.dateFinR.vars.id }}');
+
+                    if(form) {
+                        form.addEventListener('submit', function(e) {
+                            if (!dateDebut.value || !dateFin.value) {
+                                e.preventDefault(); // Stop submission
+                                errorMsg.style.display = 'block'; // Show red message
+                                // Add red border to inputs
+                                document.querySelector('.booking-form-box').classList.add('border-danger');
+                                document.querySelector('.booking-form-box').style.borderWidth = '2px';
+                            } else {
+                                errorMsg.style.display = 'none';
+                                document.querySelector('.booking-form-box').classList.remove('border-danger');
+                            }
+                        });
+                    }
+                });
+                </script>
+
+                <p class="text-center small text-muted mb-0">
+                    <i class="bx bx-lock-alt me-1"></i> Paiement sécurisé et sans frais
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Safe Zone Section -->
+<section id="safeZoneSection" class="py-5 bg-white border-top">
+    <div class="container">
+        <div class="safe-zone-card-modern">
+            <div class="safe-zone-header">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h2 class="fw-bold mb-3"><i class="bx bxs-shield-alt-2 me-2"></i>Analyse de la Zone</h2>
+                        <p class="opacity-75 mb-0">Basé sur les données réelles de Geoapify. Votre sécurité est notre priorité.</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                        <div class="safe-glass d-inline-block text-start">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="pe-4 border-end border-white border-opacity-25">
+                                    <h2 class="mb-0 fw-bold">{{ safetyData.score }}<small style="font-size: 1rem;">/100</small></h2>
+                                    <small class="text-uppercase fw-bold ls-1" style="font-size: 0.6rem; letter-spacing: 1px; opacity: 0.8;">Indice Sécurité</small>
+                                </div>
+                                <div class="d-flex gap-3">
+                                    <div class="text-center">
+                                        <div class="fw-bold h5 mb-0">{{ safetyData.details.police|length }}</div>
+                                        <small style="font-size: 0.6rem; text-transform: uppercase; font-weight: 700; opacity: 0.8;">Police</small>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="fw-bold h5 mb-0">{{ safetyData.details.hospitals|length }}</div>
+                                        <small style="font-size: 0.6rem; text-transform: uppercase; font-weight: 700; opacity: 0.8;">Hôpitaux</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-0">
+                <div class="col-lg-8">
+                    {% if safetyData.success %}
+                        <div id="safeMap"></div>
+                    {% else %}
+                        <div class="p-5 text-center">
+                            <i class="bx bx-map-alt display-2 text-muted mb-3"></i>
+                            <h4>Carte indisponible</h4>
+                            <p>{{ safetyData.message }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-lg-4 d-flex flex-column">
+                    <div class="p-4 bg-light border-bottom">
+                        <h6 class="fw-bold mb-0">Services à proximité</h6>
+                    </div>
+                    <div class="poi-side-list p-3 overflow-auto" style="max-height: 388px; flex: 1;">
+                        {% for p in safetyData.details.police %}
+                            <div class="d-flex align-items-center p-3 rounded-4 mb-2 bg-white shadow-sm border">
+                                <i class="bx bxs-shield fs-4 me-3 text-primary"></i>
+                                <div>
+                                    <div class="fw-bold small">{{ p.name }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Poste de police • {{ (p.distance/1000)|round(1) }} km</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% for h in safetyData.details.hospitals %}
+                            <div class="d-flex align-items-center p-3 rounded-4 mb-2 bg-white shadow-sm border">
+                                <i class="bx bxs-plus-medical fs-4 me-3 text-danger"></i>
+                                <div>
+                                    <div class="fw-bold small">{{ h.name }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Hôpital • {{ (h.distance/1000)|round(1) }} km</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% for a in safetyData.details.activity %}
+                            <div class="d-flex align-items-center p-3 rounded-4 mb-2 bg-white shadow-sm border">
+                                <i class="bx bxs-coffee fs-4 me-3 text-warning"></i>
+                                <div>
+                                    <div class="fw-bold small">{{ a.name }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Zone de loisirs • {{ (a.distance/1000)|round(1) }} km</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Digital Twin Travel Simulation Section -->
+<section class="pb-5">
+    <div class="container">
+        <div class="simulation-box">
+            <div class="row align-items-center mb-5">
+                <div class="col-lg-7">
+                    <span class="badge rounded-pill mb-3" style="background: #87CEEB; color: #0f172a; padding: 8px 16px;">IA PRÉDICTIVE</span>
+                    <h2 class="display-5 fw-800 mb-3" style="letter-spacing: -2px;">Digital Twin Travel</h2>
+                    <p class="lead opacity-75">Simulez votre expérience réelle en direct. Notre IA croise la météo, l'affluence et votre profil pour prédire votre séjour.</p>
+                </div>
+                <div class="col-lg-5 text-lg-end">
+                    <button id="btnSimulate" class="btn btn-premium btn-lg px-5 py-3 rounded-pill" onclick="runSimulation()">
+                        <i class="bx bx-play-circle me-2"></i>Lancer la Simulation
+                    </button>
+                    <div id="simLoader" class="loader-pulse mt-3 justify-content-end">
+                        <span class="small">L'IA prépare votre voyage...</span>
+                        <div class="pulse-dot"></div>
+                        <div class="pulse-dot" style="animation-delay: 0.2s"></div>
+                        <div class="pulse-dot" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-selection mb-5">
+                <h6 class="text-uppercase small fw-bold mb-4 opacity-50 ls-2">Quel voyageur êtes-vous ?</h6>
+                <div class="d-flex flex-wrap gap-3" id="profileContainer">
+                    <div class="profile-pill active" data-profile="calme"><i class="bx bx-leaf"></i>Calme</div>
+                    <div class="profile-pill" data-profile="festif"><i class="bx bx-party"></i>Festif</div>
+                    <div class="profile-pill" data-profile="business"><i class="bx bx-briefcase"></i>Business</div>
+                    <div class="profile-pill" data-profile="famille"><i class="bx bx-home-heart"></i>Famille</div>
+                    <div class="profile-pill" data-profile="aventure"><i class="bx bx-map-pin"></i>Aventure</div>
+                </div>
+            </div>
+
+            <div id="simulationResult" class="simulation-result-card">
+                <div class="row g-5">
+                    <div class="col-lg-3">
+                        <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-4 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                            <div class="score-circle mb-3" style="border-color: #87CEEB;">
+                                <div class="val text-white" id="resScore">--</div>
+                                <div class="label">Score /10</div>
+                            </div>
+                            <h5 class="mb-1 text-white" id="resLoc">Localisation</h5>
+                            <p class="small opacity-50 mb-0" id="resProfile">Profil voyageur</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-9">
+                        <div class="row g-3">
+                            <!-- Ambiance Row (v3) -->
+                            <div class="col-12">
+                                <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border-left: 3px solid #87CEEB;">
+                                    <div class="small opacity-50 text-uppercase mb-1" style="font-size: 0.65rem;"><i class="bx bx-world me-1"></i>Ambiance générale</div>
+                                    <p class="mb-0 small" id="resAmbiance">Chargement...</p>
+                                </div>
+                            </div>
+
+                            <!-- Weather Row -->
+                            <div class="col-md-4">
+                                <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                                    <div class="small opacity-50 text-uppercase mb-1" style="font-size: 0.65rem;"><i class="bx bx-cloud-light-rain me-1"></i>Conditions</div>
+                                    <p class="mb-0 small fw-bold" id="resMeteo">Chargement...</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                                    <div class="small opacity-50 text-uppercase mb-1" style="font-size: 0.65rem;"><i class="bx bx-thermometer me-1"></i>Température</div>
+                                    <p class="mb-0 small fw-bold" id="resTemp">--</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+                                    <div class="small opacity-50 text-uppercase mb-1" style="font-size: 0.65rem;"><i class="bx bx-wind me-1"></i>Vitesse du Vent</div>
+                                    <p class="mb-0 small fw-bold" id="resVent">--</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Context Row -->
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-4 h-100" style="background: rgba(255,255,255,0.02);">
+                                    <div class="small opacity-50 text-uppercase mb-2" style="font-size: 0.65rem;"><i class="bx bx-group me-1"></i>Niveau d’affluence</div>
+                                    <p class="mb-0 small" id="resAffluence">Chargement...</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-4 h-100" style="background: rgba(255,255,255,0.02);">
+                                    <div class="small opacity-50 text-uppercase mb-2" style="font-size: 0.65rem;"><i class="bx bx-volume-full me-1"></i>Niveau sonore</div>
+                                    <p class="mb-0 small" id="resBruit">Chargement...</p>
+                                </div>
+                            </div>
+
+                            <!-- Analysis Row -->
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-4" style="background: rgba(135, 206, 235, 0.05); border: 1px solid rgba(135, 206, 235, 0.1);">
+                                    <div class="small fw-bold text-uppercase mb-2" style="color: #87CEEB; font-size: 0.65rem;"><i class="bx bx-time-five me-1"></i>Meilleure période de visite</div>
+                                    <p class="mb-0 small" id="resTime">Chargement...</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-4" style="background: rgba(147, 197, 114, 0.05); border: 1px solid rgba(147, 197, 114, 0.1);">
+                                    <div class="small fw-bold text-uppercase mb-2" style="color: #93C572; font-size: 0.65rem;"><i class="bx bx-calendar-star me-1"></i>Prévisions (24h / 3j)</div>
+                                    <p class="mb-0 small" id="resFuture">Chargement...</p>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px dotted rgba(255,255,255,0.1);">
+                                    <div class="small opacity-50 text-uppercase mb-2" style="font-size: 0.65rem;"><i class="bx bx-user-voice me-1"></i>Analyse personnalisée</div>
+                                    <p class="mb-0 small italic" id="resAdapt">Analyse en cours...</p>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="p-4 rounded-4" style="background: white; color: #0f172a;">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <i class="bx bxs-bulb fs-2 text-warning"></i>
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Recommandation Finale</h6>
+                                            <p class="mb-0 small" id="resRec">Optimisation de votre séjour...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+    <span class="position-absolute top-0 end-0 p-4 text-white fs-1 cursor-pointer" onclick="closeLightbox()">&times;</span>
+    <img id="lightbox-img" src="" alt="Gallery Full">
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const images = [
+    {% for image in hebergement.images %}
+        '{{ asset(image.filename) }}'{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+let currentIdx = 0;
+
+function openLightbox(index) {
+    if (images.length === 0) return;
+    currentIdx = index;
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    lightboxImg.src = images[index];
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+// Leaflet Implementation
+document.addEventListener('DOMContentLoaded', function() {
+    {% if safetyData.success and safetyData.coords %}
+        const lat = {{ safetyData.coords.lat }};
+        const lon = {{ safetyData.coords.lon }};
+        const map = L.map('safeMap').setView([lat, lon], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        const createIcon = (iconName, color, size = 24) => L.divIcon({
+            html: `<i class="bx ${iconName}" style="font-size: ${size}px; color: ${color};"></i>`,
+            className: 'custom-map-icon',
+            iconSize: [size, size],
+            iconAnchor: [size/2, size/2]
+        });
+
+        // Accommodation
+        L.marker([lat, lon], {icon: createIcon('bxs-home-circle', '#4F46E5', 36)}).addTo(map)
+            .bindPopup('<b>{{ hebergement.titre }}</b>').openPopup();
+
+        // Safety Radius
+        L.circle([lat, lon], {
+            color: '{{ safetyData.color }}',
+            fillColor: '{{ safetyData.color }}',
+            fillOpacity: 0.1,
+            radius: 800
+        }).addTo(map);
+
+        // POIs
+        {% for p in safetyData.details.police %}
+            L.marker([{{ p.lat }}, {{ p.lon }}], {icon: createIcon('bxs-shield', '#3b82f6')}).addTo(map);
+        {% endfor %}
+        {% for h in safetyData.details.hospitals %}
+            L.marker([{{ h.lat }}, {{ h.lon }}], {icon: createIcon('bxs-plus-medical', '#ef4444')}).addTo(map);
+        {% endfor %}
+        {% for a in safetyData.details.activity %}
+            L.marker([{{ a.lat }}, {{ a.lon }}], {icon: createIcon('bxs-coffee', '#f59e0b', 20)}).addTo(map);
+        {% endfor %}
+    {% endif %}
+});
+
+// Digital Twin JS logic
+let selectedProfile = 'calme';
+document.querySelectorAll('.profile-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+        document.querySelectorAll('.profile-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        selectedProfile = pill.dataset.profile;
+    });
+});
+
+async function runSimulation() {
+    const btn = document.getElementById('btnSimulate');
+    const loader = document.getElementById('simLoader');
+    const result = document.getElementById('simulationResult');
+
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    loader.style.display = 'flex';
+    result.classList.remove('active');
+
+    try {
+        const response = await fetch('{{ path('app_hebergement_simulate', {id: hebergement.id}) }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                profile: selectedProfile,
+                budget: '{{ hebergement.prixParNuit }} (DT)',
+                noise: selectedProfile === 'calme' ? 'faible' : 'moyen',
+                crowd: selectedProfile === 'festif' ? 'élevé' : 'moyen'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            alert("Erreur de simulation : " + data.error);
+        } else {
+            // Helper to handle mixed data types (strings vs objects/arrays)
+            const safeText = (val) => {
+                if (typeof val === 'object' && val !== null) {
+                    return JSON.stringify(val).replace(/["{}\[\]]/g, ' ').trim();
+                }
+                return val || 'Donnée non disponible';
+            };
+
+            // Fill result using new JSON keys and defensive helper
+            document.getElementById('resScore').innerText = data.score;
+            document.getElementById('resLoc').innerText = safeText(data.localisation);
+            document.getElementById('resProfile').innerText = selectedProfile.charAt(0).toUpperCase() + selectedProfile.slice(1);
+            
+            document.getElementById('resAmbiance').innerText = safeText(data.ambiance);
+            document.getElementById('resMeteo').innerText = safeText(data.meteo);
+            document.getElementById('resTemp').innerText = safeText(data.temperature);
+            document.getElementById('resVent').innerText = safeText(data.vent);
+            
+            document.getElementById('resAffluence').innerText = safeText(data.affluence);
+            document.getElementById('resBruit').innerText = safeText(data.bruit);
+            document.getElementById('resTime').innerText = safeText(data.visite);
+            document.getElementById('resFuture').innerText = safeText(data.previsions);
+            document.getElementById('resAdapt').innerText = safeText(data.analyse);
+            document.getElementById('resRec').innerText = safeText(data.recommandation);
+
+            result.classList.add('active');
+            result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Erreur de connexion au service d'IA.");
+    } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        loader.style.display = 'none';
+    }
+}
+
+
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Vérification email - RE7LA{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .verify-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 20px 60px;
+        background: linear-gradient(135deg, #fff0cc 0%, #fffaf1 32%, #e6fbf6 68%, #fff2d9 100%);
+    }
+    .verify-card {
+        background: white;
+        max-width: 520px;
+        width: 100%;
+        padding: 50px 40px;
+        border-radius: 28px;
+        box-shadow: 0 35px 80px rgba(44, 62, 80, 0.18);
+        text-align: center;
+    }
+    .verify-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1ABC9C, #16A085);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 42px;
+        box-shadow: 0 20px 40px rgba(26, 188, 156, 0.3);
+    }
+    .verify-card h1 {
+        color: #2C3E50;
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 10px;
+    }
+    .verify-card p {
+        color: #6b7280;
+        font-size: 15px;
+        line-height: 1.7;
+        margin-bottom: 30px;
+    }
+    .verify-card p strong { color: #1ABC9C; }
+    .code-input {
+        width: 100%;
+        height: 70px;
+        border-radius: 18px;
+        border: 2px solid rgba(44, 62, 80, 0.10);
+        background: #f9fafb;
+        padding: 0 20px;
+        font-size: 28px;
+        font-weight: 900;
+        text-align: center;
+        letter-spacing: 12px;
+        color: #2C3E50;
+        outline: none;
+        transition: all 0.25s ease;
+        margin-bottom: 20px;
+    }
+    .code-input:focus {
+        border-color: #1ABC9C;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(26, 188, 156, 0.14);
+    }
+    .btn-verify {
+        width: 100%;
+        height: 62px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 900;
+        color: white;
+        background: #1ABC9C;
+        box-shadow: 0 18px 34px rgba(26, 188, 156, 0.34);
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+    }
+    .btn-verify:hover {
+        background: #16A085;
+        transform: translateY(-3px);
+    }
+    .btn-resend {
+        background: none;
+        border: none;
+        color: #F39C12;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    .alert {
+        padding: 14px 16px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        text-align: left;
+    }
+    .alert-danger {
+        background: #ffecec;
+        color: #c0392b;
+        border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+    .alert-success {
+        background: #e5ffed;
+        color: #15803d;
+        border: 1px solid rgba(22, 163, 74, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="verify-section">
+    <div class="verify-card">
+        <div class="verify-icon">
+            <i class="fas fa-envelope-open-text"></i>
+        </div>
+
+        <h1>Vérifiez votre email</h1>
+        <p>
+            Nous avons envoyé un code de vérification à 6 chiffres à<br>
+            <strong>{{ email }}</strong>
+        </p>
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
+            </div>
+        {% endfor %}
+
+        <form method="post" action="{{ path('app_verify_email') }}">
+            <input type="text" name="code" class="code-input" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autofocus>
+            <button type="submit" class="btn-verify">
+                <i class="fas fa-check me-2"></i>Vérifier mon email
+            </button>
+        </form>
+
+        <form method="post" action="{{ path('app_resend_verification') }}">
+            <button type="submit" class="btn-resend">
+                📨 Renvoyer le code
+            </button>
+        </form>
+
+        <p style="margin-top: 20px; font-size: 13px; color: #9ca3af;">
+            Le code est valable pendant 15 minutes
+        </p>
+    </div>
+</section>
+{% endblock %}

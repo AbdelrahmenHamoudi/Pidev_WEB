@@ -1,0 +1,2516 @@
+{# Ably Real-time Chat Widget #}
+<style>
+/* Ably Chat Widget Styles */
+.ably-chat-widget {
+    position: fixed;
+    bottom: 90px;
+    right: 30px;
+    z-index: 9998;
+    font-family: 'Poppins', sans-serif;
+}
+
+.ably-chat-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff5416, #ff8c42);
+    border: none;
+    box-shadow: 0 4px 20px rgba(255,84,22,0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.ably-chat-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(255,84,22,0.5);
+}
+
+.ably-chat-toggle .unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    min-width: 22px;
+    height: 22px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+.ably-chat-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 400px;
+    height: 600px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(255,84,22,0.2);
+}
+
+.ably-chat-window.open {
+    display: flex;
+}
+
+.ably-chat-header {
+    background: linear-gradient(135deg, #ff5416, #ff8c42);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ably-chat-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ably-chat-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff5416;
+    font-size: 20px;
+    position: relative;
+}
+
+.ably-chat-avatar .online-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid white;
+}
+
+.ably-chat-title h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.ably-chat-title p {
+    margin: 0;
+    font-size: 11px;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ably-chat-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ably-chat-actions button {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.ably-chat-actions button:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Tabs */
+.ably-chat-tabs {
+    display: flex;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.ably-chat-tab {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.ably-chat-tab:hover {
+    color: #ff5416;
+    background: rgba(255,84,22,0.05);
+}
+
+.ably-chat-tab.active {
+    color: #ff5416;
+    border-bottom: 2px solid #ff5416;
+    background: white;
+}
+
+/* Channel list */
+.ably-channels-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: #fafbfc;
+}
+
+.ably-channel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ably-channel-item {
+    padding: 14px 16px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ably-channel-item:hover {
+    border-color: #ff5416;
+    box-shadow: 0 2px 8px rgba(255,84,22,0.1);
+}
+
+.ably-channel-item.active {
+    border-color: #ff5416;
+    background: rgba(255,84,22,0.05);
+}
+
+.ably-channel-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ably-channel-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff5416, #ff8c42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+.ably-channel-details h5 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.ably-channel-details p {
+    margin: 0;
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ably-channel-badge {
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Messages panel */
+.ably-messages-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ably-messages-header {
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ably-channel-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ably-back-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 5px;
+    display: none;
+}
+
+.ably-online-users {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #22c55e;
+}
+
+.ably-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fafbfc;
+}
+
+.ably-message {
+    display: flex;
+    gap: 10px;
+    max-width: 85%;
+    animation: messageSlide 0.3s ease;
+}
+
+@keyframes messageSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ably-message.own {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.ably-message-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.ably-message.own .ably-message-avatar {
+    background: linear-gradient(135deg, #ff5416, #ff8c42);
+    color: white;
+}
+
+.ably-message-content {
+    flex: 1;
+}
+
+.ably-message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.ably-message-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.ably-message-time {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.ably-message-bubble {
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    background: white;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+}
+
+.ably-message.own .ably-message-bubble {
+    background: linear-gradient(135deg, #ff5416, #ff8c42);
+    color: white;
+    border: none;
+}
+
+/* Input area */
+.ably-input-area {
+    padding: 16px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 10px;
+}
+
+.ably-input-area input {
+    flex: 1;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 25px;
+    padding: 10px 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.ably-input-area input:focus {
+    border-color: #ff5416;
+}
+
+.ably-input-area button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff5416, #ff8c42);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.ably-input-area button:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255,84,22,0.4);
+}
+
+.ably-input-area button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Create channel form */
+.ably-create-channel {
+    margin-top: 16px;
+}
+
+.ably-create-btn {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 12px;
+    color: #64748b;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.ably-create-btn:hover {
+    border-color: #ff5416;
+    color: #ff5416;
+    background: rgba(255,84,22,0.05);
+}
+
+.ably-create-form {
+    margin-top: 12px;
+    display: none;
+}
+
+.ably-create-form input {
+    width: 100%;
+    padding: 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.ably-create-form-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ably-create-form-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ably-create-submit {
+    background: #ff5416;
+    color: white;
+}
+
+.ably-create-cancel {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* Empty state */
+.ably-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+}
+
+.ably-empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* Connection status */
+.ably-connection-status {
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ably-connection-status.connected .status-dot {
+    background: #22c55e;
+}
+
+.ably-connection-status.connecting .status-dot {
+    background: #f59e0b;
+    animation: pulse 1.5s infinite;
+}
+
+.ably-connection-status.disconnected .status-dot {
+    background: #ef4444;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    .ably-chat-widget {
+        right: 30px;
+        bottom: 90px;
+    }
+    .ably-chat-window {
+        width: calc(100vw - 60px);
+        height: 550px;
+        right: 0;
+    }
+}
+
+/* Delete message button */
+.ably-message-delete {
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 2px 5px;
+    font-size: 10px;
+}
+
+.ably-message:hover .ably-message-delete {
+    opacity: 1;
+}
+
+.ably-message-delete:hover {
+    color: #ef4444;
+}
+
+/* User typing indicator */
+.ably-typing-indicator {
+    font-size: 11px;
+    color: #22c55e;
+    padding: 4px 0;
+    font-style: italic;
+}
+
+/* Seen indicator */
+.ably-message-seen {
+    font-size: 10px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 3px;
+    justify-content: flex-end;
+}
+
+.ably-message-seen i {
+    font-size: 10px;
+}
+
+.seen-avatars {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.seen-avatar {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #64748b;
+    font-size: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid white;
+}
+/* Video Call Styles */
+.call-btn {
+    background: rgba(59, 130, 246, 0.1);
+    border: none;
+    color: #3b82f6;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.call-btn:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.video-call-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    max-width: 90vw;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    z-index: 10000;
+    overflow: hidden;
+}
+
+.video-call-header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.video-call-header h5 {
+    margin: 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.video-call-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.call-control-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.call-control-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.call-control-btn.danger {
+    background: #ef4444;
+}
+
+.call-control-btn.danger:hover {
+    background: #dc2626;
+}
+
+.call-control-btn.muted {
+    background: #ef4444;
+}
+
+.video-container {
+    position: relative;
+    background: #1e293b;
+    min-height: 350px;
+}
+
+#remoteVideo {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    background: #0f172a;
+}
+
+#localVideo {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    background: #334155;
+}
+
+.incoming-call-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.incoming-call-info {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.incoming-call-info p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.incoming-call-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.accept-call-btn {
+    background: #22c55e;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reject-call-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* User list with call buttons */
+.member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.member-call-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.user-selection-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+}
+
+.user-selection-content {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    width: 350px;
+    max-width: 90vw;
+}
+
+.user-selection-content h4 {
+    margin: 0 0 16px 0;
+    color: #1e293b;
+}
+
+.user-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+
+.close-modal-btn {
+    width: 100%;
+    padding: 12px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #64748b;
+}
+
+</style>
+
+<div class="ably-chat-widget" id="ablyChatWidget">
+    <button class="ably-chat-toggle" id="ablyChatToggle">
+        <i class="fas fa-comments"></i>
+        <span class="unread-badge" id="ablyUnreadBadge" style="display: none;">0</span>
+    </button>
+    
+    <div class="ably-chat-window" id="ablyChatWindow">
+        <div class="ably-chat-header">
+            <div class="ably-chat-header-left">
+                <div class="ably-chat-avatar">
+                    <i class="fas fa-users"></i>
+                    <span class="online-indicator"></span>
+                </div>
+                <div class="ably-chat-title">
+                    <h4>Chat Communautaire</h4>
+                    <p id="connectionStatus" class="ably-connection-status connecting">
+                        <span class="status-dot"></span>
+                        <span>Connexion...</span>
+                    </p>
+                </div>
+            </div>
+            <div class="ably-chat-actions">
+                <button id="ablyClearStorageBtn" title="Effacer les données locales">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <button id="ablyCloseChat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="ably-chat-tabs">
+            <button class="ably-chat-tab active" data-tab="channels">
+                <i class="fas fa-hashtag"></i> Salons
+            </button>
+            <button class="ably-chat-tab" data-tab="messages">
+                <i class="fas fa-comment"></i> Messages
+            </button>
+        </div>
+        
+        <!-- Channels Panel -->
+        <div class="ably-channels-panel" id="channelsPanel">
+            <div class="ably-channel-list" id="channelList">
+                <!-- Channels will be loaded here -->
+            </div>
+            
+            <div class="ably-create-channel">
+                <button class="ably-create-btn" id="showCreateChannelBtn">
+                    <i class="fas fa-plus"></i> Créer un salon
+                </button>
+                
+                <div class="ably-create-form" id="createChannelForm">
+                    <input type="text" id="newChannelName" placeholder="Nom du salon..." maxlength="30">
+                    <div class="ably-create-form-actions">
+                        <button class="ably-create-submit" id="createChannelSubmit">Créer</button>
+                        <button class="ably-create-cancel" id="cancelCreateChannel">Annuler</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages Panel -->
+        <div class="ably-messages-panel" id="messagesPanel" style="display: none;">
+            <div class="ably-messages-header">
+                <div class="ably-channel-header-info">
+                    <button class="ably-back-btn" id="backToChannelsBtn">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <strong id="currentChannelName">Général</strong>
+                        <div id="onlineUsers" class="ably-online-users">
+                            <i class="fas fa-user"></i>
+                            <span id="onlineCount">0</span> en ligne
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button id="startCallBtn" class="call-btn" title="Démarrer un appel vidéo">
+                    <i class="fas fa-video"></i>
+                  </button>
+                </div>
+                <div id="typingIndicator" class="ably-typing-indicator"></div>
+            </div>
+            
+            <div class="ably-messages-container" id="messagesContainer">
+                <!-- Messages will be loaded here -->
+            </div>
+            
+            <div class="ably-input-area">
+                <input type="text" id="messageInput" placeholder="Écrivez votre message..." maxlength="500">
+                <button id="sendMessageBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <!-- Video Call Modal -->
+        <div class="video-call-modal" id="videoCallModal" style="display: none;">
+          <div class="video-call-header">
+              <h5><i class="fas fa-video"></i> Appel vidéo</h5>
+              <div class="video-call-actions">
+                  <button id="muteAudioBtn" class="call-control-btn">
+                      <i class="fas fa-microphone"></i>
+                  </button>
+                  <button id="muteVideoBtn" class="call-control-btn">
+                      <i class="fas fa-video"></i>
+                  </button>
+                  <button id="endCallBtn" class="call-control-btn danger">
+                      <i class="fas fa-phone-slash"></i>
+                  </button>
+              </div>
+        </div>
+    <div class="video-container">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <video id="localVideo" autoplay playsinline muted></video>
+    </div>
+    <div class="incoming-call-panel" id="incomingCallPanel" style="display: none;">
+        <div class="incoming-call-info">
+            <p><strong id="incomingCallerName">Quelqu'un</strong> vous appelle...</p>
+            <div class="incoming-call-actions">
+                <button id="acceptCallBtn" class="accept-call-btn">
+                    <i class="fas fa-phone"></i> Accepter
+                </button>
+                <button id="rejectCallBtn" class="reject-call-btn">
+                    <i class="fas fa-phone-slash"></i> Refuser
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Ringtone audio element - place your MP3 at public/sounds/ringtone.mp3 #}
+<audio id="incomingRingtone" loop preload="auto">
+    <source src="{{ asset('sounds/universfield-ringtone-082-496370.mp3') }}" type="audio/mpeg">
+</audio>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.ably.com/lib/ably.min-2.js"></script>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Configuration
+    const STORAGE_KEY = 'ably_chat_data';
+    const USER_STORAGE_KEY = 'ably_chat_user';
+    
+    // State
+    let ably;
+    let channel;
+    let presence;
+    let currentChannel = 'general';
+    let channels = [];
+    let messages = {};
+    let unreadCounts = {};
+    let onlineUsers = new Map();
+    let seenBy = {}; // { channelName: { messageId: [{ userId, userName }] } }
+    let typingTimeout;
+    let lastTypingTime = 0;
+    let isOpen = false;
+    let connectionState = 'connecting';
+    let currentUser = null;
+    
+    // DOM Elements
+    const widget = document.getElementById('ablyChatWidget');
+    const toggleBtn = document.getElementById('ablyChatToggle');
+    const chatWindow = document.getElementById('ablyChatWindow');
+    const closeBtn = document.getElementById('ablyCloseChat');
+    const channelsPanel = document.getElementById('channelsPanel');
+    const messagesPanel = document.getElementById('messagesPanel');
+    const channelList = document.getElementById('channelList');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendMessageBtn');
+    const currentChannelName = document.getElementById('currentChannelName');
+    const onlineCount = document.getElementById('onlineCount');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const unreadBadge = document.getElementById('ablyUnreadBadge');
+
+    //Pass user data to JavaScript
+
+    window.RE7LA_USER = {
+        id: {{ app.user ? app.user.id : 'null' }},
+        name: {{ app.user ? ("'" ~ app.user.prenom ~ " " ~ app.user.nom ~ "'")|raw : 'null' }},
+        email: {{ app.user ? ("'" ~ app.user.e_mail ~ "'")|raw : 'null' }}
+    };
+    
+    // Initialize user - FIXED VERSION
+// Initialize user - USE REAL USER DATA FROM SYMFONY
+function initUser() {
+    try {
+        // Check if we have real user data from Symfony
+        if (window.RE7LA_USER && window.RE7LA_USER.id && window.RE7LA_USER.name) {
+            currentUser = {
+                id: 'user_' + window.RE7LA_USER.id,
+                name: window.RE7LA_USER.name,
+                email: window.RE7LA_USER.email,
+                color: '#' + Math.floor(Math.random()*16777215).toString(16)
+            };
+            console.log('👤 Using real user:', currentUser);
+            return;
+        }
+        
+        // Fallback: Check localStorage for existing user
+        const stored = localStorage.getItem(USER_STORAGE_KEY);
+        if (stored) {
+            currentUser = JSON.parse(stored);
+            console.log('👤 Loaded user from storage:', currentUser);
+        } else {
+            // Last resort: Generate random name but mark as guest
+            const randomId = 'guest_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            currentUser = {
+                id: randomId,
+                name: 'Invité',
+                color: '#94a3b8',
+                isGuest: true
+            };
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+            console.log('👤 Created guest user:', currentUser);
+        }
+    } catch (e) {
+        console.error('Failed to init user:', e);
+        currentUser = { id: 'error_' + Date.now(), name: 'Invité', color: '#94a3b8' };
+    }
+}
+    
+    // Load data from localStorage
+    function loadFromStorage() {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                const data = JSON.parse(stored);
+                channels = data.channels || ['general'];
+                messages = data.messages || { general: [] };
+                unreadCounts = data.unreadCounts || {};
+            } else {
+                channels = ['general'];
+                messages = { general: [] };
+                unreadCounts = {};
+            }
+            
+            if (!channels.includes('general')) {
+                channels.unshift('general');
+            }
+            if (!messages.general) {
+                messages.general = [];
+            }
+        } catch (e) {
+            console.error('Failed to load from storage:', e);
+            channels = ['general'];
+            messages = { general: [] };
+            unreadCounts = {};
+        }
+    }
+    
+    // Save to localStorage
+    function saveToStorage() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                channels: channels,
+                messages: messages,
+                unreadCounts: unreadCounts
+            }));
+        } catch (e) {
+            console.error('Failed to save to storage:', e);
+        }
+    }
+    
+    // Initialize Ably
+    async function initAbly() {
+    try {
+        console.log('🔵 Initializing Ably...');
+        
+        // Force a TRULY UNIQUE clientId for each browser session
+        // This ensures presence works correctly across different browsers
+        const browserFingerprint = navigator.userAgent.replace(/[^a-z0-9]/gi, '').substring(0, 10);
+        const timestamp = Date.now();
+        const uniqueClientId = currentUser.id + '_' + browserFingerprint + '_' + timestamp;
+        
+        console.log('📝 Original user ID:', currentUser.id);
+        console.log('📝 Unique clientId for Ably:', uniqueClientId);
+        
+        const response = await fetch('/api/ably/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clientId: uniqueClientId })
+        });
+        
+        const data = await response.json();
+        console.log('📝 Token response received:', data.tokenRequest ? 'Success' : 'Failed');
+        
+        if (data.error) {
+            console.error('❌ Token error:', data.error);
+            connectionState = 'disconnected';
+            updateConnectionStatus();
+            useOfflineMode();
+            return;
+        }
+        
+        // Store the unique clientId for later use
+        currentUser.ablyClientId = uniqueClientId;
+        
+        ably = new Ably.Realtime({
+            authCallback: (tokenParams, callback) => {
+                console.log('🔑 Auth callback called');
+                callback(null, data.tokenRequest);
+            },
+            clientId: uniqueClientId,
+            log: { level: 1 } // Enable basic logging
+        });
+        
+        ably.connection.on('connected', () => {
+            console.log('✅ Ably connected successfully!');
+            console.log('📝 Connection ID:', ably.connection.id);
+            console.log('📝 Client ID:', ably.connection.clientId);
+            connectionState = 'connected';
+            updateConnectionStatus();
+            subscribeToChannel(currentChannel);
+            loadChannelList();
+            
+            // Force a presence refresh after connection
+            setTimeout(() => {
+                if (presence) {
+                    console.log('🔄 Refreshing presence...');
+                    presence.get((err, members) => {
+                        if (!err && members) {
+                            console.log('👥 Presence members after refresh:', members.length);
+                            members.forEach(member => {
+                                console.log('  -', member.clientId, member.data);
+                            });
+                        }
+                    });
+                }
+            }, 1000);
+        });
+        
+        ably.connection.on('connecting', () => {
+            console.log('🔄 Ably connecting...');
+            connectionState = 'connecting';
+            updateConnectionStatus();
+        });
+        
+        ably.connection.on('disconnected', () => {
+            console.log('🔴 Ably disconnected');
+            connectionState = 'disconnected';
+            updateConnectionStatus();
+        });
+        
+        ably.connection.on('failed', (error) => {
+            console.error('❌ Ably connection failed:', error);
+            connectionState = 'disconnected';
+            updateConnectionStatus();
+        });
+        
+        ably.connection.on('suspended', () => {
+            console.warn('⚠️ Ably connection suspended');
+            connectionState = 'disconnected';
+            updateConnectionStatus();
+        });
+        
+        ably.connection.on('closed', () => {
+            console.log('🔒 Ably connection closed');
+            connectionState = 'disconnected';
+            updateConnectionStatus();
+        });
+        
+    } catch (e) {
+        console.error('❌ Failed to initialize Ably:', e);
+        connectionState = 'disconnected';
+        updateConnectionStatus();
+        useOfflineMode();
+    }
+}
+    
+    // Update connection status display
+    function updateConnectionStatus() {
+        if (!connectionStatus) return;
+        
+        connectionStatus.className = 'ably-connection-status ' + connectionState;
+        const statusText = connectionStatus.querySelector('span:last-child');
+        
+        switch (connectionState) {
+            case 'connected':
+                if (statusText) statusText.textContent = 'Connecté';
+                break;
+            case 'connecting':
+                if (statusText) statusText.textContent = 'Connexion...';
+                break;
+            default:
+                if (statusText) statusText.textContent = 'Déconnecté (mode hors-ligne)';
+        }
+    }
+    
+    // Offline mode fallback
+    function useOfflineMode() {
+        console.log('Using offline mode');
+        renderChannelList();
+        renderMessages();
+    }
+    
+    // Subscribe to channel
+    function subscribeToChannel(channelName) {
+    console.log('📡 Subscribing to channel:', channelName);
+    
+    // Unsubscribe from previous channel
+    if (channel) {
+        channel.unsubscribe();
+        if (presence) {
+            presence.leave();
+        }
+    }
+    
+    channel = ably.channels.get('chat:' + channelName);
+    presence = channel.presence;
+    
+    // Subscribe to messages
+    channel.subscribe('message', (msg) => {
+        handleIncomingMessage(msg);
+    });
+    
+    channel.subscribe('typing', (msg) => {
+        handleTypingEvent(msg);
+    });
+    
+    channel.subscribe('message-deleted', (msg) => {
+        handleMessageDeleted(msg);
+    });
+    
+    // Subscribe to seen events
+    channel.subscribe('seen', (msg) => {
+        if (!msg.data || msg.data.userId === currentUser.id) return;
+        const { messageId, userId, userName } = msg.data;
+        if (!seenBy[currentChannel]) seenBy[currentChannel] = {};
+        if (!seenBy[currentChannel][messageId]) seenBy[currentChannel][messageId] = [];
+        const already = seenBy[currentChannel][messageId].some(u => u.userId === userId);
+        if (!already) {
+            seenBy[currentChannel][messageId].push({ userId, userName });
+            if (currentChannel === channelName) renderMessages();
+        }
+    });
+    
+    // ============================================
+    // CALL-RELATED SUBSCRIPTIONS - MAKE SURE THESE EXIST
+    // ============================================
+    channel.subscribe('call-invitation', (msg) => {
+        console.log('📞 Call invitation received:', msg);
+        handleCallInvitation(msg);
+    });
+    
+    channel.subscribe('call-response', (msg) => {
+        console.log('📞 Call response received:', msg);
+        handleCallResponse(msg);
+    });
+    
+    channel.subscribe('call-ice-candidate', (msg) => {
+        console.log('📞 ICE candidate received:', msg);
+        handleICECandidate(msg);
+    });
+    
+    channel.subscribe('call-ended', (msg) => {
+        console.log('📞 Call ended received:', msg);
+        if (isCallActive) {
+            endCall();
+        }
+    });
+    
+    // Presence events
+    presence.subscribe('enter', (member) => {
+        console.log('👤 User entered:', member.clientId, member.data);
+        onlineUsers.set(member.clientId, member.data || { name: 'Anonyme' });
+        updateOnlineCount();
+        renderChannelList();
+    });
+    
+    presence.subscribe('leave', (member) => {
+        console.log('👋 User left:', member.clientId);
+        onlineUsers.delete(member.clientId);
+        updateOnlineCount();
+        renderChannelList();
+    });
+    
+    presence.subscribe('update', (member) => {
+        console.log('🔄 User updated:', member.clientId, member.data);
+        onlineUsers.set(member.clientId, member.data || { name: 'Anonyme' });
+    });
+    
+    // Enter presence
+    presence.enter({ 
+        name: currentUser.name, 
+        color: currentUser.color 
+    }, (err) => {
+        if (err) {
+            console.error('❌ Failed to enter presence:', err);
+        } else {
+            console.log('✅ Entered presence as:', currentUser.name);
+            
+            // Get current presence
+            presence.get((err, members) => {
+                if (!err && members) {
+                    console.log('👥 Presence members:', members.length);
+                    onlineUsers.clear();
+                    members.forEach(member => {
+                        console.log('  - Member:', member.clientId, member.data);
+                        onlineUsers.set(member.clientId, member.data || { name: 'Anonyme' });
+                    });
+                    updateOnlineCount();
+                    renderChannelList();
+                }
+            });
+        }
+    });
+    
+    // Load history
+    loadChannelHistory(channelName);
+}
+    
+    // Load channel history
+    async function loadChannelHistory(channelName) {
+        try {
+            const response = await fetch('/api/ably/history/' + channelName);
+            const data = await response.json();
+            
+            if (data.messages && data.messages.length > 0) {
+                const historyMessages = data.messages
+                    .filter(msg => msg.data && msg.data.type === 'message')
+                    .map(msg => ({
+                        id: msg.id,
+                        text: msg.data.text,
+                        sender: msg.data.sender,
+                        senderId: msg.clientId,
+                        timestamp: msg.timestamp,
+                        local: false
+                    }));
+                
+                // Merge with local messages
+                const localMessages = messages[channelName] || [];
+                const allMessages = [...historyMessages, ...localMessages.filter(m => m.local)];
+                
+                // Deduplicate
+                const uniqueMessages = [];
+                const seenIds = new Set();
+                allMessages.forEach(msg => {
+                    if (!seenIds.has(msg.id)) {
+                        seenIds.add(msg.id);
+                        uniqueMessages.push(msg);
+                    }
+                });
+                
+                messages[channelName] = uniqueMessages.sort((a, b) => 
+                    new Date(a.timestamp) - new Date(b.timestamp)
+                );
+                
+                saveToStorage();
+            }
+        } catch (e) {
+            console.error('Failed to load history:', e);
+        }
+        
+        renderMessages();
+    }
+    
+    // Handle incoming message
+    function handleIncomingMessage(msg, channelName) {
+        // Use passed channelName — msg.channel does not exist in Ably SDK v2
+        channelName = channelName || currentChannel;
+
+        // Skip own messages: already added locally in sendMessage()
+        if (msg.clientId === currentUser.id) return;
+
+        const messageData = {
+            id: msg.id,
+            text: msg.data.text,
+            sender: msg.data.sender,
+            senderId: msg.clientId,
+            timestamp: msg.timestamp,
+            local: false
+        };
+        
+        if (!messages[channelName]) {
+            messages[channelName] = [];
+        }
+        
+        // Check for duplicate
+        const exists = messages[channelName].some(m => m.id === msg.id);
+        if (!exists) {
+            messages[channelName].push(messageData);
+            saveToStorage();
+            
+            // Increment unread if widget closed or different channel
+            if (!isOpen || channelName !== currentChannel) {
+                unreadCounts[channelName] = (unreadCounts[channelName] || 0) + 1;
+                updateUnreadBadge();
+                renderChannelList();
+            }
+            
+            if (channelName === currentChannel) {
+                renderMessages();
+            }
+        }
+    }
+    
+    // Handle typing event
+    function handleTypingEvent(msg, channelName) {
+        channelName = channelName || currentChannel;
+        // Only show indicator if the typing is for the channel currently viewed
+        if (channelName !== currentChannel) return;
+        if (!msg.data || msg.clientId === currentUser.id || msg.clientId === currentUser.ablyClientId) return;
+        
+        if (typingIndicator) {
+            typingIndicator.textContent = msg.data.name + ' est en train d\'écrire...';
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                typingIndicator.textContent = '';
+            }, 2000);
+        }
+    }
+    
+    // Handle message deleted
+    function handleMessageDeleted(msg, channelName) {
+        channelName = channelName || currentChannel;
+        
+        if (messages[channelName]) {
+            messages[channelName] = messages[channelName].filter(m => m.id !== msg.data.messageId);
+            saveToStorage();
+            
+            if (channelName === currentChannel) {
+                renderMessages();
+            }
+        }
+    }
+    
+    // Send message
+    function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+        
+        const messageData = {
+            type: 'message',
+            text: text,
+            sender: currentUser.name,
+            timestamp: new Date().toISOString()
+        };
+        
+        const localMessage = {
+            id: 'local_' + Date.now(),
+            text: text,
+            sender: currentUser.name,
+            senderId: currentUser.id,
+            timestamp: new Date().toISOString(),
+            local: true
+        };
+        
+        // Add locally
+        if (!messages[currentChannel]) {
+            messages[currentChannel] = [];
+        }
+        messages[currentChannel].push(localMessage);
+        saveToStorage();
+        renderMessages();
+        
+        // Send via Ably
+        if (channel && connectionState === 'connected') {
+            channel.publish('message', messageData);
+        }
+        
+        messageInput.value = '';
+        messageInput.focus();
+        lastTypingTime = 0; // Reset typing timer
+    }
+    
+    // Send typing event with throttling
+    function sendTypingEvent() {
+        if (!channel || connectionState !== 'connected') return;
+
+        const now = Date.now();
+        if (now - lastTypingTime > 2000) { // Throttle: 2 seconds
+            channel.publish('typing', { name: currentUser.name });
+            lastTypingTime = now;
+        }
+    }
+    
+    // Delete message
+    function deleteMessage(messageId) {
+        if (!messages[currentChannel]) return;
+        
+        const message = messages[currentChannel].find(m => m.id === messageId);
+        if (!message) return;
+        
+        // Only allow deleting own messages
+        if (message.senderId !== currentUser.id && message.sender !== currentUser.name) return;
+        
+        messages[currentChannel] = messages[currentChannel].filter(m => m.id !== messageId);
+        saveToStorage();
+        renderMessages();
+        
+        // Notify others
+        if (channel && connectionState === 'connected' && !message.local) {
+            channel.publish('message-deleted', { messageId: messageId });
+        }
+    }
+    
+    // Create channel
+    function createChannel(name) {
+        name = name.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '');
+        if (!name || name.length < 3) {
+            alert('Le nom du salon doit contenir au moins 3 caractères (lettres, chiffres, - ou _)');
+            return false;
+        }
+        
+        if (channels.includes(name)) {
+            alert('Ce salon existe déjà');
+            return false;
+        }
+        
+        channels.push(name);
+        messages[name] = [];
+        saveToStorage();
+        renderChannelList();
+        
+        return true;
+    }
+    
+    // Publish seen event for the last message in a channel
+    function publishSeen(channelName) {
+        if (!channel || connectionState !== 'connected') return;
+        const channelMessages = messages[channelName] || [];
+        if (channelMessages.length === 0) return;
+        const lastMsg = channelMessages[channelMessages.length - 1];
+        // Don't send seen for own messages
+        if (lastMsg.senderId === currentUser.id || lastMsg.sender === currentUser.name) return;
+        channel.publish('seen', {
+            messageId: lastMsg.id,
+            userId: currentUser.id,
+            userName: currentUser.name
+        });
+    }
+    
+    // Switch channel
+    function switchChannel(channelName) {
+        currentChannel = channelName;
+        unreadCounts[channelName] = 0;
+        updateUnreadBadge();
+        
+        if (currentChannelName) {
+            currentChannelName.textContent = '#' + channelName;
+        }
+        
+        subscribeToChannel(channelName);
+        publishSeen(channelName);
+        renderChannelList();
+        
+        // Show messages panel on mobile
+        if (window.innerWidth <= 480) {
+            channelsPanel.style.display = 'none';
+            messagesPanel.style.display = 'flex';
+        }
+    }
+    
+    // Update online count
+    function updateOnlineCount() {
+        if (onlineCount) {
+            onlineCount.textContent = onlineUsers.size;
+        }
+    }
+    
+    // Update unread badge
+    function updateUnreadBadge() {
+        const totalUnread = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
+        
+        if (unreadBadge) {
+            if (totalUnread > 0 && !isOpen) {
+                unreadBadge.style.display = 'flex';
+                unreadBadge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+            } else {
+                unreadBadge.style.display = 'none';
+            }
+        }
+    }
+    
+    // Render channel list
+    function renderChannelList() {
+        if (!channelList) return;
+        
+        channelList.innerHTML = '';
+        
+        channels.forEach(channelName => {
+            const unread = unreadCounts[channelName] || 0;
+            const isActive = channelName === currentChannel;
+            
+            const item = document.createElement('div');
+            item.className = 'ably-channel-item' + (isActive ? ' active' : '');
+            
+            item.innerHTML = `
+                <div class="ably-channel-info">
+                    <div class="ably-channel-icon">
+                        <i class="fas fa-hashtag"></i>
+                    </div>
+                    <div class="ably-channel-details">
+                        <h5>${channelName}</h5>
+                        <p>
+                            <i class="fas fa-user"></i>
+                            ${channelName === currentChannel ? onlineUsers.size : '-'} membres
+                        </p>
+                    </div>
+                </div>
+                ${unread > 0 ? `<span class="ably-channel-badge">${unread > 9 ? '9+' : unread}</span>` : ''}
+            `;
+            
+            item.addEventListener('click', () => switchChannel(channelName));
+            channelList.appendChild(item);
+        });
+    }
+    
+    // Render messages
+    function renderMessages() {
+        if (!messagesContainer) return;
+        
+        const channelMessages = messages[currentChannel] || [];
+        
+        if (channelMessages.length === 0) {
+            messagesContainer.innerHTML = `
+                <div class="ably-empty-state">
+                    <i class="fas fa-comment-dots"></i>
+                    <p>Aucun message dans ce salon</p>
+                    <p style="font-size:12px;">Soyez le premier à écrire !</p>
+                </div>
+            `;
+            return;
+        }
+        
+        messagesContainer.innerHTML = '';
+        
+        channelMessages.forEach(msg => {
+            const isOwn = msg.senderId === currentUser?.id || msg.sender === currentUser?.name;
+            const date = new Date(msg.timestamp);
+            const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const seenList = isOwn ? (seenBy[currentChannel]?.[msg.id] || []) : [];
+            
+            const messageEl = document.createElement('div');
+            messageEl.className = 'ably-message' + (isOwn ? ' own' : '');
+            messageEl.dataset.messageId = msg.id;
+            
+            messageEl.innerHTML = `
+                <div class="ably-message-avatar">
+                    ${msg.sender ? msg.sender.charAt(0).toUpperCase() : '?'}
+                </div>
+                <div class="ably-message-content">
+                    <div class="ably-message-header">
+                        <span class="ably-message-name">${msg.sender || 'Anonyme'}</span>
+                        <span class="ably-message-time">${timeStr}</span>
+                    </div>
+                    <div class="ably-message-bubble">
+                        ${escapeHtml(msg.text)}
+                    </div>
+                    ${isOwn ? `
+                        <div class="ably-message-seen">
+                            ${seenList.length > 0 ? `
+                                <i class="fas fa-check-double" style="color:#3b82f6;"></i>
+                                <span class="seen-avatars">
+                                    ${seenList.slice(0, 3).map(u =>
+                                        `<div class="seen-avatar" title="${escapeHtml(u.userName)}">${u.userName.charAt(0).toUpperCase()}</div>`
+                                    ).join('')}
+                                </span>
+                                <span>Vu</span>
+                            ` : `
+                                <i class="fas fa-check" style="color:#cbd5e1;"></i>
+                                <span style="color:#cbd5e1;">Envoyé</span>
+                            `}
+                        </div>
+                        <button class="ably-message-delete" onclick="deleteMessage('${msg.id}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageEl);
+        });
+        
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    // Escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Clear all local data
+    function clearAllData() {
+        if (confirm('Effacer toutes les données locales de chat ?')) {
+            localStorage.removeItem(STORAGE_KEY);
+            loadFromStorage();
+            currentChannel = 'general';
+            renderChannelList();
+            renderMessages();
+            if (channel) {
+                subscribeToChannel(currentChannel);
+            }
+        }
+    }
+    
+    // Toggle chat window
+    function toggleChat() {
+        isOpen = !isOpen;
+        
+        if (isOpen) {
+            chatWindow.classList.add('open');
+            unreadCounts[currentChannel] = 0;
+            updateUnreadBadge();
+            renderMessages();
+            renderChannelList();
+            publishSeen(currentChannel);
+        } else {
+            chatWindow.classList.remove('open');
+        }
+    }
+    
+    // Initialize everything
+    // Initialize everything
+async function init() {
+    initUser();
+    loadFromStorage();
+    await initAbly();
+    
+    // Initialize video call AFTER Ably is ready
+    initVideoCall();
+    
+    // Event listeners
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleChat);
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            isOpen = false;
+            chatWindow.classList.remove('open');
+        });
+    }
+    
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendMessage);
+    }
+    
+    if (messageInput) {
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        messageInput.addEventListener('input', () => {
+            sendTypingEvent();
+        });
+    }
+    
+    // Tab switching
+    document.querySelectorAll('.ably-chat-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+            
+            document.querySelectorAll('.ably-chat-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            if (tabName === 'channels') {
+                channelsPanel.style.display = 'block';
+                messagesPanel.style.display = 'none';
+            } else {
+                channelsPanel.style.display = 'none';
+                messagesPanel.style.display = 'flex';
+            }
+        });
+    });
+    
+    // Back button (mobile)
+    const backBtn = document.getElementById('backToChannelsBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            channelsPanel.style.display = 'block';
+            messagesPanel.style.display = 'none';
+        });
+    }
+    
+    // Create channel
+    const showCreateBtn = document.getElementById('showCreateChannelBtn');
+    const createForm = document.getElementById('createChannelForm');
+    const cancelBtn = document.getElementById('cancelCreateChannel');
+    const submitBtn = document.getElementById('createChannelSubmit');
+    const nameInput = document.getElementById('newChannelName');
+    
+    if (showCreateBtn) {
+        showCreateBtn.addEventListener('click', () => {
+            createForm.style.display = 'block';
+            showCreateBtn.style.display = 'none';
+        });
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            createForm.style.display = 'none';
+            showCreateBtn.style.display = 'block';
+            if (nameInput) nameInput.value = '';
+        });
+    }
+    
+    if (submitBtn && nameInput) {
+        submitBtn.addEventListener('click', () => {
+            if (createChannel(nameInput.value)) {
+                createForm.style.display = 'none';
+                showCreateBtn.style.display = 'block';
+                nameInput.value = '';
+                switchChannel(nameInput.value);
+            }
+        });
+    }
+    
+    // Clear storage
+    const clearBtn = document.getElementById('ablyClearStorageBtn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', clearAllData);
+    }
+    
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isOpen) {
+            isOpen = false;
+            chatWindow.classList.remove('open');
+        }
+    });
+    
+    // Initial render
+    renderChannelList();
+    renderMessages();
+    
+    // Make delete function global
+    window.deleteMessage = deleteMessage;
+}
+
+// Start everything when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+    // WebRTC Video Call Variables
+let localStream = null;
+let peerConnection = null;
+let currentCall = null;
+let isCallActive = false;
+let isAudioMuted = false;
+let isVideoMuted = false;
+
+const rtcConfig = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+};
+
+// Initialize call button
+function initVideoCall() {
+    const startCallBtn = document.getElementById('startCallBtn');
+    const endCallBtn = document.getElementById('endCallBtn');
+    const muteAudioBtn = document.getElementById('muteAudioBtn');
+    const muteVideoBtn = document.getElementById('muteVideoBtn');
+    const acceptCallBtn = document.getElementById('acceptCallBtn');
+    const rejectCallBtn = document.getElementById('rejectCallBtn');
+    const videoCallModal = document.getElementById('videoCallModal');
+    
+    if (startCallBtn) {
+        startCallBtn.addEventListener('click', () => {
+            showUserListForCall();
+        });
+    }
+    
+    if (endCallBtn) {
+        endCallBtn.addEventListener('click', endCall);
+    }
+    
+    if (muteAudioBtn) {
+        muteAudioBtn.addEventListener('click', toggleAudioMute);
+    }
+    
+    if (muteVideoBtn) {
+        muteVideoBtn.addEventListener('click', toggleVideoMute);
+    }
+    
+    if (acceptCallBtn) {
+        acceptCallBtn.addEventListener('click', acceptCall);
+    }
+    
+    if (rejectCallBtn) {
+        rejectCallBtn.addEventListener('click', rejectCall);
+    }
+}
+
+// Show list of online users to call
+// Show list of online users to call
+function showUserListForCall() {
+    const onlineUsersList = Array.from(onlineUsers.entries())
+        .filter(([clientId]) => clientId !== currentUser.ablyClientId);
+    
+    if (onlineUsersList.length === 0) {
+        alert('Aucun utilisateur en ligne pour le moment.');
+        return;
+    }
+    
+    // Remove any existing modal first
+    const existingModal = document.querySelector('.user-selection-modal');
+    if (existingModal) existingModal.remove();
+    
+    // Create a simple user selection modal
+    const modal = document.createElement('div');
+    modal.className = 'user-selection-modal';
+    modal.id = 'userSelectionModal';
+    modal.innerHTML = `
+        <div class="user-selection-content">
+            <h4>Choisir un utilisateur</h4>
+            <div class="user-list">
+                ${onlineUsersList.map(([clientId, data]) => `
+                    <div class="member-item">
+                        <span>${data.name || 'Utilisateur'}</span>
+                        <button class="member-call-btn" data-client-id="${clientId}">
+                            <i class="fas fa-video"></i> Appeler
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+            <button class="close-modal-btn" id="cancelUserSelection">Annuler</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Function to close modal
+    const closeModal = () => {
+        if (modal && modal.parentNode) {
+            modal.remove();
+        }
+    };
+    
+    // Handle call button clicks
+    modal.querySelectorAll('.member-call-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const clientId = btn.dataset.clientId;
+            closeModal(); // CLOSE MODAL IMMEDIATELY
+            startCall(clientId);
+        });
+    });
+    
+    // Handle cancel button
+    const cancelBtn = modal.querySelector('#cancelUserSelection');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeModal);
+    }
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Close on escape key
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+}
+
+// Start a call
+// Start a call
+// Start a call - FIXED VERSION
+async function startCall(remoteClientId) {
+    console.log('📞 Starting call to:', remoteClientId);
+    
+    const remoteUser = onlineUsers.get(remoteClientId);
+    const remoteName = remoteUser?.name || 'Utilisateur';
+    
+    try {
+        // Request media permissions
+        console.log('📞 Requesting media permissions...');
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: { ideal: 640 }, height: { ideal: 480 } }, 
+            audio: true 
+        });
+        
+        const localVideo = document.getElementById('localVideo');
+        if (localVideo) {
+            localVideo.srcObject = localStream;
+            localVideo.muted = true;
+        }
+        
+        const videoCallModal = document.getElementById('videoCallModal');
+        if (videoCallModal) {
+            videoCallModal.style.display = 'block';
+        }
+        
+        // Create peer connection
+        await createPeerConnection(remoteClientId);
+        
+        // Add local tracks
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
+        
+        // Create and send offer
+        const offer = await peerConnection.createOffer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: true
+        });
+        await peerConnection.setLocalDescription(offer);
+        
+        console.log('📞 Sending call invitation to:', remoteClientId);
+        console.log('📞 My clientId:', currentUser.ablyClientId);
+        
+        // Send call invitation - USE ablyClientId
+        channel.publish('call-invitation', {
+            from: currentUser.ablyClientId,
+            fromName: currentUser.name,
+            to: remoteClientId,
+            offer: offer
+        });
+        
+        currentCall = remoteClientId;
+        isCallActive = true;
+        
+        console.log('📞 Call invitation sent');
+        
+    } catch (error) {
+        console.error('❌ Error starting call:', error);
+        alert('Impossible de démarrer l\'appel. Vérifiez les permissions de caméra/micro.');
+    }
+}
+
+
+// Create peer connection
+async function createPeerConnection(remoteClientId) {
+    console.log('📞 Creating peer connection for:', remoteClientId);
+    
+    // Close existing connection if any
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
+    
+    peerConnection = new RTCPeerConnection(rtcConfig);
+    
+    // ============================================
+    // CRITICAL: Handle incoming tracks
+    // ============================================
+    peerConnection.addEventListener('track', (event) => {
+        console.log('📞📞📞 TRACK EVENT FIRED! 📞📞📞');
+        console.log('📞 Track kind:', event.track.kind);
+        console.log('📞 Streams:', event.streams);
+        
+        const remoteVideo = document.getElementById('remoteVideo');
+        if (!remoteVideo) {
+            console.error('❌ Remote video element not found!');
+            return;
+        }
+        
+        // Check if we already have a stream
+        if (remoteVideo.srcObject) {
+            console.log('📞 Already have remote stream, adding track to existing stream');
+            const stream = remoteVideo.srcObject;
+            stream.addTrack(event.track);
+        } else if (event.streams && event.streams.length > 0) {
+            console.log('📞 Setting new remote stream');
+            remoteVideo.srcObject = event.streams[0];
+            
+            // Force video to play
+            remoteVideo.onloadedmetadata = () => {
+                console.log('📞 Remote video metadata loaded');
+                remoteVideo.play().then(() => {
+                    console.log('✅ Remote video playing');
+                }).catch(e => {
+                    console.error('❌ Error playing remote video:', e);
+                });
+            };
+        } else {
+            console.log('📞 Creating new stream with track');
+            const newStream = new MediaStream();
+            newStream.addTrack(event.track);
+            remoteVideo.srcObject = newStream;
+            
+            remoteVideo.onloadedmetadata = () => {
+                console.log('📞 Remote video metadata loaded');
+                remoteVideo.play().then(() => {
+                    console.log('✅ Remote video playing');
+                }).catch(e => {
+                    console.error('❌ Error playing remote video:', e);
+                });
+            };
+        }
+        
+        console.log('📞 Remote video srcObject set:', remoteVideo.srcObject);
+    });
+    
+    // Handle ICE candidates
+    peerConnection.addEventListener('icecandidate', (event) => {
+        if (event.candidate) {
+            console.log('📞 Sending ICE candidate:', event.candidate.type);
+            channel.publish('call-ice-candidate', {
+                to: remoteClientId,
+                from: currentUser.ablyClientId,
+                candidate: event.candidate
+            });
+        } else {
+            console.log('📞 All ICE candidates sent');
+        }
+    });
+    
+    // Handle connection state changes
+    peerConnection.addEventListener('connectionstatechange', () => {
+        console.log('📞 Connection state:', peerConnection.connectionState);
+        
+        if (peerConnection.connectionState === 'connected') {
+            console.log('✅✅✅ PEER CONNECTION ESTABLISHED! ✅✅✅');
+            
+            // Check receivers
+            const receivers = peerConnection.getReceivers();
+            console.log('📞 Receivers:', receivers.length);
+            receivers.forEach((receiver, i) => {
+                console.log(`  Receiver ${i}:`, receiver.track.kind, receiver.track.enabled);
+            });
+        }
+    });
+    
+    peerConnection.addEventListener('iceconnectionstatechange', () => {
+        console.log('📞 ICE connection state:', peerConnection.iceConnectionState);
+        
+        if (peerConnection.iceConnectionState === 'connected' || 
+            peerConnection.iceConnectionState === 'completed') {
+            console.log('✅ ICE connection established!');
+        }
+    });
+    
+    peerConnection.addEventListener('signalingstatechange', () => {
+        console.log('📞 Signaling state:', peerConnection.signalingState);
+    });
+    
+    console.log('📞 Peer connection created');
+}
+
+// Handle incoming call invitation
+function handleCallInvitation(msg) {
+    console.log('📞 Handling call invitation:', msg);
+    console.log('📞 Message data:', msg.data);
+    console.log('📞 Current user:', currentUser);
+    console.log('📞 Is call active?', isCallActive);
+    
+    // Check if this call is for us
+    if (msg.data.to !== currentUser.ablyClientId) {
+        console.log('📞 Call not for us, ignoring. Expected:', currentUser.ablyClientId, 'Got:', msg.data.to);
+        return;
+    }
+    
+    if (isCallActive) {
+        console.log('📞 Already in a call, sending busy response');
+        // Busy - send rejection
+        channel.publish('call-response', {
+            to: msg.data.from,
+            from: currentUser.ablyClientId,
+            accepted: false,
+            reason: 'busy'
+        });
+        return;
+    }
+    
+    console.log('📞 Showing incoming call UI for:', msg.data.fromName);
+    
+    // Play incoming ringtone
+    const ringtone = document.getElementById('incomingRingtone');
+    if (ringtone) {
+        ringtone.currentTime = 0;
+        ringtone.play().catch(e => console.warn('🔇 Could not play ringtone:', e));
+    }
+    
+    // Show the video call modal first
+    const videoCallModal = document.getElementById('videoCallModal');
+    if (videoCallModal) {
+        videoCallModal.style.display = 'block';
+    } else {
+        console.error('❌ videoCallModal not found!');
+    }
+    
+    // Show incoming call panel
+    const incomingCallPanel = document.getElementById('incomingCallPanel');
+    if (incomingCallPanel) {
+        incomingCallPanel.style.display = 'flex';
+    } else {
+        console.error('❌ incomingCallPanel not found!');
+    }
+    
+    // Set caller name
+    const incomingCallerName = document.getElementById('incomingCallerName');
+    if (incomingCallerName) {
+        incomingCallerName.textContent = msg.data.fromName || 'Quelqu\'un';
+    }
+    
+    // Store pending call info
+    currentCall = {
+        remoteId: msg.data.from,
+        remoteName: msg.data.fromName,
+        offer: msg.data.offer
+    };
+    
+    console.log('📞 Current call stored:', currentCall);
+}
+
+
+// Accept incoming call
+// Accept incoming call
+// Accept incoming call
+// Accept incoming call - FIXED VERSION
+async function acceptCall() {
+    console.log('📞 Accepting call...');
+    console.log('📞 Current call:', currentCall);
+    
+    // Stop ringtone
+    const ringtone = document.getElementById('incomingRingtone');
+    if (ringtone) { 
+        ringtone.pause(); 
+        ringtone.currentTime = 0; 
+    }
+    
+    try {
+        const incomingCallPanel = document.getElementById('incomingCallPanel');
+        if (incomingCallPanel) {
+            incomingCallPanel.style.display = 'none';
+        }
+        
+        // Request media permissions
+        console.log('📞 Requesting media permissions...');
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: { ideal: 640 }, height: { ideal: 480 } }, 
+            audio: true 
+        });
+        
+        const localVideo = document.getElementById('localVideo');
+        if (localVideo) {
+            localVideo.srcObject = localStream;
+            localVideo.muted = true;
+        }
+        
+        // Create peer connection
+        await createPeerConnection(currentCall.remoteId);
+        
+        // Add local tracks
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
+        
+        // Set remote offer
+        console.log('📞 Setting remote description...');
+        console.log('📞 Remote offer:', currentCall.offer);
+        await peerConnection.setRemoteDescription(currentCall.offer);
+        console.log('✅ Remote description set');
+        
+        // Create answer
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        console.log('✅ Local description set');
+        
+        console.log('📞 Sending call acceptance to:', currentCall.remoteId);
+        
+        // Send answer back - USE ablyClientId
+        channel.publish('call-response', {
+            to: currentCall.remoteId,
+            from: currentUser.ablyClientId,
+            accepted: true,
+            answer: answer
+        });
+        
+        isCallActive = true;
+        console.log('📞 Call accepted, waiting for ICE connection...');
+        
+    } catch (error) {
+        console.error('❌ Error accepting call:', error);
+        endCall();
+    }
+}
+
+// Reject call
+// Reject call - FIXED VERSION
+function rejectCall() {
+    console.log('📞 Rejecting call');
+    
+    // Stop ringtone
+    const ringtone = document.getElementById('incomingRingtone');
+    if (ringtone) { 
+        ringtone.pause(); 
+        ringtone.currentTime = 0; 
+    }
+    
+    // IMPORTANT: Use ablyClientId, not id
+    if (currentCall && currentCall.remoteId) {
+        channel.publish('call-response', {
+            to: currentCall.remoteId,
+            from: currentUser.ablyClientId,  // Use ablyClientId here
+            accepted: false,
+            reason: 'rejected'
+        });
+    }
+    
+    document.getElementById('incomingCallPanel').style.display = 'none';
+    document.getElementById('videoCallModal').style.display = 'none';
+    currentCall = null;
+}
+
+// Handle call response
+// Handle call response
+// Handle call response - FIXED VERSION
+async function handleCallResponse(msg) {
+    console.log('📞 Handling call response');
+    console.log('📞 Response data:', msg.data);
+    console.log('📞 My clientId:', currentUser.ablyClientId);
+    console.log('📞 Response target:', msg.data.to);
+    
+    // IMPORTANT: Check if this response is for us
+    if (msg.data.to !== currentUser.ablyClientId) {
+        console.log('📞 Response not for us, ignoring');
+        return;
+    }
+    
+    if (msg.data.accepted) {
+        console.log('📞 Call accepted! Setting remote description...');
+        
+        if (!peerConnection) {
+            console.error('❌ No peer connection!');
+            return;
+        }
+        
+        try {
+            console.log('📞 Remote answer type:', msg.data.answer.type);
+            await peerConnection.setRemoteDescription(msg.data.answer);
+            console.log('✅ Remote description set successfully');
+        } catch (error) {
+            console.error('❌ Error setting remote description:', error);
+            endCall();
+        }
+    } else {
+        console.log('📞 Call rejected. Reason:', msg.data.reason);
+        // Only show alert if it wasn't a busy response
+        if (msg.data.reason !== 'busy') {
+            alert('Appel refusé');
+        }
+        endCall();
+    }
+}
+
+// Handle ICE candidates
+function handleICECandidate(msg) {
+    console.log('📞 Received ICE candidate');
+    
+    if (msg.data.to !== currentUser.ablyClientId) {
+        console.log('📞 ICE candidate not for us');
+        return;
+    }
+    
+    if (!peerConnection) {
+        console.error('❌ No peer connection for ICE candidate');
+        return;
+    }
+    
+    const candidate = new RTCIceCandidate(msg.data.candidate);
+    
+    peerConnection.addIceCandidate(candidate)
+        .then(() => {
+            console.log('✅ ICE candidate added successfully');
+        })
+        .catch(error => {
+            console.error('❌ Error adding ICE candidate:', error);
+        });
+}
+
+// End call
+function endCall() {
+    // Stop ringtone (in case call ends before being answered)
+    const ringtone = document.getElementById('incomingRingtone');
+    if (ringtone) { ringtone.pause(); ringtone.currentTime = 0; }
+    
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+    }
+    
+    if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+    }
+    
+    document.getElementById('videoCallModal').style.display = 'none';
+    document.getElementById('incomingCallPanel').style.display = 'none';
+    document.getElementById('remoteVideo').srcObject = null;
+    document.getElementById('localVideo').srcObject = null;
+    
+    isCallActive = false;
+    currentCall = null;
+    isAudioMuted = false;
+    isVideoMuted = false;
+}
+
+// Toggle audio mute
+function toggleAudioMute() {
+    if (!localStream) return;
+    
+    const audioTracks = localStream.getAudioTracks();
+    audioTracks.forEach(track => track.enabled = !track.enabled);
+    isAudioMuted = !isAudioMuted;
+    
+    document.getElementById('muteAudioBtn').classList.toggle('muted', isAudioMuted);
+    document.getElementById('muteAudioBtn').innerHTML = isAudioMuted ? 
+        '<i class="fas fa-microphone-slash"></i>' : 
+        '<i class="fas fa-microphone"></i>';
+}
+
+// Toggle video mute
+function toggleVideoMute() {
+    if (!localStream) return;
+    
+    const videoTracks = localStream.getVideoTracks();
+    videoTracks.forEach(track => track.enabled = !track.enabled);
+    isVideoMuted = !isVideoMuted;
+    
+    document.getElementById('muteVideoBtn').classList.toggle('muted', isVideoMuted);
+    document.getElementById('muteVideoBtn').innerHTML = isVideoMuted ? 
+        '<i class="fas fa-video-slash"></i>' : 
+        '<i class="fas fa-video"></i>';
+}
+
+// Subscribe to call-related Ably events
+function subscribeToCallEvents() {
+    if (!channel) return;
+    
+    channel.subscribe('call-invitation', handleCallInvitation);
+    channel.subscribe('call-response', handleCallResponse);
+    channel.subscribe('call-ice-candidate', handleICECandidate);
+}
+
+// Call this in your init function
+document.addEventListener('DOMContentLoaded', () => {
+    // ... existing init code ...
+    initVideoCall();
+    subscribeToCallEvents();
+});
+    // Start
+    init();
+})();
+</script>

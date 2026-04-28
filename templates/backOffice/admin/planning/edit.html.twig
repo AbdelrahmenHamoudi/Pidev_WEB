@@ -1,0 +1,315 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}RE7LA Admin — Modifier Planning{% endblock %}
+{% block breadcrumb %}Activités / Plannings / Modifier{% endblock %}
+{% block page_title %}Modifier le planning{% endblock %}
+
+{% block body %}
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    .edit-wrapper {
+        max-width: 640px;
+        margin: 0 auto;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .edit-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+    }
+
+    .edit-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .edit-icon-box {
+        width: 52px;
+        height: 52px;
+        background: linear-gradient(135deg, #F7B731, #E6C050);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(247,183,49,0.35);
+    }
+
+    .edit-icon-box i {
+        font-size: 20px;
+        color: #fff;
+    }
+
+    .edit-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .edit-sub {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 3px 0 0;
+        font-weight: 500;
+    }
+
+    .btn-back {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-back:hover {
+        background: #e2e8f0;
+        color: #475569;
+        transform: translateX(-2px);
+    }
+
+    .form-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        border: 1px solid #f0f4f8;
+    }
+
+    .form-section-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #f0f4f8;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 20px;
+    }
+
+    .field-group label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .field-group .form-control {
+        width: 100%;
+        padding: 11px 16px;
+        border: 1.5px solid #e8ecf0;
+        border-radius: 12px;
+        font-size: 14px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #1e293b;
+        background: #fafbfc;
+        outline: none;
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+
+    .field-group .form-control:focus {
+        border-color: #F7B731;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(247,183,49,0.12);
+    }
+
+    .time-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .divider {
+        height: 1px;
+        background: #f0f4f8;
+        margin: 8px 0 24px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid #f0f4f8;
+    }
+
+    .btn-save {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #F7B731, #E6C050);
+        color: #fff;
+        padding: 12px 28px;
+        border-radius: 12px;
+        border: none;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        box-shadow: 0 4px 14px rgba(247,183,49,0.35);
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(247,183,49,0.45);
+    }
+
+    .btn-cancel {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 12px 22px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-cancel:hover {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    /* Badge activité */
+    .activite-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg,rgba(247,183,49,0.12),rgba(230,192,80,0.08));
+        border: 1px solid rgba(247,183,49,0.25);
+        color: #92400e;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+</style>
+
+<div class="edit-wrapper">
+
+    {# ── Header ── #}
+    <div class="edit-header">
+        <div class="edit-header-left">
+            <div class="edit-icon-box">
+                <i class="fas fa-calendar-edit"></i>
+            </div>
+            <div>
+                <div class="edit-title">Modifier le planning</div>
+                <div class="edit-sub">Mettez à jour les informations du planning</div>
+            </div>
+        </div>
+        <a href="{{ path('planning_index', {idActivite: planning.activite.idActivite}) }}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    {# ── Formulaire ── #}
+    <div class="form-card">
+
+        <div class="activite-badge">
+            <i class="fas fa-hiking"></i>
+            {{ planning.activite.nomA }}
+        </div>
+
+        {{ form_start(form) }}
+
+        {# Activité #}
+        <div class="form-section-title"><i class="fas fa-link"></i> Activité liée</div>
+        <div class="field-group">
+            {{ form_label(form.activite) }}
+            {{ form_widget(form.activite, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.activite) }}
+        </div>
+
+        <div class="divider"></div>
+
+        {# Date & Horaires #}
+        <div class="form-section-title"><i class="fas fa-clock"></i> Date & Horaires</div>
+
+        <div class="field-group">
+            {{ form_label(form.datePlanning) }}
+            {{ form_widget(form.datePlanning, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.datePlanning) }}
+        </div>
+
+        <div class="time-row">
+            <div class="field-group">
+                {{ form_label(form.heureDebut) }}
+                {{ form_widget(form.heureDebut, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.heureDebut) }}
+            </div>
+            <div class="field-group">
+                {{ form_label(form.heureFin) }}
+                {{ form_widget(form.heureFin, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.heureFin) }}
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        {# Capacité & État #}
+        <div class="form-section-title"><i class="fas fa-users"></i> Capacité & État</div>
+
+        <div class="time-row">
+            <div class="field-group">
+                {{ form_label(form.nbPlacesRestantes) }}
+                {{ form_widget(form.nbPlacesRestantes, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.nbPlacesRestantes) }}
+            </div>
+            <div class="field-group">
+                {{ form_label(form.etat) }}
+                {{ form_widget(form.etat, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.etat) }}
+            </div>
+        </div>
+
+        {# Boutons #}
+        <div class="form-actions">
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save"></i> Enregistrer les modifications
+            </button>
+            <a href="{{ path('planning_index', {idActivite: planning.activite.idActivite}) }}" class="btn-cancel">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+{% endblock %}

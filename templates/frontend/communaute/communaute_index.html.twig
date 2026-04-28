@@ -1,0 +1,929 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Communauté — RE7LA{% endblock %}
+
+{% block extra_styles %}
+/* ── PAGE HEADER ── */
+.communaute-header {
+    background: linear-gradient(135deg, rgba(135,206,235,0.15), rgba(147,197,114,0.15));
+    border-bottom: 1px solid rgba(135,206,235,0.2);
+    padding: 48px 0 36px;
+    margin-bottom: 0;
+}
+.communaute-header h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+.communaute-header p {
+    color: #64748b;
+    font-size: 1.05rem;
+}
+
+/* ── FILTER BAR ── */
+.filter-bar {
+    background: white;
+    border-radius: 20px;
+    padding: 18px 24px;
+    box-shadow: 0 4px 20px rgba(44,62,80,0.07);
+    border: 1px solid rgba(135,206,235,0.25);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.filter-bar input[type="text"] {
+    flex: 1;
+    min-width: 180px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .25s;
+}
+.filter-bar input[type="text"]:focus { border-color: var(--bleu-ceil); }
+.filter-chip {
+    padding: 9px 18px;
+    border-radius: 50px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dark);
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.filter-chip:hover, .filter-chip.active {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    border-color: transparent;
+    color: white !important;
+}
+.btn-new-pub {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white !important;
+    padding: 11px 26px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all .3s;
+    white-space: nowrap;
+    border: none;
+}
+.btn-new-pub:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(135,206,235,0.4);
+}
+
+/* ── PUBLICATION CARD ── */
+.pub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 28px;
+    padding: 36px 0 60px;
+}
+.pub-card {
+    background: white;
+    border-radius: 24px;
+    overflow: visible;
+    box-shadow: 0 4px 20px rgba(44,62,80,0.07);
+    border: 1px solid rgba(44,62,80,0.06);
+    transition: transform .3s, box-shadow .3s, border-color .3s;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.pub-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(44,62,80,0.12);
+}
+.pub-card-inner {
+    border-radius: 24px;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── HIGHLIGHT BADGES ── */
+.pub-card.most-reacted {
+    border: 2px solid #f59e0b;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.25);
+}
+.pub-card.most-reacted:hover {
+    box-shadow: 0 16px 40px rgba(245,158,11,0.3);
+}
+.pub-card.most-commented {
+    border: 2px solid var(--bleu-ceil);
+    box-shadow: 0 4px 20px rgba(135,206,235,0.3);
+}
+.pub-card.most-commented:hover {
+    box-shadow: 0 16px 40px rgba(135,206,235,0.35);
+}
+.pub-card.most-reacted.most-commented {
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 0 0 2px #f59e0b, 0 4px 20px rgba(245,158,11,0.25);
+}
+.highlight-badge {
+    position: absolute;
+    top: -12px;
+    left: 16px;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+.badge-hot {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    left: 16px;
+}
+.badge-most-comments {
+    background: linear-gradient(135deg, var(--bleu-ceil), #6366f1);
+    color: white;
+    left: 16px;
+}
+.badge-both-left  { left: 16px; }
+.badge-both-right { left: auto; right: 16px; }
+
+.pub-card-img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+}
+.pub-card-img-placeholder {
+    width: 100%;
+    height: 210px;
+    background: linear-gradient(135deg, rgba(135,206,235,0.3), rgba(147,197,114,0.3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--bleu-ceil-dark);
+}
+.pub-card-body {
+    padding: 20px 22px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.pub-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+.badge-hebergement { background: rgba(135,206,235,0.15); color: #2980b9; }
+.badge-activite    { background: rgba(147,197,114,0.15); color: #27ae60; }
+.badge-transport   { background: rgba(231,76,60,0.1);   color: #c0392b; }
+
+.pub-description {
+    font-size: 14.5px;
+    color: #475569;
+    line-height: 1.6;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.pub-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+}
+.pub-author {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+.pub-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.pub-avatar img { width:100%; height:100%; object-fit:cover; }
+.pub-author-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark);
+}
+.pub-date {
+    font-size: 11.5px;
+    color: #94a3b8;
+}
+.pub-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-see {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white !important;
+    padding: 7px 16px;
+    border-radius: 50px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all .2s;
+}
+.btn-see:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+.btn-icon-edit, .btn-icon-delete {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+}
+.btn-icon-edit   { background: rgba(93,173,226,0.12); color: var(--bleu-ceil-dark); }
+.btn-icon-edit:hover   { background: var(--bleu-ceil-dark); color: white; }
+.btn-icon-delete { background: rgba(231,76,60,0.1); color: var(--rouge); }
+.btn-icon-delete:hover { background: var(--rouge); color: white; }
+
+.comment-count {
+    font-size: 12px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ── REACTION SYSTEM ── */
+.reaction-section {
+    padding: 10px 22px 14px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Trigger button */
+.reaction-trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.reaction-trigger-btn {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    color: #64748b;
+    transition: all .2s;
+    user-select: none;
+}
+.reaction-trigger-btn:hover {
+    border-color: var(--bleu-ceil);
+    color: var(--bleu-ceil-dark);
+    background: rgba(135,206,235,0.07);
+}
+.reaction-trigger-btn.reacted {
+    background: linear-gradient(135deg, rgba(135,206,235,0.15), rgba(147,197,114,0.15));
+    border-color: var(--bleu-ceil);
+    color: var(--bleu-ceil-dark);
+    font-weight: 600;
+}
+
+/* Floating picker */
+.reaction-picker {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: white;
+    border-radius: 50px;
+    box-shadow: 0 8px 30px rgba(44,62,80,0.18);
+    padding: 8px 12px;
+    display: flex;
+    gap: 4px;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px) scale(0.92);
+    transform-origin: bottom left;
+    transition: opacity .2s, transform .2s;
+    white-space: nowrap;
+    border: 1px solid rgba(44,62,80,0.07);
+}
+.reaction-picker.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+.reaction-emoji-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform .15s, background .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.reaction-emoji-btn:hover {
+    transform: scale(1.3) translateY(-3px);
+    background: #f1f5f9;
+}
+.reaction-emoji-btn.active-reaction {
+    background: linear-gradient(135deg, rgba(135,206,235,0.25), rgba(147,197,114,0.25));
+    transform: scale(1.15);
+}
+.reaction-emoji-btn::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15,23,42,0.85);
+    color: white;
+    font-size: 10px;
+    font-family: 'Poppins', sans-serif;
+    padding: 2px 7px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+}
+.reaction-emoji-btn:hover::after { opacity: 1; }
+
+/* Summary bubbles */
+.reaction-summary {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.reaction-bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 3px 9px 3px 6px;
+    font-size: 12px;
+    color: #475569;
+    font-weight: 500;
+    transition: background .2s;
+}
+.reaction-bubble .rb-emoji { font-size: 14px; line-height: 1; }
+.reaction-bubble .rb-count { font-size: 11px; font-weight: 600; color: #64748b; }
+.reaction-total {
+    font-size: 11.5px;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-left: 2px;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    grid-column: 1 / -1;
+}
+.empty-state i { font-size: 3.5rem; color: #cbd5e1; margin-bottom: 16px; }
+.empty-state h3 { color: var(--dark); font-weight: 700; margin-bottom: 8px; }
+.empty-state p  { color: #94a3b8; }
+
+/* ── FLASH MESSAGES ── */
+.flash-wrapper {
+    position: fixed;
+    top: 110px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 360px;
+}
+.flash-msg {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid var(--vert-pistache);
+    animation: slideIn .3s ease;
+}
+.flash-msg.error { border-left-color: var(--rouge); }
+@keyframes slideIn {
+    from { transform: translateX(40px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .pub-grid { grid-template-columns: 1fr; }
+    .communaute-header h1 { font-size: 2rem; }
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-bar input[type="text"] { width: 100%; }
+    .reaction-picker { left: auto; right: 0; transform-origin: bottom right; }
+}
+{% endblock %}
+
+{% block body %}
+
+{# ── Embed server-side comment counts so JS can reference them ── #}
+<script>
+    window.RE7LA_USER_ID = {{ app.user ? app.user.id : 'null' }};
+    window.RE7LA_COMMENT_COUNTS = {
+        {% for pub in publications %}
+            "{{ pub.idPublication }}": {{ pub.commentaires|length }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+</script>
+
+{# ── Flash messages ── #}
+{% if app.flashes('success') or app.flashes('error') %}
+<div class="flash-wrapper" id="flashWrapper">
+    {% for msg in app.flashes('success') %}
+        <div class="flash-msg">✅ {{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="flash-msg error">⚠️ {{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{# ── Page header ── #}
+<div class="communaute-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1 data-aos="fade-right">
+                    <i class="fas fa-users me-3" style="background:linear-gradient(135deg,var(--bleu-ceil),var(--vert-pistache));-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>{{ 'community.title'|trans }}
+                </h1>
+                <p data-aos="fade-right" data-aos-delay="100">{{ 'community.subtitle'|trans }}</p>
+            </div>
+            {% if app.user %}
+                <a href="{{ path('app_communaute_new') }}" class="btn-new-pub" data-aos="fade-left">
+                    <i class="fas fa-plus"></i> {{ 'community.new_pub'|trans }}
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn-new-pub" data-aos="fade-left">
+                    <i class="fas fa-sign-in-alt"></i> {{ 'community.login_to_pub'|trans }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# ── Filter bar ── #}
+<div class="container" style="margin-top:28px;">
+    <form method="GET" action="{{ path('app_communaute_index') }}" class="filter-bar" data-aos="fade-up">
+        <input type="text" name="search" value="{{ search }}" placeholder="{{ 'community.search_placeholder'|trans }}">
+
+        <a href="{{ path('app_communaute_index') }}" class="filter-chip {{ typeCible == '' ? 'active' : '' }}">
+            <i class="fas fa-globe-africa"></i> {{ 'explore.all'|trans }}
+        </a>
+        {% for type in typeCibles %}
+            <a href="{{ path('app_communaute_index', {'typeCible': type, 'search': search}) }}"
+               class="filter-chip {{ typeCible == type ? 'active' : '' }}">
+                {% if type == 'HEBERGEMENT' %}<i class="fas fa-hotel"></i>
+                {% elseif type == 'ACTIVITE' %}<i class="fas fa-hiking"></i>
+                {% else %}<i class="fas fa-bus"></i>{% endif %}
+                {{ type|lower|capitalize }}
+            </a>
+        {% endfor %}
+
+        <button type="submit" class="btn-new-pub" style="padding:10px 22px;">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+
+    {# ── Publication grid ── #}
+    <div class="pub-grid" id="pubGrid">
+        {% if publications is empty %}
+            <div class="empty-state" data-aos="fade-up">
+                <i class="fas fa-image"></i>
+                <h3>{{ 'community.no_pub'|trans }}</h3>
+                <p>{{ 'community.no_pub_sub'|trans }}</p>
+            </div>
+        {% else %}
+            {% for pub in publications %}
+                {% set isOwner = app.user and pub.id_utilisateur and pub.id_utilisateur.id == app.user.id %}
+                <div class="pub-card"
+                     data-aos="fade-up"
+                     data-aos-delay="{{ loop.index0 * 60 }}"
+                     data-pub-id="{{ pub.idPublication }}"
+                     data-comment-count="{{ pub.commentaires|length }}">
+
+                    {# ── Highlight badges injected by JS ── #}
+
+                    <div class="pub-card-inner">
+                        {# Image #}
+                        {% if pub.imgURL %}
+                            <img src="{{ asset('uploads/publications/' ~ pub.imgURL) }}"
+                                 alt="Publication"
+                                 class="pub-card-img"
+                                 loading="lazy">
+                        {% else %}
+                            <div class="pub-card-img-placeholder">
+                                {% if pub.typeCible == 'HEBERGEMENT' %}🏨
+                                {% elseif pub.typeCible == 'ACTIVITE' %}🏄
+                                {% else %}🚌{% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="pub-card-body">
+                            {# Type badge #}
+                            <span class="pub-type-badge badge-{{ pub.typeCible|lower }}">
+                                {% if pub.typeCible == 'HEBERGEMENT' %}<i class="fas fa-hotel"></i>
+                                {% elseif pub.typeCible == 'ACTIVITE' %}<i class="fas fa-hiking"></i>
+                                {% else %}<i class="fas fa-bus"></i>{% endif %}
+                                {{ pub.typeCible|lower|capitalize }}
+                            </span>
+
+                            {# Description #}
+                            <p class="pub-description">{{ pub.descriptionP }}</p>
+
+                            {# Meta row #}
+                            <div class="pub-meta">
+                                <div class="pub-author">
+                                    <div class="pub-avatar">
+                                        {% if pub.id_utilisateur and pub.id_utilisateur.image %}
+                                            <img src="{{ asset('uploads/profiles/' ~ pub.id_utilisateur.image) }}" alt="">
+                                        {% elseif pub.id_utilisateur %}
+                                            {{ pub.id_utilisateur.prenom|slice(0,1)|upper }}{{ pub.id_utilisateur.nom|slice(0,1)|upper }}
+                                        {% else %}
+                                            ?
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="pub-author-name">
+                                            {% if pub.id_utilisateur %}
+                                                {{ pub.id_utilisateur.prenom }} {{ pub.id_utilisateur.nom }}
+                                            {% else %}
+                                                {{ 'community.anonymous'|trans }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="pub-date">{{ pub.dateCreation|date('d/m/Y') }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="pub-actions-right">
+                                    <span class="comment-count">
+                                        <i class="fas fa-comment"></i>
+                                        {{ pub.commentaires|length }}
+                                    </span>
+                                    <a href="{{ path('app_communaute_show', {'idPublication': pub.idPublication}) }}" class="btn-see">
+                                        {{ 'explore.view'|trans }} <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                    {% if isOwner %}
+                                        <a href="{{ path('app_communaute_edit', {'idPublication': pub.idPublication}) }}" class="btn-icon-edit" title="Modifier">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <form method="POST" action="{{ path('app_communaute_delete', {'idPublication': pub.idPublication}) }}" style="display:inline" onsubmit="return confirm('{{ 'promotions.confirm_res'|trans }}?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_pub_' ~ pub.idPublication) }}">
+                                            <button type="submit" class="btn-icon-delete" title="{{ 'promotions.reset'|trans }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {# ── Reaction section (populated by JS) ── #}
+                        <div class="reaction-section" id="reaction-section-{{ pub.idPublication }}">
+
+                            {# Trigger + picker #}
+                            <div class="reaction-trigger" id="reaction-trigger-{{ pub.idPublication }}">
+                                <button class="reaction-trigger-btn"
+                                        id="reaction-btn-{{ pub.idPublication }}"
+                                        type="button"
+                                        aria-label="{{ 'community.react'|trans }}"
+                                        onclick="togglePicker({{ pub.idPublication }}, event)">
+                                    <span id="reaction-btn-icon-{{ pub.idPublication }}">😊</span>
+                                    <span id="reaction-btn-label-{{ pub.idPublication }}">{{ 'community.react'|trans }}</span>
+                                </button>
+
+                                <div class="reaction-picker" id="reaction-picker-{{ pub.idPublication }}">
+                                    <button class="reaction-emoji-btn" data-label="{{ 'community.like'|trans }}"    onclick="react({{ pub.idPublication }}, 'like',    event)" data-type="like">👍</button>
+                                    <button class="reaction-emoji-btn" data-label="{{ 'community.love'|trans }}"   onclick="react({{ pub.idPublication }}, 'love',    event)" data-type="love">❤️</button>
+                                    <button class="reaction-emoji-btn" data-label="{{ 'community.laugh'|trans }}"      onclick="react({{ pub.idPublication }}, 'laugh',   event)" data-type="laugh">😂</button>
+                                    <button class="reaction-emoji-btn" data-label="{{ 'community.sad'|trans }}"    onclick="react({{ pub.idPublication }}, 'sad',     event)" data-type="sad">😢</button>
+                                    <button class="reaction-emoji-btn" data-label="{{ 'community.angry'|trans }}" onclick="react({{ pub.idPublication }}, 'angry',   event)" data-type="angry">😡</button>
+                                    <button class="reaction-emoji-btn" data-label="{{ 'community.dislike'|trans }}" onclick="react({{ pub.idPublication }}, 'dislike', event)" data-type="dislike">👎</button>
+                                </div>
+                            </div>
+
+                            {# Reaction summary bubbles #}
+                            <div class="reaction-summary" id="reaction-summary-{{ pub.idPublication }}"></div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  RE7LA – Reactions Engine (localStorage)
+// ════════════════════════════════════════════════════════════════
+
+const STORAGE_KEY      = 're7la_reactions';     // { pubId: { like:0, love:0, … } }
+const USER_ID = window.RE7LA_USER_ID || 'guest';
+const MY_REACTION_KEY = 're7la_my_reactions_' + USER_ID;
+const REACTIONS = [
+    { type: 'like',    emoji: '👍', label: "{{ 'community.like'|trans }}"    },
+    { type: 'love',    emoji: '❤️', label: "{{ 'community.love'|trans }}"   },
+    { type: 'laugh',   emoji: '😂', label: '{{ 'community.laugh'|trans }}'      },
+    { type: 'sad',     emoji: '😢', label: '{{ 'community.sad'|trans }}'    },
+    { type: 'angry',   emoji: '😡', label: '{{ 'community.angry'|trans }}' },
+    { type: 'dislike', emoji: '👎', label: "{{ 'community.dislike'|trans }}" },
+];
+
+// ── Storage helpers ─────────────────────────────────────────────
+
+function loadReactions() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+    catch { return {}; }
+}
+function saveReactions(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function loadMyReactions() {
+    try { return JSON.parse(localStorage.getItem(MY_REACTION_KEY) || '{}'); }
+    catch { return {}; }
+}
+function saveMyReactions(data) {
+    localStorage.setItem(MY_REACTION_KEY, JSON.stringify(data));
+}
+
+function getPublicationReactions(pubId) {
+    const all = loadReactions();
+    if (!all[pubId]) all[pubId] = { like:0, love:0, laugh:0, sad:0, angry:0, dislike:0 };
+    return all[pubId];
+}
+
+function totalReactions(counts) {
+    return Object.values(counts).reduce((a, b) => a + b, 0);
+}
+
+// ── Picker toggle ────────────────────────────────────────────────
+
+let openPicker = null;
+
+function togglePicker(pubId, e) {
+    e.stopPropagation();
+    const picker = document.getElementById('reaction-picker-' + pubId);
+    if (!picker) return;
+
+    if (openPicker && openPicker !== picker) {
+        openPicker.classList.remove('open');
+    }
+
+    picker.classList.toggle('open');
+    openPicker = picker.classList.contains('open') ? picker : null;
+}
+
+document.addEventListener('click', function() {
+    if (openPicker) { openPicker.classList.remove('open'); openPicker = null; }
+});
+
+// ── React ────────────────────────────────────────────────────────
+
+function react(pubId, type, e) {
+    e.stopPropagation();
+
+    const allReactions = loadReactions();
+    const myReactions  = loadMyReactions();
+
+    if (!allReactions[pubId]) {
+        allReactions[pubId] = { like:0, love:0, laugh:0, sad:0, angry:0, dislike:0 };
+    }
+
+    const current = myReactions[pubId] || null;
+
+    if (current === type) {
+        // Toggle off – remove reaction
+        allReactions[pubId][type] = Math.max(0, (allReactions[pubId][type] || 0) - 1);
+        myReactions[pubId] = null;
+    } else {
+        // Remove old reaction if any
+        if (current && allReactions[pubId][current] !== undefined) {
+            allReactions[pubId][current] = Math.max(0, allReactions[pubId][current] - 1);
+        }
+        // Add new
+        allReactions[pubId][type] = (allReactions[pubId][type] || 0) + 1;
+        myReactions[pubId] = type;
+    }
+
+    saveReactions(allReactions);
+    saveMyReactions(myReactions);
+
+    // Close picker
+    const picker = document.getElementById('reaction-picker-' + pubId);
+    if (picker) picker.classList.remove('open');
+    openPicker = null;
+
+    renderCard(pubId);
+    updateHighlights();
+}
+
+// ── Render single card ───────────────────────────────────────────
+
+function renderCard(pubId) {
+    const counts   = getPublicationReactions(pubId);
+    const myRx     = loadMyReactions();
+    const myType   = myRx[pubId] || null;
+    const total    = totalReactions(counts);
+
+    // Trigger button
+    const btn      = document.getElementById('reaction-btn-' + pubId);
+    const btnIcon  = document.getElementById('reaction-btn-icon-' + pubId);
+    const btnLabel = document.getElementById('reaction-btn-label-' + pubId);
+
+    if (btn && btnIcon && btnLabel) {
+        if (myType) {
+            const rx = REACTIONS.find(r => r.type === myType);
+            btnIcon.textContent  = rx ? rx.emoji : '😊';
+            btnLabel.textContent = rx ? rx.label : 'Réagir';
+            btn.classList.add('reacted');
+        } else {
+            btnIcon.textContent  = '😊';
+            btnLabel.textContent = 'Réagir';
+            btn.classList.remove('reacted');
+        }
+    }
+
+    // Active state on picker buttons
+    REACTIONS.forEach(rx => {
+        const emojiBtn = document.querySelector(
+            '#reaction-picker-' + pubId + ' [data-type="' + rx.type + '"]'
+        );
+        if (emojiBtn) {
+            emojiBtn.classList.toggle('active-reaction', myType === rx.type);
+        }
+    });
+
+    // Summary bubbles
+    const summaryEl = document.getElementById('reaction-summary-' + pubId);
+    if (!summaryEl) return;
+
+    const sorted = REACTIONS
+        .filter(rx => counts[rx.type] > 0)
+        .sort((a, b) => counts[b.type] - counts[a.type]);
+
+    if (sorted.length === 0) {
+        summaryEl.innerHTML = '';
+        return;
+    }
+
+    const topThree = sorted.slice(0, 3);
+    let html = topThree.map(rx =>
+        `<span class="reaction-bubble">
+            <span class="rb-emoji">${rx.emoji}</span>
+            <span class="rb-count">${counts[rx.type]}</span>
+         </span>`
+    ).join('');
+
+    if (total > 0) {
+        html += `<span class="reaction-total">${total} réaction${total > 1 ? 's' : ''}</span>`;
+    }
+
+    summaryEl.innerHTML = html;
+}
+
+// ── Highlights (most reacted / most commented) ───────────────────
+
+function updateHighlights() {
+    const allRx     = loadReactions();
+    const cards     = document.querySelectorAll('.pub-card[data-pub-id]');
+
+    // Remove existing highlights & badges
+    cards.forEach(card => {
+        card.classList.remove('most-reacted', 'most-commented');
+        card.querySelectorAll('.highlight-badge').forEach(b => b.remove());
+    });
+
+    if (cards.length === 0) return;
+
+    // Find most reacted
+    let maxRxPubId = null, maxRxCount = -1;
+    cards.forEach(card => {
+        const pid   = card.dataset.pubId;
+        const cnt   = totalReactions(allRx[pid] || {});
+        if (cnt > maxRxCount) { maxRxCount = cnt; maxRxPubId = pid; }
+    });
+
+    // Find most commented (from server-injected data)
+    let maxCmtPubId = null, maxCmtCount = -1;
+    cards.forEach(card => {
+        const cnt = parseInt(card.dataset.commentCount || '0', 10);
+        if (cnt > maxCmtCount) { maxCmtCount = cnt; maxCmtPubId = card.dataset.pubId; }
+    });
+
+    // Apply highlights
+    const rxCard  = maxRxCount  > 0 ? document.querySelector(`.pub-card[data-pub-id="${maxRxPubId}"]`)  : null;
+    const cmtCard = maxCmtCount > 0 ? document.querySelector(`.pub-card[data-pub-id="${maxCmtPubId}"]`) : null;
+
+    const isSame = rxCard && cmtCard && rxCard === cmtCard;
+
+    if (rxCard) {
+        rxCard.classList.add('most-reacted');
+        const badge = document.createElement('div');
+        badge.className = 'highlight-badge badge-hot' + (isSame ? ' badge-both-left' : '');
+        badge.innerHTML = '🔥 Tendance · ' + maxRxCount + ' réaction' + (maxRxCount > 1 ? 's' : '');
+        rxCard.prepend(badge);
+    }
+
+    if (cmtCard) {
+        cmtCard.classList.add('most-commented');
+        const badge = document.createElement('div');
+        badge.className = 'highlight-badge badge-most-comments' + (isSame ? ' badge-both-right' : '');
+        badge.innerHTML = '💬 Le + commenté · ' + maxCmtCount + ' comm.';
+        cmtCard.prepend(badge);
+    }
+}
+
+// ── Bootstrap on page load ───────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.pub-card[data-pub-id]');
+    cards.forEach(card => renderCard(card.dataset.pubId));
+    updateHighlights();
+
+    // Auto-dismiss flash messages
+    setTimeout(() => {
+        const fw = document.getElementById('flashWrapper');
+        if (fw) { fw.style.transition = 'opacity .5s'; fw.style.opacity = '0'; setTimeout(() => fw.remove(), 500); }
+    }, 4000);
+});
+</script>
+
+{# Include Ably chat widget #}
+{% include 'frontend/communaute/communaute_ably_chat_widget.html.twig' %}
+
+{# Include Chatbot widget (blue FAB) #}
+{% include 'frontend/communaute/_chatbot_widget.html.twig' %}
+{# Include Games FAB widget  #}
+{% include 'frontend/communaute/_games_fab.html.twig' %}
+
+{% block javascripts %}{% endblock %}
+{% endblock %}

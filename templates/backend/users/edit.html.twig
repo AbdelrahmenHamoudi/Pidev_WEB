@@ -1,0 +1,838 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Modifier Utilisateur - RE7LA Admin{% endblock %}
+
+{% block breadcrumb %}Utilisateurs{% endblock %}
+{% block page_title %}Modifier un utilisateur{% endblock %}
+
+{% block body %}
+<div class="user-edit-page">
+    {% for message in app.flashes('success') %}
+        <div class="flash-message flash-success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ message }}</span>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="flash-message flash-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ message }}</span>
+        </div>
+    {% endfor %}
+
+    <div class="page-header">
+        <div>
+            <a href="{{ path('app_admin_users_index') }}" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Retour à la liste
+            </a>
+            <h1>Modifier l'utilisateur</h1>
+            <p>Mettre à jour les informations, le rôle et le statut du compte.</p>
+        </div>
+
+        <div class="header-actions">
+            <a href="{{ path('app_admin_users_show', {'id': userItem.id}) }}" class="header-btn ghost">
+                <i class="fas fa-eye"></i>
+                Voir le profil
+            </a>
+        </div>
+    </div>
+
+    <div class="user-edit-layout">
+        <aside class="profile-sidebar">
+            <div class="profile-card">
+                <div class="profile-cover"></div>
+
+                <div class="profile-card-body">
+                    <div class="profile-avatar-wrap">
+                        <div id="imagePreviewContainer" class="profile-avatar">
+                            {% if userItem.image %}
+                                <img id="imagePreview" src="{{ asset('uploads/profiles/' ~ userItem.image) }}" alt="Photo de profil">
+                            {% else %}
+                                <span id="initialPreview">{{ userItem.prenom|slice(0,1)|upper }}{{ userItem.nom|slice(0,1)|upper }}</span>
+                                <img id="imagePreview" src="" alt="Photo de profil" style="display:none;">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h2>{{ userItem.prenom }} {{ userItem.nom }}</h2>
+                    <p class="profile-email">{{ userItem.e_mail }}</p>
+
+                    <div class="profile-badges">
+                        <span class="badge role {% if userItem.role == 'admin' %}admin{% else %}user{% endif %}">
+                            <i class="fas fa-user-shield"></i>
+                            {{ userItem.role == 'admin' ? 'Administrateur' : 'Utilisateur' }}
+                        </span>
+
+                        <span class="badge status {% if userItem.status == 'Banned' %}banned{% else %}active{% endif %}">
+                            <i class="fas fa-circle"></i>
+                            {{ userItem.status }}
+                        </span>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">ID</span>
+                            <strong>#{{ userItem.id }}</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Téléphone</span>
+                            <strong>{{ userItem.num_tel ?: '—' }}</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Naissance</span>
+                            <strong>{{ userItem.date_naiss ?: '—' }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="form-section">
+            <div class="form-card">
+                <div class="card-head">
+                    <div>
+                        <h3><i class="fas fa-user-edit"></i> Informations utilisateur</h3>
+                        <p>Complétez correctement les informations demandées.</p>
+                    </div>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" id="userEditForm" novalidate>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="prenom">Prénom *</label>
+                            <div class="input-box">
+                                <i class="fas fa-user"></i>
+                                <input id="prenom" type="text" name="prenom" value="{{ userItem.prenom }}">
+                            </div>
+                            <small class="error-text" id="error-prenom"></small>
+                        </div>
+
+                        <div class="field">
+                            <label for="nom">Nom *</label>
+                            <div class="input-box">
+                                <i class="fas fa-user-tag"></i>
+                                <input id="nom" type="text" name="nom" value="{{ userItem.nom }}">
+                            </div>
+                            <small class="error-text" id="error-nom"></small>
+                        </div>
+
+                        <div class="field full">
+                            <label for="e_mail">Email *</label>
+                            <div class="input-box">
+                                <i class="fas fa-envelope"></i>
+                                <input id="e_mail" type="email" name="e_mail" value="{{ userItem.e_mail }}">
+                            </div>
+                            <small class="error-text" id="error-e_mail"></small>
+                        </div>
+
+                        <div class="field">
+                            <label for="num_tel">Téléphone *</label>
+                            <div class="input-box">
+                                <i class="fas fa-phone"></i>
+                                <input id="num_tel" type="tel" name="num_tel" value="{{ userItem.num_tel }}">
+                            </div>
+                            <small class="error-text" id="error-num_tel"></small>
+                        </div>
+
+                        <div class="field">
+                            <label for="date_naiss">Date de naissance *</label>
+                            <div class="input-box">
+                                <i class="fas fa-calendar-alt"></i>
+                                <input id="date_naiss" type="date" name="date_naiss" value="{{ userItem.date_naiss }}">
+                            </div>
+                            <small class="error-text" id="error-date_naiss"></small>
+                        </div>
+
+                        <div class="field">
+                            <label for="role">Rôle *</label>
+                            <div class="input-box select-box">
+                                <i class="fas fa-user-shield"></i>
+                                <select id="role" name="role">
+                                    <option value="">Choisir un rôle</option>
+                                    <option value="admin" {% if userItem.role == 'admin' %}selected{% endif %}>Administrateur</option>
+                                    <option value="user" {% if userItem.role == 'user' %}selected{% endif %}>Utilisateur</option>
+                                </select>
+                            </div>
+                            <small class="error-text" id="error-role"></small>
+                        </div>
+
+                        <div class="field">
+                            <label for="status">Statut *</label>
+                            <div class="input-box select-box">
+                                <i class="fas fa-toggle-on"></i>
+                                <select id="status" name="status">
+                                    <option value="">Choisir un statut</option>
+                                    <option value="Unbanned" {% if userItem.status == 'Unbanned' %}selected{% endif %}>Unbanned</option>
+                                    <option value="Banned" {% if userItem.status == 'Banned' %}selected{% endif %}>Banned</option>
+                                </select>
+                            </div>
+                            <small class="error-text" id="error-status"></small>
+                        </div>
+
+                        <div class="field full">
+                            <label for="image">Image de profil</label>
+                            <div class="upload-area">
+                                <div class="input-box upload-box">
+                                    <i class="fas fa-image"></i>
+                                    <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.webp">
+                                </div>
+                                <p class="upload-help">Formats autorisés : JPG, PNG, WEBP — taille max 2 MB.</p>
+                            </div>
+                            <small class="error-text" id="error-image"></small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="{{ path('app_admin_users_index') }}" class="btn btn-light">
+                            <i class="fas fa-times"></i>
+                            Annuler
+                        </a>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Enregistrer les modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .user-edit-page{
+        max-width:1400px;
+        margin:0 auto;
+    }
+
+    .flash-message{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:14px 18px;
+        border-radius:14px;
+        margin-bottom:18px;
+        font-weight:600;
+        box-shadow:0 8px 24px rgba(0,0,0,0.05);
+    }
+
+    .flash-success{
+        background:#dcfce7;
+        color:#166534;
+        border:1px solid #bbf7d0;
+    }
+
+    .flash-error{
+        background:#fee2e2;
+        color:#991b1b;
+        border:1px solid #fecaca;
+    }
+
+    .page-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:20px;
+        margin-bottom:28px;
+        flex-wrap:wrap;
+    }
+
+    .page-header h1{
+        margin:8px 0 6px;
+        font-size:30px;
+        font-weight:800;
+        color:#203040;
+    }
+
+    .page-header p{
+        margin:0;
+        color:#64748b;
+        font-size:14px;
+    }
+
+    .back-link{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        color:#1ABC9C;
+        text-decoration:none;
+        font-weight:700;
+        font-size:14px;
+    }
+
+    .header-actions{
+        display:flex;
+        gap:12px;
+    }
+
+    .header-btn{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        padding:12px 18px;
+        border-radius:12px;
+        text-decoration:none;
+        font-weight:700;
+        transition:0.25s ease;
+    }
+
+    .header-btn.ghost{
+        color:#334155;
+        border:1px solid #e2e8f0;
+        background:#fff;
+    }
+
+    .header-btn:hover{
+        transform:translateY(-2px);
+    }
+
+    .user-edit-layout{
+        display:grid;
+        grid-template-columns:360px 1fr;
+        gap:24px;
+        align-items:start;
+    }
+
+    .profile-card,
+    .form-card{
+        background:#fff;
+        border-radius:24px;
+        overflow:hidden;
+        box-shadow:0 15px 40px rgba(15,23,42,0.08);
+        border:1px solid #eef2f7;
+    }
+
+    .profile-cover{
+        height:120px;
+        background:linear-gradient(135deg,#1ABC9C 0%, #16a085 45%, #2C3E50 100%);
+    }
+
+    .profile-card-body{
+        padding:0 26px 26px;
+        margin-top:-45px;
+        text-align:center;
+    }
+
+    .profile-avatar-wrap{
+        display:flex;
+        justify-content:center;
+        margin-bottom:14px;
+    }
+
+    .profile-avatar{
+        width:92px;
+        height:92px;
+        border-radius:50%;
+        background:#fff;
+        border:4px solid #fff;
+        box-shadow:0 12px 30px rgba(0,0,0,0.15);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+        font-size:30px;
+        font-weight:800;
+        color:#1ABC9C;
+    }
+
+    .profile-avatar img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+    }
+
+    .profile-card-body h2{
+        margin:10px 0 6px;
+        font-size:22px;
+        color:#1e293b;
+        font-weight:800;
+    }
+
+    .profile-email{
+        margin:0 0 16px;
+        color:#64748b;
+        font-size:14px;
+    }
+
+    .profile-badges{
+        display:flex;
+        justify-content:center;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-bottom:20px;
+    }
+
+    .badge{
+        display:inline-flex;
+        align-items:center;
+        gap:7px;
+        padding:8px 12px;
+        border-radius:999px;
+        font-size:12px;
+        font-weight:700;
+    }
+
+    .badge.role.admin{
+        background:#ede9fe;
+        color:#6d28d9;
+    }
+
+    .badge.role.user{
+        background:#dbeafe;
+        color:#1d4ed8;
+    }
+
+    .badge.status.active{
+        background:#dcfce7;
+        color:#15803d;
+    }
+
+    .badge.status.banned{
+        background:#fee2e2;
+        color:#b91c1c;
+    }
+
+    .profile-stats{
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+        text-align:left;
+        margin-top:20px;
+    }
+
+    .stat-item{
+        padding:14px 16px;
+        border-radius:16px;
+        background:#f8fafc;
+        border:1px solid #edf2f7;
+    }
+
+    .stat-label{
+        display:block;
+        color:#64748b;
+        font-size:12px;
+        margin-bottom:4px;
+        font-weight:600;
+    }
+
+    .stat-item strong{
+        color:#1e293b;
+        font-size:14px;
+    }
+
+    .form-card{
+        padding:30px;
+    }
+
+    .card-head{
+        margin-bottom:24px;
+        padding-bottom:18px;
+        border-bottom:1px solid #eef2f7;
+    }
+
+    .card-head h3{
+        margin:0 0 8px;
+        font-size:22px;
+        color:#1e293b;
+        font-weight:800;
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+
+    .card-head h3 i{
+        color:#1ABC9C;
+    }
+
+    .card-head p{
+        margin:0;
+        color:#64748b;
+        font-size:14px;
+    }
+
+    .form-grid{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:20px;
+    }
+
+    .field.full{
+        grid-column:1 / -1;
+    }
+
+    .field label{
+        display:block;
+        margin-bottom:9px;
+        color:#334155;
+        font-weight:700;
+        font-size:14px;
+    }
+
+    .input-box{
+        position:relative;
+    }
+
+    .input-box i{
+        position:absolute;
+        left:15px;
+        top:50%;
+        transform:translateY(-50%);
+        color:#94a3b8;
+        font-size:14px;
+        z-index:2;
+    }
+
+    .input-box input,
+    .input-box select{
+        width:100%;
+        height:54px;
+        border-radius:16px;
+        border:2px solid #e2e8f0;
+        background:#f8fafc;
+        padding:0 16px 0 44px;
+        font-size:14px;
+        color:#0f172a;
+        transition:all 0.25s ease;
+        outline:none;
+    }
+
+    .upload-box input{
+        padding-top:14px;
+        padding-bottom:14px;
+        height:auto;
+    }
+
+    .input-box input:focus,
+    .input-box select:focus{
+        background:#fff;
+        border-color:#1ABC9C;
+        box-shadow:0 0 0 4px rgba(26,188,156,0.10);
+    }
+
+    .upload-help{
+        margin:10px 0 0;
+        font-size:12px;
+        color:#64748b;
+    }
+
+    .error-text{
+        display:block;
+        min-height:18px;
+        margin-top:7px;
+        color:#E74C3C;
+        font-size:12px;
+        font-weight:700;
+    }
+
+    .input-error{
+        border-color:#E74C3C !important;
+        background:#fff5f5 !important;
+        box-shadow:0 0 0 4px rgba(231,76,60,0.08) !important;
+    }
+
+    .input-valid{
+        border-color:#22c55e !important;
+        background:#f0fdf4 !important;
+        box-shadow:0 0 0 4px rgba(34,197,94,0.08) !important;
+    }
+
+    .form-actions{
+        display:flex;
+        justify-content:flex-end;
+        gap:12px;
+        margin-top:30px;
+        flex-wrap:wrap;
+        padding-top:22px;
+        border-top:1px solid #eef2f7;
+    }
+
+    .btn{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        padding:13px 22px;
+        border-radius:14px;
+        text-decoration:none;
+        border:none;
+        cursor:pointer;
+        font-weight:700;
+        transition:all 0.25s ease;
+    }
+
+    .btn:hover{
+        transform:translateY(-2px);
+    }
+
+    .btn-light{
+        background:#fff;
+        color:#475569;
+        border:1px solid #dbe3ea;
+    }
+
+    .btn-primary{
+        background:linear-gradient(135deg,#1ABC9C,#16a085);
+        color:#fff;
+        box-shadow:0 12px 24px rgba(26,188,156,0.25);
+    }
+
+    @media (max-width: 1100px){
+        .user-edit-layout{
+            grid-template-columns:1fr;
+        }
+    }
+
+    @media (max-width: 768px){
+        .form-grid{
+            grid-template-columns:1fr;
+        }
+
+        .form-card{
+            padding:22px;
+        }
+
+        .page-header h1{
+            font-size:24px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('userEditForm');
+
+    const prenomField = document.getElementById('prenom');
+    const nomField = document.getElementById('nom');
+    const emailField = document.getElementById('e_mail');
+    const telephoneField = document.getElementById('num_tel');
+    const dateNaissField = document.getElementById('date_naiss');
+    const roleField = document.getElementById('role');
+    const statusField = document.getElementById('status');
+    const imageField = document.getElementById('image');
+
+    const imagePreview = document.getElementById('imagePreview');
+    const initialPreview = document.getElementById('initialPreview');
+
+    function showError(input, errorId, message) {
+        input.classList.add('input-error');
+        input.classList.remove('input-valid');
+        document.getElementById(errorId).textContent = message;
+    }
+
+    function clearError(input, errorId) {
+        input.classList.remove('input-error');
+        if (input.value.trim() !== '') {
+            input.classList.add('input-valid');
+        } else {
+            input.classList.remove('input-valid');
+        }
+        document.getElementById(errorId).textContent = '';
+    }
+
+    function validateNameField(input, errorId, fieldName) {
+        const value = input.value.trim();
+
+        if (value === '') {
+            showError(input, errorId, '👤 ' + fieldName + ' est requis');
+            return false;
+        }
+
+        if (value.length < 2) {
+            showError(input, errorId, '👤 Minimum 2 caractères');
+            return false;
+        }
+
+        if (value.length > 50) {
+            showError(input, errorId, '👤 Maximum 50 caractères');
+            return false;
+        }
+
+        if (!/^[a-zA-ZÀ-ÿ\s-]+$/.test(value)) {
+            showError(input, errorId, '👤 Caractères non autorisés');
+            return false;
+        }
+
+        clearError(input, errorId);
+        return true;
+    }
+
+    function validateEmailField() {
+        const value = emailField.value.trim().toLowerCase();
+
+        if (value === '') {
+            showError(emailField, 'error-e_mail', '📧 L\'email est requis');
+            return false;
+        }
+
+        if (value.length > 100) {
+            showError(emailField, 'error-e_mail', '📧 Email trop long');
+            return false;
+        }
+
+        if (value.includes(' ')) {
+            showError(emailField, 'error-e_mail', '📧 L\'email ne doit pas contenir d\'espaces');
+            return false;
+        }
+
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+            showError(emailField, 'error-e_mail', '📧 Format invalide');
+            return false;
+        }
+
+        clearError(emailField, 'error-e_mail');
+        return true;
+    }
+
+    function validatePhoneField() {
+        const value = telephoneField.value.trim();
+
+        if (value === '') {
+            showError(telephoneField, 'error-num_tel', '📞 Le téléphone est requis');
+            return false;
+        }
+
+        if (value.length > 20) {
+            showError(telephoneField, 'error-num_tel', '📞 Numéro trop long');
+            return false;
+        }
+
+        if (!/^(\+216|0)?[2-9][0-9]{7}$/.test(value)) {
+            showError(telephoneField, 'error-num_tel', '📞 Format tunisien invalide');
+            return false;
+        }
+
+        clearError(telephoneField, 'error-num_tel');
+        return true;
+    }
+
+    function validateDateField() {
+        const value = dateNaissField.value;
+
+        if (!value) {
+            showError(dateNaissField, 'error-date_naiss', '📅 La date de naissance est requise');
+            return false;
+        }
+
+        const birthDate = new Date(value);
+        const today = new Date();
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (birthDate > today) {
+            showError(dateNaissField, 'error-date_naiss', '📅 Date invalide');
+            return false;
+        }
+
+        if (age < 18) {
+            showError(dateNaissField, 'error-date_naiss', '📅 L’utilisateur doit avoir au moins 18 ans');
+            return false;
+        }
+
+        if (age > 120) {
+            showError(dateNaissField, 'error-date_naiss', '📅 Date invalide');
+            return false;
+        }
+
+        clearError(dateNaissField, 'error-date_naiss');
+        return true;
+    }
+
+    function validateRoleField() {
+        const value = roleField.value;
+
+        if (!['admin', 'user'].includes(value)) {
+            showError(roleField, 'error-role', '⚠ Rôle invalide');
+            return false;
+        }
+
+        clearError(roleField, 'error-role');
+        return true;
+    }
+
+    function validateStatusField() {
+        const value = statusField.value;
+
+        if (!['Banned', 'Unbanned'].includes(value)) {
+            showError(statusField, 'error-status', '⚠ Statut invalide');
+            return false;
+        }
+
+        clearError(statusField, 'error-status');
+        return true;
+    }
+
+    function validateImageField() {
+        const file = imageField.files[0];
+
+        if (!file) {
+            document.getElementById('error-image').textContent = '';
+            imageField.classList.remove('input-error');
+            imageField.classList.remove('input-valid');
+            return true;
+        }
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+        const maxSize = 2 * 1024 * 1024;
+
+        if (!allowedTypes.includes(file.type)) {
+            showError(imageField, 'error-image', '❌ Format image invalide');
+            return false;
+        }
+
+        if (file.size > maxSize) {
+            showError(imageField, 'error-image', '❌ Taille max 2 MB');
+            return false;
+        }
+
+        imageField.classList.remove('input-error');
+        imageField.classList.add('input-valid');
+        document.getElementById('error-image').textContent = '';
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (imagePreview) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            }
+            if (initialPreview) {
+                initialPreview.style.display = 'none';
+            }
+        };
+        reader.readAsDataURL(file);
+
+        return true;
+    }
+
+    prenomField.addEventListener('input', () => validateNameField(prenomField, 'error-prenom', 'Le prénom'));
+    nomField.addEventListener('input', () => validateNameField(nomField, 'error-nom', 'Le nom'));
+    emailField.addEventListener('input', validateEmailField);
+    telephoneField.addEventListener('input', validatePhoneField);
+    dateNaissField.addEventListener('change', validateDateField);
+    roleField.addEventListener('change', validateRoleField);
+    statusField.addEventListener('change', validateStatusField);
+    imageField.addEventListener('change', validateImageField);
+
+    form.addEventListener('submit', function (e) {
+        const isValid =
+            validateNameField(prenomField, 'error-prenom', 'Le prénom') &&
+            validateNameField(nomField, 'error-nom', 'Le nom') &&
+            validateEmailField() &&
+            validatePhoneField() &&
+            validateDateField() &&
+            validateRoleField() &&
+            validateStatusField() &&
+            validateImageField();
+
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

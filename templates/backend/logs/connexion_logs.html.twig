@@ -1,0 +1,105 @@
+{% extends 'backend/baseend.html.twig' %}
+{% block title %}Logs Connexion — RE7LA{% endblock %}
+{% block breadcrumb %}Logs Connexion{% endblock %}
+{% block page_title %}Journal des connexions{% endblock %}
+
+{% block body %}
+<div class="card" style="padding:24px;border-radius:20px;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <p style="color:#64748b;font-size:13px;margin:0;">
+            {{ logs|length }} connexion(s) enregistrée(s)
+        </p>
+        <a href="{{ path('app_admin_users_index') }}"
+           style="background:#f0f2f5;color:#2C3E50;padding:10px 16px;border-radius:10px;
+                  text-decoration:none;font-size:13px;font-weight:600;">
+            <i class="fas fa-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date connexion</th>
+                    <th>Utilisateur</th>
+                    <th>IP</th>
+                    <th>Localisation</th>
+                    <th>Navigateur / Device</th>
+                    <th>Statut</th>
+                    <th>Raison échec</th>
+                    <th>Déconnexion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td style="white-space:nowrap;">
+                        {{ log.login_time|date('d/m/Y') }}<br>
+                        <small style="color:#94a3b8;">{{ log.login_time|date('H:i:s') }}</small>
+                    </td>
+                    <td>
+                        {% if log.user_id %}
+                            <strong>{{ log.user_id.prenom }} {{ log.user_id.nom }}</strong><br>
+                            <small style="color:#64748b;">{{ log.user_id.e_mail }}</small>
+                        {% else %}
+                            <span style="color:#94a3b8;">Inconnu</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family:monospace;font-size:12px;color:#94a3b8;">
+                        {{ log.ip_address }}
+                    </td>
+                    <td>
+                        {% if log.country and log.country != 'Local' %}
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <i class="fas fa-map-marker-alt" style="color:#ef4444;font-size:13px;"></i>
+                                <div>
+                                    <div style="font-weight:600;color:#2C3E50;font-size:13px;">{{ log.city ?: '—' }}</div>
+                                    <small style="color:#64748b;">{{ log.country }}</small>
+                                </div>
+                            </div>
+                        {% elseif log.country == 'Local' %}
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <i class="fas fa-laptop-house" style="color:#1ABC9C;font-size:13px;"></i>
+                                <div>
+                                    <div style="font-weight:600;color:#1ABC9C;font-size:13px;">Localhost</div>
+                                    <small style="color:#94a3b8;">Réseau local</small>
+                                </div>
+                            </div>
+                        {% else %}
+                            <span style="color:#94a3b8;font-size:12px;">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size:11px;color:#64748b;max-width:160px;overflow:hidden;
+                               text-overflow:ellipsis;white-space:nowrap;" title="{{ log.device_info }}">
+                        {{ log.device_info }}
+                    </td>
+                    <td>
+                        <span class="status-badge {{ log.success ? 's-ok' : 's-cancel' }}">
+                            {{ log.success ? '✓ Succès' : '✗ Échec' }}
+                        </span>
+                    </td>
+                    <td style="color:#94a3b8;font-size:12px;">
+                        {{ log.failure_reason ?: '—' }}
+                    </td>
+                    <td style="white-space:nowrap;">
+                        {% if log.logout_time %}
+                            {{ log.logout_time|date('d/m/Y H:i') }}
+                        {% else %}
+                            <span style="color:#94a3b8;">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align:center;color:#94a3b8;padding:60px 0;">
+                        <i class="fas fa-sign-in-alt" style="font-size:32px;display:block;margin-bottom:12px;"></i>
+                        Aucune connexion enregistrée pour le moment
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

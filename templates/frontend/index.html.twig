@@ -1,0 +1,778 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}RE7LA - Voyagez en Tunisie{% endblock %}
+
+{% block extra_styles %}
+<style>
+
+    /* ════════════════════════════ HERO ════════════════════════════ */
+    .hero-v2 {
+        position: relative;
+        min-height: calc(100vh - var(--navbar-height));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: var(--dark);
+    }
+
+    .hero-v2-bg {
+        position: absolute;
+        inset: 0;
+        background: url('{{ asset('hero_tunisia.png') }}') center/cover no-repeat;
+        filter: brightness(0.45);
+        animation: slowZoom 30s infinite alternate;
+    }
+
+    @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+    .hero-v2-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(44,62,80,0.7) 0%, rgba(26,188,156,0.15) 100%);
+        z-index: 2;
+    }
+
+    .hero-v2-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        color: white;
+        max-width: 950px;
+        padding: 0 20px;
+    }
+
+    .hero-pill {
+        background: rgba(243,156,18,0.2);
+        border: 1px solid rgba(243,156,18,0.5);
+        color: #F7DC6F;
+        padding: 8px 20px;
+        border-radius: 99px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 30px;
+        display: inline-block;
+        backdrop-filter: blur(8px);
+    }
+
+    .hero-v2-title {
+        font-size: clamp(3.2rem, 7vw, 5.5rem);
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 25px;
+        letter-spacing: -2px;
+        color: #FAFAFA;
+    }
+
+    .hero-v2-title .accent {
+        background: linear-gradient(90deg, #F39C12, #F7DC6F);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+        font-size: 1.1rem;
+        color: rgba(250,250,250,0.8);
+        max-width: 600px;
+        margin: 0 auto 40px;
+        line-height: 1.7;
+    }
+
+    .hero-quick-links a {
+        background: rgba(250,250,250,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(250,250,250,0.2);
+        color: white;
+        padding: 10px 22px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .hero-quick-links a:hover {
+        background: var(--orange);
+        border-color: var(--orange);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* ════════════════════════ FLOATING SEARCH ════════════════════ */
+    .floating-search-wrap {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 92%;
+        max-width: 900px;
+        z-index: 100;
+    }
+
+    .floating-search {
+        background: white;
+        padding: 8px;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(44,62,80,0.25);
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .s-unit {
+        flex: 1;
+        min-width: 130px;
+        padding: 8px 16px;
+        border-right: 1px solid #eef0f3;
+    }
+
+    .s-unit:last-child { border: none; flex: 0; }
+
+    .s-unit label {
+        font-size: 0.68rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .s-unit select {
+        border: none;
+        outline: none;
+        font-weight: 700;
+        color: var(--dark);
+        background: transparent;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .btn-hero-search {
+        background: var(--orange);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: 0.3s;
+        flex-shrink: 0;
+    }
+
+    .btn-hero-search:hover { background: var(--orange-dark); transform: scale(1.05); }
+
+    /* ════════════════════════ STATS STRIP ════════════════════════ */
+    .stats-strip {
+        background: var(--dark);
+        padding: 50px 0;
+    }
+
+    .stat-val {
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: var(--orange);
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .stat-lbl {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(250,250,250,0.5);
+    }
+
+    /* ════════════════════════ SECTION COMMONS ════════════════════ */
+    .sec-label {
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--teal);
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .sec-title {
+        font-size: 2.4rem;
+        font-weight: 900;
+        color: var(--dark);
+        letter-spacing: -1px;
+        margin-bottom: 10px;
+        line-height: 1.1;
+    }
+
+    .sec-sub {
+        color: #64748b;
+        font-size: 0.95rem;
+        max-width: 520px;
+        line-height: 1.6;
+    }
+
+    .btn-brand {
+        background: var(--dark);
+        color: white;
+        padding: 13px 26px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-brand:hover { background: var(--orange); color: white; transform: translateY(-2px); }
+    .btn-brand.teal { background: var(--teal); }
+    .btn-brand.teal:hover { background: var(--teal-dark); }
+    .btn-brand.orange { background: var(--orange); }
+    .btn-brand.orange:hover { background: var(--orange-dark); }
+
+    /* ════════════════════════ HEBERGEMENTS ════════════════════════ */
+    .dest-card {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: 0.5s;
+        display: block;
+        text-decoration: none;
+    }
+
+    .dest-card:hover { transform: translateY(-8px); box-shadow: 0 30px 60px -10px rgba(44,62,80,0.25); }
+    .dest-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.8s; }
+    .dest-card:hover img { transform: scale(1.07); }
+
+    .dest-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(44,62,80,0.9) 0%, transparent 55%);
+    }
+
+    .dest-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        padding: 25px;
+        color: white;
+    }
+
+    .dest-city { font-size: 1.6rem; font-weight: 800; }
+    .dest-sub { font-size: 0.8rem; opacity: 0.75; margin-top: 3px; }
+
+    .dest-price {
+        display: inline-block;
+        margin-top: 10px;
+        background: var(--orange);
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    /* ════════════════════════ ACTIVITÉS ════════════════════════ */
+    .activites-section { background: var(--light); }
+
+    .act-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: 0.4s;
+        border: 1px solid rgba(44,62,80,0.06);
+        height: 100%;
+    }
+
+    .act-card:hover { transform: translateY(-6px); box-shadow: 0 25px 50px -10px rgba(44,62,80,0.12); }
+    .act-img { height: 190px; object-fit: cover; width: 100%; }
+    .act-body { padding: 20px; }
+
+    .act-tag {
+        background: rgba(26,188,156,0.1);
+        color: var(--teal-dark);
+        padding: 3px 10px;
+        border-radius: 99px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+
+    .act-title { font-weight: 800; font-size: 1rem; color: var(--dark); margin-bottom: 5px; }
+    .act-price { color: var(--orange); font-weight: 900; font-size: 1.1rem; }
+
+    /* ════════════════════════ TRAJETS ════════════════════════ */
+    .trajet-banner {
+        border-radius: 30px;
+        overflow: hidden;
+        position: relative;
+        min-height: 380px;
+        display: flex;
+        align-items: center;
+    }
+
+    .trajet-banner-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.4);
+    }
+
+    .trajet-banner-content {
+        position: relative;
+        z-index: 5;
+        color: white;
+        padding: 50px 60px;
+    }
+
+    /* ════════════════════════ PROMOTIONS ════════════════════════ */
+    .promo-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid rgba(44,62,80,0.06);
+        transition: 0.3s;
+        height: 100%;
+    }
+
+    .promo-card:hover { box-shadow: 0 20px 40px rgba(44,62,80,0.1); transform: translateY(-4px); }
+
+    .promo-icon {
+        width: 55px;
+        height: 55px;
+        background: rgba(243,156,18,0.1);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--orange);
+        margin-bottom: 16px;
+    }
+
+    .promo-badge {
+        background: var(--orange);
+        color: white;
+        font-weight: 800;
+        font-size: 0.68rem;
+        padding: 3px 10px;
+        border-radius: 99px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    /* ════════════════════════ COMMUNITY ════════════════════════ */
+    .community-box {
+        background: var(--dark);
+        border-radius: 30px;
+        padding: 60px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .community-box::before {
+        content: '';
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: var(--teal);
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.08;
+        top: -200px;
+        right: -100px;
+    }
+
+    .comm-stat-box {
+        background: rgba(250,250,250,0.06);
+        border: 1px solid rgba(250,250,250,0.08);
+        border-radius: 18px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .comm-stat-val { font-size: 2rem; font-weight: 900; color: var(--yellow); margin-bottom: 4px; }
+    .comm-stat-lbl { font-size: 0.8rem; opacity: 0.6; }
+
+    /* ════════════════════════ CTA FINAL ════════════════════════ */
+    .cta-gradient {
+        background: linear-gradient(135deg, var(--teal) 0%, var(--orange) 100%);
+        border-radius: 30px;
+        padding: 60px;
+        text-align: center;
+        color: white;
+    }
+
+    /* ════════════════════════ RESPONSIVE ════════════════════════ */
+    @media (max-width: 767px) {
+        .floating-search-wrap { position: relative; bottom: auto; left: auto; transform: none; width: 100%; margin-top: 30px; }
+        .hero-v2 { height: auto; padding: 150px 0 40px; }
+        .floating-search { flex-direction: column; }
+        .s-unit { border-right: none; border-bottom: 1px solid #eef0f3; min-width: unset; }
+        .trajet-banner-content { padding: 30px; }
+        .community-box { padding: 30px; }
+        .cta-gradient { padding: 40px 20px; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ══════ HERO ══════ #}
+<section class="hero-v2">
+    <div class="hero-v2-bg"></div>
+    <div class="hero-v2-overlay"></div>
+
+    <div class="hero-v2-content" data-aos="fade-up">
+        <div class="hero-pill">{{ 'home.hero.pill'|trans }}</div>
+
+        <h1 class="hero-v2-title">
+            {{ 'home.hero.title_1'|trans }}<br>
+            <span class="accent">{{ 'home.hero.title_accent'|trans }}</span>
+        </h1>
+
+        <p class="hero-sub">
+            {{ 'home.hero.subtitle'|trans }}
+        </p>
+
+        <div class="hero-quick-links d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ path('app_hebergements_search') }}"><i class="fas fa-hotel"></i> {{ 'navbar.accommodations'|trans }}</a>
+            <a href="{{ path('activite_index_front') }}"><i class="fas fa-hiking"></i> {{ 'navbar.activities'|trans }}</a>
+            <a href="{{ path('app_trajet') }}"><i class="fas fa-route"></i> {{ 'navbar.trips'|trans }}</a>
+            <a href="{{ path('app_promotion_list') }}"><i class="fas fa-tag"></i> {{ 'navbar.promotions'|trans }}</a>
+        </div>
+    </div>
+
+    <div class="floating-search-wrap" data-aos="fade-up" data-aos-delay="300">
+        <form method="get" action="{{ path('app_hebergements_search') }}">
+            <div class="floating-search">
+                <div class="s-unit">
+                    <label>{{ 'search.where'|trans }}</label>
+                    <select name="titre">
+                        <option value="">{{ 'home.search.all_cities'|trans }}</option>
+                        <option value="Tunis">Tunis</option>
+                        <option value="Sidi Bou Said">Sidi Bou Said</option>
+                        <option value="Djerba">Djerba</option>
+                        <option value="Hammamet">Hammamet</option>
+                        <option value="Tozeur">Tozeur / Sahara</option>
+                        <option value="Tabarka">Tabarka</option>
+                    </select>
+                </div>
+                <div class="s-unit">
+                    <label>Type</label>
+                    <select name="type">
+                        <option value="all">{{ 'home.search.all_types'|trans }}</option>
+                        <option value="Hotel">{{ 'search.hotel'|trans }}</option>
+                        <option value="Villa">{{ 'search.villa'|trans }}</option>
+                        <option value="Appartement">{{ 'search.apartment'|trans }}</option>
+                        <option value="Maison d'hôte">{{ 'search.guesthouse'|trans }}</option>
+                    </select>
+                </div>
+                <div class="s-unit">
+                    <label>{{ 'search.travelers'|trans }}</label>
+                    <select name="capacite">
+                        <option value="1">{{ 'home.search.travelers_1'|trans }}</option>
+                        <option value="2">{{ 'home.search.travelers_2'|trans }}</option>
+                        <option value="3">{{ 'home.search.travelers_3'|trans }}</option>
+                        <option value="4">{{ 'home.search.travelers_4'|trans }}</option>
+                    </select>
+                </div>
+                <div class="s-unit">
+                    <button type="submit" class="btn-hero-search"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+{# ══════ STATS ══════ #}
+<div class="stats-strip">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3" data-aos="fade-up">
+                <div class="stat-val">120+</div>
+                <div class="stat-lbl">{{ 'home.stats.destinations'|trans }}</div>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-val">2.5k</div>
+                <div class="stat-lbl">{{ 'home.stats.accommodations'|trans }}</div>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-val">300+</div>
+                <div class="stat-lbl">{{ 'home.stats.activities'|trans }}</div>
+            </div>
+            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-val">4.9★</div>
+                <div class="stat-lbl">{{ 'home.stats.satisfaction'|trans }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ══════ MODULE 1 — HÉBERGEMENTS ══════ #}
+<section class="py-5 mt-3">
+    <div class="container py-4">
+        <div class="d-lg-flex justify-content-between align-items-end mb-5">
+            <div data-aos="fade-right">
+                <span class="sec-label">{{ 'navbar.accommodations'|trans }}</span>
+                <h2 class="sec-title">{{ 'home.sections.acc_title'|trans }}</h2>
+                <p class="sec-sub">{{ 'home.sections.acc_sub'|trans }}</p>
+            </div>
+            <a href="{{ path('app_hebergements_search') }}" class="btn-brand d-none d-lg-inline-flex mt-3" data-aos="fade-left">
+                {{ 'home.sections.explore_all'|trans }} <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-5 col-md-6" data-aos="fade-up">
+                <a href="{{ path('app_hebergements_search') }}" class="dest-card" style="height:460px;">
+                    <img src="{{ asset('sidi_bou_said.png') }}" alt="Sidi Bou Said">
+                    <div class="dest-overlay"></div>
+                    <div class="dest-info">
+                        <div class="dest-city">Sidi Bou Said</div>
+                        <div class="dest-sub">Village iconique aux couleurs bleu & blanc</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <a href="{{ path('app_hebergements_search', {type: 'Hotel'}) }}" class="dest-card" style="height:460px;">
+                    <img src="{{ asset('djerba_beach.png') }}" alt="Djerba">
+                    <div class="dest-overlay"></div>
+                    <div class="dest-info">
+                        <div class="dest-city">Djerba</div>
+                        <div class="dest-sub">Plages de rêve & resorts de luxe</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-12" data-aos="fade-up" data-aos-delay="200">
+                <a href="{{ path('app_hebergements_search', {titre: 'Tozeur'}) }}" class="dest-card" style="height:460px;">
+                    <img src="{{ asset('sahara_tunisia.png') }}" alt="Sahara">
+                    <div class="dest-overlay"></div>
+                    <div class="dest-info">
+                        <div class="dest-city">Sahara</div>
+                        <div class="dest-sub">Bivouac sous les étoiles</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 d-lg-none">
+            <a href="{{ path('app_hebergements_search') }}" class="btn-brand">{{ 'home.sections.view_all_acc'|trans }} <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+
+{# ══════ MODULE 2 — ACTIVITÉS ══════ #}
+<section class="activites-section py-5">
+    <div class="container py-4">
+        <div class="d-lg-flex justify-content-between align-items-end mb-5">
+            <div data-aos="fade-right">
+                <span class="sec-label">{{ 'home.sections.act_title'|trans }}</span>
+                <h2 class="sec-title">{{ 'home.sections.act_title'|trans }}</h2>
+                <p class="sec-sub">{{ 'home.sections.act_sub'|trans }}</p>
+            </div>
+            <a href="{{ path('activite_index_front') }}" class="btn-brand teal d-none d-lg-inline-flex" data-aos="fade-left">
+                {{ 'home.sections.view_catalog'|trans }} <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                <div class="act-card">
+                    <img src="{{ asset('sahara_tunisia.png') }}" class="act-img" alt="Trek Sahara">
+                    <div class="act-body">
+                        <span class="act-tag">Aventure</span>
+                        <div class="act-title">Trek Sahara au Clair de Lune</div>
+                        <p class="text-muted" style="font-size:0.85rem;margin-bottom:15px;">Traversée nocturne des dunes avec guide local. Dîner berbère inclus.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="act-price">{{ 89|format_price }}</span>
+                            <a href="{{ path('activite_index_front') }}" class="btn-brand orange" style="padding:8px 16px;font-size:0.8rem;border-radius:10px;">{{ 'accommodation.book_now'|trans }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="act-card">
+                    <img src="{{ asset('djerba_beach.png') }}" class="act-img" alt="Plongée Djerba">
+                    <div class="act-body">
+                        <span class="act-tag">Nature</span>
+                        <div class="act-title">Plongée & Snorkeling Djerba</div>
+                        <p class="text-muted" style="font-size:0.85rem;margin-bottom:15px;">Exploration des épaves sous-marines avec moniteur certifié PADI.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="act-price">{{ 65|format_price }}</span>
+                            <a href="{{ path('activite_index_front') }}" class="btn-brand orange" style="padding:8px 16px;font-size:0.8rem;border-radius:10px;">{{ 'accommodation.book_now'|trans }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="act-card">
+                    <img src="{{ asset('sidi_bou_said.png') }}" class="act-img" alt="Visite guidée">
+                    <div class="act-body">
+                        <span class="act-tag">Culture</span>
+                        <div class="act-title">Visite guidée Sidi Bou Said</div>
+                        <p class="text-muted" style="font-size:0.85rem;margin-bottom:15px;">Parcours artistique et historique avec un guide expert en 2h30.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="act-price">{{ 35|format_price }}</span>
+                            <a href="{{ path('activite_index_front') }}" class="btn-brand orange" style="padding:8px 16px;font-size:0.8rem;border-radius:10px;">{{ 'accommodation.book_now'|trans }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ══════ MODULE 3 — TRAJETS ══════ #}
+<section class="py-5">
+    <div class="container py-4">
+        <div class="trajet-banner" data-aos="zoom-in">
+            <img src="{{ asset('trajet_activity_card.png') }}" class="trajet-banner-img" alt="Trajets">
+            <div class="trajet-banner-content">
+                <span style="background:rgba(243,156,18,0.25);color:#F7DC6F;border:1px solid rgba(243,156,18,0.4);padding:6px 16px;border-radius:99px;font-size:0.72rem;font-weight:800;letter-spacing:2px;display:inline-block;margin-bottom:20px;">{{ 'home.trajets.badge'|trans }}</span>
+                <h2 style="font-size:2.8rem;font-weight:900;margin-bottom:15px;line-height:1.1;">{{ 'home.trajets.title'|trans|raw }}</h2>
+                <p style="font-size:1rem;opacity:0.8;max-width:480px;margin-bottom:30px;line-height:1.6;">
+                    {{ 'home.trajets.sub'|trans }}
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ path('app_trajet') }}" class="btn-brand" style="background:var(--orange);">
+                        <i class="fas fa-route"></i> {{ 'home.trajets.find'|trans }}
+                    </a>
+                    <a href="{{ path('app_trajet') }}" class="btn-brand" style="background:rgba(250,250,250,0.12);border:1px solid rgba(250,250,250,0.3);">
+                        <i class="fas fa-car"></i> {{ 'home.trajets.propose'|trans }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ══════ MODULE 4 — PROMOTIONS ══════ #}
+<section class="py-5" style="background: var(--light);">
+    <div class="container py-4">
+        <div class="d-lg-flex justify-content-between align-items-end mb-5">
+            <div data-aos="fade-right">
+                <span class="sec-label" style="color: var(--orange);">{{ 'home.sections.promo_title'|trans }}</span>
+                <h2 class="sec-title">{{ 'home.sections.promo_title'|trans }}</h2>
+                <p class="sec-sub">{{ 'home.sections.promo_sub'|trans }}</p>
+            </div>
+            <a href="{{ path('app_promotion_list') }}" class="btn-brand orange d-none d-lg-inline-flex" data-aos="fade-left">
+                {{ 'home.sections.promo_all'|trans }} <i class="fas fa-tag"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up">
+                <div class="promo-card">
+                    <div class="promo-icon"><i class="fas fa-moon"></i></div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h4 style="font-weight:800;color:var(--dark);font-size:1.05rem;">Early Bird Djerba</h4>
+                        <span class="promo-badge">-30%</span>
+                    </div>
+                    <p style="color:#64748b;font-size:0.85rem;line-height:1.6;margin-bottom:20px;">Réservez 30 jours à l'avance et profitez de tarifs réduits sur tous les resorts de Djerba.</p>
+                    <a href="{{ path('app_promotion_list') }}" class="btn-brand orange w-100 justify-content-center" style="border-radius:12px;">Profiter</a>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="promo-card">
+                    <div class="promo-icon"><i class="fas fa-users"></i></div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h4 style="font-weight:800;color:var(--dark);font-size:1.05rem;">Pack Famille Hammamet</h4>
+                        <span class="promo-badge">Best Deal</span>
+                    </div>
+                    <p style="color:#64748b;font-size:0.85rem;line-height:1.6;margin-bottom:20px;">Hébergement + activités en famille avec réductions spéciales enfants incluses.</p>
+                    <a href="{{ path('app_promotion_list') }}" class="btn-brand orange w-100 justify-content-center" style="border-radius:12px;">Profiter</a>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="promo-card">
+                    <div class="promo-icon"><i class="fas fa-star"></i></div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h4 style="font-weight:800;color:var(--dark);font-size:1.05rem;">Weekend Sidi Bou Said</h4>
+                        <span class="promo-badge">Nouveau</span>
+                    </div>
+                    <p style="color:#64748b;font-size:0.85rem;line-height:1.6;margin-bottom:20px;">2 nuits + visite guidée exclusive + dîner traditionnel. L'expérience complète.</p>
+                    <a href="{{ path('app_promotion_list') }}" class="btn-brand orange w-100 justify-content-center" style="border-radius:12px;">Profiter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ══════ MODULE 5 — COMMUNAUTÉ ══════ #}
+<section class="py-5">
+    <div class="container py-4">
+        <div class="community-box" data-aos="fade-up">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <span style="background:rgba(26,188,156,0.2);color:var(--teal);border:1px solid rgba(26,188,156,0.3);padding:6px 16px;border-radius:99px;font-size:0.72rem;font-weight:800;letter-spacing:2px;display:inline-block;margin-bottom:20px;">{{ 'home.community.badge'|trans }}</span>
+                    <h2 style="font-size:2.5rem;font-weight:900;margin-bottom:15px;line-height:1.1;">{{ 'home.community.title'|trans|raw }}</h2>
+                    <p style="opacity:0.7;font-size:0.95rem;max-width:480px;margin-bottom:30px;line-height:1.6;">
+                        {{ 'home.community.sub'|trans }}
+                    </p>
+                    <a href="{{ path('app_communaute_index') }}" class="btn-brand teal">
+                        <i class="fas fa-users"></i> {{ 'home.community.join'|trans }}
+                    </a>
+                </div>
+                <div class="col-lg-5">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="comm-stat-box">
+                                <div class="comm-stat-val">1.2k</div>
+                                <div class="comm-stat-lbl">{{ 'home.community.members'|trans }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="comm-stat-box">
+                                <div class="comm-stat-val">500+</div>
+                                <div class="comm-stat-lbl">{{ 'home.community.stories'|trans }}</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="comm-stat-box">
+                                <div class="comm-stat-val" style="color: var(--teal);">★ 4.9 / 5</div>
+                                <div class="comm-stat-lbl">{{ 'home.community.rating'|trans }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ══════ CTA FINAL ══════ #}
+{% if not app.user %}
+<section class="container mb-5 pb-4">
+    <div class="cta-gradient" data-aos="zoom-in">
+        <h2 style="font-size:2.5rem;font-weight:900;margin-bottom:15px;">{{ 'home.cta.title'|trans }}</h2>
+        <p style="opacity:0.9;font-size:1rem;margin-bottom:30px;max-width:500px;margin-left:auto;margin-right:auto;">
+            {{ 'home.cta.sub'|trans }}
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ path('app_register') }}" class="btn-brand" style="background:white;color:var(--dark);">
+                <i class="fas fa-user-plus"></i> {{ 'home.cta.create'|trans }}
+            </a>
+            <a href="{{ path('app_login') }}" class="btn-brand" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);">
+                <i class="fas fa-sign-in-alt"></i> {{ 'home.cta.login'|trans }}
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+fetch('https://image.pollinations.ai/prompt/car')
+  .then(response => {
+    console.log('CORS OK!', response.ok);
+    require('fs').writeFileSync('cors_test.txt', 'OK');
+  })
+  .catch(err => {
+    require('fs').writeFileSync('cors_test.txt', 'FAILED');
+  });
+</script>
+</body>
+</html>

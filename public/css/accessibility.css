@@ -1,0 +1,248 @@
+/**
+ * ══════════════════════════════════════════════════════════
+ *  RE7LA — Accessibilité Avancée (Design System)
+ * ══════════════════════════════════════════════════════════
+ */
+
+/* ─── 1. BASE MODAL & BTN ──────────────────────────────── */
+#re7la-a11y-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    backdrop-filter: blur(8px); z-index: 10000;
+    display: none; opacity: 0; transition: opacity .4s;
+}
+#re7la-a11y-overlay.open { display: block; opacity: 1; }
+
+#re7la-a11y-panel {
+    position: fixed; top: 50%; left: 50%; 
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 550px; max-width: 95vw; max-height: 90vh;
+    background: #fff; z-index: 10001; border-radius: 24px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+    display: none; flex-direction: column; opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+}
+#re7la-a11y-panel.open { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+.a11y-hdr {
+    padding: 24px; background: linear-gradient(135deg, #1ABC9C, #16a085);
+    color: #fff; display: flex; align-items: center; justify-content: space-between;
+}
+.a11y-hdr h3 { margin: 0; font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+
+.a11y-close {
+    background: rgba(255,255,255,.2); border: none; color: #fff; width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer; transition: .2s; display: flex; align-items: center; justify-content: center;
+}
+.a11y-close:hover { background: rgba(255,255,255,.35); transform: rotate(90deg); }
+
+.a11y-body { padding: 24px; flex: 1; overflow-y: auto; }
+
+/* Options cards */
+.a11y-opt {
+    background: #f8fafc; border: 1.5px solid #edf2f7; border-radius: 16px;
+    padding: 16px; margin-bottom: 16px; display: flex; align-items: center;
+    justify-content: space-between; transition: .3s; cursor: pointer;
+}
+.a11y-opt:hover { border-color: #1ABC9C; background: #fff; transform: translateY(-2px); }
+.a11y-opt.on { border-color: #1ABC9C; background: rgba(26,188,156,.04); }
+
+.a11y-opt-left { display: flex; align-items: center; gap: 15px; }
+
+.a11y-ico {
+    width: 44px; height: 44px; border-radius: 12px; display: flex;
+    align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;
+}
+
+/* Toggle switch */
+.a11y-sw { position: relative; display: inline-block; cursor: pointer; }
+.a11y-sw input { position: absolute; opacity: 0; width: 0; height: 0; }
+.a11y-track {
+    display: block; width: 50px; height: 27px;
+    background: #e2e8f0; border-radius: 50px;
+    transition: background .3s; position: relative;
+}
+.a11y-thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 21px; height: 21px; border-radius: 50%;
+    background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.18);
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.a11y-sw input:checked ~ .a11y-track { background: #1ABC9C; }
+.a11y-sw input:checked ~ .a11y-track .a11y-thumb { transform: translateX(23px); }
+
+/* Animation barres audio */
+@keyframes voiceBar { from { transform: scaleY(0.4); opacity: .6; } to { transform: scaleY(1); opacity: 1; } }
+
+/* ─── Hover tip ────────────────────────────────────────── */
+#re7la-hover-tip {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(10px);
+    background: rgba(15,23,42,.92); color: #fff; padding: 10px 20px; border-radius: 50px;
+    font-size: .82rem; font-weight: 600; pointer-events: none; z-index: 99999;
+    opacity: 0; transition: opacity .3s, transform .3s; backdrop-filter: blur(8px);
+}
+#re7la-hover-tip.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─── Toast ────────────────────────────────────────────── */
+#re7la-toast {
+    position: fixed; bottom: 90px; right: 30px; background: #1e293b; color: #fff;
+    padding: 12px 22px; border-radius: 14px; font-size: .88rem; font-weight: 600;
+    z-index: 99999; opacity: 0; transform: translateY(12px); transition: opacity .35s, transform .35s;
+    box-shadow: 0 8px 28px rgba(0,0,0,.25); pointer-events: none; display: flex; align-items: center; gap: 10px;
+}
+#re7la-toast.show { opacity: 1; transform: translateY(0); }
+
+/* ─── 2. MODE SOMBRE PROFESSIONNEL ( .hc sur <html> ) ─── */
+.hc {
+    --dm-bg:        #0d1117; /* Deep Space Background */
+    --dm-surface:   #161b22; /* Card Background */
+    --dm-surface2:  #21262d; /* Hover Background */
+    --dm-border:    #30363d; /* Subtle Border */
+    --dm-text:      #e6edf3; /* Main Text */
+    --dm-mute:      #8b949e; /* Muted Text */
+    --dm-accent:    #1ABC9C; /* Brand Teal */
+    --dm-blue:      #58a6ff; /* Accent Blue */
+    --dm-warn:      #f0883e;
+    
+    background-color: var(--dm-bg) !important;
+    color: var(--dm-text) !important;
+}
+
+/* Preservation des Medias */
+.hc img, .hc video, .hc canvas, .hc iframe, .hc svg:not(.a11y-ico svg) {
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* Backgrounds globaux */
+.hc body, .hc main, .hc footer, .hc .container, .hc .container-fluid, 
+.hc [class*="col-"], .hc .sidebar-modern, .hc .page-wrapper {
+    background-color: var(--dm-bg) !important;
+    color: var(--dm-text) !important;
+}
+
+/* Navbar */
+.hc .navbar-re7la {
+    background: rgba(13, 17, 23, 0.98) !important;
+    border-bottom: 1px solid var(--dm-border) !important;
+    backdrop-filter: blur(12px);
+}
+.hc .nav-link { color: var(--dm-text) !important; }
+.hc .nav-link:hover { color: var(--dm-accent) !important; }
+
+/* Typographie */
+.hc h1, .hc h2, .hc h3, .hc h4, .hc h5, .hc h6 { color: var(--dm-text) !important; }
+.hc p, .hc li, .hc label, .hc small { color: var(--dm-mute) !important; }
+.hc strong, .hc b { color: var(--dm-text) !important; }
+.hc .text-muted { color: var(--dm-mute) !important; }
+
+/* Cartes & Boxes */
+.hc .card, .hc .heb-card, .hc .promo-card, .hc .act-card, .hc .dest-card, 
+.hc .comm-stat-box, .hc .recap-card, .hc .simulation-box {
+    background: var(--dm-surface) !important;
+    border: 1px solid var(--dm-border) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+}
+.hc .card:hover, .hc .heb-card:hover, .hc .act-card:hover {
+    border-color: var(--dm-accent) !important;
+    background: var(--dm-surface2) !important;
+}
+
+/* Boutons */
+.hc .btn-brand, .hc .btn-hero-search, .hc .btn-availability, .hc #re7la-confirm-btn {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4) !important;
+}
+.hc .btn-light, .hc .btn-secondary {
+    background: var(--dm-surface2) !important;
+    border: 1px solid var(--dm-border) !important;
+    color: var(--dm-text) !important;
+}
+
+/* Inputs */
+.hc input, .hc select, .hc textarea, .hc .form-control, .hc .form-select {
+    background: var(--dm-surface2) !important;
+    border: 1px solid var(--dm-border) !important;
+    color: var(--dm-text) !important;
+}
+.hc input:focus, .hc select:focus {
+    border-color: var(--dm-accent) !important;
+    box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.15) !important;
+}
+
+/* ─── Panel Accessibilité (Adaptation Sombre) ─── */
+.hc #re7la-a11y-panel {
+    background: var(--dm-surface) !important;
+    border: 1px solid var(--dm-border) !important;
+}
+.hc .a11y-body { background: var(--dm-surface) !important; }
+.hc .a11y-opt {
+    background: var(--dm-surface2) !important;
+    border-color: var(--dm-border) !important;
+}
+.hc .a11y-opt:hover, .hc .a11y-opt.on {
+    border-color: var(--dm-accent) !important;
+    background: rgba(26, 188, 156, 0.05) !important;
+}
+
+/* Correction des styles inline du panel en mode sombre */
+.hc .a11y-opt div[style*="color:#1e293b"],
+.hc .a11y-opt span[style*="color:#1e293b"],
+.hc .a11y-body div[style*="color:#1e293b"] {
+    color: var(--dm-text) !important;
+}
+.hc .a11y-opt div[style*="background:#f8fafc"],
+.hc .a11y-body div[style*="background:#f8fafc"] {
+    background: var(--dm-bg) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Bouton flottant */
+#re7la-a11y-btn {
+    position: fixed; bottom: 20px; right: 30px; z-index: 9999;
+    background: #1ABC9C; color: #fff; border: none; border-radius: 50px;
+    padding: 12px 24px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 8px 25px rgba(26,188,156,.4); display: flex; align-items: center; gap: 10px;
+    transition: .3s cubic-bezier(.34,1.56,.64,1);
+}
+#re7la-a11y-btn:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 12px 30px rgba(26, 188, 156, .5); }
+.hc #re7la-a11y-btn {
+    background: var(--dm-surface) !important;
+    border: 1px solid var(--dm-border) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5) !important;
+}
+
+/* ─── 3. TEXTE AGRANDI ( .lg-txt sur <html> ) ─────────── */
+html.lg-txt { font-size: 24px !important; } /* Base 16px -> 24px (+50%) */
+
+.lg-txt body { line-height: 1.8 !important; }
+
+/* Homepage Aggressive Scaling */
+.lg-txt .hero-v2-title {
+    font-size: 7.5rem !important;
+    line-height: 1.1 !important;
+    margin-bottom: 40px !important;
+}
+
+.lg-txt .hero-sub {
+    font-size: 1.8rem !important;
+    max-width: 900px !important;
+    line-height: 1.8 !important;
+    color: rgba(255,255,255,0.9) !important;
+}
+
+.lg-txt .sec-title { font-size: 4rem !important; }
+.lg-txt .stat-val { font-size: 5rem !important; }
+.lg-txt .sec-sub, .lg-txt p { font-size: 1.4rem !important; line-height: 1.8 !important; }
+
+.lg-txt .btn, .lg-txt button, .lg-txt [class*="btn-"], .lg-txt .hero-quick-links a {
+    font-size: 1.4rem !important;
+    padding: 22px 40px !important;
+}
+
+/* ─── 4. EYE TRACKING ────────────────────────────────── */
+html.eye-track * { cursor: crosshair !important; }
+html.eye-track :focus {
+    outline: 4px solid #1ABC9C !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 0 6px rgba(26,188,156,.3) !important;
+}

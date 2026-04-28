@@ -1,0 +1,294 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Verification 2FA - RE7LA{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .twofa-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 20px 60px;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(26, 188, 156, 0.30), transparent 22%),
+            radial-gradient(circle at 88% 14%, rgba(243, 156, 18, 0.32), transparent 24%),
+            linear-gradient(135deg, #fff0cc 0%, #fffaf1 32%, #e6fbf6 68%, #fff2d9 100%);
+    }
+
+    .twofa-card {
+        width: 100%;
+        max-width: 460px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 28px;
+        padding: 48px 40px;
+        box-shadow: 0 35px 80px rgba(44, 62, 80, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.75);
+        text-align: center;
+    }
+
+    .twofa-icon {
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(139, 92, 246, 0.25));
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 36px;
+        color: #8b5cf6;
+    }
+
+    .twofa-card h1 {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #2C3E50;
+        margin-bottom: 10px;
+    }
+
+    .twofa-card p {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 28px;
+    }
+
+    .twofa-alert {
+        background: linear-gradient(135deg, rgba(255, 236, 232, 0.96), rgba(255, 224, 214, 0.96));
+        border: 1px solid rgba(231, 76, 60, 0.18);
+        color: #c0392b;
+        padding: 14px 16px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .code-inputs {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    .code-inputs input {
+        width: 52px;
+        height: 62px;
+        border: 2px solid #e8ecf0;
+        border-radius: 16px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: 800;
+        color: #2C3E50;
+        background: #f8fafc;
+        outline: none;
+        transition: all 0.25s ease;
+    }
+
+    .code-inputs input:focus {
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        background: #fff;
+    }
+
+    .hidden-code-input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .btn-verify {
+        width: 100%;
+        height: 56px;
+        border: none;
+        border-radius: 18px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 800;
+        color: white;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        box-shadow: 0 16px 30px rgba(139, 92, 246, 0.30);
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+    }
+
+    .btn-verify:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 36px rgba(139, 92, 246, 0.36);
+    }
+
+    .backup-toggle {
+        color: #8b5cf6;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        background: none;
+        border: none;
+        text-decoration: underline;
+    }
+
+    .backup-section {
+        display: none;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #f0f2f5;
+    }
+
+    .backup-section.show {
+        display: block;
+    }
+
+    .backup-input {
+        width: 100%;
+        height: 56px;
+        border: 2px solid #e8ecf0;
+        border-radius: 16px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 700;
+        color: #2C3E50;
+        background: #f8fafc;
+        outline: none;
+        margin-bottom: 16px;
+        letter-spacing: 2px;
+    }
+
+    .backup-input:focus {
+        border-color: #F39C12;
+        box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="twofa-section">
+    <div class="twofa-card" data-aos="zoom-in-up">
+        <div class="twofa-icon">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+
+        <h1>Verification 2FA</h1>
+        <p>
+            Ouvrez <strong>Google Authenticator</strong> et entrez le code a 6 chiffres
+            affiche pour votre compte RE7LA.
+        </p>
+
+        {% if error %}
+            <div class="twofa-alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {# Formulaire TOTP #}
+        <form method="post" id="totpForm">
+            <input type="hidden" name="code" id="hiddenCode">
+
+            <div class="code-inputs" id="codeInputs">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-digit" data-index="0" autofocus>
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-digit" data-index="1">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-digit" data-index="2">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-digit" data-index="3">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-digit" data-index="4">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-digit" data-index="5">
+            </div>
+
+            <button type="submit" class="btn-verify">
+                <i class="fas fa-check-circle me-2"></i>
+                Verifier
+            </button>
+        </form>
+
+        <button class="backup-toggle" id="backupToggle">
+            Utiliser un code de secours
+        </button>
+
+        {# Formulaire Backup #}
+        <div class="backup-section" id="backupSection">
+            <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">
+                Entrez un de vos codes de secours :
+            </p>
+            <form method="post">
+                <input type="hidden" name="use_backup" value="1">
+                <input type="text" name="code" class="backup-input" placeholder="A1B2C3D4" maxlength="8" autocomplete="off">
+                <button type="submit" class="btn-verify" style="background:linear-gradient(135deg, #F39C12, #e67e22);box-shadow:0 16px 30px rgba(243,156,18,0.30);">
+                    <i class="fas fa-key me-2"></i>
+                    Valider le code de secours
+                </button>
+            </form>
+        </div>
+
+        <div style="margin-top:20px;">
+            <a href="{{ path('app_logout') }}" style="color:#6b7280;font-size:13px;text-decoration:none;">
+                <i class="fas fa-sign-out-alt me-1"></i> Se deconnecter
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const digits = document.querySelectorAll('.code-digit');
+    const hiddenCode = document.getElementById('hiddenCode');
+    const form = document.getElementById('totpForm');
+    const backupToggle = document.getElementById('backupToggle');
+    const backupSection = document.getElementById('backupSection');
+
+    // Auto-focus et navigation entre les champs
+    digits.forEach((input, index) => {
+        input.addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value && index < digits.length - 1) {
+                digits[index + 1].focus();
+            }
+
+            // Auto-submit quand 6 chiffres remplis
+            const code = Array.from(digits).map(d => d.value).join('');
+            if (code.length === 6) {
+                hiddenCode.value = code;
+                form.submit();
+            }
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Backspace' && !this.value && index > 0) {
+                digits[index - 1].focus();
+            }
+        });
+
+        // Support coller le code complet
+        input.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+            if (paste.length === 6) {
+                paste.split('').forEach((char, i) => {
+                    if (digits[i]) digits[i].value = char;
+                });
+                hiddenCode.value = paste;
+                form.submit();
+            }
+        });
+    });
+
+    // Toggle backup codes
+    backupToggle.addEventListener('click', function () {
+        backupSection.classList.toggle('show');
+        this.textContent = backupSection.classList.contains('show')
+            ? 'Utiliser le code TOTP'
+            : 'Utiliser un code de secours';
+    });
+
+    // Soumission du formulaire TOTP
+    form.addEventListener('submit', function (e) {
+        const code = Array.from(digits).map(d => d.value).join('');
+        if (code.length !== 6) {
+            e.preventDefault();
+            return;
+        }
+        hiddenCode.value = code;
+    });
+});
+</script>
+{% endblock %}

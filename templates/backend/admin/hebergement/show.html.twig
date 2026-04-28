@@ -1,0 +1,192 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}{{ hebergement.titre }} - Détails - RE7LA Admin{% endblock %}
+
+{% block breadcrumb %}Hébergements{% endblock %}
+{% block page_title %}{{ hebergement.titre }}{% endblock %}
+
+{% block body %}
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
+  <div>
+    <a href="{{ path('app_admin_hebergement_list') }}" style="color:#1ABC9C;text-decoration:none;font-weight:500;font-size:14px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <i class="fas fa-arrow-left"></i>
+      Retour aux hébergements
+    </a>
+    <h1 style="font-size:24px;font-weight:700;color:#2C3E50;margin:0;">{{ hebergement.titre }}</h1>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;">
+  <!-- Main Content -->
+  <div>
+    <!-- Image principale -->
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;margin-bottom:24px;">
+      {% set firstImage = hebergement.images|length > 0 ? hebergement.images[0].filename : hebergement.image %}
+      {% if firstImage %}
+        <img src="{{ firstImage starts with 'http' ? firstImage : asset(firstImage) }}" style="width:100%;height:400px;object-fit:cover;" alt="{{ hebergement.titre }}">
+      {% else %}
+        <div style="width:100%;height:400px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1ABC9C,#16a085);">
+          <i class="fas fa-building" style="font-size:64px;color:#fff;"></i>
+        </div>
+      {% endif %}
+      
+      <!-- Badges -->
+      <div style="padding:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <span style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;">
+            <i class="fas fa-tag" style="margin-right:6px;"></i>{{ hebergement.typeHebergement }}
+          </span>
+          <span style="background:{{ hebergement.disponible ? 'rgba(26,188,156,0.15)' : 'rgba(239,68,68,0.15)' }};color:{{ hebergement.disponible ? '#1ABC9C' : '#ef4444' }};padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;">
+            {{ hebergement.disponible ? 'Disponible' : 'Indisponible' }}
+          </span>
+        </div>
+        
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="font-size:24px;font-weight:700;color:#2C3E50;margin:0;">{{ hebergement.titre }}</h2>
+          <div style="font-size:28px;font-weight:700;color:#1ABC9C;">
+            {{ hebergement.prixParNuit }} DT
+            <span style="font-size:14px;color:#94a3b8;font-weight:400;">/nuit</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;margin-bottom:24px;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-info-circle" style="color:#1ABC9C;"></i>
+        Description
+      </h3>
+      <p style="color:#64748b;line-height:1.6;">
+        {{ hebergement.descHebergement ?: 'Aucune description disponible.' }}
+      </p>
+    </div>
+
+    <!-- Galerie photos -->
+    {% if hebergement.images|length > 1 %}
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-images" style="color:#1ABC9C;"></i>
+        Galerie photos ({{ hebergement.images|length }})
+      </h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
+        {% for image in hebergement.images %}
+          <div style="border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);height:150px;">
+            <img src="{{ image.filename starts with 'http' ? image.filename : asset(image.filename) }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" alt="Photo {{ loop.index }}">
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Sidebar -->
+  <div style="display:flex;flex-direction:column;gap:24px;">
+    <!-- Infos principales -->
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:20px;">Informations</h3>
+      
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(26,188,156,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-users" style="color:#1ABC9C;font-size:16px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#64748b;">Capacité</div>
+            <div style="font-weight:600;color:#2C3E50;">{{ hebergement.capacite }} personnes</div>
+          </div>
+        </div>
+        
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(243,156,18,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-calendar-check" style="color:#F39C12;font-size:16px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#64748b;">Réservations</div>
+            <div style="font-weight:600;color:#2C3E50;">{{ hebergement.reservations|length }} total</div>
+          </div>
+        </div>
+        
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(239,68,68,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-hashtag" style="color:#ef4444;font-size:16px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12px;color:#64748b;">ID</div>
+            <div style="font-weight:600;color:#2C3E50;">#{{ hebergement.id }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:20px;">Actions</h3>
+      
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <a href="{{ path('app_admin_hebergement_edit', {id: hebergement.id}) }}" style="background:rgba(26,188,156,0.1);color:#1ABC9C;border:none;padding:12px;border-radius:12px;font-weight:500;text-decoration:none;text-align:center;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <i class="fas fa-edit"></i>
+          Modifier
+        </a>
+        
+        <form method="post" action="{{ path('app_admin_hebergement_delete', {id: hebergement.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet hébergement ?');">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.id) }}">
+          <button type="submit" style="width:100%;background:rgba(239,68,68,0.1);color:#ef4444;border:none;padding:12px;border-radius:12px;font-weight:500;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <i class="fas fa-trash"></i>
+            Supprimer
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Réservations récentes -->
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #f0f2f5;">
+      <h3 style="font-size:18px;font-weight:700;color:#2C3E50;margin-bottom:20px;">Réservations</h3>
+      
+      {% if hebergement.reservations|length > 0 %}
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          {% for reservation in hebergement.reservations %}
+          <div style="background:#f8fafc;border-radius:12px;padding:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-weight:600;color:#2C3E50;">#{{ reservation.id }}</span>
+              <span style="padding:4px 8px;border-radius:12px;font-size:11px;font-weight:600;background:{{ 
+                reservation.statut == 'CONFIRMEE' ? 'rgba(26,188,156,0.15)' : 
+                reservation.statut in ['EN ATTENTE', 'PENDING'] ? 'rgba(243,156,18,0.15)' : 
+                'rgba(239,68,68,0.15)' 
+              }};color:{{
+                reservation.statut == 'CONFIRMEE' ? '#1ABC9C' : 
+                reservation.statut in ['EN ATTENTE', 'PENDING'] ? '#F39C12' : 
+                '#ef4444' 
+              }};">
+                {{ reservation.statut }}
+              </span>
+            </div>
+            <div style="font-size:12px;color:#64748b;">
+              <i class="fas fa-calendar" style="margin-right:4px;"></i>
+              {{ reservation.dateDebut|date('d/m/Y') }} - {{ reservation.dateFin|date('d/m/Y') }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="text-align:center;padding:20px;">
+          <i class="fas fa-calendar-times" style="font-size:32px;color:#64748b;margin-bottom:8px;"></i>
+          <p style="color:#64748b;margin:0;">Aucune réservation</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  img:hover {
+    transform: scale(1.05);
+  }
+  
+  a:hover, button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+</style>
+{% endblock %}

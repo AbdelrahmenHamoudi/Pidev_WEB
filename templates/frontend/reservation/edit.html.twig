@@ -1,0 +1,121 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Modifier Réservation #{{ reservation.idReservation }} - RE7LA{% endblock %}
+
+{% block body %}
+<section class="py-5" style="background: linear-gradient(135deg, rgba(135, 206, 235, 0.1), rgba(147, 197, 114, 0.1)); min-height: 100vh;">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">{{ 'nav.home'|trans }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_reservations_list') }}" style="color: #87CEEB;">{{ 'nav.my_trips'|trans }}</a></li>
+                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">{{ 'reservation.list.edit'|trans }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            <!-- Hebergement Summary -->
+            <div class="col-lg-4">
+                <div style="background: white; border-radius: 25px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); position: sticky; top: 100px;">
+                    {% if reservation.hebergement.image %}
+                        <img src="{{ asset(reservation.hebergement.image) }}" class="w-100" style="height: 200px; object-fit: cover; border-radius: 20px; margin-bottom: 20px;" alt="{{ reservation.hebergement.titre }}">
+                    {% else %}
+                        <div class="w-100 d-flex align-items-center justify-content-center" style="height: 200px; background: linear-gradient(135deg, #87CEEB, #93C572); border-radius: 20px; margin-bottom: 20px;">
+                            <i class="bx bx-building-house" style="font-size: 4rem; color: white;"></i>
+                        </div>
+                    {% endif %}
+                    <h5 style="font-weight: 700; color: #2c3e50; margin-bottom: 5px;">{{ reservation.hebergement.titre }}</h5>
+                    <p style="color: #87CEEB; font-size: 0.9rem; margin-bottom: 20px;">
+                        <i class="bx bx-tag me-1"></i>{{ reservation.hebergement.typeHebergement }}
+                    </p>
+                    <div style="background: #f8f9fa; border-radius: 15px; padding: 20px;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="color: #777;">Prix/nuit</span>
+                            <span style="font-weight: 600;">{{ reservation.hebergement.prixParNuit }} DT</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span style="color: #777;">Capacité</span>
+                            <span style="font-weight: 600;">{{ reservation.hebergement.capacite }} pers.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="col-lg-8">
+                <div style="background: white; border-radius: 25px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                    <h4 style="font-weight: 700; color: #2c3e50; margin-bottom: 30px;">
+                        <i class="bx bx-edit me-2" style="color: #f39c12;"></i>{{ 'reservation.list.edit'|trans }}
+                    </h4>
+
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="row g-4">
+                        <!-- Hébergement -->
+                        <div class="col-12">
+                            {{ form_label(form.hebergement) }}
+                            {{ form_widget(form.hebergement, {'attr': {'class': 'form-select' ~ (form.hebergement.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
+                            <div class="text-danger fw-bold" style="font-size: 0.85rem; margin-top: 5px; list-style-type: none;">
+                                {{ form_errors(form.hebergement) }}
+                            </div>
+                        </div>
+
+                        <!-- Date Arrivée -->
+                        <div class="col-md-6">
+                            {{ form_label(form.dateDebutR) }}
+                            {{ form_widget(form.dateDebutR, {'attr': {'class': 'form-control' ~ (form.dateDebutR.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
+                            <div class="text-danger fw-bold" style="font-size: 0.85rem; margin-top: 5px; list-style-type: none;">
+                                {{ form_errors(form.dateDebutR) }}
+                            </div>
+                        </div>
+
+                        <!-- Date Départ -->
+                        <div class="col-md-6">
+                            {{ form_label(form.dateFinR) }}
+                            {{ form_widget(form.dateFinR, {'attr': {'class': 'form-control' ~ (form.dateFinR.vars.errors|length > 0 ? ' is-invalid' : ''), 'style': 'border: 2px solid #e8e8e8; border-radius: 15px; padding: 15px;'}}) }}
+                            <div class="text-danger fw-bold" style="font-size: 0.85rem; margin-top: 5px; list-style-type: none;">
+                                {{ form_errors(form.dateFinR) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Info -->
+                    <div style="background: rgba(243, 156, 18, 0.1); border-radius: 15px; padding: 20px; margin-top: 30px; border-left: 4px solid #f39c12;">
+                        <h6 style="font-weight: 600; color: #2c3e50; margin-bottom: 10px;">
+                            <i class="bx bx-info-circle me-2"></i>Réservation actuelle
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <small style="color: #777;">Dates actuelles</small>
+                                <p style="font-weight: 600; color: #2c3e50; margin: 0;">
+                                    {{ reservation.dateDebutR|date('d/m/Y') }} - {{ reservation.dateFinR|date('d/m/Y') }}
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <small style="color: #777;">Nuits</small>
+                                <p style="font-weight: 600; color: #2c3e50; margin: 0;">{{ reservation.nombreNuits }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <small style="color: #777;">Total actuel</small>
+                                <p style="font-weight: 600; color: #87CEEB; margin: 0;">{{ reservation.prixTotal ? reservation.prixTotal|number_format(0, '.', ' ') ~ ' DT' : 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="{{ path('app_reservations_list') }}" class="btn" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+                            {{ 'reservation.list.cancel'|trans }}
+                        </a>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; border-radius: 50px; padding: 15px 40px; font-weight: 600;">
+                            <i class="bx bx-save me-2"></i>{{ 'search.apply'|default('Enregistrer')|trans }}
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

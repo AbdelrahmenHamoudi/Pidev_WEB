@@ -1,0 +1,465 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Mon Profil - RE7LA{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .account-page {
+        min-height: 100vh;
+        padding: 28px 20px 70px;
+        background: linear-gradient(135deg, rgba(135, 206, 235, 0.08), rgba(147, 197, 114, 0.08));
+    }
+
+    .account-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .flash-message {
+        padding: 14px 18px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .flash-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .flash-error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .profile-hero {
+        background: linear-gradient(135deg, #1ABC9C 0%, #16a085 50%, #2C3E50 100%);
+        border-radius: 24px;
+        padding: 40px;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 30px;
+        box-shadow: 0 20px 50px rgba(26, 188, 156, 0.18);
+    }
+
+    .profile-hero::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.10);
+        border-radius: 50%;
+    }
+
+    .profile-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        left: -30px;
+        width: 140px;
+        height: 140px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+
+    .profile-hero-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .profile-hero-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border: 4px solid rgba(255,255,255,0.2);
+        overflow: hidden;
+        font-size: 36px;
+        font-weight: 700;
+        color: #1ABC9C;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-hero-info h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .profile-hero-info p {
+        font-size: 15px;
+        opacity: 0.92;
+        margin-bottom: 6px;
+    }
+
+    .hero-btn {
+        background: #fff;
+        color: #1ABC9C;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s ease;
+    }
+
+    .hero-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+        color: #16a085;
+    }
+
+    .account-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 24px;
+    }
+
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .info-card,
+    .summary-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #f0f2f5;
+    }
+
+    .card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f0f2f5;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-title i {
+        color: #1ABC9C;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .info-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .icon-green { background: rgba(26,188,156,0.15); color: #1ABC9C; }
+    .icon-orange { background: rgba(243,156,18,0.15); color: #F39C12; }
+    .icon-red { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .icon-purple { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+    .icon-blue { background: rgba(59,130,246,0.15); color: #3b82f6; }
+
+    .info-label {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #2C3E50;
+        word-break: break-word;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .summary-box {
+        padding: 20px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+        color: #2C3E50;
+        font-weight: 500;
+    }
+
+    .summary-actions {
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid #f0f2f5;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary-re7la,
+    .btn-danger-re7la,
+    .btn-light-re7la {
+        border: none;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-primary-re7la {
+        background: linear-gradient(135deg,#1ABC9C,#16a085);
+        color: #fff;
+    }
+
+    .btn-danger-re7la {
+        background: #fff;
+        color: #ef4444;
+        border: 2px solid #fee2e2;
+    }
+
+    .btn-light-re7la {
+        background: #fff;
+        color: #475569;
+        border: 2px solid #e8ecf0;
+    }
+
+    .btn-primary-re7la:hover,
+    .btn-danger-re7la:hover,
+    .btn-light-re7la:hover {
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 992px) {
+        .account-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .account-page {
+            padding: 20px 14px 45px;
+        }
+
+        .profile-hero {
+            padding: 28px 20px;
+        }
+
+        .profile-hero-info h1 {
+            font-size: 24px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="account-page">
+    <div class="account-wrapper">
+        {% for message in app.flashes('success') %}
+            <div class="flash-message flash-success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="flash-message flash-error">{{ message }}</div>
+        {% endfor %}
+
+        <div class="profile-hero">
+            <div class="profile-hero-content">
+                <div class="profile-hero-left">
+                    <div class="profile-avatar">
+                        {% if userItem.image %}
+                            <img src="{{ asset('uploads/profiles/' ~ userItem.image) }}" alt="Photo de profil">
+                        {% else %}
+                            {{ userItem.prenom|slice(0,1)|upper }}{{ userItem.nom|slice(0,1)|upper }}
+                        {% endif %}
+                    </div>
+
+                    <div class="profile-hero-info">
+                        <h1>{{ userItem.prenom }} {{ userItem.nom }}</h1>
+                        <p><i class="fas fa-envelope me-2"></i>{{ userItem.e_mail }}</p>
+                        <p><i class="fas fa-phone me-2"></i>{{ userItem.num_tel ?: 'Non renseigné' }}</p>
+                        <p>
+                            <i class="fas fa-user-shield me-2"></i>
+                            {% if userItem.role == 'admin' %}Administrateur{% else %}Utilisateur{% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <a href="{{ path('app_user_profile_edit') }}" class="hero-btn">
+                    <i class="fas fa-edit"></i>
+                    Modifier mon compte
+                </a>
+            </div>
+        </div>
+
+        <div class="account-grid">
+            <div class="left-column">
+                <div class="info-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-user"></i>
+                        Informations personnelles
+                    </h3>
+
+                    <div class="info-list">
+                        <div class="info-row">
+                            <div class="info-icon icon-green"><i class="fas fa-id-card"></i></div>
+                            <div>
+                                <div class="info-label">Nom complet</div>
+                                <div class="info-value">{{ userItem.prenom }} {{ userItem.nom }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon icon-orange"><i class="fas fa-envelope"></i></div>
+                            <div>
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ userItem.e_mail }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon icon-red"><i class="fas fa-phone"></i></div>
+                            <div>
+                                <div class="info-label">Téléphone</div>
+                                <div class="info-value">{{ userItem.num_tel ?: 'Non renseigné' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon icon-purple"><i class="fas fa-calendar"></i></div>
+                            <div>
+                                <div class="info-label">Date de naissance</div>
+                                <div class="info-value">{{ userItem.date_naiss ?: 'Non renseignée' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Sécurité
+                    </h3>
+
+                    <div class="info-list">
+                        <div class="info-row">
+                            <div class="info-icon icon-green"><i class="fas fa-check-circle"></i></div>
+                            <div>
+                                <div class="info-label">Statut du compte</div>
+                                <div class="info-value">{{ userItem.status }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon icon-blue"><i class="fas fa-user-tag"></i></div>
+                            <div>
+                                <div class="info-label">Rôle</div>
+                                <div class="info-value">
+                                    {% if userItem.role == 'admin' %}Administrateur{% else %}Utilisateur{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-icon icon-purple"><i class="fas fa-fingerprint"></i></div>
+                            <div>
+                                <div class="info-label">Email vérifié</div>
+                                <div class="info-value">{{ userItem.email_verified ? 'Oui' : 'Non' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="summary-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-user-circle"></i>
+                        Résumé du compte
+                    </h3>
+
+                    <div class="summary-grid">
+                        <div class="summary-box"><strong>ID :</strong> {{ userItem.id }}</div>
+                        <div class="summary-box"><strong>Email :</strong> {{ userItem.e_mail }}</div>
+                        <div class="summary-box">
+                            <strong>Rôle :</strong>
+                            {% if userItem.role == 'admin' %}Administrateur{% else %}Utilisateur{% endif %}
+                        </div>
+                        <div class="summary-box"><strong>Statut :</strong> {{ userItem.status }}</div>
+                        <div class="summary-box"><strong>Téléphone :</strong> {{ userItem.num_tel ?: 'Non renseigné' }}</div>
+                        <div class="summary-box"><strong>Date de naissance :</strong> {{ userItem.date_naiss ?: 'Non renseignée' }}</div>
+                    </div>
+
+                    <div class="summary-actions">
+                        <a href="{{ path('app_user_profile_edit') }}" class="btn-primary-re7la">
+                            <i class="fas fa-user-edit"></i>
+                            Modifier mes informations
+                        </a>
+
+                        <form method="post" action="{{ path('app_user_account_delete') }}" onsubmit="return confirm('Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.');" style="display:inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
+                            <button type="submit" class="btn-danger-re7la">
+                                <i class="fas fa-trash-alt"></i>
+                                Supprimer mon compte
+                            </button>
+                        </form>
+
+                        <a href="{{ path('app_logout') }}" class="btn-light-re7la">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Déconnexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

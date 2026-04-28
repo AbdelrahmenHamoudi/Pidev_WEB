@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}" {% if app.request.locale == 'ar' %}dir="rtl"{% endif %}>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="voyage, reservation, travel, maroc, hotels, excursions">
+    <meta name="description" content="RE7LA - Votre agence de voyage pour des expériences uniques au Maroc">
+
+    <title>{% block title %}RE7LA - Voyagez Autrement{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/accessibility.css') }}">
+
+    <style>
+        :root {
+            /* ═══ CHARTE GRAPHIQUE RE7LA ═══ */
+            --orange:         #F39C12;
+            --orange-dark:    #d68910;
+            --yellow:         #F7DC6F;
+            --teal:           #1ABC9C;
+            --teal-dark:      #17a589;
+            --dark:           #2C3E50;
+            --light:          #FAFAFA;
+
+            /* Aliases for backward compat with existing templates */
+            --bleu-ceil:      #1ABC9C;
+            --bleu-ceil-dark: #17a589;
+            --rouge:          #F39C12;
+            --vert-pistache:  #F7DC6F;
+            --vert-pistache-dark: #f0ca2e;
+
+            --navbar-height: 96px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; overflow-x: hidden; background: var(--light); }
+
+        .navbar-re7la {
+            background: white;
+            backdrop-filter: none;
+            box-shadow: 0 2px 20px rgba(44,62,80,0.08);
+            border-bottom: 1px solid rgba(44,62,80,0.06);
+            padding: 15px 0;
+            transition: all 0.3s ease;
+            min-height: var(--navbar-height);
+            display: flex;
+            align-items: center;
+            z-index: 1100;
+        }
+
+        .navbar-re7la.scrolled {
+            padding: 10px 0;
+            box-shadow: 0 4px 25px rgba(44,62,80,0.12);
+        }
+
+        .navbar-re7la .nav-link { color: var(--dark) !important; }
+        .navbar-re7la .nav-link:hover { color: var(--teal) !important; }
+        .navbar-re7la .nav-link.active { color: var(--teal) !important; }
+
+        .navbar-re7la .navbar-brand {
+            background: linear-gradient(135deg, var(--teal), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-brand span { color: var(--rouge); -webkit-text-fill-color: var(--rouge); }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark) !important;
+            margin: 0 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--bleu-ceil), var(--vert-pistache));
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+        .btn-nav {
+            background: linear-gradient(135deg, var(--bleu-ceil), var(--bleu-ceil-dark));
+            color: white !important;
+            padding: 10px 25px !important;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-nav:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(135, 206, 235, 0.4); }
+
+        .btn-nav-outline {
+            background: white;
+            color: var(--dark) !important;
+            padding: 10px 22px !important;
+            border-radius: 50px;
+            font-weight: 600;
+            border: 1px solid rgba(44, 62, 80, 0.12);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav-outline:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(44, 62, 80, 0.08); }
+
+        .account-dropdown { position: relative; }
+
+        .account-btn {
+            border: none;
+            background: white;
+            border-radius: 999px;
+            padding: 7px 14px 7px 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(44, 62, 80, 0.08);
+            font-weight: 600;
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        .account-btn:hover { transform: translateY(-2px); }
+
+        .account-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .account-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .account-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            min-width: 260px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+            border: 1px solid rgba(0,0,0,0.05);
+            padding: 10px;
+            display: none;
+            z-index: 1200;
+        }
+
+        .account-menu.show { display: block; }
+
+        .account-menu-header { padding: 10px 12px 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 8px; }
+        .account-menu-header strong { display: block; color: var(--dark); font-size: 14px; }
+        .account-menu-header span { display: block; color: #64748b; font-size: 12px; margin-top: 2px; word-break: break-word; }
+
+        .account-menu a, .account-menu button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #334155;
+            font-weight: 600;
+            font-size: 14px;
+            background: transparent;
+            border: none;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .account-menu a:hover, .account-menu button:hover { background: #f8fafc; color: var(--bleu-ceil-dark); }
+        .delete-account-btn { color: #dc2626 !important; }
+        .delete-account-btn:hover { background: #fef2f2 !important; color: #b91c1c !important; }
+
+        main.site-main { padding-top: calc(var(--navbar-height) + 24px); }
+
+        .btn-localization-trigger {
+            background: rgba(135, 206, 235, 0.1);
+            color: var(--bleu-ceil-dark) !important;
+            border: 1px solid rgba(135, 206, 235, 0.3);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            padding: 0 !important;
+            justify-content: center;
+            font-weight: 700;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .btn-localization-trigger:hover {
+            background: var(--bleu-ceil);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .modal-premium { border-radius: 30px; overflow: hidden; border: none; }
+        .loc-option {
+            display: flex; align-items: center; padding: 15px; border-radius: 15px; border: 2px solid #f1f5f9;
+            transition: 0.3s; text-decoration: none; color: var(--dark); margin-bottom: 15px;
+        }
+        .loc-option:hover { border-color: var(--bleu-ceil); background: #f8fafc; transform: translateY(-2px); color: var(--bleu-ceil-dark); }
+        .loc-option.active { border-color: var(--vert-pistache); background: #f0fdf4; }
+        .loc-flag { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 15px; }
+        html[dir="rtl"] .loc-flag { margin-right: 0; margin-left: 15px; }
+
+        .floating-shape { position: absolute; border-radius: 50%; opacity: 0.1; animation: float 20s infinite ease-in-out; }
+        .shape-1 { width: 400px; height: 400px; background: var(--bleu-ceil); top: -200px; right: -100px; animation-delay: 0s; }
+        .shape-2 { width: 300px; height: 300px; background: var(--vert-pistache); bottom: -150px; left: -100px; animation-delay: 5s; }
+        .shape-3 { width: 200px; height: 200px; background: var(--rouge); top: 50%; left: 10%; animation-delay: 10s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .fav-item-card {
+            display: flex; gap: 15px; padding: 15px; background: white; border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; position: relative;
+        }
+        .fav-item-card:hover { transform: translateX(-5px); }
+        .fav-item-img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
+        .fav-item-info { flex: 1; }
+        .fav-item-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; color: var(--dark); }
+        .fav-item-price { font-weight: 800; color: var(--bleu-ceil); font-size: 0.9rem; }
+        .fav-remove-btn { 
+            position: absolute; top: -5px; right: -5px; background: white; width: 24px; height: 24px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            color: #ef4444; font-size: 0.8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;
+        }
+
+        @media (max-width: 991px) {
+            :root { --navbar-height: 88px; }
+            .navbar-re7la { padding: 12px 0; }
+            .account-menu { right: 0; min-width: 240px; }
+            main.site-main { padding-top: calc(var(--navbar-height) + 18px); }
+        }
+
+        {% block extra_styles %}{% endblock %}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-re7la fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_home') }}">RE<span>7</span>LA</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}" href="{{ path('app_home') }}">{{ 'navbar.home'|trans }}</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'activite_index_front' ? 'active' : '' }}" href="{{ path('activite_index_front') }}">{{ 'navbar.activities'|trans }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_hebergements_search' ? 'active' : '' }}" href="{{ path('app_hebergements_search') }}">{{ 'navbar.accommodations'|trans }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_trajet' ? 'active' : '' }}" href="{{ path('app_trajet') }}">{{ 'navbar.trips'|trans }}</a>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_promotions' ? 'active' : '' }}" href="{{ path('app_promotion_list') }}">{{ 'navbar.promotions'|trans }}</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-communaute {{ app.request.attributes.get('_route') starts with 'app_communaute' ? 'active' : '' }}" href="{{ path('app_communaute_index') }}">{{ 'navbar.community'|trans }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">{{ 'navbar.contact'|trans }}</a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3">
+                        <button class="nav-link btn-localization-trigger" data-bs-toggle="modal" data-bs-target="#localizationModal">
+                            <i class="fas fa-globe-africa"></i> 
+                        </button>
+                    </li>
+
+                    {% if app.user %}
+                        <li class="nav-item ms-lg-3">
+                            <div class="account-dropdown">
+                                <button type="button" class="account-btn" id="accountDropdownBtn">
+                                    <span class="account-avatar">
+                                        {% if app.user.image %}
+                                            <img src="{{ asset('uploads/profiles/' ~ app.user.image) }}" alt="Avatar">
+                                        {% else %}
+                                            {{ app.user.prenom|slice(0,1)|upper }}{{ app.user.nom|slice(0,1)|upper }}
+                                        {% endif %}
+                                    </span>
+                                    <span>{{ app.user.prenom }}</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+
+                                <div class="account-menu" id="accountDropdownMenu">
+                                    <div class="account-menu-header">
+                                        <strong>{{ app.user.prenom }} {{ app.user.nom }}</strong>
+                                        <span>{{ app.user.e_mail }}</span>
+                                    </div>
+
+                                    <a href="{{ path('app_user_profile') }}">
+                                        <i class="fas fa-user"></i>
+                                        {{ 'navbar.profile'|trans }}
+                                    </a>
+
+                                    {% if app.user and app.user.role == 'admin' %}
+                                    <a href="{{ path('app_admin') }}">
+                                        <i class="fas fa-user-shield"></i>
+                                        {{ 'navbar.admin'|trans }}
+                                    </a>
+                                    {% endif %}
+
+                                    <a href="{{ path('app_user_profile_edit') }}">
+                                        <i class="fas fa-user-edit"></i>
+                                        {{ 'navbar.edit_account'|trans }}
+                                    </a>
+
+                                    <a href="{{ path('app_reservations_list') }}">
+                                        <i class="fas fa-suitcase-rolling"></i>
+                                        {{ 'navbar.my_trips'|trans }}
+                                    </a>
+
+                                    <a href="{{ path('mes_reservations_activite') }}">
+                                        <i class="fas fa-calendar-check"></i>
+                                        {{ 'navbar.my_reservations'|trans }}
+                                    </a>
+
+                                    <a href="{{ path('app_voiture_guide') }}">
+                                        <i class="fas fa-car"></i>
+                                        {{ 'navbar.car_guide'|trans }}
+                                    </a>
+
+                                    <form method="post" action="{{ path('app_user_account_delete') }}" onsubmit="return confirm('{{ 'navbar.delete_account_confirm'|trans|default('Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.') }}');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
+                                        <button type="submit" class="delete-account-btn">
+                                            <i class="fas fa-trash-alt"></i>
+                                            {{ 'navbar.delete_account'|trans }}
+                                        </button>
+                                    </form>
+
+                                    <a href="{{ path('app_logout') }}">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        {{ 'navbar.logout'|trans }}
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li class="nav-item ms-lg-3">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <a class="btn-nav-outline" href="{{ path('app_login') }}">
+                                    <i class="fas fa-user me-2"></i>{{ 'navbar.login'|trans }}
+                                </a>
+                                <a class="btn-nav" href="{{ path('app_register') }}">
+                                    <i class="fas fa-user-plus me-2"></i>{{ 'navbar.register'|trans }}
+                                </a>
+                            </div>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="site-main">
+        {% block flashes %}
+            <div class="container mt-3">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : 'info') }} alert-dismissible fade show rounded-4 shadow-sm border-0" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="alert-icon me-3">
+                                    {% if label == 'success' %}
+                                        <i class="fas fa-check-circle fs-4"></i>
+                                    {% elseif label == 'error' %}
+                                        <i class="fas fa-exclamation-circle fs-4"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle fs-4"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="alert-content">
+                                    {{ message }}
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endblock %}
+        {% block body %}{% endblock %}
+    </main>
+
+    <footer style="background: var(--dark); color: white; padding: 60px 0 30px; margin-top: 100px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h3 style="font-weight: 800; margin-bottom: 20px;">RE<span style="color: var(--rouge);">7</span>LA</h3>
+                    <p style="color: #aaa; line-height: 1.8;">{{ 'footer.tagline'|trans }}</p>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4">
+                    <h5 style="font-weight: 600; margin-bottom: 20px; color: var(--vert-pistache);">{{ 'footer.quick_links'|trans }}</h5>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px;"><a href="{{ path('app_home') }}" style="color: #aaa; text-decoration: none;">{{ 'navbar.home'|trans }}</a></li>
+                        <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">{{ 'footer.services'|trans }}</a></li>
+                        <li style="margin-bottom: 10px;"><a href="#" style="color: #aaa; text-decoration: none;">{{ 'navbar.contact'|trans }}</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5 style="font-weight: 600; margin-bottom: 20px; color: var(--vert-pistache);">{{ 'navbar.contact'|trans }}</h5>
+                    <ul style="list-style: none; padding: 0; color: #aaa;">
+                        <li style="margin-bottom: 10px;"><i class="fas fa-map-marker-alt me-2" style="color: var(--rouge);"></i> Casablanca, Maroc</li>
+                        <li style="margin-bottom: 10px;"><i class="fas fa-phone me-2" style="color: var(--rouge);"></i> +212 5XX-XXXXXX</li>
+                        <li style="margin-bottom: 10px;"><i class="fas fa-envelope me-2" style="color: var(--rouge);"></i> contact@re7la.ma</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <h5 style="font-weight: 600; margin-bottom: 20px; color: var(--vert-pistache);">{{ 'footer.newsletter'|trans }}</h5>
+                    <p style="color: #aaa; font-size: 0.9rem;">{{ 'footer.newsletter_sub'|trans }}</p>
+                </div>
+            </div>
+            <hr style="border-color: #444; margin: 40px 0 20px;">
+            <div class="text-center" style="color: #777;">
+                <p>&copy; 2024 RE7LA. {{ 'footer.all_rights'|trans }}</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Favorites Offcanvas Sidebar -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="favoritesSidebar" aria-labelledby="favoritesSidebarLabel" style="border-radius: 30px 0 0 30px; width: 400px; border-left: none; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
+        <div class="offcanvas-header border-bottom py-4 px-4">
+            <h5 class="offcanvas-title fw-bold" id="favoritesSidebarLabel" style="font-size: 1.5rem;">
+                <i class="fas fa-heart text-danger me-2"></i> Favoris
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-4">
+            <div id="favoritesList" class="d-flex flex-column gap-3">
+                <div class="text-center py-5 text-muted empty-fav-msg">
+                    <i class="fas fa-heart-broken fa-3x mb-3 opacity-25"></i>
+                    <p>Aucun favori pour le moment.</p>
+                </div>
+            </div>
+        </div>
+        <div class="offcanvas-footer p-4 border-top">
+            <a href="{{ path('app_hebergements_search') }}" class="btn w-100 py-3 rounded-pill" style="background: var(--bleu-ceil); color: white; font-weight: 600;">Découvrir plus</a>
+        </div>
+    </div>
+
+    <!-- Localization Modal -->
+    <div class="modal fade" id="localizationModal" tabindex="-1" aria-labelledby="localizationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-premium shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h4 class="fw-bold mb-0 ms-2 mt-3">{{ 'navbar.lang_currency'|trans }}</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 border-end">
+                            <h6 class="text-uppercase fw-bold text-muted small mb-4 ms-2">Langue</h6>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <a href="{{ path('app_change_locale', {locale: 'fr'}) }}" class="loc-option {{ app.request.locale == 'fr' ? 'active' : '' }}">
+                                        <img src="https://flagcdn.com/w40/fr.png" class="loc-flag" alt="FR">
+                                        <div class="flex-grow-1"><div class="fw-bold">Français</div></div>
+                                        {% if app.request.locale == 'fr' %}<i class="fas fa-check-circle text-success"></i>{% endif %}
+                                    </a>
+                                </div>
+                                <div class="col-12">
+                                    <a href="{{ path('app_change_locale', {locale: 'en'}) }}" class="loc-option {{ app.request.locale == 'en' ? 'active' : '' }}">
+                                        <img src="https://flagcdn.com/w40/us.png" class="loc-flag" alt="US">
+                                        <div class="flex-grow-1"><div class="fw-bold">English</div></div>
+                                        {% if app.request.locale == 'en' %}<i class="fas fa-check-circle text-success"></i>{% endif %}
+                                    </a>
+                                </div>
+                                <div class="col-12">
+                                    <a href="{{ path('app_change_locale', {locale: 'ar'}) }}" class="loc-option {{ app.request.locale == 'ar' ? 'active' : '' }}">
+                                        <img src="https://flagcdn.com/w40/tn.png" class="loc-flag" alt="TN">
+                                        <div class="flex-grow-1"><div class="fw-bold">العربية</div></div>
+                                        {% if app.request.locale == 'ar' %}<i class="fas fa-check-circle text-success"></i>{% endif %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase fw-bold text-muted small mb-4 ms-2">Devise</h6>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <a href="{{ path('app_change_currency', {currency: 'TND'}) }}" class="loc-option {{ current_currency == 'TND' ? 'active' : '' }}">
+                                        <div class="loc-flag d-flex align-items-center justify-content-center bg-light fw-bold text-dark" style="font-size: 0.7rem;">DT</div>
+                                        <div class="flex-grow-1"><div class="fw-bold">Dinar Tunisien</div></div>
+                                        {% if current_currency == 'TND' %}<i class="fas fa-check-circle text-success"></i>{% endif %}
+                                    </a>
+                                </div>
+                                <div class="col-12">
+                                    <a href="{{ path('app_change_currency', {currency: 'EUR'}) }}" class="loc-option {{ current_currency == 'EUR' ? 'active' : '' }}">
+                                        <div class="loc-flag d-flex align-items-center justify-content-center bg-light fw-bold text-dark">€</div>
+                                        <div class="flex-grow-1"><div class="fw-bold">Euro</div></div>
+                                        {% if current_currency == 'EUR' %}<i class="fas fa-check-circle text-success"></i>{% endif %}
+                                    </a>
+                                </div>
+                                <div class="col-12">
+                                    <a href="{{ path('app_change_currency', {currency: 'USD'}) }}" class="loc-option {{ current_currency == 'USD' ? 'active' : '' }}">
+                                        <div class="loc-flag d-flex align-items-center justify-content-center bg-light fw-bold text-dark">$</div>
+                                        <div class="flex-grow-1"><div class="fw-bold">Dollar Américain</div></div>
+                                        {% if current_currency == 'USD' %}<i class="fas fa-check-circle text-success"></i>{% endif %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        AOS.init({ duration: 1000, once: true });
+
+        // Favorites Logic
+        const FAV_STORAGE_KEY = 're7la_favorites';
+        function getFavorites() { return JSON.parse(localStorage.getItem(FAV_STORAGE_KEY) || '[]'); }
+        function saveFavorites(favorites) {
+            localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(favorites));
+            renderFavorites();
+            updateUIHeartIcons();
+        }
+        function toggleFavorite(hotel) {
+            let favorites = getFavorites();
+            const index = favorites.findIndex(item => item.id == hotel.id);
+            if (index > -1) { favorites.splice(index, 1); } 
+            else { 
+                favorites.push(hotel);
+                const sidebar = new bootstrap.Offcanvas(document.getElementById('favoritesSidebar'));
+                sidebar.show();
+            }
+            saveFavorites(favorites);
+        }
+        function renderFavorites() {
+            const container = document.getElementById('favoritesList');
+            const favorites = getFavorites();
+            if (favorites.length === 0) {
+                container.innerHTML = `<div class="text-center py-5 text-muted empty-fav-msg"><i class="fas fa-heart-broken fa-3x mb-3 opacity-25"></i><p>Aucun favori.</p></div>`;
+                return;
+            }
+            container.innerHTML = favorites.map(hotel => `
+                <div class="fav-item-card">
+                    <img src="${hotel.image}" class="fav-item-img" alt="${hotel.title}">
+                    <div class="fav-item-info">
+                        <div class="fav-item-title">${hotel.title}</div>
+                        <div class="fav-item-price">${hotel.price} DT</div>
+                        <a href="/reservation/details/${hotel.id}" class="btn btn-sm p-0 text-primary fw-bold mt-1" style="font-size: 0.75rem;">Voir plus</a>
+                    </div>
+                    <div class="fav-remove-btn" onclick="toggleFavorite({id: '${hotel.id}'})"><i class="fas fa-times"></i></div>
+                </div>
+            `).join('');
+        }
+        function updateUIHeartIcons() {
+            const favorites = getFavorites();
+            const ids = favorites.map(f => f.id);
+            document.querySelectorAll('.fav-btn').forEach(btn => {
+                const id = btn.dataset.id;
+                const heart = btn.querySelector('i');
+                if (ids.includes(id)) {
+                    heart.classList.remove('far'); heart.classList.add('fas'); btn.style.color = '#ef4444';
+                } else {
+                    heart.classList.remove('fas'); heart.classList.add('far'); btn.style.color = '#94a3b8';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFavorites(); updateUIHeartIcons();
+            const observer = new MutationObserver(updateUIHeartIcons);
+            observer.observe(document.body, { childList: true, subtree: true });
+            document.addEventListener('click', (e) => {
+                const favBtn = e.target.closest('.fav-btn');
+                if (favBtn) { toggleFavorite({ id: favBtn.dataset.id, title: favBtn.dataset.title, image: favBtn.dataset.image, price: favBtn.dataset.price }); }
+            });
+        });
+
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-re7la');
+            if (window.scrollY > 50) { navbar.classList.add('scrolled'); }
+            else { navbar.classList.remove('scrolled'); }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('accountDropdownBtn');
+            const menu = document.getElementById('accountDropdownMenu');
+            if (btn && menu) {
+                btn.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('show'); });
+                document.addEventListener('click', function () { menu.classList.remove('show'); });
+            }
+        });
+    </script>
+    {% block javascripts %}{% endblock %}
+
+    <!-- ═══ ACCESSIBILITÉ POUR MALVOYANTS (GLOBALE) ═══ -->
+
+    <!-- Overlay de bienvenue (clic pour activer la voix) -->
+    <div id="re7la-welcome">
+        <div style="text-align:center;padding:40px 30px;">
+            <div style="font-size:4rem;margin-bottom:16px;">♿</div>
+            <h2 style="font-weight:800;color:#2c3e50;margin-bottom:10px;">Bienvenue sur RE7LA</h2>
+            <p style="color:#64748b;font-size:1rem;margin-bottom:24px;line-height:1.6;">
+                Cliquez n'importe où pour activer le guide vocal et démarrer votre expérience accessible.
+            </p>
+            <div style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;padding:14px 28px;border-radius:50px;font-weight:700;font-size:1rem;box-shadow:0 8px 25px rgba(26,188,156,.35);">
+                <i class="fas fa-volume-up"></i> Cliquez pour commencer
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton flottant Accessibilité -->
+    <button id="re7la-a11y-btn" aria-label="Ouvrir les options d'accessibilité" title="Accessibilité (Alt+A)">
+        <i class="fas fa-universal-access"></i>
+        <span>Accessibilité</span>
+    </button>
+
+    <!-- Overlay sombre -->
+    <div id="re7la-a11y-overlay"></div>
+
+    <!-- Panneau d'options -->
+    <div id="re7la-a11y-panel" role="dialog" aria-modal="true" aria-label="Options d'accessibilité">
+        <div class="a11y-hdr">
+            <h3><i class="fas fa-universal-access"></i> Accessibilité</h3>
+            <button class="a11y-close" id="re7la-a11y-close" aria-label="Fermer"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="a11y-body">
+            <p style="color:#94a3b8;font-size:12px;margin-bottom:18px;line-height:1.5;">
+                Personnalisez votre expérience pour une navigation optimale.
+            </p>
+
+            <!-- Mode Sombre -->
+            <div class="a11y-opt" id="opt-hc">
+                <div class="a11y-opt-left">
+                    <div class="a11y-ico" style="background:linear-gradient(135deg,#0d1117,#21262d);color:#58a6ff;border:1px solid #30363d;">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:14px;color:#1e293b;display:flex;align-items:center;gap:8px;">
+                            Mode Sombre
+                            <span style="font-size:10px;background:linear-gradient(135deg,#0d1117,#21262d);color:#58a6ff;padding:2px 8px;border-radius:50px;font-weight:600;letter-spacing:.5px;">DARK</span>
+                        </div>
+                        <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Interface sombre · repose les yeux · GitHub Dark</div>
+                        <div style="display:flex;gap:4px;margin-top:6px;">
+                            <span style="width:14px;height:14px;border-radius:3px;background:#0d1117;border:1px solid #30363d;display:inline-block;" title="Fond"></span>
+                            <span style="width:14px;height:14px;border-radius:3px;background:#161b22;border:1px solid #30363d;display:inline-block;" title="Surface"></span>
+                            <span style="width:14px;height:14px;border-radius:3px;background:#1ABC9C;display:inline-block;" title="Accent"></span>
+                            <span style="width:14px;height:14px;border-radius:3px;background:#58a6ff;display:inline-block;" title="Liens"></span>
+                            <span style="width:14px;height:14px;border-radius:3px;background:#e6edf3;display:inline-block;" title="Texte"></span>
+                        </div>
+                    </div>
+                </div>
+                <label class="a11y-sw" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="sw-hc" role="switch" aria-label="Activer le mode sombre">
+                    <span class="a11y-track"><span class="a11y-thumb"></span></span>
+                </label>
+            </div>
+
+            <!-- Texte agrandi -->
+            <div class="a11y-opt" id="opt-lg">
+                <div class="a11y-opt-left" style="width:100%;">
+                    <div class="a11y-ico" style="background:linear-gradient(135deg,rgba(26,188,156,.15),rgba(26,188,156,.05));color:#1ABC9C;flex-shrink:0;position:relative;overflow:hidden;">
+                        <i class="fas fa-text-height" style="position:relative;z-index:1;"></i>
+                        <div style="position:absolute;inset:0;background:radial-gradient(circle at 60% 40%,rgba(26,188,156,.25),transparent 70%);"></div>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <span style="font-weight:700;font-size:14px;color:#1e293b;">Texte agrandi</span>
+                            <span style="font-size:10px;background:linear-gradient(135deg,rgba(26,188,156,.15),rgba(26,188,156,.08));color:#1ABC9C;padding:2px 8px;border-radius:50px;font-weight:700;border:1px solid rgba(26,188,156,.2);">+18%</span>
+                        </div>
+                        <div style="font-size:11px;color:#94a3b8;margin-top:3px;">Agrandit polices · espacement · titres · boutons</div>
+
+                        <!-- Preview barre de taille -->
+                        <div style="margin-top:8px;background:#f8fafc;border-radius:10px;padding:8px 12px;border:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;">
+                            <div style="display:flex;align-items:flex-end;gap:3px;flex-shrink:0;">
+                                <span style="display:inline-block;width:3px;background:#cbd5e1;border-radius:2px;height:10px;"></span>
+                                <span style="display:inline-block;width:3px;background:#94a3b8;border-radius:2px;height:14px;"></span>
+                                <span style="display:inline-block;width:3px;background:#1ABC9C;border-radius:2px;height:19px;"></span>
+                            </div>
+                            <div style="display:flex;align-items:baseline;gap:5px;">
+                                <span style="font-size:10px;color:#94a3b8;font-weight:600;font-family:'Poppins',sans-serif;">Texte</span>
+                                <span style="font-size:12px;color:#64748b;font-weight:600;font-family:'Poppins',sans-serif;">Texte</span>
+                                <span style="font-size:15px;color:#1e293b;font-weight:700;font-family:'Poppins',sans-serif;">Texte</span>
+                            </div>
+                            <div style="margin-left:auto;display:flex;gap:4px;">
+                                <span style="font-size:9px;background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:4px;font-weight:600;white-space:nowrap;">Dyslexie</span>
+                                <span style="font-size:9px;background:#f0fdf4;color:#166534;padding:2px 6px;border-radius:4px;font-weight:600;white-space:nowrap;">Seniors</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <label class="a11y-sw" onclick="event.stopPropagation()" style="margin-top:auto;align-self:flex-start;flex-shrink:0;">
+                    <input type="checkbox" id="sw-lg" role="switch" aria-label="Agrandir le texte">
+                    <span class="a11y-track"><span class="a11y-thumb"></span></span>
+                </label>
+
+            </div>
+
+            <!-- Lecture vocale -->
+            <div class="a11y-opt" id="opt-vo">
+                <div class="a11y-opt-left">
+                    <div class="a11y-ico" style="background:linear-gradient(135deg,rgba(88,166,255,.12),rgba(88,166,255,.06));color:#58a6ff;">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:14px;color:#1e293b;">Lecture vocale</div>
+                        <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Survol → lecture · Web Speech API</div>
+                        <div style="margin-top:5px;display:flex;align-items:center;gap:3px;">
+                            <span style="width:4px;height:10px;border-radius:2px;background:#1ABC9C;display:inline-block;animation:voiceBar .8s ease-in-out infinite alternate;"></span>
+                            <span style="width:4px;height:16px;border-radius:2px;background:#1ABC9C;display:inline-block;animation:voiceBar .8s ease-in-out infinite alternate .15s;"></span>
+                            <span style="width:4px;height:8px;border-radius:2px;background:#1ABC9C;display:inline-block;animation:voiceBar .8s ease-in-out infinite alternate .3s;"></span>
+                            <span style="width:4px;height:14px;border-radius:2px;background:#1ABC9C;display:inline-block;animation:voiceBar .8s ease-in-out infinite alternate .45s;"></span>
+                            <span style="width:4px;height:6px;border-radius:2px;background:#1ABC9C;display:inline-block;animation:voiceBar .8s ease-in-out infinite alternate .6s;"></span>
+                        </div>
+                    </div>
+                </div>
+                <label class="a11y-sw" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="sw-vo" role="switch" aria-label="Activer la lecture vocale">
+                    <span class="a11y-track"><span class="a11y-thumb"></span></span>
+                </label>
+            </div>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9;text-align:center;">
+                <small style="color:#94a3b8;"><i class="fas fa-keyboard me-1"></i> Raccourci clavier : <kbd>Alt</kbd> + <kbd>A</kbd></small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulle de lecture au survol -->
+    <div id="re7la-hover-tip"></div>
+
+    <!-- Toast de confirmation -->
+    <div id="re7la-toast"></div>
+
+    <!-- Script global d'accessibilité -->
+    <script src="{{ asset('js/accessibility.js') }}?v=3.5.0"></script>
+
+</body>
+</html>
