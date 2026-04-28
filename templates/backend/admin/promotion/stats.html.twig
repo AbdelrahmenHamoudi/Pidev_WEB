@@ -1,0 +1,198 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Statistiques Simplifiées - RE7LA{% endblock %}
+{% block breadcrumb %}Promotions / Stats{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .stats-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .stats-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        padding: 20px;
+        height: 100%;
+        border: 1px solid #edf2f7;
+    }
+    .stats-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 10px;
+    }
+    .chart-wrapper {
+        position: relative;
+        height: 220px; /* Smaller height as requested */
+        width: 100%;
+    }
+    .user-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .user-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        font-size: 12px;
+        background: #f8fafc;
+    }
+    .badge-count {
+        background: #edf2f7;
+        color: #4a5568;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="stats-container" style="position: relative;">
+    
+    <div class="d-flex align-items-center" style="margin-bottom: 30px;">
+        <a href="{{ path('app_admin_promotion_list') }}" class="btn btn-sm" 
+           style="background:#f1f5f9; color:#64748b; border-radius:8px; font-weight:700; border:1px solid #e2e8f0;">
+            <i class="fas fa-arrow-left me-1"></i> Retour aux Promotions
+        </a>
+        
+        <a href="{{ path('app_admin_promotion_stats_pdf') }}" class="btn btn-sm" 
+           style="position: absolute; top: 0; right: 0; background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff; border-radius:8px; padding:10px 25px; font-weight:700; box-shadow:0 6px 20px rgba(231,76,60,0.3); z-index: 10;">
+            <i class="fas fa-file-pdf me-1"></i> Exporter en PDF
+        </a>
+    </div>
+
+    <div style="margin-bottom: 40px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-top: 10px;">
+        <h4 style="font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px;">📊 Analyse des Performances</h4>
+        <p style="color:#94a3b8; font-size:12px; margin:5px 0 0;">Visualisation des indicateurs clés de succès de vos promotions</p>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="stats-card">
+                <div class="stats-title">🏆 Top 10 Promotions (par ventes)</div>
+                <div class="chart-wrapper">
+                    <canvas id="topPromosChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="stats-card">
+                <div class="stats-title">📊 Répartition par Type</div>
+                <div class="chart-wrapper">
+                    <canvas id="typeDistChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lists Row -->
+    <div class="row g-4">
+        <!-- Top Users -->
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-title">💎 Meilleurs Clients</div>
+                <ul class="user-list">
+                    {% for email, count in topUsers %}
+                    <li class="user-item">
+                        <span style="font-weight:600; color:#4a5568; overflow:hidden; text-overflow:ellipsis;">{{ email }}</span>
+                        <span class="badge-count">{{ count }} résas</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Least Users -->
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-title">❄️ Clients Inactifs</div>
+                <ul class="user-list">
+                    {% for email, count in leastUsers %}
+                    <li class="user-item">
+                        <span style="color:#718096; overflow:hidden; text-overflow:ellipsis;">{{ email }}</span>
+                        <span class="badge-count">{{ count }} résa</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Best Packs -->
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-title">📦 Meilleurs Packs</div>
+                <ul class="user-list">
+                    {% for pack in bestPacks %}
+                    <li class="user-item" style="border-left: 3px solid #1abc9c;">
+                        <span style="font-weight:700; color:#2c3e50;">{{ pack.name }}</span>
+                        <span style="color:#1abc9c; font-weight:800;">{{ pack.count }} ventes</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart.defaults.font.size = 11;
+    
+    // Top Promotions Chart
+    new Chart(document.getElementById('topPromosChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ topPromosLabels|json_encode|raw }},
+            datasets: [{
+                label: 'Ventes',
+                data: {{ topPromosData|json_encode|raw }},
+                backgroundColor: '#3498db',
+                borderRadius: 5,
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                x: { ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+
+    // Type Distribution Chart
+    new Chart(document.getElementById('typeDistChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ typeDistLabels|json_encode|raw }},
+            datasets: [{
+                data: {{ typeDistData|json_encode|raw }},
+                backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

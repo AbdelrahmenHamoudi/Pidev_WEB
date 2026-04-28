@@ -1,0 +1,203 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Assistant IA - RE7LA Admin{% endblock %}
+{% block breadcrumb %}Promotions / Assistant IA{% endblock %}
+{% block page_title %}Assistant de Création Intelligent{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* Animated Background */
+    #ai-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+    }
+
+    .recommendation-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        overflow: hidden;
+    }
+
+    .recommendation-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(118, 75, 162, 0.12);
+        border-color: rgba(118, 75, 162, 0.3);
+    }
+
+    .ai-badge {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        box-shadow: 0 4px 10px rgba(118, 75, 162, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Canvas for Cursor Animation -->
+<canvas id="ai-canvas"></canvas>
+
+<div class="row mb-4">
+    <div class="col-12" style="display:flex;justify-content:space-between;align-items:center;">
+        <a href="{{ path('app_admin_promotion_list') }}" class="btn" style="background:rgba(255,255,255,0.7); backdrop-filter:blur(5px); color:#64748b; border:1px solid #e2e8f0; border-radius:12px; padding:10px 20px; font-weight:600; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+        
+        <form action="{{ path('app_admin_promotion_recommendations_generate') }}" method="POST">
+            <button type="submit" class="btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;padding:12px 25px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 8px 20px rgba(118,75,162,0.3); transition: all 0.3s;">
+                <i class="fas fa-sparkles"></i> Générer avec l'IA
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 30px;">
+    {% for rec in recommendations %}
+    <div class="recommendation-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+        <div style="padding:25px; border-bottom:1px solid rgba(0,0,0,0.03); display:flex; justify-content:space-between; align-items:center;">
+            <span class="ai-badge">
+                <i class="fas fa-map-marker-alt"></i> {{ rec.destination }}
+            </span>
+            <div style="width:10px; height:10px; background:#1abc9c; border-radius:50%; box-shadow:0 0 10px #1abc9c;"></div>
+        </div>
+        
+        <div style="padding:30px;">
+            <h3 style="font-size:22px; font-weight:800; color:#1a202c; margin-bottom:12px; letter-spacing:-0.5px;">{{ rec.name }}</h3>
+            <p style="color:#4a5568; font-size:15px; line-height:1.7; margin-bottom:25px; opacity:0.9;">{{ rec.description }}</p>
+            
+            <div style="background:rgba(102,126,234,0.05); border:1px solid rgba(102,126,234,0.1); border-radius:18px; padding:20px; margin-bottom:30px;">
+                <div style="font-size:11px; font-weight:800; color:#667eea; text-transform:uppercase; margin-bottom:15px; letter-spacing:1px;">Compositions du Pack :</div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    {% for item in rec.items %}
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:32px; height:32px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#667eea; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+                            <i class="fas {{ item.type == 'hebergement' ? 'fa-home' : (item.type == 'activite' ? 'fa-hiking' : 'fa-car') }}" style="font-size:14px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:13px; font-weight:700; color:#2d3748;">{{ item.name }}</div>
+                            <div style="font-size:10px; color:#a0aec0; text-transform:uppercase;">{{ item.type }} #{{ item.id }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:12px;">
+                <form action="{{ path('app_admin_promotion_recommendations_approve', {tempId: rec.temp_id}) }}" method="POST" style="flex:1.5;">
+                    <button type="submit" class="btn w-100" style="background:#1abc9c; color:#fff; border:none; border-radius:12px; padding:14px; font-weight:700; font-size:14px; box-shadow:0 4px 12px rgba(26,188,156,0.25);">
+                        Approuver
+                    </button>
+                </form>
+                <form action="{{ path('app_admin_promotion_recommendations_reject', {tempId: rec.temp_id}) }}" method="POST" style="flex:1;">
+                    <button type="submit" class="btn w-100" style="background:rgba(231,76,60,0.05); color:#e74c3c; border:1px solid rgba(231,76,60,0.2); border-radius:12px; padding:14px; font-weight:700; font-size:14px;">
+                        Rejeter
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center" style="padding:120px 20px;">
+        <div style="position:relative; display:inline-block; margin-bottom:30px;">
+            <i class="fas fa-brain" style="font-size:80px; color:#e2e8f0; opacity:0.5;"></i>
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100px; height:100px; background:radial-gradient(circle, rgba(118,75,162,0.1) 0%, transparent 70%); border-radius:50%; animation: pulse 2s infinite;"></div>
+        </div>
+        <h3 style="color:#718096; font-weight:800; margin-bottom:10px;">L'IA attend vos instructions</h3>
+        <p style="color:#a0aec0; font-size:15px; max-width:400px; margin:0 auto;">Cliquez sur le bouton en haut à droite pour analyser vos promotions et suggérer des packs optimisés.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% block javascripts %}
+<script>
+    // --- Cursor Particle Animation (Antigravity Style) ---
+    const canvas = document.getElementById('ai-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: null, y: null };
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+    window.dispatchEvent(new Event('resize'));
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.x;
+        mouse.y = e.y;
+    });
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 1;
+            this.speedX = Math.random() * 1 - 0.5;
+            this.speedY = Math.random() * 1 - 0.5;
+            this.color = 'rgba(102, 126, 234, ' + (Math.random() * 0.3 + 0.1) + ')';
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+
+            if (mouse.x && mouse.y) {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 150) {
+                    this.x += dx * 0.02;
+                    this.y += dy * 0.02;
+                }
+            }
+
+            if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+            if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function init() {
+        for (let i = 0; i < 80; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+
+    init();
+    animate();
+
+    // Style AOS for nicer entrance
+    window.addEventListener('load', () => {
+        document.body.style.backgroundColor = 'transparent';
+    });
+</script>
+{% endblock %}
+
+{% endblock %}
