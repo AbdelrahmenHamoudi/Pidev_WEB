@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< Updated upstream
     "content-hash": "079a97c6df4fecad377db71d138a05bb",
+=======
+    "content-hash": "426e5b67a8afdeeca9cd91dfebb99bb3",
+>>>>>>> Stashed changes
     "packages": [
         {
             "name": "ably/ably-php",
