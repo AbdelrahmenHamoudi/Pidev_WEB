@@ -1,0 +1,388 @@
+{% extends 'backend/baseend.html.twig' %}
+{% block title %}RE7LA Admin — Nouveau Planning{% endblock %}
+{% block breadcrumb %}Plannings / Nouveau{% endblock %}
+{% block page_title %}Nouveau planning{% endblock %}
+
+{% block body %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+.pw { font-family:'Plus Jakarta Sans',sans-serif; }
+
+.pw-layout {
+    display:grid;
+    grid-template-columns:1fr 1.6fr;
+    gap:24px;
+    align-items:start;
+}
+
+/* ── Colonne gauche : Hero + résumé ── */
+.pw-left { display:flex; flex-direction:column; gap:16px; position:sticky; top:20px; }
+
+.pw-hero {
+    background:linear-gradient(135deg,#F39C12 0%,#F7DC6F 55%,#1ABC9C 100%);
+    border-radius:20px;
+    padding:28px 24px;
+    position:relative;
+    overflow:hidden;
+}
+.pw-hero::before {
+    content:'';position:absolute;
+    top:-30px;right:-30px;
+    width:130px;height:130px;border-radius:50%;
+    background:rgba(255,255,255,0.12);
+}
+.pw-hero::after {
+    content:'';position:absolute;
+    bottom:-20px;right:60px;
+    width:80px;height:80px;border-radius:50%;
+    background:rgba(255,255,255,0.08);
+}
+.pw-hero-icon {
+    width:48px;height:48px;
+    background:rgba(255,255,255,0.25);
+    border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:14px;
+}
+.pw-hero-icon i { font-size:20px;color:#fff; }
+.pw-hero h2 { margin:0 0 4px;font-size:20px;font-weight:800;color:#fff; }
+.pw-hero p  { margin:0;font-size:13px;color:rgba(255,255,255,0.85);font-weight:500; }
+
+/* ── Carte résumé live ── */
+.summary-card {
+    background:#fff;
+    border-radius:18px;
+    padding:22px;
+    border:1px solid #f0f4f8;
+    box-shadow:0 4px 20px rgba(44,62,80,0.06);
+}
+.summary-title {
+    font-size:11px;font-weight:800;color:#94a3b8;
+    text-transform:uppercase;letter-spacing:1px;
+    margin-bottom:16px;
+    display:flex;align-items:center;gap:8px;
+}
+.summary-title i { color:#F39C12; }
+.summary-row {
+    display:flex;align-items:center;gap:12px;
+    padding:10px 0;
+    border-bottom:1px solid #f8fafc;
+}
+.summary-row:last-child { border-bottom:none; }
+.summary-icon {
+    width:32px;height:32px;
+    border-radius:9px;
+    background:linear-gradient(135deg,rgba(243,156,18,0.12),rgba(247,220,111,0.08));
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+}
+.summary-icon i { font-size:12px;color:#F39C12; }
+.summary-key { font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px; }
+.summary-val { font-size:13px;color:#2C3E50;font-weight:700;margin-top:1px; }
+
+/* Places bar */
+.places-bar-wrap {
+    background:linear-gradient(135deg,rgba(26,188,156,0.08),rgba(26,188,156,0.04));
+    border:1px solid rgba(26,188,156,0.2);
+    border-radius:12px;padding:12px 16px;margin-top:12px;
+}
+.places-bar-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:8px; }
+.places-big { font-size:26px;font-weight:800;color:#1ABC9C; }
+.places-label { font-size:11px;color:#0e7e6a;font-weight:600; }
+.bar-track { height:6px;background:rgba(26,188,156,0.15);border-radius:10px;overflow:hidden; }
+.bar-fill { height:100%;background:linear-gradient(90deg,#1ABC9C,#F7DC6F);border-radius:10px;transition:width 0.3s; }
+
+/* ── Colonne droite : Formulaire ── */
+.pw-card {
+    background:#fff;
+    border-radius:20px;
+    padding:30px;
+    border:1px solid #f0f4f8;
+    box-shadow:0 4px 28px rgba(44,62,80,0.07);
+}
+
+.step-row {
+    display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.step-dot {
+    width:28px;height:28px;border-radius:50%;
+    background:linear-gradient(135deg,#F39C12,#F7DC6F);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;box-shadow:0 4px 10px rgba(243,156,18,0.3);
+}
+.step-dot i { font-size:11px;color:#fff; }
+.step-label { font-size:11px;font-weight:800;color:#2C3E50;text-transform:uppercase;letter-spacing:1px;flex:1; }
+.step-line { flex:1;height:1px;background:linear-gradient(90deg,#F7DC6F,#e8ecf0); }
+
+.fl { display:flex;flex-direction:column;gap:6px;margin-bottom:16px; }
+.fl label {
+    font-size:11px;font-weight:800;color:#2C3E50;
+    text-transform:uppercase;letter-spacing:0.6px;
+}
+.fl input,.fl select {
+    width:100%;padding:11px 16px;
+    border:1.5px solid #e8ecf0;border-radius:12px;
+    font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;
+    color:#2C3E50;background:#FAFAFA;outline:none;
+    transition:all 0.2s;box-sizing:border-box;
+}
+.fl input:focus,.fl select:focus {
+    border-color:#F39C12;background:#fff;
+    box-shadow:0 0 0 3px rgba(243,156,18,0.13);
+    transform:translateY(-1px);
+}
+
+.grid2 { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+
+.divider {
+    display:flex;align-items:center;gap:12px;margin:6px 0 18px;
+}
+.divider span {
+    font-size:10px;font-weight:700;color:#94a3b8;
+    text-transform:uppercase;letter-spacing:1px;white-space:nowrap;
+}
+.divider::before,.divider::after { content:'';flex:1;height:1px;background:#f0f4f8; }
+
+.etat-pills { display:flex;gap:8px;margin-top:8px; }
+.ep {
+    font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;
+    cursor:pointer;transition:all 0.2s;border:1.5px solid transparent;
+}
+.ep.teal  { background:rgba(26,188,156,0.1);color:#0e7e6a;border-color:rgba(26,188,156,0.25); }
+.ep.orange{ background:rgba(243,156,18,0.1);color:#a05c00;border-color:rgba(243,156,18,0.25); }
+.ep.active-teal  { background:#1ABC9C;color:#fff;border-color:#1ABC9C; }
+.ep.active-orange{ background:#F39C12;color:#fff;border-color:#F39C12; }
+
+.actions {
+    display:flex;gap:12px;margin-top:24px;
+    padding-top:20px;border-top:1px solid #f0f4f8;
+}
+.btn-save {
+    flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(135deg,#F39C12,#F7DC6F);
+    color:#fff;padding:13px 24px;border-radius:12px;border:none;
+    font-size:14px;font-weight:700;cursor:pointer;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    box-shadow:0 6px 18px rgba(243,156,18,0.35);
+    transition:all 0.2s;
+}
+.btn-save:hover { transform:translateY(-2px);box-shadow:0 10px 26px rgba(243,156,18,0.45); }
+.btn-cancel {
+    display:inline-flex;align-items:center;gap:8px;
+    background:#f1f5f9;color:#64748b;padding:13px 20px;
+    border-radius:12px;font-size:14px;font-weight:600;
+    text-decoration:none;border:1px solid #e2e8f0;transition:all 0.2s;
+}
+.btn-cancel:hover { background:#e2e8f0;color:#2C3E50; }
+</style>
+
+<div class="pw">
+    <div class="pw-layout">
+
+        {# ══ COLONNE GAUCHE ══ #}
+        <div class="pw-left">
+
+            <div class="pw-hero">
+                <div class="pw-hero-icon"><i class="fas fa-calendar-plus"></i></div>
+                <h2>Nouveau planning</h2>
+                <p>Associez une date, des horaires et des places à une activité</p>
+            </div>
+
+            {# Résumé live #}
+            <div class="summary-card">
+                <div class="summary-title"><i class="fas fa-eye"></i> Aperçu en direct</div>
+
+                <div class="summary-row">
+                    <div class="summary-icon"><i class="fas fa-hiking"></i></div>
+                    <div>
+                        <div class="summary-key">Activité</div>
+                        <div class="summary-val" id="sum-activite">—</div>
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="summary-icon"><i class="fas fa-calendar"></i></div>
+                    <div>
+                        <div class="summary-key">Date</div>
+                        <div class="summary-val" id="sum-date">—</div>
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="summary-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <div class="summary-key">Horaire</div>
+                        <div class="summary-val" id="sum-horaire">—</div>
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="summary-icon"><i class="fas fa-tag"></i></div>
+                    <div>
+                        <div class="summary-key">État</div>
+                        <div class="summary-val" id="sum-etat">—</div>
+                    </div>
+                </div>
+
+                <div class="places-bar-wrap">
+                    <div class="places-bar-top">
+                        <span class="places-big" id="sum-places">0</span>
+                        <span class="places-label" id="sum-places-txt">places</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill" id="sum-bar" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {# ══ COLONNE DROITE : FORMULAIRE ══ #}
+        <div class="pw-card">
+            {{ form_start(form) }}
+
+            <div class="step-row">
+                <div class="step-dot"><i class="fas fa-hiking"></i></div>
+                <span class="step-label">Activité</span>
+                <div class="step-line"></div>
+            </div>
+
+            <div class="fl">
+                {{ form_label(form.activite, 'Activité liée') }}
+                {{ form_widget(form.activite, {attr:{
+                    id:'f-activite',
+                    style:'width:100%;padding:11px 16px;border:1.5px solid #e8ecf0;border-radius:12px;font-size:14px;background:#FAFAFA;outline:none;box-sizing:border-box;font-family:inherit;color:#2C3E50;',
+                    onchange:'syncSummary()'
+                }}) }}
+                {{ form_errors(form.activite) }}
+            </div>
+
+            <div class="divider"><span>date & horaires</span></div>
+
+            <div class="step-row">
+                <div class="step-dot"><i class="fas fa-calendar-day"></i></div>
+                <span class="step-label">Date du planning</span>
+                <div class="step-line"></div>
+            </div>
+
+            <div class="fl">
+                {{ form_label(form.datePlanning, 'Date') }}
+                {{ form_widget(form.datePlanning, {attr:{
+                    id:'f-date',
+                    style:'width:100%;padding:11px 16px;border:1.5px solid #e8ecf0;border-radius:12px;font-size:14px;background:#FAFAFA;outline:none;box-sizing:border-box;font-family:inherit;color:#2C3E50;',
+                    oninput:'syncSummary()'
+                }}) }}
+                {{ form_errors(form.datePlanning) }}
+            </div>
+
+            <div class="grid2">
+                <div class="fl">
+                    {{ form_label(form.heureDebut, 'Heure début') }}
+                    {{ form_widget(form.heureDebut, {attr:{
+                        id:'f-debut',
+                        style:'width:100%;padding:11px 16px;border:1.5px solid #e8ecf0;border-radius:12px;font-size:14px;background:#FAFAFA;outline:none;box-sizing:border-box;font-family:inherit;color:#2C3E50;',
+                        oninput:'syncSummary()'
+                    }}) }}
+                    {{ form_errors(form.heureDebut) }}
+                </div>
+                <div class="fl">
+                    {{ form_label(form.heureFin, 'Heure fin') }}
+                    {{ form_widget(form.heureFin, {attr:{
+                        id:'f-fin',
+                        style:'width:100%;padding:11px 16px;border:1.5px solid #e8ecf0;border-radius:12px;font-size:14px;background:#FAFAFA;outline:none;box-sizing:border-box;font-family:inherit;color:#2C3E50;',
+                        oninput:'syncSummary()'
+                    }}) }}
+                    {{ form_errors(form.heureFin) }}
+                </div>
+            </div>
+
+            <div class="divider"><span>capacité & état</span></div>
+
+            <div class="step-row">
+                <div class="step-dot"><i class="fas fa-users"></i></div>
+                <span class="step-label">Capacité & État</span>
+                <div class="step-line"></div>
+            </div>
+
+            <div class="fl">
+                {{ form_label(form.nbPlacesRestantes, 'Nombre de places') }}
+                {{ form_widget(form.nbPlacesRestantes, {attr:{
+                    id:'f-places',
+                    style:'width:100%;padding:11px 16px;border:1.5px solid #e8ecf0;border-radius:12px;font-size:14px;background:#FAFAFA;outline:none;box-sizing:border-box;font-family:inherit;color:#2C3E50;',
+                    oninput:'syncSummary()'
+                }}) }}
+                {{ form_errors(form.nbPlacesRestantes) }}
+            </div>
+
+            <div class="fl">
+                {{ form_label(form.etat, 'État du planning') }}
+                {{ form_widget(form.etat, {attr:{
+                    id:'f-etat',
+                    style:'width:100%;padding:11px 16px;border:1.5px solid #e8ecf0;border-radius:12px;font-size:14px;background:#FAFAFA;outline:none;box-sizing:border-box;font-family:inherit;color:#2C3E50;',
+                    onchange:'syncSummary()'
+                }}) }}
+                {{ form_errors(form.etat) }}
+                <div class="etat-pills">
+                    <span class="ep teal active-teal" onclick="setEtat('Disponible',this)">
+                        <i class="fas fa-check-circle"></i> Disponible
+                    </span>
+                    <span class="ep orange" onclick="setEtat('Complet',this)">
+                        <i class="fas fa-times-circle"></i> Complet
+                    </span>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Créer le planning
+                </button>
+                <a href="{{ path('activite_index') }}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+
+    </div>
+</div>
+
+<script>
+function syncSummary() {
+    var actEl = document.getElementById('f-activite');
+    var actTxt = actEl ? actEl.options[actEl.selectedIndex].text : '—';
+    document.getElementById('sum-activite').textContent = actTxt || '—';
+
+    var date = document.getElementById('f-date');
+    document.getElementById('sum-date').textContent = date && date.value ? date.value : '—';
+
+    var debut = document.getElementById('f-debut');
+    var fin   = document.getElementById('f-fin');
+    var h = (debut && debut.value ? debut.value : '—') + ' → ' + (fin && fin.value ? fin.value : '—');
+    document.getElementById('sum-horaire').textContent = h;
+
+    var etatEl = document.getElementById('f-etat');
+    var etatTxt = etatEl ? etatEl.options[etatEl.selectedIndex].text : '—';
+    document.getElementById('sum-etat').textContent = etatTxt || '—';
+
+    var places = parseInt(document.getElementById('f-places').value) || 0;
+    document.getElementById('sum-places').textContent = places;
+    document.getElementById('sum-places-txt').textContent = places > 1 ? 'places disponibles' : 'place disponible';
+    document.getElementById('sum-bar').style.width = Math.min(places, 50) / 50 * 100 + '%';
+}
+
+function setEtat(val, el) {
+    var sel = document.getElementById('f-etat');
+    if (sel) sel.value = val;
+    document.querySelectorAll('.ep').forEach(function(p) {
+        p.classList.remove('active-teal','active-orange');
+    });
+    el.classList.add(val === 'Disponible' ? 'active-teal' : 'active-orange');
+    syncSummary();
+}
+
+syncSummary();
+</script>
+
+{% endblock %}

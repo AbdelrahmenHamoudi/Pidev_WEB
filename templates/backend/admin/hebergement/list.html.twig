@@ -1,0 +1,295 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Hébergements - RE7LA Admin{% endblock %}
+
+{% block breadcrumb %}Hébergements{% endblock %}
+{% block page_title %}Gestion des Hébergements{% endblock %}
+
+{% block body %}
+<div class="row" style="margin-top:28px;">
+  <div class="card" style="width:100%;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px; border-bottom: 1px solid #f0f2f5; padding-bottom: 20px;">
+      <div>
+        <h1 style="font-size:20px;font-weight:700;color:#2C3E50;margin-bottom:5px;">Catalogue des Hébergements</h1>
+        <p style="color:#94a3b8;font-size:13px;">Consultez et gérez vos propriétés</p>
+      </div>
+      <a href="{{ path('app_admin_hebergement_new') }}" style="background:linear-gradient(135deg,#1ABC9C,#16a085);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;box-shadow:0 4px 15px rgba(26,188,156,0.3);">
+        <i class="fas fa-plus"></i>
+        Nouvel Hébergement
+      </a>
+    </div>
+
+    <!-- Filters Bar -->
+    <div style="background:#fff;padding:24px;border-radius:16px;margin-bottom:30px;box-shadow:0 4px 15px rgba(0,0,0,0.03);display:flex;gap:20px;align-items:flex-end;border:1px solid #e8ecf0;">
+      <div style="flex:1;">
+        <label style="display:block;margin-bottom:8px;font-size:12px;font-weight:700;color:#2C3E50;text-transform:uppercase;letter-spacing:0.5px;">Recherche en temps réel</label>
+        <div style="position:relative;">
+          <i class="fas fa-search" style="position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#1ABC9C;font-size:14px;"></i>
+          <input type="text" id="adminRealtimeSearch" placeholder="Commencez à taper pour filtrer..." style="width:100%;padding:12px 15px 12px 42px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;font-size:14px;color:#2C3E50;outline:none;transition:0.3s;" onfocus="this.style.borderColor='#1ABC9C';this.style.boxShadow='0 0 0 4px rgba(26,188,156,0.1)';" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
+        </div>
+      </div>
+      
+      <form method="get" action="{{ path('app_admin_hebergement_list') }}" style="width:200px;">
+        <label style="display:block;margin-bottom:8px;font-size:12px;font-weight:700;color:#2C3E50;text-transform:uppercase;letter-spacing:0.5px;">Trier par prix</label>
+        <select name="sort" onchange="this.form.submit()" style="width:100%;padding:12px 15px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;font-size:14px;color:#2C3E50;outline:none;cursor:pointer;appearance:none;background-image:url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%232C3E50%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right%2012px%20top%2050%25;background-size:12px%20auto;">
+          <option value="default" {{ current_sort == 'default' ? 'selected' : '' }}>Défaut</option>
+          <option value="price_asc" {{ current_sort == 'price_asc' ? 'selected' : '' }}>Prix croissant</option>
+          <option value="price_desc" {{ current_sort == 'price_desc' ? 'selected' : '' }}>Prix décroissant</option>
+        </select>
+      </form>
+    </div>
+
+    <!-- Grid -->
+    <div id="adminHebergementGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;">
+      {% for hebergement in hebergements %}
+      {% set imgs = hebergement.images %}
+      {% set imgCount = imgs|length %}
+      <div class="h-card" data-title="{{ hebergement.titre|lower }}" style="background:#FAFAFA;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.03);border:1px solid #e8ecf0;transition:all 0.3s;position:relative;">
+
+        <!-- IMAGE CAROUSEL -->
+        <div class="slider-wrap" style="position:relative;height:200px;background:#e8ecf0;overflow:hidden;">
+
+          {% if imgCount > 0 %}
+            <!-- Slides -->
+            {% for img in imgs %}
+            <div class="slide-{{ hebergement.id }}" style="position:absolute;inset:0;transition:opacity 0.4s;opacity:{{ loop.index == 1 ? '1' : '0' }};pointer-events:{{ loop.index == 1 ? 'auto' : 'none' }};">
+              <img src="{{ img.filename starts with 'http' ? img.filename : asset(img.filename) }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ hebergement.titre }} - photo {{ loop.index }}">
+            </div>
+            {% endfor %}
+
+            {% if imgCount > 1 %}
+            <!-- Prev Arrow -->
+            <button onclick="slidePrev({{ hebergement.id }}, {{ imgCount }})" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:10;background:rgba(255,255,255,0.85);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.2s;" onmouseover="this.style.background='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.85)';">
+              <i class="fas fa-chevron-left" style="font-size:11px;color:#2C3E50;"></i>
+            </button>
+            <!-- Next Arrow -->
+            <button onclick="slideNext({{ hebergement.id }}, {{ imgCount }})" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:10;background:rgba(255,255,255,0.85);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:all 0.2s;" onmouseover="this.style.background='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.85)';">
+              <i class="fas fa-chevron-right" style="font-size:11px;color:#2C3E50;"></i>
+            </button>
+            <!-- Dot Indicators -->
+            <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:10;">
+              {% for i in 1..imgCount %}
+              <div id="dot-{{ hebergement.id }}-{{ i }}" style="width:{{ i == 1 ? '18' : '7' }}px;height:7px;border-radius:10px;background:{{ i == 1 ? '#fff' : 'rgba(255,255,255,0.5)' }};transition:all 0.3s;"></div>
+              {% endfor %}
+            </div>
+            <!-- Counter -->
+            <div id="counter-{{ hebergement.id }}" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.4);color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;z-index:10;">1 / {{ imgCount }}</div>
+            {% endif %}
+
+          {% elseif hebergement.image %}
+            <img src="{{ hebergement.image starts with 'http' ? hebergement.image : asset(hebergement.image) }}" style="width:100%;height:100%;object-fit:cover;" alt="{{ hebergement.titre }}">
+          {% else %}
+            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F7DC6F,#F39C12);">
+              <i class="fas fa-home" style="font-size:48px;color:#fff;opacity:0.8;"></i>
+            </div>
+          {% endif %}
+
+          <!-- Type Badge -->
+          <div style="position:absolute;top:12px;left:12px;z-index:5;">
+            <span style="background:#2C3E50;color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">
+              {{ hebergement.typeHebergement }}
+            </span>
+          </div>
+          <!-- Availability Badge -->
+          <div style="position:absolute;top:12px;right:12px;z-index:5;">
+            <span style="background:{{ hebergement.disponible ? '#1ABC9C' : '#e63946' }};color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,0.2);">
+              {{ hebergement.disponible ? 'Disponible' : 'Indisponible' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div style="padding:16px;">
+          <h3 style="font-size:16px;font-weight:700;color:#2C3E50;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ hebergement.titre }}</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-size:18px;font-weight:700;color:#1ABC9C;">{{ hebergement.prixParNuit }} <span style="font-size:12px;color:#94a3b8;font-weight:500;">DT/nuit</span></span>
+            <div style="display:flex;align-items:center;gap:4px;color:#F39C12;font-size:12px;font-weight:600;">
+              <i class="fas fa-user-friends"></i>
+              <span>{{ hebergement.capacite }}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid #e8ecf0;padding-top:12px;">
+            <a href="{{ path('app_admin_hebergement_show', {id: hebergement.id}) }}" class="action-btn view-btn">
+              <i class="fas fa-eye"></i> Voir
+            </a>
+
+            <a href="{{ path('app_admin_hebergement_edit', {id: hebergement.id}) }}" class="action-btn edit-btn">
+              <i class="fas fa-pen"></i> Éditer
+            </a>
+            
+            <form method="post" action="{{ path('app_admin_hebergement_delete', {id: hebergement.id}) }}" style="flex:0.5;" onsubmit="return confirm('Supprimer cet hébergement ?');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ hebergement.id) }}">
+              <button type="submit" class="action-btn delete-btn">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <!-- Empty State -->
+      <div style="grid-column:1/-1;text-align:center;padding:60px 20px;background:#FAFAFA;border-radius:16px;border:2px dashed #e8ecf0;">
+        <div style="width:64px;height:64px;background:rgba(26,188,156,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <i class="fas fa-home" style="font-size:24px;color:#1ABC9C;"></i>
+        </div>
+        <h3 style="font-size:16px;font-weight:700;color:#2C3E50;margin-bottom:8px;">Aucun hébergement trouvé</h3>
+        <p style="color:#94a3b8;font-size:13px;margin-bottom:20px;">Ajoutez des hébergements pour les voir apparaître ici.</p>
+        <a href="{{ path('app_admin_hebergement_new') }}" style="background:#1ABC9C;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
+          Nouveau
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- No results message -->
+    <div id="noResultsMsg" style="display:none;text-align:center;padding:60px 20px;background:#fff;border-radius:16px;border:1px dashed #e2e8f0;margin-top:20px;">
+      <i class="fas fa-search-minus" style="font-size:48px;color:#cbd5e1;margin-bottom:15px;"></i>
+      <h4 style="color:#2C3E50;font-weight:700;margin-bottom:5px;">Aucun résultat</h4>
+      <p style="color:#94a3b8;font-size:14px;">Nous n'avons trouvé aucun hébergement correspondant à votre recherche.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .h-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+  }
+  .action-btn {
+    flex:1;
+    text-align:center;
+    padding:8px;
+    border-radius:8px;
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    transition:all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  .view-btn {
+    background: #f8fafc;
+    color: #2C3E50;
+  }
+  .view-btn:hover {
+    background: #e2e8f0;
+  }
+  .edit-btn {
+    background: rgba(243,156,18,0.1);
+    color: #F39C12;
+  }
+  .edit-btn:hover {
+    background: #F39C12;
+    color: #fff;
+  }
+  .delete-btn {
+    width: 100%;
+    background: rgba(230,57,70,0.1);
+    color: #e63946;
+  }
+  .delete-btn:hover {
+    background: #e63946;
+    color: #fff;
+  }
+  .insight-btn {
+    background: rgba(59,130,246,0.1);
+    color: #3B82F6;
+  }
+  .insight-btn:hover, .insight-btn.active {
+    background: #3B82F6;
+    color: #fff;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .slider-wrap button { outline:none; }
+</style>
+
+<script>
+// Track current slide index per hebergement
+const sliderState = {};
+
+// Real-time search logic
+document.getElementById('adminRealtimeSearch').addEventListener('input', function(e) {
+  const term = e.target.value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.h-card');
+  const grid = document.getElementById('adminHebergementGrid');
+  const noResults = document.getElementById('noResultsMsg');
+  let foundCount = 0;
+
+  cards.forEach(card => {
+    const title = card.getAttribute('data-title');
+    if (title.includes(term)) {
+      card.style.display = 'block';
+      foundCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  if (foundCount === 0) {
+    grid.style.display = 'none';
+    noResults.style.display = 'block';
+  } else {
+    grid.style.display = 'grid';
+    noResults.style.display = 'none';
+  }
+});
+
+function getState(hId, total) {
+  if (!sliderState[hId]) sliderState[hId] = { current: 1, total: total };
+  return sliderState[hId];
+}
+
+function goToSlide(hId, index, total) {
+  const state = getState(hId, total);
+  const slides = document.querySelectorAll('.slide-' + hId);
+
+  // Hide all
+  slides.forEach(s => {
+    s.style.opacity = '0';
+    s.style.pointerEvents = 'none';
+  });
+  // Show target
+  slides[index - 1].style.opacity = '1';
+  slides[index - 1].style.pointerEvents = 'auto';
+
+  // Update dots
+  for (let i = 1; i <= total; i++) {
+    const dot = document.getElementById('dot-' + hId + '-' + i);
+    if (dot) {
+      dot.style.width = (i === index) ? '18px' : '7px';
+      dot.style.background = (i === index) ? '#fff' : 'rgba(255,255,255,0.5)';
+    }
+  }
+
+  // Update counter
+  const counter = document.getElementById('counter-' + hId);
+  if (counter) counter.textContent = index + ' / ' + total;
+
+  state.current = index;
+}
+
+function slideNext(hId, total) {
+  const state = getState(hId, total);
+  const next = state.current >= total ? 1 : state.current + 1;
+  goToSlide(hId, next, total);
+}
+
+function slidePrev(hId, total) {
+  const state = getState(hId, total);
+  const prev = state.current <= 1 ? total : state.current - 1;
+  goToSlide(hId, prev, total);
+}
+
+}
+</script>
+{% endblock %}

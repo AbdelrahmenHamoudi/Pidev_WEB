@@ -1,0 +1,11 @@
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    file_name_pattern: '*.twig'
+    globals:
+        recaptcha_site_key: '%env(RECAPTCHA_SITE_KEY)%'
+        pusher_key: '%env(PUSHER_KEY)%'
+        pusher_cluster: '%env(PUSHER_CLUSTER)%'
+
+when@test:
+    twig:
+        strict_variables: true

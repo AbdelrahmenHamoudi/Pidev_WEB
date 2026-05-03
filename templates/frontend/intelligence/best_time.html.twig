@@ -1,0 +1,360 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Meilleur moment pour voyager à {{ analysis.city }} - RE7LA Intelligence{% endblock %}
+
+{% block extra_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --kayak-blue: #002244;
+        --kayak-orange: #ff6900;
+        --cheap-green: #10b981;
+        --expensive-red: #ef4444;
+        --card-shadow: 0 10px 40px rgba(0,0,0,0.06);
+        --glass-bg: rgba(255, 255, 255, 0.9);
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc;
+    }
+
+    .best-time-container {
+        min-height: 100vh;
+        padding-bottom: 100px;
+    }
+
+    /* ── Hero Section ─────────────────────────── */
+    .bt-hero {
+        background: var(--kayak-blue);
+        color: white;
+        padding: 100px 0 140px;
+        position: relative;
+        overflow: hidden;
+        border-bottom-left-radius: 40px;
+        border-bottom-right-radius: 40px;
+    }
+
+    .bt-hero::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        background: 
+            linear-gradient(rgba(0, 34, 68, 0.85), rgba(0, 34, 68, 0.95)),
+            url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1600') center/cover;
+        z-index: 1;
+    }
+
+    .bt-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .city-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 4rem;
+        font-weight: 800;
+        letter-spacing: -2px;
+        margin-bottom: 15px;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    .bt-recommendation-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 24px;
+        display: inline-flex;
+        align-items: center;
+        gap: 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        max-width: 650px;
+        margin-top: 20px;
+        color: var(--kayak-blue);
+        animation: fadeInUp 1s ease;
+    }
+
+    .badge-status {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        flex-shrink: 0;
+    }
+    .status-success { background: #d1fae5; color: var(--cheap-green); }
+    .status-warning { background: #fff7ed; color: var(--kayak-orange); }
+    .status-info { background: #eff6ff; color: #3b82f6; }
+
+    /* ── Stats Section ────────────────────────── */
+    .stats-row {
+        margin-top: -80px;
+        position: relative;
+        z-index: 20;
+    }
+
+    .premium-card {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        border: 1px solid rgba(241, 245, 249, 0.8);
+        box-shadow: var(--card-shadow);
+        height: 100%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .premium-card:hover { transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.12); }
+
+    .stat-label { font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-value { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--kayak-blue); margin: 10px 0; }
+    .stat-desc { font-size: 0.85rem; color: #64748b; line-height: 1.5; }
+
+    /* ── Chart Section ────────────────────────── */
+    .chart-box {
+        background: white;
+        border-radius: 32px;
+        padding: 45px;
+        box-shadow: var(--card-shadow);
+        margin-top: 40px;
+    }
+
+    .chart-container-bt { height: 400px; width: 100%; position: relative; }
+
+    /* ── Details Sidebar ──────────────────────── */
+    .month-list { max-height: 500px; overflow-y: auto; padding-right: 15px; }
+    .month-item {
+        padding: 18px 24px;
+        border-radius: 18px;
+        background: #f8fafc;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid transparent;
+        transition: 0.3s;
+    }
+    .month-item:hover { border-color: #e2e8f0; background: white; }
+    .month-item.cheap { border-left: 6px solid var(--cheap-green); }
+    .month-item.expensive { border-left: 6px solid var(--expensive-red); }
+
+    .demand-tag {
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 50px;
+        text-transform: uppercase;
+        margin-left: 8px;
+    }
+    .demand-low { background: #f0fdf4; color: #166534; }
+    .demand-high { background: #fef2f2; color: #991b1b; }
+
+    /* ── Animations ───────────────────────────── */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Custom Scrollbar ─────────────────────── */
+    .month-list::-webkit-scrollbar { width: 6px; }
+    .month-list::-webkit-scrollbar-track { background: #f1f5f9; }
+    .month-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="best-time-container">
+    {# ── Hero Section ─────────────────────────────── #}
+    <section class="bt-hero">
+        <div class="container bt-hero-content">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-5" style="background:transparent; padding:0;">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-white opacity-50 text-decoration-none">Accueil</a></li>
+                    <li class="breadcrumb-item text-white opacity-50">Discovery</li>
+                    <li class="breadcrumb-item active text-white fw-bold" aria-current="page">Intelligence Voyage</li>
+                </ol>
+            </nav>
+
+            <h1 class="city-title">Voyager à <span style="color: var(--kayak-orange);">{{ analysis.city }}</span></h1>
+            
+            <div class="bt-recommendation-card">
+                <div class="badge-status status-{{ analysis.recommendation.color }}">
+                    {% if analysis.recommendation.color == 'success' %}
+                        <i class="fas fa-check-circle"></i>
+                    {% elseif analysis.recommendation.color == 'warning' %}
+                        <i class="fas fa-hourglass-half"></i>
+                    {% else %}
+                        <i class="fas fa-eye"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">{{ analysis.recommendation.action }}</h4>
+                    <p class="mb-0 text-muted opacity-90">{{ analysis.recommendation.message }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mt-4">
+        {# ── Insight Cards ───────────────────────────── #}
+        <div class="row g-4 stats-row">
+            <div class="col-md-4">
+                <div class="premium-card">
+                    <div class="stat-label">Meilleure Économie</div>
+                    <div class="stat-value text-success">{{ analysis.cheapestMonth }}</div>
+                    <p class="stat-desc">Le mois idéal pour profiter de tarifs réduits sur les hôtels de {{ analysis.city }}.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="premium-card">
+                    <div class="stat-label">Pic de Saison</div>
+                    <div class="stat-value text-danger">{{ analysis.expensiveMonth }}</div>
+                    <p class="stat-desc">Forte affluence touristique. Les réservations sont conseillées des mois à l'avance.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="premium-card">
+                    <div class="stat-label">Opportunité</div>
+                    <div class="stat-value">-{{ analysis.recommendation.saving }}%</div>
+                    <p class="stat-desc">En moyenne, partir en basse saison vous permet d'économiser près d'un tiers du budget.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2 text-end">
+            <p class="text-muted" style="font-size: 0.7rem; font-style: italic;">* Tarifs basés sur les analyses de marché réelles 2024-2025 et les indicateurs météo en direct.</p>
+        </div>
+
+        {# ── Data Grid ───────────────────────────────── #}
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="chart-box h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                        <div>
+                            <h3 class="fw-bold m-0" style="color: var(--kayak-blue); font-family: 'Outfit', sans-serif;">Indice de Prix Hébergement</h3>
+                            <p class="text-muted small mt-1">Tarifs moyens d'une nuitée basés sur les données réelles et historiques.</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-light text-dark rounded-pill px-3 py-2 border">2023-2024</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container-bt">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="premium-card h-100">
+                    <h4 class="fw-bold mb-4" style="color: var(--kayak-blue); font-family: 'Outfit', sans-serif;">Calendrier Annuel</h4>
+                    
+                    <div class="month-list">
+                        {% for data in analysis.monthlyData %}
+                            <div class="month-item {{ data.status }}">
+                                <div>
+                                    <span class="fw-bold" style="color: var(--kayak-blue);">{{ data.month }}</span>
+                                    {% if data.status == 'cheap' %}
+                                        <span class="demand-tag demand-low">Basse Saison</span>
+                                    {% elseif data.status == 'expensive' %}
+                                        <span class="demand-tag demand-high">Haute Saison</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold" style="font-size: 1.1rem;">{{ data.price }} DT</div>
+                                    <div class="small text-muted">{{ data.temp }}°C / {{ data.rain }}mm</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── City Comparison & Footer ────────────────── #}
+        <div class="mt-5 text-center">
+            <h5 class="fw-bold mb-4" style="color: var(--kayak-blue);">Explorer d'autres destinations</h5>
+            <div class="d-inline-flex gap-3 bg-white p-2 rounded-pill shadow-sm">
+                {% for c in other_cities %}
+                    <a href="{{ path('app_best_time', {city: c}) }}" 
+                       class="btn rounded-pill px-4 fw-bold {{ c == analysis.city ? 'btn-dark' : 'btn-light border-0' }}"
+                       style="transition: 0.3s;">
+                        {{ c }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        
+        // Create Gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 34, 68, 0.4)');
+        gradient.addColorStop(1, 'rgba(0, 34, 68, 0)');
+
+        const labels = {{ analysis.monthlyData|map(d => d.month)|json_encode|raw }};
+        const prices = {{ analysis.monthlyData|map(d => d.price)|json_encode|raw }};
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Prix par nuit (DT)',
+                    data: prices,
+                    borderColor: '#002244',
+                    backgroundColor: gradient,
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#FF6900',
+                    pointBorderWidth: 3,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#FF6900'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#002244',
+                        titleFont: { family: 'Outfit', size: 14 },
+                        padding: 15,
+                        displayColors: false,
+                        cornerRadius: 12,
+                        callbacks: {
+                            label: (context) => `Tarif : ${context.raw} DT / nuit`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { weight: '600', family: 'Inter' }, color: '#94a3b8' }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(241, 245, 249, 1)' },
+                        ticks: { 
+                            callback: (v) => v + ' DT',
+                            font: { family: 'Inter' }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

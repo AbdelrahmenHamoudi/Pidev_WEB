@@ -1,0 +1,140 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Détails Réservation #{{ reservation.idReservation }} - RE7LA{% endblock %}
+
+{% block body %}
+<section class="py-5" style="background: linear-gradient(135deg, rgba(135, 206, 235, 0.1), rgba(147, 197, 114, 0.1)); min-height: 100vh;">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #87CEEB;">{{ 'nav.home'|trans }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_reservations_list') }}" style="color: #87CEEB;">{{ 'nav.my_trips'|trans }}</a></li>
+                <li class="breadcrumb-item active" style="color: #2c3e50; font-weight: 600;">{{ 'reservation.list.details'|trans }} #{{ reservation.idReservation }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            <!-- Hebergement Info -->
+            <div class="col-lg-5">
+                <div style="background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                    {% if reservation.hebergement.image %}
+                        <img src="{{ asset(reservation.hebergement.image) }}" class="w-100" style="height: 300px; object-fit: cover;" alt="{{ reservation.hebergement.titre }}">
+                    {% else %}
+                        <div class="w-100 d-flex align-items-center justify-content-center" style="height: 300px; background: linear-gradient(135deg, #87CEEB, #93C572);">
+                            <i class="bx bx-building-house" style="font-size: 6rem; color: white;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="p-4">
+                        <span style="background: linear-gradient(135deg, #87CEEB, #93C572); color: white; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                            {{ reservation.hebergement.typeHebergement }}
+                        </span>
+                        <h4 style="font-weight: 700; color: #2c3e50; margin: 15px 0 5px;">{{ reservation.hebergement.titre }}</h4>
+                        <p style="color: #777; font-size: 0.95rem; margin-bottom: 20px;">
+                            {{ reservation.hebergement.descHebergement|slice(0, 100) }}{% if reservation.hebergement.descHebergement|length > 100 %}...{% endif %}
+                        </p>
+                        <a href="{{ path('app_hebergement_detail', {id: reservation.hebergement.idHebergement}) }}" class="btn w-100" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; font-weight: 600;">
+                            <i class="bx bx-building-house me-2"></i>Voir l'hébergement
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservation Details -->
+            <div class="col-lg-7">
+                <div style="background: white; border-radius: 25px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <h4 style="font-weight: 700; color: #2c3e50; margin: 0;">
+                            <i class="bx bx-receipt me-2" style="color: #87CEEB;"></i>{{ 'reservation.list.details'|trans }}
+                        </h4>
+                        <span class="statut-badge statut-{{ reservation.statut|lower|replace({' ': '-'}) }}" style="padding: 8px 20px; border-radius: 25px; font-weight: 600; font-size: 0.9rem;">
+                            {% set status_key = 'status.' ~ reservation.statut|lower|replace({' ': '_', 'é': 'e', 'è': 'e'}) %}
+                            {{ status_key|trans }}
+                        </span>
+                    </div>
+
+                    <div style="background: #f8f9fa; border-radius: 20px; padding: 30px; margin-bottom: 30px;">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="width: 50px; height: 50px; background: rgba(135, 206, 235, 0.15); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bx bx-calendar" style="color: #87CEEB; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <small style="color: #999;">Date d'arrivée</small>
+                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.dateDebutR|date('d/m/Y') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="width: 50px; height: 50px; background: rgba(147, 197, 114, 0.15); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bx bx-calendar-check" style="color: #93C572; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <small style="color: #999;">Date de départ</small>
+                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.dateFinR|date('d/m/Y') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="width: 50px; height: 50px; background: rgba(155, 89, 182, 0.15); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bx bx-moon" style="color: #9b59b6; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <small style="color: #999;">Nombre de nuits</small>
+                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.nombreNuits }} nuits</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="width: 50px; height: 50px; background: rgba(231, 76, 60, 0.15); border-radius: 15px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bx bx-user" style="color: #e74c3c; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <small style="color: #999;">Capacité</small>
+                                        <p style="font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.1rem;">{{ reservation.hebergement.capacite }} personnes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div style="background: linear-gradient(135deg, #87CEEB, #93C572); border-radius: 20px; padding: 30px; color: white; margin-bottom: 30px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span style="font-size: 1.1rem;">Prix par nuit</span>
+                            <span style="font-weight: 600; font-size: 1.1rem;">{{ reservation.hebergement.prixParNuit }} DT</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span style="font-size: 1.1rem;">Nombre de nuits</span>
+                            <span style="font-weight: 600; font-size: 1.1rem;">× {{ reservation.nombreNuits }}</span>
+                        </div>
+                        <hr style="border-color: rgba(255,255,255,0.3); margin: 20px 0;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span style="font-size: 1.3rem; font-weight: 700;">Total</span>
+                            <span style="font-size: 1.5rem; font-weight: 700;">{{ reservation.prixTotal ? reservation.prixTotal|number_format(0, '.', ' ') ~ ' DT' : 'N/A' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-3">
+                        <a href="{{ path('app_reservations_list') }}" class="btn" style="background: rgba(135, 206, 235, 0.15); color: #87CEEB; border-radius: 50px; padding: 15px 30px; font-weight: 600;">
+                            <i class="bx bx-arrow-back me-2"></i>{{ 'search.apply'|default('Retour')|trans }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .statut-confirmee { background: rgba(147, 197, 114, 0.2); color: #93C572; }
+    .statut-en-attente { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
+    .statut-annulee { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+    .statut-pending { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
+</style>
+{% endblock %}

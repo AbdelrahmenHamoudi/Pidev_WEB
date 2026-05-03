@@ -1,0 +1,171 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Analyse AI - {{ hebergement.titre }} - RE7LA Admin{% endblock %}
+
+{% block breadcrumb %}Analytics / {{ hebergement.titre }}{% endblock %}
+{% block page_title %}Rapport d'Analyse Intelligent{% endblock %}
+
+{% block body %}
+<div class="row" style="margin-top:28px;">
+    <!-- Back Button -->
+    <div style="margin-bottom: 25px;">
+        <a href="{{ path('app_admin_analytics') }}" style="display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-weight: 600; font-size: 13px; transition: 0.3s;" onmouseover="this.style.color='#2C3E50';" onmouseout="this.style.color='#64748b';">
+            <i class="fas fa-arrow-left"></i> Retour à la sélection
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div style="display: grid; gap: 30px;">
+        <!-- Header Info Card -->
+        <div class="card" style="padding: 0; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: flex; align-items: stretch; min-height: 180px;">
+            <div style="width: 300px; background: url('{{ asset(hebergement.image) }}') center/cover;"></div>
+            <div style="flex: 1; padding: 30px; display: flex; flex-direction: column; justify-content: center; position: relative; background: #fff;">
+                <div style="position: absolute; top: 30px; right: 30px;">
+                    <span style="background: rgba(26,188,156,0.1); color: #1ABC9C; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                        {{ analysis.ville|default('Tunisie') }}
+                    </span>
+                </div>
+                
+                <h2 style="font-size: 26px; font-weight: 800; color: #2C3E50; margin-bottom: 5px;">{{ hebergement.titre }}</h2>
+                <p style="color: #64748b; font-size: 15px; margin-bottom: 20px;">Analyse comparative basée sur {{ hebergement.typeHebergement }} similaire</p>
+                
+                <div style="display: flex; gap: 40px;">
+                    <div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Occupation Actuelle</div>
+                        <div style="font-size: 24px; font-weight: 800; color: #F39C12;">{{ occupancyRate }}%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Votre Tarif</div>
+                        <div style="font-size: 24px; font-weight: 800; color: #1ABC9C;">{{ hebergement.prixParNuit }} DT</div>
+                    </div>
+                </div>
+            </div>
+            <!-- AI Badge -->
+            <div style="width: 200px; background: linear-gradient(135deg, #2C3E50, #1A3A4A); color: #fff; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px;">
+                <i class="fas fa-brain" style="font-size: 32px; color: #F7B731;"></i>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; opacity: 0.8;">Groq AI Optimized</div>
+            </div>
+        </div>
+
+        {% if analysis.error is defined %}
+            <div style="background: #fff5f5; border-left: 5px solid #ef4444; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(239,68,68,0.05);">
+                <h4 style="color: #b91c1c; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-exclamation-triangle"></i> Oops! Une erreur est survenue</h4>
+                <p style="color: #ef4444; font-size: 14px; line-height: 1.6;">{{ analysis.error }}</p>
+            </div>
+        {% else %}
+            <!-- Comparison Row -->
+            <div class="stat-cards-row">
+                <div class="stat-card">
+                    <div class="stat-card-left">
+                        <div class="label">Prix Moyen Marché</div>
+                        <div class="value">{{ analysis.market_price }} DT</div>
+                        <div class="trend {{ analysis.price_diff_percent < 0 ? 'up' : 'down' }}">
+                            <i class="fas fa-{{ analysis.price_diff_percent < 0 ? 'check' : 'arrow-up' }}"></i>
+                            {{ analysis.price_diff_percent|abs }}% {{ analysis.price_diff_percent < 0 ? 'inférieur au marché' : 'supérieur au marché' }}
+                        </div>
+                    </div>
+                    <div class="stat-icon ic-teal"><i class="fas fa-tag"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-left">
+                        <div class="label">Occupation Marché</div>
+                        <div class="value">{{ analysis.market_occupancy }}%</div>
+                        <div class="trend {{ occupancyRate >= analysis.market_occupancy ? 'up' : 'down' }}">
+                            <i class="fas fa-{{ occupancyRate >= analysis.market_occupancy ? 'arrow-up' : 'arrow-down' }}"></i>
+                            {{ (occupancyRate - analysis.market_occupancy)|abs|round(1) }}% de différence
+                        </div>
+                    </div>
+                    <div class="stat-icon ic-orange"><i class="fas fa-users"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-left">
+                        <div class="label">Indice de Compétitivité</div>
+                        <div class="value" style="font-size: 18px; text-transform: uppercase;">{{ analysis.comparison_price_status }}</div>
+                        <div style="font-size: 12px; color: #94a3b8;">Basé sur le prix actuel</div>
+                    </div>
+                    <div class="stat-icon ic-navy"><i class="fas fa-balance-scale"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-left">
+                        <div class="label">Score Performance</div>
+                        <div class="value" style="font-size: 18px; text-transform: uppercase;">{{ analysis.comparison_occupancy_status }}</div>
+                        <div style="font-size: 12px; color: #94a3b8;">Indice d'attractivité</div>
+                    </div>
+                    <div class="stat-icon ic-yellow"><i class="fas fa-star"></i></div>
+                </div>
+            </div>
+
+            <!-- Detailed Analysis Section -->
+            <div class="row row-3">
+                <!-- Recommendations -->
+                <div class="card" style="padding: 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; border-bottom: 1px solid #f0f2f5; padding-bottom: 15px;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #2C3E50;">💡 Recommandations Stratégiques (AI)</h3>
+                            <p style="font-size: 13px; color: #94a3b8;">Actions suggérées par l'intelligence artificielle</p>
+                        </div>
+                        <div style="background: rgba(247, 183, 49, 0.1); color: #F39C12; padding: 5px 15px; border-radius: 20px; font-size: 11px; font-weight: 800;">
+                            ANALYSE PRIORITAIRE
+                        </div>
+                    </div>
+
+                    <div style="display: grid; gap: 15px;">
+                        {% for rec in analysis.recommendations %}
+                            <div style="display: flex; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 12px; border-left: 5px solid #F7B731; transition: 0.2s;" onmouseenter="this.style.background='#fff'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.05)';" onmouseleave="this.style.background='#f8fafc'; this.style.boxShadow='none';">
+                                <div style="width: 30px; height: 30px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 800; color: #F7B731; font-size: 12px;">
+                                    {{ loop.index }}
+                                </div>
+                                <div style="font-size: 14px; color: #475569; line-height: 1.7;">
+                                    {{ rec }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Potential Analysis -->
+                <div class="card" style="padding: 30px;">
+                    <h3 style="font-size: 18px; font-weight: 800; color: #2C3E50; margin-bottom: 25px;">📊 Revenu Mensuel & Potentiel</h3>
+                    
+                    <div style="margin-top: 10px;">
+                        <!-- You -->
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 12px; font-weight: 700; color: #64748b;">Estimation Actuelle</span>
+                                <span style="font-size: 14px; font-weight: 800; color: #1ABC9C;">{{ (hebergement.prixParNuit * 30 * (occupancyRate / 100))|round(0) }} DT</span>
+                            </div>
+                            <div style="height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
+                                <div style="width: 70%; height: 100%; background: #1ABC9C; border-radius: 6px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Market -->
+                        <div style="margin-bottom: 30px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 12px; font-weight: 700; color: #64748b;">Moyenne Marché</span>
+                                <span style="font-size: 14px; font-weight: 800; color: #94a3b8;">{{ analysis.market_revenue }} DT</span>
+                            </div>
+                            <div style="height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
+                                <div style="width: 100%; height: 100%; background: #e2e8f0; border-radius: 6px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Growth Box -->
+                        {% set growth = max((analysis.market_revenue - (hebergement.prixParNuit * 30 * (occupancyRate / 100))), 0)|round(0) %}
+                        <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); padding: 25px; border-radius: 16px; text-align: center; border: 1px dashed #cbd5e1;">
+                            <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">Potentiel Inexploité</div>
+                            <div style="font-size: 32px; font-weight: 900; color: #2C3E50;">
+                                + {{ growth }} DT
+                            </div>
+                            <div style="font-size: 12px; color: #64748b; margin-top: 5px;">Revenu mensuel potentiel additionnel</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

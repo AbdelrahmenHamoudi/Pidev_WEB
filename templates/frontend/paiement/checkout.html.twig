@@ -1,0 +1,579 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Paiement Sécurisé - RE7LA{% endblock %}
+
+{% block extra_styles %}
+    <style>
+        .checkout-container {
+            padding: 180px 0 100px;
+            background: radial-gradient(circle at 0% 0%, #fdfdfd 0%, #f0f4f8 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .summary-panel {
+            background: var(--dark);
+            color: white;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .payment-panel {
+            padding: 50px;
+            background: white;
+        }
+
+        /* Credit Card Mockup */
+        .credit-card {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            color: white;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        .credit-card::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            top: -50px;
+            right: -50px;
+        }
+
+        .chip {
+            width: 45px;
+            height: 35px;
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .card-number {
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            margin-bottom: 25px;
+        }
+
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .form-control-pay {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 18px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .form-control-pay:focus {
+            background: white;
+            border-color: var(--bleu-ceil);
+            box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.1);
+            outline: none;
+        }
+
+        .btn-pay {
+            background: var(--bleu-ceil);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 18px;
+            font-weight: 700;
+            width: 100%;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-pay:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-pay:disabled {
+            background: #bdc3c7;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            border-radius: 15px;
+            padding: 14px;
+            font-weight: 700;
+            width: 100%;
+            font-size: 1rem;
+            margin-top: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-cancel:hover {
+            background: #e74c3c;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(231, 76, 60, 0.25);
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .method-tab {
+            flex: 1;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #f1f3f5;
+            background: #f8fafc;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.33s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .method-tab i { font-size: 1.4rem; color: #94a3b8; }
+        .method-tab span { font-weight: 700; color: #64748b; font-size: 0.9rem; }
+
+        .method-tab.active {
+            border-color: var(--bleu-ceil);
+            background: rgba(135, 206, 235, 0.05);
+        }
+
+        .method-tab.active i { color: var(--bleu-ceil); }
+        .method-tab.active span { color: var(--dark); }
+
+        .d17-info {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 20px;
+            padding: 30px;
+            color: #1a1a2e;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .d17-qr {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 15px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .pay-later-link {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: #94a3b8;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .pay-later-link:hover {
+            color: var(--dark);
+            text-decoration: underline;
+        }
+
+        .loader-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .price-tag {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--vert-pistache);
+            line-height: 1;
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .step.active { background: var(--vert-pistache); }
+
+        .badge-secure {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="checkout-container">
+    <div class="container">
+        <div class="glass-card d-flex flex-column flex-lg-row" data-aos="zoom-in">
+            <!-- Left: Summary -->
+            <div class="summary-panel col-lg-4">
+                <div>
+                    <div class="step-indicator">
+                        <div class="step"></div>
+                        <div class="step active"></div>
+                    </div>
+                    <h5 class="text-uppercase opacity-50 mb-4" style="letter-spacing: 2px;">Récapitulatif</h5>
+                    
+                    <div class="mb-5">
+                        <h6 class="mb-1 opacity-75">Trajet</h6>
+                        <p class="fs-5 fw-bold mb-0">{{ trajet.pointDepart }} <i class="fas fa-arrow-right mx-2 text-primary"></i> {{ trajet.pointArrivee }}</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h6 class="mb-1 opacity-75">Véhicule</h6>
+                        <p class="fs-5 fw-bold mb-0">
+                            {% if trajet.idVoiture %}
+                                {{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}
+                            {% else %}
+                                Transport RE7LA
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h6 class="mb-1 opacity-75">Date</h6>
+                        <p class="fs-5 fw-bold mb-0">{{ trajet.dateReservation|date('d M Y') }}</p>
+                    </div>
+                </div>
+
+                <div class="mt-auto">
+                    <p class="mb-1 opacity-50">Total à payer</p>
+                    <div class="price-tag">{{ amount|number_format(3) }} <span class="fs-4">DT</span></div>
+                </div>
+            </div>
+
+            <!-- Right: Payment -->
+            <div class="payment-panel col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold m-0">Méthode de Paiement</h3>
+                    <div class="badge-secure">
+                        <i class="fas fa-lock"></i> SSL Secured
+                    </div>
+                </div>
+
+                <div class="payment-methods">
+                    <div class="method-tab active" data-target="card-form-container">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Carte Bancaire</span>
+                    </div>
+                    <div class="method-tab" data-target="d17-form-container">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>D17 Mobile</span>
+                    </div>
+                </div>
+
+                <!-- Card Form Container -->
+                <div id="card-form-container">
+                    <!-- Card Live Preview -->
+                    <div class="credit-card">
+                        <div class="chip"></div>
+                        <div class="card-number" id="preview-number">•••• •••• •••• ••••</div>
+                        <div class="card-details">
+                            <div>
+                                <span class="opacity-50 display-block">Titulaire</span>
+                                <div id="preview-name">VOTRE NOM</div>
+                            </div>
+                            <div class="text-end">
+                                <span class="opacity-50 display-block">Expire</span>
+                                <div id="preview-expiry">MM/YY</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="payment-form">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Titulaire de la carte</label>
+                            <input type="text" id="cardName" class="form-control-pay w-100" placeholder="Ex: Jean Dupont">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Numéro de carte</label>
+                            <input type="text" id="cardNumber" class="form-control-pay w-100" placeholder="0000 0000 0000 0000" maxlength="19">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold">Date d'expiration</label>
+                                <input type="text" id="cardExpiry" class="form-control-pay w-100" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-bold">CVV</label>
+                                <input type="password" id="cardCvc" class="form-control-pay w-100" placeholder="***" maxlength="3">
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" id="submit-btn" class="btn-pay">
+                                <span id="btn-text">Confirmer le paiement</span>
+                                <div class="loader-spinner" id="btn-loader"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- D17 Form Container (Hidden by default) -->
+                <div id="d17-form-container" style="display: none;">
+                    <div class="d17-info">
+                        <h4 class="fw-bold mb-3">Paiement Mobile D17</h4>
+                        <p class="mb-2 opacity-75">Envoyez le montant exact vers notre numéro </p>
+                        <h3 class="fw-bold">21 000 123</h3>
+                        
+                        <div class="d17-qr" style="background: white; padding: 12px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ ('D17:' ~ amount|number_format(3, '.', '') ~ ':TRJ' ~ trajet.id)|url_encode }}" 
+                                 alt="QR D17" 
+                                 style="display: block; width: 160px; height: 160px; border: none;">
+                        </div>
+                        <p class="small mb-0 opacity-75">Scannez ce code depuis votre application D17</p>
+                    </div>
+
+                    <form id="d17-form">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Votre numéro de téléphone (D17)</label>
+                            <input type="text" id="d17Phone" class="form-control-pay w-100" placeholder="Ex: 55 123 456" required>
+                            <small class="text-muted">Pour vérification de la transaction</small>
+                        </div>
+
+                        <button type="submit" id="d17-submit-btn" class="btn-pay" style="background: #ffa500;">
+                            <span>Confirmer l'envoi D17</span>
+                            <div class="loader-spinner" id="d17-btn-loader"></div>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="mt-2 text-center">
+                    <button type="button" id="cancel-btn" class="btn-cancel">
+                        <i class="fas fa-times-circle"></i> Annuler la réservation
+                    </button>
+                    
+                    <a href="#" id="pay-later-trigger" class="pay-later-link">
+                        <i class="fas fa-clock me-1"></i> Réserver maintenant, payer plus tard
+                    </a>
+                </div>
+
+                {# Hidden forms #}
+                <form id="pay-later-form" action="{{ path('app_paiement_later', {id: trajet.id}) }}" method="POST" style="display:none;"></form>
+                <form id="cancel-form" action="{{ path('app_paiement_cancel', {id: trajet.id}) }}" method="POST" style="display:none;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ trajet.id) }}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('payment-form');
+        const d17Form = document.getElementById('d17-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+        const d17SubmitBtn = document.getElementById('d17-submit-btn');
+        const d17BtnLoader = document.getElementById('d17-btn-loader');
+        
+        const cancelBtn = document.getElementById('cancel-btn');
+        const cancelForm = document.getElementById('cancel-form');
+        const payLaterTrigger = document.getElementById('pay-later-trigger');
+        const payLaterForm = document.getElementById('pay-later-form');
+
+        // Tab Switching
+        const tabs = document.querySelectorAll('.method-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = tab.dataset.target;
+                
+                // Active tab class
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Content visibility
+                document.getElementById('card-form-container').style.display = targetId === 'card-form-container' ? 'block' : 'none';
+                document.getElementById('d17-form-container').style.display = targetId === 'd17-form-container' ? 'block' : 'none';
+            });
+        });
+
+        // Pay Later confirmation
+        payLaterTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Confirmer sans payer ?',
+                text: "Votre trajet sera réservé, mais vous devrez le régler ultérieurement.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Oui, confirmer',
+                cancelButtonText: 'Non, payer maintenant',
+                confirmButtonColor: '#3498db',
+                cancelButtonColor: '#94a3b8',
+                backdrop: `rgba(0,0,0,0.4)`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    payLaterForm.submit();
+                }
+            });
+        });
+
+        // Preview Sync (Credit Card)
+        const cardName = document.getElementById('cardName');
+        const cardNumber = document.getElementById('cardNumber');
+        const cardExpiry = document.getElementById('cardExpiry');
+
+        if(cardName) {
+            cardName.addEventListener('input', e => {
+                document.getElementById('preview-name').innerText = e.target.value.toUpperCase() || 'VOTRE NOM';
+            });
+        }
+
+        if(cardNumber) {
+            cardNumber.addEventListener('input', e => {
+                let val = e.target.value.replace(/\D/g, '');
+                val = val.match(/.{1,4}/g)?.join(' ') ?? '';
+                e.target.value = val;
+                document.getElementById('preview-number').innerText = val || '•••• •••• •••• ••••';
+            });
+        }
+
+        if(cardExpiry) {
+            cardExpiry.addEventListener('input', e => {
+                let val = e.target.value.replace(/\D/g, '');
+                if (val.length > 2) val = val.substring(0,2) + '/' + val.substring(2);
+                e.target.value = val;
+                document.getElementById('preview-expiry').innerText = val || 'MM/YY';
+            });
+        }
+
+        // Cancel Button confirmation
+        cancelBtn.addEventListener('click', () => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Annuler la réservation ?',
+                text: 'Votre trajet sera remis en statut "En attente".',
+                showCancelButton: true,
+                confirmButtonText: 'Oui, annuler',
+                cancelButtonText: 'Non, rester',
+                confirmButtonColor: '#e74c3c'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    cancelForm.submit();
+                }
+            });
+        });
+
+        // Submit Simulation (Credit Card)
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'block';
+
+            await new Promise(r => setTimeout(r, 2000));
+
+            try {
+                const response = await fetch("{{ path('app_paiement_process', {id: trajet.id}) }}", {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.status === 'success') window.location.href = result.redirect;
+            } catch (err) {
+                Swal.fire('Erreur', 'Une erreur est survenue lors du traitement.', 'error');
+                submitBtn.disabled = false;
+                btnText.style.display = 'block';
+                btnLoader.style.display = 'none';
+            }
+        });
+
+        // Submit Simulation (D17)
+        d17Form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            d17SubmitBtn.disabled = true;
+            d17SubmitBtn.querySelector('span').style.display = 'none';
+            d17BtnLoader.style.display = 'block';
+
+            await new Promise(r => setTimeout(r, 2000));
+
+            try {
+                const response = await fetch("{{ path('app_paiement_d17', {id: trajet.id}) }}", {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.status === 'success') window.location.href = result.redirect;
+            } catch (err) {
+                Swal.fire('Erreur', 'Échec de la vérification D17.', 'error');
+                d17SubmitBtn.disabled = false;
+                d17SubmitBtn.querySelector('span').style.display = 'block';
+                d17BtnLoader.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

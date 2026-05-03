@@ -1,0 +1,58 @@
+{% extends 'backend/baseend.html.twig' %}
+
+{% block title %}Analytics - Choix de l'Hébergement - RE7LA Admin{% endblock %}
+
+{% block breadcrumb %}Rapport / Analytics{% endblock %}
+{% block page_title %}Analyse Concurrentielle Intelligente{% endblock %}
+
+{% block body %}
+<div class="row" style="margin-top:28px;">
+    <div style="margin-bottom: 30px;">
+        <h2 style="font-size: 24px; font-weight: 800; color: #2C3E50; letter-spacing: -0.5px;">Sélectionnez un hébergement pour l'analyse</h2>
+        <p style="color: #64748b; font-size: 14px;">Propulsé par Groq AI pour des recommandations stratégiques précises.</p>
+    </div>
+
+    {% if hebergements is empty %}
+        <div class="card" style="width: 100%; text-align: center; padding: 60px 20px;">
+            <div style="width: 64px; height: 64px; background: rgba(26,188,156,0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <i class="fas fa-building" style="font-size: 24px; color: #1ABC9C;"></i>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #2C3E50; margin-bottom: 10px;">Aucun hébergement disponible</h3>
+            <p style="color: #64748b;">Veuillez ajouter des hébergements dans le catalogue avant de lancer une analyse.</p>
+        </div>
+    {% else %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
+            {% for h in hebergements %}
+                <div class="card" style="padding: 0; overflow: hidden; border: 1px solid #e8ecf0; transition: all 0.3s; display: flex; flex-direction: column;" onmouseenter="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 15px 30px rgba(0,0,0,0.1)';" onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 12px rgba(0,0,0,0.05)';">
+                    <div style="height: 180px; background: url('{{ asset(h.image) }}') center/cover; position: relative;">
+                        <div style="position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.9); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #2C3E50;">
+                            {{ h.typeHebergement }}
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #2C3E50; margin-bottom: 8px;">{{ h.titre }}</h3>
+                        
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                            <div>
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Prix par nuit</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #1ABC9C;">{{ h.prixParNuit }} DT</div>
+                            </div>
+                            <div style="width: 1px; height: 25px; background: #e2e8f0;"></div>
+                            <div>
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Capacité</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #2C3E50;">{{ h.capacite }} pers.</div>
+                            </div>
+                        </div>
+
+                        <a href="{{ path('app_admin_analytics_show', {id: h.id}) }}" style="margin-top: auto; background: linear-gradient(135deg, #2C3E50, #1A3A4A); color: #fff; text-decoration: none; padding: 12px; border-radius: 10px; text-align: center; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s;" onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
+                            <i class="fas fa-brain" style="color: #F7B731;"></i>
+                            Lancer l'Analyse AI
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

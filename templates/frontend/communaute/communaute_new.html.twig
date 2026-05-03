@@ -1,0 +1,304 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Nouvelle publication — RE7LA{% endblock %}
+
+{% block extra_styles %}
+.form-page-header {
+    background: linear-gradient(135deg, rgba(135,206,235,0.12), rgba(147,197,114,0.12));
+    border-bottom: 1px solid rgba(135,206,235,0.2);
+    padding: 44px 0 32px;
+}
+.form-page-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 6px;
+}
+.form-page-header p { color: #64748b; font-size: 1rem; }
+
+.pub-form-card {
+    background: white;
+    border-radius: 28px;
+    padding: 40px 44px;
+    box-shadow: 0 8px 40px rgba(44,62,80,0.09);
+    border: 1px solid rgba(44,62,80,0.06);
+    margin: 36px 0 80px;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-label-custom {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+}
+.form-label-custom span { color: var(--rouge); }
+
+.form-input {
+    width: 100%;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 13px 18px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14.5px;
+    color: var(--dark);
+    outline: none;
+    transition: border-color .25s, box-shadow .25s;
+    background: white;
+}
+.form-input:focus {
+    border-color: var(--bleu-ceil);
+    box-shadow: 0 0 0 4px rgba(135,206,235,0.15);
+}
+.form-input::placeholder { color: #94a3b8; }
+
+textarea.form-input { resize: vertical; min-height: 110px; }
+
+.type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.type-option { display: none; }
+.type-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 18px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all .2s;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-align: center;
+}
+.type-label i { font-size: 1.8rem; }
+.type-label:hover { border-color: var(--bleu-ceil); color: var(--bleu-ceil-dark); }
+.type-option:checked + .type-label {
+    border-color: var(--bleu-ceil-dark);
+    background: linear-gradient(135deg, rgba(135,206,235,0.12), rgba(147,197,114,0.12));
+    color: var(--bleu-ceil-dark);
+}
+
+/* Image upload zone */
+.img-upload-zone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .25s;
+    background: #f8fafc;
+    position: relative;
+    overflow: hidden;
+}
+.img-upload-zone:hover { border-color: var(--bleu-ceil); background: rgba(135,206,235,0.05); }
+.img-upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.img-upload-icon { font-size: 2.5rem; color: #cbd5e1; margin-bottom: 10px; }
+.img-upload-zone p { color: #94a3b8; font-size: 13.5px; margin: 0; }
+.img-upload-zone strong { color: var(--bleu-ceil-dark); }
+#imgPreview {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-top: 12px;
+    display: none;
+}
+
+.char-counter { font-size: 12px; color: #94a3b8; text-align: right; margin-top: 4px; }
+.char-counter.warn  { color: #f59e0b; }
+.char-counter.over  { color: var(--rouge); }
+
+.btn-submit-pub {
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 50px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    width: 100%;
+    transition: all .3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+.btn-submit-pub:hover { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(135,206,235,0.35); }
+
+.back-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--bleu-ceil-dark); text-decoration: none;
+    font-weight: 600; font-size: 14px; margin-bottom: 0;
+    transition: gap .2s;
+}
+.back-link:hover { gap: 12px; color: var(--bleu-ceil-dark); }
+
+.flash-wrapper {
+    position: fixed; top: 110px; right: 24px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 10px; max-width: 360px;
+}
+.flash-msg {
+    background: white; border-radius: 14px; padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12); font-size: 14px; font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+    border-left: 4px solid var(--vert-pistache); animation: slideIn .3s ease;
+}
+.flash-msg.error { border-left-color: var(--rouge); }
+@keyframes slideIn { from{transform:translateX(40px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+.form-group { margin-bottom: 24px; }
+
+@media (max-width: 600px) {
+    .pub-form-card { padding: 24px 18px; }
+    .type-grid { grid-template-columns: 1fr 1fr; }
+}
+{% endblock %}
+
+{% block body %}
+{% if app.flashes('success') or app.flashes('error') %}
+<div class="flash-wrapper" id="flashWrapper">
+    {% for msg in app.flashes('success') %}
+        <div class="flash-msg">✅ {{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="flash-msg error">⚠️ {{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="form-page-header">
+    <div class="container" style="max-width:680px;">
+        <a href="{{ path('app_communaute_index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Retour à la communauté
+        </a>
+        <h1 style="margin-top:16px;" data-aos="fade-right">
+            <i class="fas fa-plus-circle me-3" style="background:linear-gradient(135deg,var(--bleu-ceil),var(--vert-pistache));-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>Nouvelle publication
+        </h1>
+        <p data-aos="fade-right" data-aos-delay="80">Partagez votre expérience avec la communauté RE7LA.</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="pub-form-card" data-aos="fade-up">
+        <form method="POST" action="{{ path('app_communaute_new') }}" enctype="multipart/form-data">
+
+            {# Type cible #}
+            <div class="form-group">
+                <label class="form-label-custom">Catégorie <span>*</span></label>
+                <div class="type-grid">
+                    {% for type in typeCibles %}
+                        <div>
+                            <input type="radio" name="typeCible" id="type_{{ type }}" value="{{ type }}" class="type-option"
+                                   {{ loop.first ? 'checked' : '' }}>
+                            <label for="type_{{ type }}" class="type-label">
+                                {% if type == 'HEBERGEMENT' %}
+                                    <i class="fas fa-hotel" style="color:#2980b9"></i> Hébergement
+                                {% elseif type == 'ACTIVITE' %}
+                                    <i class="fas fa-hiking" style="color:#27ae60"></i> Activité
+                                {% else %}
+                                    <i class="fas fa-bus" style="color:#c0392b"></i> Transport
+                                {% endif %}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# Description #}
+            <div class="form-group">
+                <label class="form-label-custom" for="DescriptionP">Description <span>*</span></label>
+                <textarea class="form-input" id="DescriptionP" name="DescriptionP"
+                          rows="4" maxlength="200" placeholder="Décrivez votre expérience…" required></textarea>
+                <div class="char-counter" id="descCounter">0 / 200</div>
+            </div>
+
+            {# Image #}
+            <div class="form-group">
+                <label class="form-label-custom">Photo <span>*</span></label>
+                <div class="img-upload-zone" id="dropzone">
+                    <input type="file" name="ImgURL" id="imgInput" accept="image/jpeg,image/png,image/webp,image/gif" required>
+                    <div class="img-upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <p><strong>Cliquez ou glissez</strong> une image ici</p>
+                    <p style="margin-top:4px;">JPG, PNG, WEBP ou GIF — max 2 Mo</p>
+                    <img id="imgPreview" alt="Aperçu">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit-pub">
+                <i class="fas fa-paper-plane"></i> Soumettre la publication
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Forbidden words list
+    const FORBIDDEN_WORDS = ['bhim', 'kalb', 'couchon'];
+    
+    function containsForbiddenWords(text) {
+        const lowerText = text.toLowerCase();
+        return FORBIDDEN_WORDS.filter(word => lowerText.includes(word));
+    }
+    
+    // Character counter with forbidden words check
+    const desc = document.getElementById('DescriptionP');
+    const counter = document.getElementById('descCounter');
+    
+    desc?.addEventListener('input', () => {
+        const len = desc.value.length;
+        counter.textContent = len + ' / 200';
+        counter.className = 'char-counter' + (len > 180 ? ' warn' : '') + (len >= 200 ? ' over' : '');
+        
+        // Check for forbidden words
+        const forbiddenFound = containsForbiddenWords(desc.value);
+        const submitBtn = document.querySelector('.btn-submit-pub');
+        
+        if (forbiddenFound.length > 0) {
+            desc.style.borderColor = 'var(--rouge)';
+            counter.insertAdjacentHTML('afterend', 
+                '<div style="color:var(--rouge);font-size:11px;margin-top:4px;" id="forbidden-warning">' +
+                '🚫 Mots interdits : ' + forbiddenFound.join(', ') +
+                '</div>');
+            if (submitBtn) submitBtn.disabled = true;
+        } else {
+            desc.style.borderColor = '';
+            const warning = document.getElementById('forbidden-warning');
+            if (warning) warning.remove();
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    });
+
+    // Image preview
+    document.getElementById('imgInput')?.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const preview = document.getElementById('imgPreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            document.querySelector('.img-upload-icon').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Flash auto dismiss
+    setTimeout(() => {
+        const fw = document.getElementById('flashWrapper');
+        if (fw) { fw.style.transition='opacity .5s'; fw.style.opacity='0'; setTimeout(()=>fw.remove(),500); }
+    }, 4000);
+</script>
+{% endblock %}

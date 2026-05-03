@@ -1,0 +1,471 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Mes Réservations - RE7LA{% endblock %}
+
+{% block body %}
+<section class="py-5" style="background:#f0f4f8; min-height:100vh;">
+<div class="container" style="max-width:1000px;">
+
+    {# ── Header ── #}
+    <div class="d-flex align-items-center justify-content-between mb-5 flex-wrap gap-3">
+        <div>
+            <h2 style="font-weight:800; color:#2c3e50; margin:0;">
+                📋 Mes Réservations
+            </h2>
+            <p style="color:#94a3b8; font-size:13px; margin:4px 0 0;">
+                Uniquement vos réservations issues des promotions RE7LA
+            </p>
+        </div>
+        <a href="{{ path('app_promotion_list') }}"
+           style="background:#fff; border:2px solid #e8ecf0; color:#475569;
+                  border-radius:50px; padding:10px 22px; font-weight:600;
+                  font-size:13px; text-decoration:none;">
+            ← Retour aux promotions
+        </a>
+    </div>
+
+    {# ── Flash messages ── #}
+    {% for msg in app.flashes('success') %}
+        <div class="alert alert-dismissible fade show mb-4"
+             style="border-radius:14px; background:rgba(147,197,114,0.15);
+                     color:#5a9e3b; border:none; font-weight:600;">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="alert alert-dismissible fade show mb-4"
+             style="border-radius:14px; background:rgba(231,76,60,0.12);
+                     color:#e63946; border:none; font-weight:600;">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {# ── Liste des réservations ── #}
+    {% if enriched|length == 0 %}
+        <div class="text-center py-5">
+            <div style="font-size:5rem; margin-bottom:16px;">📭</div>
+            <h5 style="color:#2c3e50; font-weight:700;">Aucune réservation</h5>
+            <p style="color:#94a3b8;">Vous n'avez pas encore réservé via une promotion.</p>
+            <a href="{{ path('app_promotion_list') }}" class="btn px-5 mt-2"
+               style="background:linear-gradient(135deg,#87CEEB,#93C572); color:#fff;
+                      border-radius:50px; font-weight:700;">
+                Découvrir les promotions
+            </a>
+        </div>
+    {% else %}
+        <div class="d-flex flex-column gap-3">
+        {% for item in enriched %}
+            {% set resa   = item.resa %}
+            {% set offer  = item.offerDetail %}
+            {% set promo  = resa.promotion %}
+            {% set editable = resa.editable %}
+            {% set remainingH = resa.remainingEditHours %}
+
+            <div class="resa-card"
+                 style="background:#fff; border-radius:20px;
+                         box-shadow:0 4px 20px rgba(0,0,0,0.06);
+                         overflow:hidden; transition: all .2s ease;">
+
+                {# ── Bande colorée selon le type ── #}
+                <div style="height:5px; background:{{
+                    resa.offerType == 'hebergement' ? 'linear-gradient(90deg,#87CEEB,#5ba4d4)'
+                    : resa.offerType == 'voiture' ? 'linear-gradient(90deg,#F7B731,#E67E22)'
+                    : resa.offerType == 'activite' ? 'linear-gradient(90deg,#1ABC9C,#16a085)'
+                    : 'linear-gradient(90deg,#9b59b6,#8e44ad)'
+                }};"></div>
+
+                <div class="p-4">
+                    <div class="row align-items-start g-3">
+
+                        {# ── Icône type ── #}
+                        <div class="col-auto">
+                            <div style="width:52px; height:52px; border-radius:14px;
+                                         display:flex; align-items:center; justify-content:center;
+                                         font-size:24px;
+                                         background:{{
+                                             resa.offerType == 'hebergement' ? 'rgba(135,206,235,0.15)'
+                                             : resa.offerType == 'voiture' ? 'rgba(247,183,49,0.15)'
+                                             : resa.offerType == 'activite' ? 'rgba(26,188,156,0.15)'
+                                             : 'rgba(155,89,182,0.15)'
+                                         }};">
+                                {{ resa.offerType == 'hebergement' ? '🏨'
+                                   : resa.offerType == 'voiture' ? '🚗'
+                                   : resa.offerType == 'activite' ? '🎯'
+                                   : '📦' }}
+                            </div>
+                        </div>
+
+                        {# ── Infos principales ── #}
+                        <div class="col">
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                <h6 style="font-weight:800; color:#2c3e50; margin:0; font-size:16px;">
+                                    {% if promo %}{{ promo.name }}{% else %}Promotion supprimée{% endif %}
+                                </h6>
+                                <span style="font-size:11px; font-weight:700; padding:2px 10px;
+                                              border-radius:20px;
+                                              background:{{ resa.statut == 'EN_ATTENTE' ? 'rgba(247,183,49,0.15)' : 'rgba(26,188,156,0.15)' }};
+                                              color:{{ resa.statut == 'EN_ATTENTE' ? '#E67E22' : '#1ABC9C' }};">
+                                    {{ resa.statut }}
+                                </span>
+                            </div>
+
+                            {# Détails selon le type #}
+                            <div style="font-size:13px; color:#64748b; margin-bottom:8px;">
+                                {% if resa.offerType == 'hebergement' %}
+                                    📅 {{ resa.dateDebut ? resa.dateDebut|date('d/m/Y') : '—' }}
+                                    → {{ resa.dateFin ? resa.dateFin|date('d/m/Y') : '—' }}
+                                    {% if offer %}| 🏠 {{ offer.titre }}{% endif %}
+
+                                {% elseif resa.offerType == 'voiture' %}
+                                    📍 {{ resa.pointDepart ?? '—' }} → {{ resa.pointArrivee ?? '—' }}
+                                    | 🛣️ {{ resa.distanceKm ?? 0 }} km
+                                    | 👥 {{ resa.nbPersonnes ?? 1 }} pers.
+                                    | 📅 {{ resa.dateReservation ? resa.dateReservation|date('d/m/Y') : '—' }}
+
+                                {% elseif resa.offerType == 'activite' %}
+                                    📅 {{ resa.dateActivite ? resa.dateActivite|date('d/m/Y') : '—' }}
+                                    | 👥 {{ resa.nbPersonnes ?? 1 }} personne(s)
+                                    {% if offer %}| 🎯 {{ offer.nomA }}{% endif %}
+
+                                {% else %}{# pack #}
+                                    {% set packItems = resa.packSnapshotDecoded %}
+                                    📦 {{ packItems|length }} offre(s) :
+                                    {% for it in packItems %}
+                                        {{ it.type == 'hebergement' ? '🏨' : it.type == 'voiture' ? '🚗' : '🎯' }}
+                                        {{ it.label ?? it.type }}{% if not loop.last %},{% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            {# Timestamp + lock info #}
+                            <div style="font-size:12px; color:#94a3b8;">
+                                📆 Réservé le {{ resa.createdAt|date('d/m/Y à H:i') }}
+                                {% if not editable %}
+                                    | 🔒 <span style="color:#e63946;">Verrouillée (24h dépassées)</span>
+                                {% else %}
+                                    | ⏳ <span style="color:#E67E22;">Modifiable encore {{ remainingH }}h</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {# ── Prix ── #}
+                        <div class="col-auto text-end">
+                            {% if resa.reductionAppliquee > 0 %}
+                            <div style="font-size:12px; color:#94a3b8; text-decoration:line-through;">
+                                {{ resa.prixOriginal|number_format(2) }} DT
+                            </div>
+                            <div style="font-size:11px; color:#1ABC9C; font-weight:600;">
+                                -{{ resa.reductionAppliquee|number_format(2) }} DT
+                            </div>
+                            {% endif %}
+                            <div style="font-size:20px; font-weight:800; color:#2c3e50;">
+                                {{ resa.montantTotal|number_format(2) }} <span style="font-size:12px; color:#94a3b8;">DT</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# ── Actions ── #}
+                    <div class="d-flex gap-2 mt-3 flex-wrap">
+                        {# Détails #}
+                        <a href="{{ path('promo_reservation_detail', {id: resa.id}) }}"
+                           style="background:#f0f4f8; color:#475569; border-radius:50px;
+                                  padding:8px 18px; font-size:12px; font-weight:600;
+                                  text-decoration:none; border:none;">
+                            🔍 Détails
+                        </a>
+
+                        {% if editable %}
+                            {# Modifier #}
+                            <button class="btn-modifier"
+                                    data-resa-id="{{ resa.id }}"
+                                    data-offer-type="{{ resa.offerType }}"
+                                    data-date-debut="{{ resa.dateDebut ? resa.dateDebut|date('Y-m-d') : '' }}"
+                                    data-date-fin="{{ resa.dateFin ? resa.dateFin|date('Y-m-d') : '' }}"
+                                    data-distance="{{ resa.distanceKm ?? '' }}"
+                                    data-nb-personnes="{{ resa.nbPersonnes ?? 1 }}"
+                                    data-date-resa="{{ resa.dateReservation ? resa.dateReservation|date('Y-m-d') : '' }}"
+                                    data-date-activite="{{ resa.dateActivite ? resa.dateActivite|date('Y-m-d') : '' }}"
+                                    {% if resa.offerType == 'pack' %}data-pack-items='{{ resa.packSnapshotDecoded|json_encode }}'{% endif %}
+                                    style="background:#87CEEB; color:#5ba4d4; border-radius:50px;
+                                    padding:8px 18px; font-size:12px; font-weight:600;
+                                    text-decoration:none; border:none;">
+                                ✏️ Modifier
+                            </button>
+
+                            {# Supprimer #}
+                            <form method="POST"
+                                  action="{{ path('promo_reservation_supprimer', {id: resa.id}) }}"
+                                  onsubmit="return confirm('Supprimer cette réservation ?');"
+                                  style="display:inline;">
+                                <input type="hidden" name="_token"
+                                       value="{{ csrf_token('delete_resa_' ~ resa.id) }}">
+                                <button type="submit"
+                                        style="background:linear-gradient(135deg,#e63946,#c0392b);
+                                               color:#fff; border-radius:50px; padding:8px 18px;
+                                               font-size:12px; font-weight:600; border:none; cursor:pointer;">
+                                    🗑️ Supprimer
+                                </button>
+                            </form>
+                        {% else %}
+                            <span style="background:#f0f2f5; color:#94a3b8; border-radius:50px;
+                                          padding:8px 18px; font-size:12px; font-weight:600;">
+                                🔒 Verrouillée
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+</div>
+</section>
+
+{# ══════════════════════════════════════════════════════════════════
+   MODAL MODIFIER
+══════════════════════════════════════════════════════════════════ #}
+<div class="modal fade" id="modifierModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:20px; border:none;">
+            <div class="modal-header border-0 px-4 pt-4 pb-0">
+                <h5 style="font-weight:800; color:#2c3e50; margin:0;">✏️ Modifier la réservation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 py-3" id="modifierModalBody"></div>
+            <div class="modal-footer border-0 px-4 pb-4">
+                <div id="modifierError" style="display:none; color:#e63946;
+                      font-size:13px; width:100%; text-align:center; font-weight:600;"></div>
+                <div id="modifierSuccess" style="display:none; color:#1ABC9C;
+                      font-size:13px; width:100%; text-align:center; font-weight:700;"></div>
+                <div class="d-flex gap-3 w-100">
+                    <button class="btn flex-fill" data-bs-dismiss="modal"
+                            style="background:#f0f2f5; color:#64748b; border-radius:50px; font-weight:600;">
+                        Annuler
+                    </button>
+                    <button class="btn flex-fill" id="btnSauvegarder"
+                            onclick="sauvegarderModif()"
+                            style="background:linear-gradient(135deg,#87CEEB,#5ba4d4);
+                                   color:#fff; border-radius:50px; font-weight:700;">
+                        💾 Sauvegarder
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.resa-card:hover { box-shadow: 0 10px 35px rgba(0,0,0,0.1) !important; }
+</style>
+
+<script>
+let currentResaId   = null;
+let currentResaType = null;
+
+document.querySelectorAll('.btn-modifier').forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentResaId   = btn.dataset.resaId;
+        currentResaType = btn.dataset.offerType;
+
+        const body = document.getElementById('modifierModalBody');
+        document.getElementById('modifierError').style.display   = 'none';
+        document.getElementById('modifierSuccess').style.display = 'none';
+
+        let html = '';
+        if (currentResaType === 'hebergement') {
+            html = `
+            <div class="row g-3">
+                <div class="col-6">
+                    <label style="font-size:13px;font-weight:600;color:#475569;">📅 Date d'arrivée</label>
+                    <input type="date" id="m_dateDebut" class="form-control"
+                           value="${btn.dataset.dateDebut}" min="${todayStr()}">
+                </div>
+                <div class="col-6">
+                    <label style="font-size:13px;font-weight:600;color:#475569;">📅 Date de départ</label>
+                    <input type="date" id="m_dateFin" class="form-control"
+                           value="${btn.dataset.dateFin}" min="${todayStr()}">
+                </div>
+            </div>`;
+        } else if (currentResaType === 'voiture') {
+            html = `
+            <div class="row g-3">
+                <div class="col-6">
+                    <label style="font-size:13px;font-weight:600;color:#475569;">🛣️ Distance (km)</label>
+                    <input type="number" id="m_distanceKm" class="form-control"
+                           value="${btn.dataset.distance}" min="1">
+                </div>
+                <div class="col-6">
+                    <label style="font-size:13px;font-weight:600;color:#475569;">👥 Nb personnes</label>
+                    <input type="number" id="m_nbPersonnes" class="form-control"
+                           value="${btn.dataset.nbPersonnes}" min="1">
+                </div>
+                <div class="col-12">
+                    <label style="font-size:13px;font-weight:600;color:#475569;">📅 Date</label>
+                    <input type="date" id="m_dateVoiture" class="form-control"
+                           value="${btn.dataset.dateResa || todayStr()}" min="${todayStr()}">
+                </div>
+            </div>`;
+        } else if (currentResaType === 'activite') {
+            html = `
+            <div class="row g-3">
+                <div class="col-6">
+                    <label style="font-size:13px;font-weight:600;color:#475569;">👥 Nb personnes</label>
+                    <input type="number" id="m_nbPersonnes" class="form-control"
+                           value="${btn.dataset.nbPersonnes}" min="1">
+                </div>
+                <div class="col-6">
+                    <label style="font-size:13px;font-weight:600;color:#475569;">📅 Date</label>
+                    <input type="date" id="m_dateActivite" class="form-control"
+                           value="${btn.dataset.dateActivite || todayStr()}" min="${todayStr()}">
+                </div>
+            </div>`;
+                } else if (currentResaType === 'pack') {
+            // Récupérer les données du pack depuis l'attribut data
+            const packItems = JSON.parse(btn.dataset.packItems || '[]');
+            let packHtml = '<div class="mb-3" style="background:#f8f9fa;border-radius:10px;padding:12px;"><strong>📦 Modification du Pack</strong></div>';
+            
+            packItems.forEach((item, idx) => {
+                const type = item.type;
+                const inputs = item.inputs || {};
+                
+                packHtml += `<div style="border:1px solid #e8ecf0;border-radius:10px;padding:12px;margin-bottom:12px;">`;
+                packHtml += `<div style="font-weight:700;color:#2c3e50;margin-bottom:10px;">`;
+                packHtml += `${type === 'hebergement' ? '🏨' : type === 'voiture' ? '🚗' : '🎯'} ${item.label || type}</div>`;
+                
+                if (type === 'hebergement') {
+                    packHtml += `
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label style="font-size:12px;color:#64748b;">Nouvelle arrivée</label>
+                            <input type="date" id="pack_${idx}_dateDebut" class="form-control form-control-sm" 
+                                   value="${inputs.date_debut || ''}" min="${todayStr()}">
+                        </div>
+                        <div class="col-6">
+                            <label style="font-size:12px;color:#64748b;">Nouveau départ</label>
+                            <input type="date" id="pack_${idx}_dateFin" class="form-control form-control-sm" 
+                                   value="${inputs.date_fin || ''}" min="${todayStr()}">
+                        </div>
+                    </div>`;
+                } else if (type === 'voiture') {
+                    packHtml += `
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label style="font-size:12px;color:#64748b;">Distance (km)</label>
+                            <input type="number" id="pack_${idx}_distance" class="form-control form-control-sm" 
+                                   value="${inputs.distance_km || ''}" min="1">
+                        </div>
+                        <div class="col-6">
+                            <label style="font-size:12px;color:#64748b;">Personnes</label>
+                            <input type="number" id="pack_${idx}_personnes" class="form-control form-control-sm" 
+                                   value="${inputs.nb_personnes || 1}" min="1">
+                        </div>
+                    </div>`;
+                } else if (type === 'activite') {
+                    packHtml += `
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label style="font-size:12px;color:#64748b;">Personnes</label>
+                            <input type="number" id="pack_${idx}_personnes" class="form-control form-control-sm" 
+                                   value="${inputs.nb_personnes || 1}" min="1">
+                        </div>
+                        <div class="col-6">
+                            <label style="font-size:12px;color:#64748b;">Date</label>
+                            <input type="date" id="pack_${idx}_date" class="form-control form-control-sm" 
+                                   value="${inputs.date_activite || todayStr()}" min="${todayStr()}">
+                        </div>
+                    </div>`;
+                }
+                packHtml += `</div>`;
+            });
+            
+            html = packHtml;
+        }
+
+        body.innerHTML = html;
+        document.getElementById('btnSauvegarder').style.display = 'block';
+        new bootstrap.Modal(document.getElementById('modifierModal')).show();
+    });
+});
+
+async function sauvegarderModif() {
+    const btn = document.getElementById('btnSauvegarder');
+    btn.disabled = true; btn.textContent = '⏳ Sauvegarde...';
+    document.getElementById('modifierError').style.display   = 'none';
+    document.getElementById('modifierSuccess').style.display = 'none';
+
+    let data = {};
+    if (currentResaType === 'hebergement') {
+        data = {
+            date_debut: document.getElementById('m_dateDebut')?.value,
+            date_fin:   document.getElementById('m_dateFin')?.value,
+        };
+    } else if (currentResaType === 'voiture') {
+        data = {
+            distance_km:      parseFloat(document.getElementById('m_distanceKm')?.value || 0),
+            nb_personnes:     parseInt(document.getElementById('m_nbPersonnes')?.value || 1),
+            date_reservation: document.getElementById('m_dateVoiture')?.value,
+        };
+        } else if (currentResaType === 'activite') {
+        data = {
+            nb_personnes:  parseInt(document.getElementById('m_nbPersonnes')?.value || 1),
+            date_activite: document.getElementById('m_dateActivite')?.value,
+        };
+    } else if (currentResaType === 'pack') {
+        // Collecter les données du pack
+        const packInputs = [];
+        const packItems = document.querySelectorAll('[id^="pack_"]');
+        
+        // Organiser par index
+        const itemMap = {};
+        packItems.forEach(input => {
+            const match = input.id.match(/pack_(\d+)_(.+)/);
+            if (match) {
+                const idx = parseInt(match[1]);
+                const field = match[2];
+                if (!itemMap[idx]) itemMap[idx] = {};
+                itemMap[idx][field] = input.value;
+            }
+        });
+        
+        // Construire le tableau pack_inputs pour le backend
+        Object.keys(itemMap).forEach(idx => {
+            packInputs.push(itemMap[idx]);
+        });
+        
+        data = {
+            date_debut: document.getElementById('pack_0_dateDebut')?.value || '',
+            date_fin: document.getElementById('pack_0_dateFin')?.value || '',
+            pack_inputs: packInputs
+        };
+    }
+
+    try {
+        const url = `/promotions/mes-reservations/${currentResaId}/modifier`;
+        const r   = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const resp = await r.json();
+
+        if (resp.success) {
+            document.getElementById('modifierSuccess').style.display = 'block';
+            document.getElementById('modifierSuccess').textContent   = resp.message;
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            document.getElementById('modifierError').style.display = 'block';
+            document.getElementById('modifierError').textContent   = '❌ ' + resp.error;
+            btn.disabled = false; btn.textContent = '💾 Sauvegarder';
+        }
+    } catch {
+        document.getElementById('modifierError').style.display = 'block';
+        document.getElementById('modifierError').textContent   = '❌ Erreur réseau.';
+        btn.disabled = false; btn.textContent = '💾 Sauvegarder';
+    }
+}
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+</script>
+{% endblock %}

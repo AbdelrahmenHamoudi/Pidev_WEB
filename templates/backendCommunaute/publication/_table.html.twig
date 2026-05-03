@@ -1,0 +1,127 @@
+<style>
+.pub-table { width: 100%; border-collapse: collapse; }
+.pub-table thead tr { background: #f8f9fc; }
+.pub-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f4fb; white-space: nowrap; }
+.pub-table td { padding: 13px 16px; border-bottom: 1px solid #f7f8fc; font-size: 13px; color: #2e3340; vertical-align: middle; }
+.pub-table tbody tr { transition: background 0.15s; }
+.pub-table tbody tr:hover { background: #fffdf5; }
+.pub-table tbody tr:last-child td { border-bottom: none; }
+
+.pub-thumb { width: 58px; height: 44px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: block; }
+.pub-thumb-ph { width: 58px; height: 44px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 18px; }
+
+.pub-desc-cell { max-width: 200px; }
+.pub-desc-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; color: #1a1d23; display: block; }
+.pub-id-tag { font-size: 10px; color: #c0c8d8; font-weight: 600; margin-top: 2px; display: block; }
+
+.pub-author { display: flex; align-items: center; gap: 8px; }
+.pub-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#F7B731,#e09d10); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #1a1d23; flex-shrink: 0; }
+.pub-author-name { font-size: 13px; font-weight: 500; }
+
+.type-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.type-HEBERGEMENT { background: #d1fae5; color: #065f46; }
+.type-ACTIVITE    { background: #dbeafe; color: #1e40af; }
+.type-TRANSPORT   { background: #fef3c7; color: #92400e; }
+
+.statut-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.statut-badge::before { content:''; width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.s-VALIDE      { background:#d1fae5; color:#065f46; } .s-VALIDE::before { background:#10b981; }
+.s-EN_ATTENTE  { background:#fef3c7; color:#92400e; } .s-EN_ATTENTE::before { background:#f59e0b; }
+.s-REFUSE      { background:#fee2e2; color:#991b1b; } .s-REFUSE::before { background:#ef4444; }
+
+.toggle-verifie { background:none; border:none; padding:0; cursor:pointer; transition:transform .15s; }
+.toggle-verifie:hover { transform:scale(1.05); }
+.verifie-yes { display:inline-flex; align-items:center; gap:4px; background:#d1fae5; color:#065f46; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; }
+.verifie-no  { display:inline-flex; align-items:center; gap:4px; background:#f1f5f9; color:#64748b; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; }
+
+.pub-date { font-size: 12px; color: #94a3b8; white-space: nowrap; }
+
+.comments-link { display: inline-flex; align-items: center; gap: 5px; background: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; transition: background .18s; }
+.comments-link:hover { background: #dbeafe; color: #1d4ed8; }
+
+.action-btns { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
+.act-btn { width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid #edf0f7; background: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; text-decoration: none; cursor: pointer; transition: all .18s; color: #64748b; }
+.act-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.act-btn.view:hover { background:#f0fdf4; border-color:#86efac; }
+.act-btn.edit:hover { background:#fff8e1; border-color:#F7B731; }
+.act-btn.del:hover  { background:#fff1f2; border-color:#fda4af; }
+
+.empty-pub { text-align:center; padding:60px 24px; }
+.empty-pub-icon { width:68px; height:68px; border-radius:18px; background:linear-gradient(135deg,#fff8e1,#ffe082); display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 14px; }
+.empty-pub-title { font-family:'Peter Bold',sans-serif; font-size:16px; font-weight:700; color:#1a1d23; margin-bottom:5px; }
+.empty-pub-sub { font-size:13px; color:#94a3b8; }
+</style>
+
+{% if publications is empty %}
+  <div class="empty-pub">
+    <div class="empty-pub-icon">📭</div>
+    <div class="empty-pub-title">Aucune publication trouvée</div>
+    <div class="empty-pub-sub">Essayez de modifier vos filtres ou créez une nouvelle publication.</div>
+  </div>
+{% else %}
+<div class="table-responsive">
+  <table class="pub-table">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Statut</th>
+        <th>Vérifié</th>
+        <th>Auteur</th>
+        <th>Date</th>
+        <th>Commentaires</th>
+        <th style="text-align:right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for pub in publications %}
+      <tr>
+        <td>
+          {% if pub.imgURL %}
+            <img src="{{ asset('uploads/publications/' ~ pub.imgURL) }}" alt="image" class="pub-thumb">
+          {% else %}
+            <div class="pub-thumb-ph">🖼</div>
+          {% endif %}
+        </td>
+        <td class="pub-desc-cell">
+          <span class="pub-desc-text" title="{{ pub.descriptionP }}">{{ pub.descriptionP }}</span>
+          <span class="pub-id-tag">#{{ pub.idPublication }}</span>
+        </td>
+        <td><span class="type-badge type-{{ pub.typeCible }}">{{ pub.typeCible }}</span></td>
+        <td><span class="statut-badge s-{{ pub.statutP }}">{{ pub.statutP }}</span></td>
+        <td>
+          <button class="toggle-verifie" data-id="{{ pub.idPublication }}"
+                  data-url="{{ path('app_admin_publication_toggle_verifie', {idPublication: pub.idPublication}) }}">
+            {% if pub.estVerifie %}<span class="verifie-yes">✔ Vérifié</span>
+            {% else %}<span class="verifie-no">✗ Non vérifié</span>{% endif %}
+          </button>
+        </td>
+        <td>
+          {% if pub.id_utilisateur %}
+            <div class="pub-author">
+              <div class="pub-avatar">{{ pub.id_utilisateur.nom|slice(0,1)|upper }}{{ pub.id_utilisateur.prenom|slice(0,1)|upper }}</div>
+              <span class="pub-author-name">{{ pub.id_utilisateur.nom }} {{ pub.id_utilisateur.prenom }}</span>
+            </div>
+          {% else %}<span style="color:#c0c8d8">—</span>{% endif %}
+        </td>
+        <td><span class="pub-date">{{ pub.dateCreation }}</span></td>
+        <td>
+          <a href="{{ path('app_admin_publication_commentaires', {idPublication: pub.idPublication}) }}" class="comments-link">
+            💬 {{ pub.commentaires|length }}
+          </a>
+        </td>
+        <td>
+          <div class="action-btns">
+            <a href="{{ path('app_admin_publication_show', {idPublication: pub.idPublication}) }}" class="act-btn view" title="Voir">👁</a>
+            <a href="{{ path('app_admin_publication_edit', {idPublication: pub.idPublication}) }}" class="act-btn edit" title="Modifier">✏️</a>
+            <button class="act-btn del btn-delete" data-id="{{ pub.idPublication }}"
+                    data-url="{{ path('app_admin_publication_delete', {idPublication: pub.idPublication}) }}" title="Supprimer">🗑</button>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}

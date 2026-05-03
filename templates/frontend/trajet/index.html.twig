@@ -1,0 +1,894 @@
+{% extends 'frontend/base_frontend.html.twig' %}
+
+{% block title %}Mes Trajets - RE7LA{% endblock %}
+{% block extra_styles %}
+/* Inheriting from base_frontend.html.twig or use localized overrides if needed, but avoiding red */
+:root {
+    --bleu-ceil: #1ABC9C;
+    --bleu-ceil-dark: #17a589;
+    --rouge: #F39C12;
+    --vert-pistache: #F7DC6F;
+    --vert-pistache-dark: #f0ca2e;
+    --dark: #2C3E50;
+}
+
+/* ===== HERO ===== */
+.trajet-hero {
+    background: linear-gradient(135deg, var(--dark) 0%, #1a252f 100%);
+    padding: 60px 0 40px; /* Taille réduite */
+    position: relative;
+    overflow: hidden;
+    color: white;
+}
+.trajet-hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1400') center/cover;
+    opacity: 0.12;
+    mix-blend-mode: overlay;
+}
+
+/* Moving Traffic Animation */
+.traffic-container {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-car {
+    position: absolute;
+    color: rgba(255,255,255,0.25);
+    font-size: 20px;
+    animation: drive-right linear infinite;
+}
+
+.car-1 { bottom: 5px; animation-duration: 15s; animation-delay: 0s; }
+.car-2 { bottom: 25px; animation-duration: 22s; animation-delay: -5s; font-size: 16px; opacity: 0.15; }
+.car-3 { bottom: 45px; animation-duration: 18s; animation-delay: -10s; font-size: 24px; }
+
+@keyframes drive-right {
+    from { transform: translateX(-100px); }
+    to { transform: translateX(calc(100vw + 100px)); }
+}
+
+.floating-shape { position: absolute; border-radius: 50%; opacity: 0.12; animation: float 20s infinite ease-in-out; }
+.shape-1 { width: 300px; height: 300px; background: var(--bleu-ceil); top: -100px; right: -80px; }
+.shape-2 { width: 180px; height: 180px; background: var(--vert-pistache); bottom: -50px; left: -40px; }
+
+/* ===== STAT CARDS ===== */
+.stat-card-fe {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 28px;
+    padding: 32px 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ===== TRAJET CARDS ===== */
+.trajet-card {
+    background: white;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.03);
+    transition: all 0.4s ease;
+}
+
+.route-banner {
+    background: linear-gradient(135deg, var(--dark) 0%, #34495e 100%);
+    padding: 30px 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.rb-arrow { 
+    margin: 0 20px; 
+    color: rgba(255,255,255,0.4); 
+    font-size: 24px; 
+    flex: 1; 
+    text-align: center;
+    position: relative;
+    border-top: 2px dashed rgba(255,255,255,0.1);
+    height: 2px;
+    top: 10px;
+}
+
+.driving-car-icon {
+    position: absolute;
+    top: -14px;
+    left: 10%;
+    color: var(--bleu-ceil);
+    font-size: 16px;
+    transition: left 1.5s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    opacity: 0;
+}
+
+.trajet-card:hover .driving-car-icon {
+    left: 85%;
+    opacity: 1;
+}
+.rb-label { color: rgba(255,255,255,0.7) !important; }
+.rb-arrow i.fa-chevron-right { color: white !important; }
+.rb-dot-dep { position: absolute; bottom: -6px; left: 28px; width: 12px; height: 12px; border-radius: 50%; background: var(--rouge); box-shadow: 0 0 10px rgba(243, 156, 18, 0.5); }
+.rb-dot-arr { position: absolute; bottom: -6px; right: 28px; width: 12px; height: 12px; border-radius: 50%; background: var(--bleu-ceil); box-shadow: 0 0 10px rgba(26, 188, 156, 0.5); }
+
+.trajet-body { padding: 24px 28px; }
+
+.info-row-fe {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid #f0f4f8; font-size: 14px;
+}
+.info-row-fe:last-child { border-bottom: none; }
+.ir-key { color: #94a3b8; display: flex; align-items: center; gap: 8px; }
+.ir-val { font-weight: 600; color: var(--dark); }
+
+.badge-fe {
+    display: inline-block; padding: 6px 16px; border-radius: 50px;
+    font-size: 12px; font-weight: 700;
+}
+.badge-reserved  { background: rgba(135,206,235,0.15); color: #3b82f6; }
+.badge-confirmed { background: rgba(147,197,114,0.15); color: #16a34a; }
+.badge-cancelled { background: rgba(243, 156, 18, 0.15);   color: #d68910; }
+.badge-completed { background: rgba(44,62,80,0.08);    color: #475569; }
+
+.trajet-actions {
+    display: flex; gap: 8px;
+    padding: 16px 28px 24px; border-top: 1px solid #f0f4f8;
+}
+
+/* ===== CHATBOT STYLES ===== */
+.chatbot-toggler {
+    position: fixed;
+    bottom: 90px;
+    right: 35px;
+    height: 60px;
+    width: 60px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 25px rgba(135,206,235,0.4);
+    z-index: 999;
+}
+.chatbot-toggler:hover { transform: scale(1.1); }
+.chatbot-toggler span {
+    color: #fff;
+    position: absolute;
+}
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child  {
+    opacity: 0;
+}
+body.show-chatbot .chatbot-toggler span:last-child {
+    opacity: 1;
+}
+
+.chatbot {
+    position: fixed;
+    right: 35px;
+    bottom: 160px;
+    width: 420px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.5);
+    transform-origin: bottom right;
+    transition: all 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    z-index: 999;
+}
+body.show-chatbot .chatbot {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+.chatbot header {
+    padding: 15px 20px;
+    position: relative;
+    text-align: center;
+    color: #fff;
+    background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache));
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chatbot header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+.header-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.a11y-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.a11y-btn:hover { background: rgba(255,255,255,0.3); }
+.a11y-btn.active { background: #fff; color: var(--bleu-ceil); }
+
+/* Sign Mode Pictograms */
+.pictogram {
+    display: block;
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    animation: bounceIn 0.5s ease;
+}
+.sign-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(135,206,235,0.1);
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bleu-ceil);
+    margin-top: 5px;
+}
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.chatbot .chatbox {
+    overflow-y: auto;
+    height: 400px;
+    padding: 25px 20px 100px;
+}
+.chatbox .chat {
+    display: flex;
+    list-style: none;
+}
+.chatbox .outgoing {
+    margin: 20px 0;
+    justify-content: flex-end;
+}
+.chatbox .incoming span {
+    width: 35px;
+    height: 35px;
+    color: #fff;
+    cursor: default;
+    text-align: center;
+    line-height: 35px;
+    align-self: flex-end;
+    background: var(--bleu-ceil);
+    border-radius: 10px;
+    margin: 0 10px 7px 0;
+}
+.chatbox .chat p {
+    white-space: pre-wrap;
+    padding: 12px 16px;
+    border-radius: 15px 15px 0 15px;
+    max-width: 75%;
+    color: #fff;
+    font-size: 0.95rem;
+    background: var(--bleu-ceil);
+}
+.chatbox .incoming p {
+    border-radius: 15px 15px 15px 0;
+}
+.chatbox .chat p.error {
+    color: #721c24;
+    background: #f8d7da;
+}
+.chatbox .incoming p {
+    color: var(--dark);
+    background: #f2f2f2;
+}
+.chatbot .chat-input {
+    display: flex;
+    gap: 5px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+    padding: 15px 20px;
+    border-top: 1px solid #ddd;
+    align-items: center;
+}
+.chat-input textarea {
+    height: 45px;
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    max-height: 180px;
+    padding: 12px 0;
+    font-size: 0.95rem;
+}
+.chat-input span {
+    align-self: flex-end;
+    color: var(--bleu-ceil);
+    cursor: pointer;
+    font-size: 1.35rem;
+    padding: 8px;
+    transition: all 0.2s;
+}
+.chat-input span:hover { color: var(--vert-pistache); }
+
+/* Voice UI */
+.voice-status {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: none;
+}
+.listening .voice-status { display: block; }
+
+.waveform {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 20px;
+}
+.waveform span {
+    width: 3px;
+    height: 10px;
+    background: #fff;
+    border-radius: 3px;
+    animation: wave 1s infinite alternate;
+}
+@keyframes wave {
+    from { height: 5px; }
+    to { height: 15px; }
+}
+{% endblock %}
+
+{% block body %}
+
+<!-- ===== HERO ===== -->
+<section class="trajet-hero">
+    <div class="traffic-container">
+        <div class="hero-car car-1"><i class="fas fa-car-side"></i></div>
+        <div class="hero-car car-2"><i class="fas fa-car"></i></div>
+        <div class="hero-car car-3"><i class="fas fa-shuttle-van"></i></div>
+        <div class="hero-car car-1" style="animation-delay: -7s;"><i class="fas fa-truck-pickup"></i></div>
+    </div>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-7" data-aos="fade-right">
+                <span style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; padding: 8px 20px; border-radius: 50px; font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 20px;">
+                    <i class="fas fa-route me-2"></i>{{ 'trajets.title'|trans }}
+                </span>
+                <h1 style="font-weight: 800; font-size: 3rem; color: white; line-height: 1.2; margin-bottom: 16px;">
+                    {{ 'trajets.title'|trans|raw }}
+                </h1>
+                <p style="color: rgba(255, 255, 255, 0.7); font-size: 1.1rem; margin-bottom: 32px; font-weight: 500;">
+                    {{ trajets|length }} trajet{{ trajets|length != 1 ? 's' : '' }} enregistré{{ trajets|length != 1 ? 's' : '' }} dans votre espace
+                </p>
+                <div class="d-flex gap-3 align-items-center">
+                    <a href="{{ path('app_trajet_create') }}" class="btn btn-lg" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 15px 35px; font-weight: 600; box-shadow: 0 10px 30px rgba(26, 188, 156, 0.4); transition: all 0.3s;">
+                        <i class="fas fa-plus me-2"></i>{{ 'trajets.new_trajet'|trans }}
+                    </a>
+
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center" data-aos="fade-left">
+                <div style="width: 200px; height: 200px; background: linear-gradient(135deg, rgba(135,206,235,0.2), rgba(147,197,114,0.2)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-bus" style="font-size: 5.5rem; background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background: #f8f9fa;">
+    <div class="container">
+
+        <!-- ===== FLASH MESSAGES ===== -->
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-dismissible fade show mb-4" role="alert" style="border-radius: 15px; border: none; background: rgba(147,197,114,0.15); color: #16a34a;">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-dismissible fade show mb-4" role="alert" style="border-radius: 15px; border: none; background: rgba(231,76,60,0.15); color: #dc2626;">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+
+        <!-- ===== FILTERS ===== -->
+        <div class="filters-card mb-5" data-aos="fade-up">
+            <h5 style="font-weight: 700; color: var(--dark); margin-bottom: 20px;">
+                <i class="fas fa-filter me-2" style="color: var(--bleu-ceil);"></i>{{ 'trajets.filter_trajets'|trans }}
+            </h5>
+            <form method="GET" action="{{ path('app_trajet') }}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">{{ 'activities.filter'|trans }}</label>
+                        <div class="position-relative">
+                            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                            <input type="text" name="search" value="{{ search ?? '' }}"
+                                   placeholder="{{ 'trajets.search_placeholder'|trans }}"
+                                   style="width: 100%; padding: 12px 14px 12px 40px; border: 2px solid #e0e7ff; border-radius: 15px; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; transition: all 0.3s; background: #f8faff;">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">Statut</label>
+                        <select name="statut" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e7ff; border-radius: 15px; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; background: #f8faff; cursor: pointer;">
+                            <option value="">{{ 'trajets.all_status'|trans }}</option>
+                            {% for s in ['Réservé', 'Confirmé', 'Annulé', 'Terminé'] %}
+                                <option value="{{ s }}" {{ (statut ?? '') == s ? 'selected' : '' }}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px;">{{ 'trajets.vehicle'|trans }}</label>
+                        <select name="voiture" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e7ff; border-radius: 15px; font-size: 14px; font-family: 'Poppins', sans-serif; outline: none; background: #f8faff; cursor: pointer;">
+                            <option value="">{{ 'trajets.all_cars'|trans }}</option>
+                            {% for v in voitures ?? [] %}
+                                <option value="{{ v.id }}" {{ (voitureId|default('')) == (v.id ~ '') ? 'selected' : '' }}>
+                                    {{ v.marque }} {{ v.modele }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn w-100" style="background: var(--rouge); color: white; border-radius: 12px; padding: 12px; font-weight: 700; border: none; transition: all 0.3s; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);">
+                            <i class="fas fa-search me-1"></i>{{ 'activities.filter'|trans }}
+                        </button>
+                    </div>
+                </div>
+                {% if (search ?? '') or (statut ?? '') or (voitureId ?? '') %}
+                <div class="mt-3">
+                    <a href="{{ path('app_trajet') }}" style="color: var(--rouge); font-size: 13px; font-weight: 600; text-decoration: none;">
+                        <i class="fas fa-times me-1"></i>{{ 'promotions.reset'|trans }}
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- ===== TRAJET CARDS ===== -->
+        <div class="row g-4">
+            {% for trajet in trajets %}
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
+                <div class="trajet-card">
+
+                    <!-- Route banner -->
+                    <div class="route-banner">
+                        <div class="rb-city">
+                            <div class="rb-label">{{ 'trajets.depart'|trans }}</div>
+                            <div class="rb-name">{{ trajet.pointDepart }}</div>
+                        </div>
+                        <div class="rb-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                            <i class="fas fa-car-side driving-car-icon"></i>
+                        </div>
+                        <div class="rb-city text-end">
+                            <div class="rb-label">{{ 'trajets.arrivee'|trans }}</div>
+                            <div class="rb-name">{{ trajet.pointArrivee }}</div>
+                        </div>
+                        <div class="rb-dot-dep"></div>
+                        <div class="rb-dot-arr"></div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="trajet-body">
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-calendar-alt"></i> {{ 'promotions.date'|trans }}</span>
+                            <span class="ir-val">
+                                {% if trajet.dateReservation %}{{ trajet.dateReservation|date('d/m/Y') }}{% else %}—{% endif %}
+                            </span>
+                        </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-users"></i> {{ 'trajets.passengers'|trans }}</span>
+                            <span class="ir-val">{{ trajet.nbPersonnes }} personne{{ trajet.nbPersonnes > 1 ? 's' : '' }}</span>
+                        </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-road"></i> Distance</span>
+                            <span class="ir-val">{% if trajet.distanceKm %}{{ trajet.distanceKm|number_format(1) }} km{% else %}—{% endif %}</span>
+                        </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-car"></i> {{ 'trajets.vehicle'|trans }}</span>
+                            <span class="ir-val">{% if trajet.idVoiture %}{{ trajet.idVoiture.marque }} {{ trajet.idVoiture.modele }}{% else %}—{% endif %}</span>
+                        </div>
+                        <div class="info-row-fe">
+                            <span class="ir-key"><i class="fas fa-coins"></i> {{ 'trajets.price_per_person'|trans }}</span>
+                            <span class="ir-val" style="color: var(--vert-pistache-dark);">
+                                {% if trajet.idVoiture and trajet.distanceKm and (trajet.nbPersonnes > 0) %}
+                                    {{ ((trajet.idVoiture.prixKM * trajet.distanceKm) / trajet.nbPersonnes)|format_price }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-row-fe" style="border-bottom: none; padding-top: 14px;">
+                            <span class="ir-key"><i class="fas fa-info-circle"></i> Statut</span>
+                            <span>
+                                {% set s = trajet.statut %}
+                                <span class="badge-fe
+                                    {% if s == 'Réservé' %}badge-reserved
+                                    {% elseif s == 'Confirmé' %}badge-confirmed
+                                    {% elseif s == 'Annulé' %}badge-cancelled
+                                    {% elseif s == 'En attente de paiement' %}badge-payment-pending
+                                    {% elseif s == 'Payé' %}badge-paid
+                                    {% else %}badge-completed{% endif %}">
+                                    {{ s }}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="trajet-actions d-flex gap-2">
+                        {% if trajet.statut == 'En attente de paiement' %}
+                            <a href="{{ path('app_paiement_checkout', {id: trajet.id}) }}" class="btn flex-fill" style="background: #F39C12; color: white; border-radius: 50px; font-weight: 700; font-size: 13px;">
+                                <i class="fas fa-credit-card me-1"></i>{{ 'trajets.pay'|trans }}
+                            </a>
+                        {% endif %}
+                        <a href="{{ path('app_trajet_show', {id: trajet.id}) }}" class="btn flex-fill" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; font-weight: 600; font-size: 13px;">
+                            <i class="fas fa-eye me-1"></i>{{ 'trajets.details'|trans }}
+                        </a>
+                        
+                        {# Bouton Supprimer #}
+                        <button type="button" class="btn btn-delete-trajet" data-id="{{ trajet.id }}" style="background: rgba(243, 156, 18, 0.1); color: #F39C12; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(243, 156, 18, 0.2); transition: all 0.3s;">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+
+                        <form id="delete-form-{{ trajet.id }}" action="{{ path('app_trajet_delete', {id: trajet.id}) }}" method="POST" style="display: none;">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('delete' ~ trajet.id) }}">
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="text-center py-5" style="background: white; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.07);">
+                    <div style="width: 100px; height: 100px; background: linear-gradient(135deg, rgba(135,206,235,0.15), rgba(147,197,114,0.15)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                        <i class="fas fa-bus" style="font-size: 2.5rem; color: var(--bleu-ceil);"></i>
+                    </div>
+                    <h4 style="font-weight: 700; color: var(--dark); margin-bottom: 10px;">{{ 'trajets.no_trajets'|trans }}</h4>
+                    <p style="color: #94a3b8; margin-bottom: 28px;">
+                        {% if (search ?? '') or (statut ?? '') %}{{ 'trajets.no_trajets_sub'|trans }}{% else %}{{ 'trajets.no_trajets_sub'|trans }}{% endif %}
+                    </p>
+                    <a href="{{ path('app_trajet_create') }}" class="btn" style="background: linear-gradient(135deg, var(--bleu-ceil), var(--vert-pistache)); color: white; border-radius: 50px; padding: 14px 35px; font-weight: 600;">
+                        <i class="fas fa-plus me-2"></i>Nouveau trajet
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+<!-- ===== CHATBOT UI ===== -->
+<button class="chatbot-toggler" aria-label="Ouvrir l'assistant d'accessibilité RE7LA" aria-haspopup="true">
+    <span class="fas fa-comment-dots" aria-hidden="true" style="font-size: 1.5rem;"></span>
+    <span class="fas fa-times" aria-hidden="true" style="font-size: 1.5rem;"></span>
+</button>
+
+<div class="chatbot" role="complementary" aria-label="Assistant de voyage RE7LA">
+    <header>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-universal-access" style="font-size: 1.2rem;"></i>
+            <h2>{{ 'trajets.assistant_title'|trans }}</h2>
+        </div>
+        <div class="header-controls">
+            <button class="a11y-btn" id="toggle-sign-mode" title="Mode Signes Visuels (Sourd/Muet)">
+                <i class="fas fa-hand-paper"></i>
+            </button>
+            <button class="a11y-btn" id="toggle-speech" title="Activer/Désactiver la lecture vocale">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="a11y-btn" id="increase-font" title="Agrandir le texte">
+                <i class="fas fa-font"></i>
+            </button>
+        </div>
+        <div class="voice-status">
+            <div class="waveform">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            En écoute...
+        </div>
+    </header>
+    <ul class="chatbox" role="log" aria-live="polite">
+        <li class="chat incoming">
+            <span class="fas fa-robot"></span>
+            <div style="display:flex; flex-direction:column;">
+                <p>{{ 'trajets.assistant_greeting'|trans }}</p>
+                <div id="greeting-sign" class="sign-badge" style="display:none;">
+                    <i class="fas fa-hands-helping"></i> Aide visuelle activée
+                </div>
+            </div>
+        </li>
+    </ul>
+    <div class="chat-input">
+        <textarea placeholder="{{ 'trajets.ask_placeholder'|trans }}" spellcheck="false" required aria-label="Votre message au chatbot"></textarea>
+        <span id="voice-btn" class="fas fa-microphone" title="Parler (Reconnaissance vocale)" role="button" aria-label="Commencer la reconnaissance vocale"></span>
+        <span id="send-btn" class="fas fa-paper-plane" title="Envoyer" role="button" aria-label="Envoyer le message"></span>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    const chatbotToggler = document.querySelector(".chatbot-toggler");
+    const chatbox = document.querySelector(".chatbox");
+    const chatInput = document.querySelector(".chat-input textarea");
+    const sendChatBtn = document.querySelector(".chat-input #send-btn");
+    const voiceBtn = document.querySelector("#voice-btn");
+    const chatbot = document.querySelector(".chatbot");
+
+    // A11y Controls
+    const btnSignMode = document.getElementById("toggle-sign-mode");
+    const btnSpeech   = document.getElementById("toggle-speech");
+    const btnFontSize = document.getElementById("increase-font");
+
+    let isSpeechEnabled = true;
+    let isSignModeEnabled = false;
+    let isLargeFont = false;
+
+    // --- Accessibilty Keyword Mapping (Pictograms for Sign Mode) ---
+    const pictogramMap = {
+        "tunis": "🏰", "sousse": "🏖️", "hammamet": "🏨", "sfax": "🏭", "djerba": "🏝️",
+        "distance": "📏", "km": "🚲", "prix": "💰", "argent": "💵", "merci": "🙏",
+        "bonjour": "👋", "aide": "🆘", "voiture": "🚗", "trajet": "🗺️"
+    };
+
+    const getPictograms = (text) => {
+        const lowerText = text.toLowerCase();
+        let icons = "";
+        Object.keys(pictogramMap).forEach(key => {
+            if (lowerText.includes(key)) icons += pictogramMap[key] + " ";
+        });
+        return icons;
+    };
+
+    // --- Audio Feedback (Beep) ---
+    const playBeep = (freq, duration) => {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            gain.gain.value = 0.1;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            setTimeout(() => osc.stop(), duration);
+        } catch(e) {}
+    };
+
+    // --- Toggles ---
+    btnSpeech.onclick = () => {
+        isSpeechEnabled = !isSpeechEnabled;
+        btnSpeech.classList.toggle("active", isSpeechEnabled);
+        btnSpeech.innerHTML = isSpeechEnabled ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+    };
+
+    btnSignMode.onclick = () => {
+        isSignModeEnabled = !isSignModeEnabled;
+        btnSignMode.classList.toggle("active", isSignModeEnabled);
+        document.getElementById("greeting-sign").style.display = isSignModeEnabled ? "inline-flex" : "none";
+    };
+
+    btnFontSize.onclick = () => {
+        isLargeFont = !isLargeFont;
+        btnFontSize.classList.toggle("active", isLargeFont);
+        chatbox.style.fontSize = isLargeFont ? "1.2rem" : "0.95rem";
+    };
+
+    let userMessage = null; 
+    const inputInitHeight = chatInput.scrollHeight;
+
+    // --- Create Chat UI Element ---
+    const createChatLi = (message, className) => {
+        const chatLi = document.createElement("li");
+        chatLi.classList.add("chat", `${className}`);
+        
+        // Add A11y mode content
+        let signContent = "";
+        if (className === "incoming" && isSignModeEnabled) {
+            const pics = getPictograms(message);
+            if (pics) signContent = `<span class="pictogram" aria-hidden="true">${pics}</span>`;
+        }
+
+        let chatContent = className === "outgoing" 
+            ? `<p role="text"></p>` 
+            : `<span class="fas fa-robot" aria-hidden="true"></span><div style="display:flex; flex-direction:column;">${signContent}<p role="text"></p></div>`;
+        
+        chatLi.innerHTML = chatContent;
+        chatLi.querySelector("p").textContent = message;
+        return chatLi; 
+    }
+
+    // --- API Call ---
+    const generateResponse = (chatLi) => {
+        const messageElement = chatLi.querySelector("p");
+
+        fetch("{{ path('api_chatbot_ask') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: userMessage })
+        })
+        .then(res => res.json())
+        .then(data => {
+            messageElement.textContent = data.text;
+            
+            // Re-apply sign mode if needed since we just got the real text
+            if (isSignModeEnabled) {
+                const pics = getPictograms(data.text);
+                if (pics) {
+                    const picSpan = document.createElement("span");
+                    picSpan.className = "pictogram";
+                    picSpan.setAttribute("aria-hidden", "true");
+                    picSpan.textContent = pics;
+                    messageElement.parentElement.prepend(picSpan);
+                }
+            }
+
+            if(isSpeechEnabled && data.speech) {
+                speak(data.speech);
+            }
+        })
+        .catch(() => {
+            messageElement.classList.add("error");
+            messageElement.textContent = "Erreur. Veuillez réessayer.";
+        })
+        .finally(() => chatbox.scrollTo(0, chatbox.scrollHeight));
+    }
+
+    const handleChat = () => {
+        userMessage = chatInput.value.trim(); 
+        if(!userMessage) return;
+
+        chatInput.value = "";
+        chatInput.style.height = `${inputInitHeight}px`;
+
+        chatbox.appendChild(createChatLi(userMessage, "outgoing"));
+        chatbox.scrollTo(0, chatbox.scrollHeight);
+
+        setTimeout(() => {
+            const incomingChatLi = createChatLi("...", "incoming");
+            chatbox.appendChild(incomingChatLi);
+            chatbox.scrollTo(0, chatbox.scrollHeight);
+            generateResponse(incomingChatLi);
+        }, 600);
+    }
+
+    // --- Voice Implementation (STT) ---
+    const startListening = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return;
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'fr-FR';
+        
+        recognition.onstart = () => {
+            chatbot.classList.add("listening");
+            voiceBtn.style.color = "#e74c3c";
+            playBeep(440, 100); // Start beep
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+            chatbot.classList.remove("listening");
+            voiceBtn.style.color = "var(--bleu-ceil)";
+            playBeep(330, 100); // Stop beep
+        };
+
+        recognition.onresult = (event) => {
+            chatInput.value = event.results[0][0].transcript;
+            handleChat();
+        };
+
+        recognition.start();
+    }
+
+    const speak = (text) => {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // --- Listeners ---
+    chatInput.addEventListener("input", () => {
+        chatInput.style.height = `${inputInitHeight}px`;
+        chatInput.style.height = `${chatInput.scrollHeight}px`;
+    });
+
+    chatInput.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+            e.preventDefault();
+            handleChat();
+        }
+    });
+
+    sendChatBtn.addEventListener("click", handleChat);
+    chatbotToggler.addEventListener("click", () => {
+        document.body.classList.toggle("show-chatbot");
+        if (document.body.classList.contains("show-chatbot")) {
+            playBeep(880, 50);
+        }
+    });
+    voiceBtn.addEventListener("click", startListening);
+    
+    // --- Trajet Delete Confirmation ---
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-delete-trajet').forEach(btn => {
+            btn.onclick = function() {
+                const trajetId = this.getAttribute('data-id');
+                console.log("Suppression demandée pour trajet:", trajetId);
+                
+                Swal.fire({
+                    title: 'Supprimer ce trajet ?',
+                    text: "Cette action est irréversible !",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e74c3c',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Oui, supprimer',
+                    cancelButtonText: 'Annuler',
+                    backdrop: `rgba(0,0,0,0.4)`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Signal local pour les autres onglets (Dashboard)
+                        const bc = new BroadcastChannel('re7la_notifications');
+                        bc.postMessage({
+                            action: 'delete_trajet',
+                            message: "Action locale : Suppression demandée pour le trajet #" + trajetId
+                        });
+
+                        const form = document.getElementById('delete-form-' + trajetId);
+                        if (form) {
+                            form.submit();
+                        } else {
+                            console.error("Formulaire introuvable:", 'delete-form-' + trajetId);
+                        }
+                    }
+                });
+            };
+        });
+    });
+
+</script>
+{% endblock %}

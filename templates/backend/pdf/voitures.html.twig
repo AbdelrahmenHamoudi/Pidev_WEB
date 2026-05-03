@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Véhicules - RE7LA</title>
+    <style>
+        body { font-family: 'Helvetica', sans-serif; color: #333; line-height: 1.6; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #F7B731; padding-bottom: 20px; }
+        .logo { font-size: 28px; font-weight: bold; color: #2C3E50; }
+        .subtitle { color: #94a3b8; font-size: 14px; margin-top: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+        th { background-color: #f8fafc; color: #2C3E50; font-weight: bold; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+        .badge-success { background-color: #d1fae5; color: #065f46; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #94a3b8; padding: 20px 0; }
+        .total { margin-top: 20px; font-weight: bold; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">RE7LA Fleet Management</div>
+        <div class="subtitle">Catalogue Officiel des Véhicules - {{ "now"|date("d/m/Y H:i") }}</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Marque & Modèle</th>
+                <th>Immatriculation</th>
+                <th>Catégorie</th>
+                <th>Places</th>
+                <th>Prix/km</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for voiture in voitures %}
+            <tr>
+                <td>#{{ voiture.id }}</td>
+                <td><strong>{{ voiture.marque }} {{ voiture.modele }}</strong></td>
+                <td><code>{{ voiture.immatriculation }}</code></td>
+                <td>{{ voiture.avecChauffeur ? 'Avec chauffeur' : 'Auto-conduit' }}</td>
+                <td>{{ voiture.nbPlaces }}</td>
+                <td>{{ voiture.prixKM|number_format(3) }} DT</td>
+                <td>
+                    <span class="badge {{ voiture.disponibilite ? 'badge-success' : 'badge-danger' }}">
+                        {{ voiture.disponibilite ? 'Disponible' : 'Indisponible' }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">
+        Nombre total de véhicules : {{ voitures|length }}
+    </div>
+
+    <div class="footer">
+        RE7LA ERP - Généré automatiquement le {{ "now"|date("d/m/Y") }}
+    </div>
+</body>
+</html>
