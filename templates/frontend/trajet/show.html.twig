@@ -78,6 +78,17 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     display: none; align-items: center; gap: 8px;
     animation: fadeIn 0.3s ease;
+    transition: all 0.3s ease;
+}
+#map-loader.error-state {
+    background: #fff5f5;
+    color: #c53030;
+    border: 1px solid #feb2b2;
+    cursor: pointer;
+}
+#map-loader.error-state:hover {
+    background: #fed7d7;
+    transform: scale(1.05);
 }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -236,58 +247,104 @@ document.addEventListener('DOMContentLoaded', function() {
     const map = L.map('map').setView([36.8, 10.1], 7);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    async function geocode(address) {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-        const data = await res.json();
-        return data && data.length > 0 ? [data[0].lat, data[0].lon] : null;
+    // --- CACHE SYSTEM (localStorage with 24h expiry) ---
+    const CACHE_NAME = 're7la_map_cache';
+    const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+
+    function getFromCache(key) {
+        try {
+            const itemStr = localStorage.getItem(`${CACHE_NAME}_${key}`);
+            if (!itemStr) return null;
+            const item = JSON.parse(itemStr);
+            if (Date.now() > item.expiry) {
+                localStorage.removeItem(`${CACHE_NAME}_${key}`);
+                return null;
+            }
+            return item.value;
+        } catch (e) { return null; }
     }
 
-    // Layers
-    // Layers with Clustering for better performance
+    function setToCache(key, value) {
+        try {
+            const item = { value: value, expiry: Date.now() + CACHE_EXPIRY };
+            localStorage.setItem(`${CACHE_NAME}_${key}`, JSON.stringify(item));
+        } catch (e) { console.warn("Cache write failed", e); }
+    }
+
+    async function geocode(address) {
+        const cached = getFromCache(`geo_${address}`);
+        if (cached) {
+            console.log(`[RE7LA] Geocode cache hit for: ${address}`);
+            return cached;
+        }
+
+        // Retry logic for Nominatim (strict 1 req/sec)
+        for (let i = 0; i < 3; i++) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+                if (res.status === 429) { // Too Many Requests
+                    await new Promise(r => setTimeout(r, 1500)); // Wait 1.5s
+                    continue;
+                }
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const coords = [data[0].lat, data[0].lon];
+                    setToCache(`geo_${address}`, coords);
+                    return coords;
+                }
+                return null;
+            } catch (e) {
+                if (i === 2) throw e;
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        }
+        return null;
+    }
+
+    // Layers with Clustering
     let markerLayer;
     if (typeof L.markerClusterGroup === 'function') {
         markerLayer = L.markerClusterGroup({
             spiderfyOnMaxZoom: true,
             showCoverageOnHover: false,
             zoomToBoundsOnClick: true,
-            maxClusterRadius: 50
+            maxClusterRadius: 40
         }).addTo(map);
     } else {
-        console.warn("MarkerCluster omitted or failed to load. Falling back to default layer group.");
         markerLayer = L.layerGroup().addTo(map);
     }
 
-    // Icons Factory
-    // Icons Factory (Optimized - No heavy SVG filters)
+    // Icons Factory (Optimized)
     function createKiosqueIcon(type) {
         let color = '#3b82f6';
         let iconClass = 'fa-gas-pump';
         
         switch(type) {
-            case 'fuel': color = '#ef4444'; iconClass = 'fa-gas-pump'; break;
-            case 'cafe': color = '#f59e0b'; iconClass = 'fa-coffee'; break;
-            case 'restaurant': color = '#10b981'; iconClass = 'fa-utensils'; break;
-            case 'parking': color = '#64748b'; iconClass = 'fa-parking'; break;
+            case 'fuel': color = '#ef4444'; iconClass = 'fa-gas-pump'; break; // Kiosque
+            case 'cafe': color = '#f59e0b'; iconClass = 'fa-coffee'; break; // Cafés
+            case 'restaurant':
+            case 'fast_food': color = '#10b981'; iconClass = 'fa-utensils'; break;
+            case 'pharmacy':
+            case 'hospital': color = '#ec4899'; iconClass = 'fa-heartbeat'; break;
+            case 'atm':
+            case 'bank': color = '#059669'; iconClass = 'fa-money-bill-wave'; break;
+            case 'parking': color = '#4b5563'; iconClass = 'fa-parking'; break;
             case 'bus_stop': 
             case 'bus_station': color = '#8b5cf6'; iconClass = 'fa-bus'; break;
             case 'hotel':
             case 'motel':
-            case 'guest_house': color = '#ec4899'; iconClass = 'fa-bed'; break;
+            case 'guest_house': color = '#6366f1'; iconClass = 'fa-bed'; break;
             case 'convenience':
-            case 'supermarket': color = '#10b981'; iconClass = 'fa-shopping-cart'; break;
+            case 'supermarket': color = '#f97316'; iconClass = 'fa-shopping-basket'; break;
+            case 'police': color = '#1e3a8a'; iconClass = 'fa-shield-alt'; break;
+            case 'toilets': color = '#6b7280'; iconClass = 'fa-restroom'; break;
             default: color = '#3b82f6'; iconClass = 'fa-info-circle';
         }
         
         const html = `
-            <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
-                <!-- Pin Base -->
-                <div style="position: absolute; width: 32px; height: 32px; background: ${color}; border: 3px solid #fff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);"></div>
-                <!-- Mini Icon -->
+            <div class="custom-icon-pin" style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                <div style="position: absolute; width: 32px; height: 32px; background: ${color}; border: 3px solid #fff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 6px rgba(0,0,0,0.2);"></div>
                 <i class="fas ${iconClass}" style="position: relative; color: white; font-size: 14px; top: -2px;"></i>
-                <!-- Badge (Optional small dot) -->
-                <div style="position: absolute; top: -2px; right: -2px; width: 10px; height: 10px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div style="width: 5px; height: 5px; background: ${color}; border-radius: 50%;"></div>
-                </div>
             </div>
         `;
 
@@ -300,54 +357,59 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Overpass API fetcher (Optimized with Mirror & Error Handling)
-    async function fetchKiosks(coordinates) {
+    // Overpass API fetcher
+    async function fetchKiosks(coordinates, forceRetry = false) {
         if (!coordinates || coordinates.length === 0) return;
         
+        const trajetId = "{{ trajet.id }}";
+        const cacheKey = `pois_${trajetId}`;
+        
+        if (!forceRetry) {
+            const cachedData = getFromCache(cacheKey);
+            if (cachedData) {
+                console.log("[RE7LA] Loading POIs from cache...");
+                renderKiosks(cachedData);
+                return;
+            }
+        }
+
         const loader = document.getElementById('map-loader');
         if (loader) {
             loader.style.display = 'flex';
-            loader.querySelector('span').textContent = "Recherche des services...";
+            loader.querySelector('span').textContent = "Recherche des services sur votre trajet...";
+            loader.classList.remove('error-state');
         }
         
-        // Sampling 10 points along the route for better coverage
+        // Sampling points along the route
         const points = [];
-        const numSamples = 10;
-        const step = Math.floor(coordinates.length / (numSamples - 1));
+        const numSamples = Math.min(12, Math.ceil(coordinates.length / 50)); // Adjusted sampling
+        const step = Math.floor(coordinates.length / (numSamples - 1 || 1));
         
         for (let i = 0; i < numSamples; i++) {
             const idx = Math.min(i * step, coordinates.length - 1);
             points.push(coordinates[idx]);
         }
         
-        console.log(`Searching around ${points.length} points...`);
-        
-        let queryParts = "";
-        points.forEach(p => {
-            // searching for Nodes and Ways with center
-            queryParts += `(node(around:10000,${p.lat},${p.lng})["amenity"~"fuel|cafe|restaurant|parking|bus_station"];`;
-            queryParts += `way(around:10000,${p.lat},${p.lng})["amenity"~"fuel|cafe|restaurant|parking|bus_station"];`;
-            queryParts += `node(around:10000,${p.lat},${p.lng})["highway"="bus_stop"];`;
-            // Adding more tourism/shop points for better coverage
-            queryParts += `node(around:10000,${p.lat},${p.lng})["tourism"~"hotel|motel|guest_house"];`;
-            queryParts += `node(around:10000,${p.lat},${p.lng})["shop"~"convenience|supermarket"];);`;
-        });
-
-        const q = `[out:json][timeout:20];(${queryParts});out center;`;
-        
-        // Use a faster mirror if main one is slow
+        const q = `[out:json][timeout:45];(
+            node(around:${radius},${points.map(p => (p.lat || p[0])).join(',')})["amenity"~"fuel|cafe|restaurant|fast_food|parking|atm|bank|pharmacy|hospital|police|toilets"];
+            way(around:${radius},${points.map(p => (p.lat || p[0])).join(',')})["amenity"~"fuel|cafe|restaurant|fast_food|parking|atm|bank|pharmacy|hospital|police|toilets"];
+            node(around:${radius},${points.map(p => (p.lat || p[0])).join(',')})["highway"~"bus_stop|bus_station"];
+            node(around:${radius},${points.map(p => (p.lat || p[0])).join(',')})["tourism"~"hotel|motel|guest_house"];
+            node(around:${radius},${points.map(p => (p.lat || p[0])).join(',')})["shop"~"convenience|supermarket"];
+        );out center;`;
         const mirrors = [
             'https://overpass-api.de/api/interpreter',
             'https://lz4.overpass-api.de/api/interpreter',
-            'https://z.overpass-api.de/api/interpreter'
+            'https://overpass.kumi.systems/api/interpreter'
         ];
 
         let success = false;
+        let lastError = "";
+
         for (const mirror of mirrors) {
             try {
-                // Use AbortController for better compatibility
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000);
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
                 const r = await fetch(mirror, { 
                     method: 'POST', 
@@ -357,85 +419,117 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 clearTimeout(timeoutId);
+                if (!r.ok) throw new Error(`Status ${r.status}`);
                 
-                if (!r.ok) throw new Error(`Mirror ${mirror} returned ${r.status}`);
                 const d = await r.json();
-                
-                if (d.elements && d.elements.length > 0) {
-                    console.log(`Successfully fetched ${d.elements.length} elements from ${mirror}`);
-                    markerLayer.clearLayers();
-                    const seen = new Set();
+                if (d.elements) {
+                    // Filter to keep only what user asked + basics
+                    const filtered = {
+                        elements: d.elements.filter(el => {
+                            const t = el.tags || {};
+                            return (t.amenity && "fuel|cafe|restaurant|fast_food|parking|atm|bank|pharmacy|hospital|police|toilets".includes(t.amenity)) ||
+                                   (t.highway && "bus_stop|bus_station".includes(t.highway)) ||
+                                   (t.tourism && "hotel|motel|guest_house".includes(t.tourism)) ||
+                                   (t.shop && "convenience|supermarket".includes(t.shop));
+                        })
+                    };
                     
-                    d.elements.forEach(el => {
-                        if (seen.has(el.id)) return;
-                        seen.add(el.id);
-                        
-                        const lat = el.lat || (el.center ? el.center.lat : null);
-                        const lon = el.lon || (el.center ? el.center.lon : null);
-                        if (!lat || !lon) return;
-
-                        const tags = el.tags || {};
-                        const type = tags.amenity || tags.highway || tags.tourism || tags.shop || 'service';
-                        const name = tags.name || (type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, ' '));
-                        
-                        L.marker([lat, lon], { icon: createKiosqueIcon(type) })
-                            .addTo(markerLayer)
-                            .bindPopup(`
-                                <div class="kiosque-popup">
-                                    <h6>${name}</h6>
-                                    <span class="badge bg-primary text-uppercase" style="font-size:10px;">${type.replace('_', ' ')}</span>
-                                    <hr style="margin:8px 0;">
-                                    <small class="text-muted"><i class="fas fa-map-pin me-1"></i> Point d'intérêt sur le trajet</small>
-                                </div>
-                            `);
-                    });
+                    console.log(`[RE7LA] Recu ${filtered.elements.length} points de ${mirror}`);
+                    setToCache(cacheKey, filtered);
+                    renderKiosks(filtered);
                     success = true;
                     break; 
                 }
             } catch (e) {
+                lastError = e.message;
                 console.warn(`Mirror ${mirror} failed:`, e);
             }
         }
 
-        if (loader) loader.style.display = 'none';
-        
-        if (!success) {
-            console.warn("Could not fetch kiosks from any mirror or no results found.");
-            // Silent fail to avoid annoying the user
+        if (loader) {
+            if (!success) {
+                loader.querySelector('span').textContent = "Erreur de chargement. Cliquez pour réessayer.";
+                loader.classList.add('error-state');
+                loader.onclick = () => fetchKiosks(coordinates, true);
+                loader.style.cursor = 'pointer';
+            } else {
+                loader.style.display = 'none';
+            }
         }
+    }
+
+    function renderKiosks(d) {
+        if (!d || !d.elements) return;
+        markerLayer.clearLayers();
+        const seen = new Set();
+        
+        d.elements.forEach(el => {
+            const lat = el.lat || (el.center ? el.center.lat : null);
+            const lon = el.lon || (el.center ? el.center.lon : null);
+            if (!lat || !lon) return;
+
+            const tags = el.tags || {};
+            const type = tags.amenity || tags.highway || tags.tourism || tags.shop || 'service';
+            
+            // Unique key to avoid duplicates
+            const key = `${Math.round(lat*10000)},${Math.round(lon*10000)}`;
+            if (seen.has(key)) return;
+            seen.add(key);
+
+            const name = tags.name || (type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, ' '));
+            
+            L.marker([lat, lon], { icon: createKiosqueIcon(type) })
+                .addTo(markerLayer)
+                .bindPopup(`
+                    <div class="kiosque-popup">
+                        <h6 style="margin-bottom:2px;">${name}</h6>
+                        <span class="badge bg-primary" style="font-size:9px; padding:2px 6px;">${type.replace('_', ' ')}</span>
+                        <div style="font-size:11px; color:#666; margin-top:5px;"><i class="fas fa-map-marker-alt me-1"></i> Sur votre trajet</div>
+                    </div>
+                `);
+        });
     }
 
     async function setup() {
-        console.log("Starting geocoding...");
         const startAddr = "{{ trajet.pointDepart|escape('js') }}";
         const endAddr = "{{ trajet.pointArrivee|escape('js') }}";
         
-        const s = await geocode(startAddr);
-        const e = await geocode(endAddr);
-        
-        console.log("Geocoding results:", s, e);
+        const loader = document.getElementById('map-loader');
+        if (loader) {
+            loader.style.display = 'flex';
+            loader.querySelector('span').textContent = "Calcul de l'itinéraire...";
+        }
 
-        if(s && e) {
-            const control = L.Routing.control({
-                waypoints: [L.latLng(s[0], s[1]), L.latLng(e[0], e[1])],
-                show: false,
-                lineOptions: { styles: [{ color: '#3b82f6', weight: 6, opacity: 0.8 }] },
-                routeWhileDragging: false,
-                createMarker: function() { return null; } // Use custom markers or none
-            }).addTo(map);
-
-            control.on('routesfound', function(ev) {
-                console.log("Route found, fetching kiosks...");
-                fetchKiosks(ev.routes[0].coordinates);
-            });
+        try {
+            const s = await geocode(startAddr);
+            const e = await geocode(endAddr);
             
-            control.on('routingerror', function(err) {
-                console.error("Routing error:", err);
-            });
-        } else {
-            console.error("Geocoding failed for one of the addresses.");
+            if(s && e) {
+                const control = L.Routing.control({
+                    waypoints: [L.latLng(s[0], s[1]), L.latLng(e[0], e[1])],
+                    show: false,
+                    lineOptions: { styles: [{ color: '#3b82f6', weight: 6, opacity: 0.8 }] },
+                    routeWhileDragging: false,
+                    createMarker: function() { return null; }
+                }).addTo(map);
+
+                control.on('routesfound', function(ev) {
+                    fetchKiosks(ev.routes[0].coordinates);
+                    map.fitBounds(L.featureGroup([L.marker(s), L.marker(e)]).getBounds(), { padding: [50, 50] });
+                });
+                
+                control.on('routingerror', function() {
+                    if (loader) loader.querySelector('span').textContent = "Erreur itinéraire.";
+                });
+            } else {
+                if (loader) loader.querySelector('span').textContent = "Adresse introuvable.";
+            }
+        } catch (err) {
+            console.error(err);
+            if (loader) loader.querySelector('span').textContent = "Erreur technique.";
         }
     }
+
     setup();
 });
 </script>
