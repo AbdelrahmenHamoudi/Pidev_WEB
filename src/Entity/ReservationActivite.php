@@ -28,8 +28,12 @@ class ReservationActivite
     private ?Users $utilisateur = null;
 
     // ── Date de réservation (auto à la création) ───────────────────────────
-    #[ORM\Column(name: "date_reservation", type: "datetime")]
-    private ?\DateTimeInterface $dateReservation = null;
+    //#[ORM\Column(name: "date_reservation", type: "datetime")]
+    //private ?\DateTimeInterface $dateReservation = null;
+    //----------- correction doctrine doctor
+    #[ORM\Column(name: "date_reservation", type: "datetime", nullable: false)]
+    private \DateTimeInterface $dateReservation;
+
 
     // ── Statut ─────────────────────────────────────────────────────────────
     #[ORM\Column(name: "statut", type: "string", length: 50)]
@@ -64,8 +68,15 @@ class ReservationActivite
     public function setUtilisateur(?Users $utilisateur): self { $this->utilisateur = $utilisateur; return $this; }
 
     public function getDateReservation(): ?\DateTimeInterface { return $this->dateReservation; }
-    public function setDateReservation(\DateTimeInterface $date): self { $this->dateReservation = $date; return $this; }
-
+    //public function setDateReservation(\DateTimeInterface $date): self { $this->dateReservation = $date; return $this; }
+    //----------- correction doctrine doctor : pas de setter pour dateReservation car auto-set à la création
+    // Après — protected car géré par PrePersist
+    protected function setDateReservation(\DateTimeInterface $date): self
+    {
+        $this->dateReservation = $date;
+        return $this;
+    }
+    
     public function getStatut(): string { return $this->statut; }
     public function setStatut(string $statut): self { $this->statut = $statut; return $this; }
 

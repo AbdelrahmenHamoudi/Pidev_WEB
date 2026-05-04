@@ -13,6 +13,9 @@ class Activite
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: "idActivite", type: "integer")]
+    //private ?int $idActivite = null;
+    // Correction apportée par Doctrine Doctor : le nom de la colonne doit être "idActivite" pour correspondre à la propriété
+    //#[ORM\Column(name: "id_activite")]
     private ?int $idActivite = null;
 
     #[ORM\Column(type: "string", length: 255)]
@@ -30,17 +33,32 @@ class Activite
     #[ORM\Column(type: "integer")]
     private int $capaciteMax;
 
-    #[ORM\Column(type: "string", length: 255)]
+    
+    //#[ORM\Column(type: "string", length: 255)]
+    //private ?string $image = null;
+    //------------------- correction doctrine doctor -------------------
+    // Correction : image doit être nullable
+    // Après — cohérent avec la BD (nullable)
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
-
+    
     #[ORM\Column(type: "string", length: 50)]
     private string $type = '';
 
     #[ORM\Column(type: "string", length: 50)]
     private string $statut = 'Disponible';
-    // ✅ RELATION CORRIGÉE
-    #[ORM\OneToMany(mappedBy: "activite", targetEntity: Planningactivite::class, cascade: ["persist", "remove"])]
-    private Collection $planningactivites;
+    //  RELATION CORRIGÉE
+   // #[ORM\OneToMany(mappedBy: "activite", targetEntity: Planningactivite::class, cascade: ["persist", "remove"])]
+    //private Collection $planningactivites;
+    //---------- correction doctrine doctor --------------
+    // Après — ajouter orphanRemoval + onDelete CASCADE
+#[ORM\OneToMany(
+    mappedBy: 'activite',
+    targetEntity: Planningactivite::class,
+    cascade: ['persist', 'remove'],
+    orphanRemoval: true
+)]
+private Collection $planningactivites;
 
     public function __construct()
     {
@@ -69,11 +87,10 @@ class Activite
     public function getCapaciteMax(): int { return $this->capaciteMax; }
     public function setCapaciteMax(int $capaciteMax): self { $this->capaciteMax = $capaciteMax; return $this; }
 
-    public function getImage(): ?string
-{
-    return $this->image;
-}
-
+    //public function getImage(): ?string{ return $this->image;}
+    // ---------------- correction doctrine doctor -------------------
+    // Correction : getImage doit retourner ?string
+    public function getImage(): ?string { return $this->image; }
 public function setImage(?string $image): self
 {
     $this->image = $image;
@@ -93,8 +110,7 @@ public function setImage(?string $image): self
         return $this->planningactivites;
     }
 
-    public function addPlanningactivite(Planning $planning): self
-    {
+    public function addPlanningactivite(Planningactivite $planning): static{
         if (!$this->planningactivites->contains($planning)) {
             $this->planningactivites[] = $planning;
             $planning->setActivite($this);
@@ -102,7 +118,7 @@ public function setImage(?string $image): self
         return $this;
     }
 
-    public function removePlanningactivite(Planning $planning): self
+    public function removePlanningactivite(Planningactivite $planning): static
     {
         if ($this->planningactivites->removeElement($planning)) {
             if ($planning->getActivite() === $this) {

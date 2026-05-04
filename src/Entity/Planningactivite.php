@@ -15,36 +15,38 @@ class Planningactivite
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Activite::class, inversedBy: "planningactivites")]
-    #[ORM\JoinColumn(name: "id_activite", referencedColumnName: "idActivite", nullable: false)]
+    #[ORM\JoinColumn(name: "id_activite", 
+                     referencedColumnName: "idActivite", 
+                     nullable: false,
+                     onDelete: 'CASCADE')]// Correction : ajouter onDelete CASCADE pour assurer l'intégrité référentielle doctrine doctor
     #[Assert\NotNull(message: "L'activité est obligatoire")]
     private ?Activite $activite = null;
 
     #[ORM\Column(name: "id_utilisateur", type: "integer", nullable: true)]
     private ?int $idUtilisateur = null;
 
-    #[ORM\Column(name: "date_planning", type: "date")]
+    #[ORM\Column(name: "date_planning", type: "date", nullable: false)]
     #[Assert\NotNull(message: "La date est obligatoire")]
     #[Assert\GreaterThanOrEqual(
         value: "today",
         message: "La date doit être aujourd'hui ou dans le futur"
     )]
-    private ?\DateTimeInterface $datePlanning = null;
+    private \DateTimeInterface $datePlanning ;
 
-    #[ORM\Column(name: "heure_debut", type: "string", length: 10)]
+    #[ORM\Column(name: "heure_debut", type: "string", length: 10, nullable: false)]
     #[Assert\NotBlank(message: "L'heure de début est obligatoire")]
     #[Assert\Regex(
         pattern: "/^\d{2}:\d{2}$/",
         message: "Format invalide. Utilisez HH:MM"
     )]
-    private ?string $heureDebut = null;
-
-    #[ORM\Column(name: "heure_fin", type: "string", length: 10)]
+    private string $heureDebut; 
+    #[ORM\Column(name: "heure_fin", type: "string", length: 10, nullable: false)]
     #[Assert\NotBlank(message: "L'heure de fin est obligatoire")]
     #[Assert\Regex(
         pattern: "/^\d{2}:\d{2}$/",
         message: "Format invalide. Utilisez HH:MM"
     )]
-    private ?string $heureFin = null;
+    private string $heureFin;
 
     #[ORM\Column(name: "nb_places_restantes", type: "integer")]
     #[Assert\PositiveOrZero(message: "Le nombre de places ne peut pas être négatif")]
@@ -113,6 +115,7 @@ class Planningactivite
 
     public function __toString(): string
     {
-        return $this->datePlanning?->format('d/m/Y') . ' ' . $this->heureDebut . '-' . $this->heureFin;
+        return $this->datePlanning->format('d/m/Y') . ' ' . $this->heureDebut . '-' . $this->heureFin;
+
     }
 }

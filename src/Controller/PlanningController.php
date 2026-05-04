@@ -20,8 +20,6 @@ class PlanningController extends AbstractController
         private ActiviteService $activiteService,
     ) {}
 
-    // ── Liste plannings d'une activité ─────────────────────────────────────
-
     #[Route('/activite/{idActivite}', name: 'planning_index', methods: ['GET'])]
     public function index(int $idActivite): Response
     {
@@ -37,8 +35,6 @@ class PlanningController extends AbstractController
             'stats'     => $stats,
         ]);
     }
-
-    // ── Créer ──────────────────────────────────────────────────────────────
 
     #[Route('/new', name: 'planning_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
@@ -63,8 +59,6 @@ class PlanningController extends AbstractController
             'form' => $form,
         ]);
     }
-
-    // ── Modifier ───────────────────────────────────────────────────────────
 
     #[Route('/{id}/edit', name: 'planning_edit', methods: ['GET', 'POST'])]
     public function edit(int $id, Request $request): Response
@@ -96,8 +90,6 @@ class PlanningController extends AbstractController
         ]);
     }
 
-    // ── Supprimer ──────────────────────────────────────────────────────────
-
     #[Route('/{id}/delete', name: 'planning_delete', methods: ['POST'])]
     public function delete(int $id, Request $request): Response
     {
@@ -119,51 +111,49 @@ class PlanningController extends AbstractController
         return $this->redirectToRoute('planning_index', ['idActivite' => $idActivite]);
     }
 
-    // ── Réservation (Frontend) ─────────────────────────────────────────────
-
     #[Route('/{id}/reserver', name: 'planning_reserver', methods: ['POST'])]
     public function reserver(
-    int $id, 
-    Request $request,
-    ReservationActiviteService $reservationService
-): Response {
-    $planning = $this->planningService->findById($id);
+        int $id,
+        Request $request,
+        ReservationActiviteService $reservationService
+    ): Response {
+        $planning = $this->planningService->findById($id);
 
-    if (!$planning) {
-        throw $this->createNotFoundException("Planning #$id introuvable");
-    }
+        if (!$planning) {
+            throw $this->createNotFoundException("Planning #$id introuvable");
+        }
 
-    $idActivite = $planning->getActivite()->getIdActivite();
+        $idActivite = $planning->getActivite()->getIdActivite();
 
-    if (!$this->isCsrfTokenValid('reserver_' . $id, $request->request->get('_token'))) {
-        $this->addFlash('error', 'Token de sécurité invalide.');
-        return $this->redirectToRoute('activite_show_front', ['id' => $idActivite]);
-    }
-
-    $utilisateur = $this->getUser();
-
-    if ($utilisateur) {
-        $result = $reservationService->reserverPourUtilisateur($id, $utilisateur);
-    } else {
-        $nom   = trim($request->request->get('nom_client', ''));
-        $email = trim($request->request->get('email_client', ''));
-        if (empty($nom) || empty($email)) {
-            $this->addFlash('error', 'Veuillez renseigner votre nom et email.');
+        if (!$this->isCsrfTokenValid('reserver_' . $id, $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
             return $this->redirectToRoute('activite_show_front', ['id' => $idActivite]);
         }
-        $result = $reservationService->reserverAnonyme($id, $nom, $email);
+
+        // ✅ Cast |null pour éviter le "if always true"
+        /** @var \App\Entity\Users|null $utilisateur */
+        $utilisateur = $this->getUser();
+
+        if ($utilisateur) {
+            $result = $reservationService->reserverPourUtilisateur($id, $utilisateur);
+        } else {
+            $nom   = trim($request->request->get('nom_client', ''));
+            $email = trim($request->request->get('email_client', ''));
+            if (empty($nom) || empty($email)) {
+                $this->addFlash('error', 'Veuillez renseigner votre nom et email.');
+                return $this->redirectToRoute('activite_show_front', ['id' => $idActivite]);
+            }
+            $result = $reservationService->reserverAnonyme($id, $nom, $email);
+        }
+
+        if ($result['success']) {
+            $this->addFlash('success', $result['message']);
+        } else {
+            $this->addFlash('error', $result['message']);
+        }
+
+        return $this->redirectToRoute('activite_show_front', ['id' => $idActivite]);
     }
-
-    if ($result['success']) {
-        $this->addFlash('success', $result['message']);
-    } else {
-        $this->addFlash('error', $result['message']);
-    }
-
-    return $this->redirectToRoute('activite_show_front', ['id' => $idActivite]);
-}
-
-    // ── Annulation (Frontend) ──────────────────────────────────────────────
 
     #[Route('/{id}/annuler', name: 'planning_annuler', methods: ['POST'])]
     public function annuler(int $id, Request $request): Response

@@ -1,0 +1,11 @@
+parameters:
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+        - tests/
+    level: 5
+    ignoreErrors:
+        - '#is never assigned int so it can be removed from the property type#'
+        - '#Call to an undefined method#'
