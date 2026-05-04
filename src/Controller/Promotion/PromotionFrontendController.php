@@ -216,9 +216,9 @@ final class PromotionFrontendController extends AbstractController
                 $packDetails[$promo->getId()] = $items;
             } else {
                 // Individual offer details
-                $refId = $promo->getReferenceId();
-                $refType = $promo->getReferenceId();
-                $offerData = ['unitPrice' => 0, 'label' => '', 'maxPersons' => 99];
+            $refId = $promo->getReferenceId();
+            $refType = $promo->getOfferType();
+            $offerData = ['unitPrice' => 0, 'label' => '', 'maxPersons' => 99];
                 
                 if ($refType === 'hebergement' && $refId) {
                     $h = $this->em->getRepository(Hebergement::class)->find($refId);
@@ -341,7 +341,7 @@ final class PromotionFrontendController extends AbstractController
     public function reserverAjax(Request $request): JsonResponse
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\Users) {
             return $this->json(['success' => false, 'error' => 'Vous devez être connecté'], 401);
         }
 
@@ -441,7 +441,7 @@ final class PromotionFrontendController extends AbstractController
     public function useCodeAjax(Request $request): JsonResponse
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\Users) {
             return $this->json(['success' => false, 'error' => 'Non connecté'], 401);
         }
 
@@ -463,7 +463,7 @@ final class PromotionFrontendController extends AbstractController
     public function mesReservations(): Response
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\Users) {
             throw $this->createAccessDeniedException('Vous devez être connecté pour voir vos réservations.');
         }
 

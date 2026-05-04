@@ -18,9 +18,6 @@ class Promotion
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
-        if (!isset($this->createdAt)) {
-            $this->createdAt = new \DateTime();
-        }
     }
     // ── Constantes type d'offre ──────────────────────────────────────────────
     const OFFER_HEBERGEMENT = 'hebergement';
@@ -42,6 +39,7 @@ class Promotion
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(type: 'integer')]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]

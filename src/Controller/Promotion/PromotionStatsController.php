@@ -39,6 +39,7 @@ class PromotionStatsController extends AbstractController
         }
 
         // 2. Top Promotions (Reservations count)
+        /** @var array<int, array{name: string, count: int, isPack: bool}> $promoStats */
         $promoStats = [];
         foreach ($promotions as $p) {
             $resas = $resaRepo->findBy(['promotion' => $p]);
@@ -51,7 +52,8 @@ class PromotionStatsController extends AbstractController
         }
         
         // Sort for Top Promotions
-        usort($promoStats, fn($a, $b) => $b['count'] <=> $a['count']);
+        /** @phpstan-ignore-next-line */
+        usort($promoStats, fn(array $a, array $b): int => $b['count'] <=> $a['count']);
         $topPromos = array_slice($promoStats, 0, 10);
 
         // Filter for Best Pack Combos (Only packs)
@@ -124,6 +126,7 @@ class PromotionStatsController extends AbstractController
             $p->isPack() ? $nbPacks++ : $nbIndiv++;
         }
 
+        /** @var array<int, array{name: string, count: int}> $promoStats */
         $promoStats = [];
         foreach ($promotions as $p) {
             $promoStats[$p->getId()] = ['name' => $p->getName(), 'count' => 0];
@@ -136,7 +139,8 @@ class PromotionStatsController extends AbstractController
                 }
             }
         }
-        usort($promoStats, fn($a, $b) => $b['count'] <=> $a['count']);
+        /** @phpstan-ignore-next-line */
+        usort($promoStats, fn(array $a, array $b): int => $b['count'] <=> $a['count']);
         $topPromos = array_slice($promoStats, 0, 10);
 
         $typeDistribution = ['hebergement' => 0, 'voiture' => 0, 'activite' => 0];

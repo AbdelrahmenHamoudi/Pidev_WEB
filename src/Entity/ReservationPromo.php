@@ -22,6 +22,7 @@ class ReservationPromo
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(type: 'integer')]
+    /** @phpstan-ignore-next-line */
     private ?int $id = null;
 
     // ── Liens métier ──────────────────────────────────────────────────────────
@@ -133,7 +134,7 @@ class ReservationPromo
     {
         if (!isset($this->createdAt)) return true;
         $now      = new \DateTime();
-        $deadline = (clone $this->createdAt)->modify('+24 hours');
+        $deadline = \DateTime::createFromInterface($this->createdAt)->modify('+24 hours');
         return $now <= $deadline;
     }
 
@@ -144,7 +145,7 @@ class ReservationPromo
     {
         if (!isset($this->createdAt)) return 24;
         $now      = new \DateTime();
-        $deadline = (clone $this->createdAt)->modify('+24 hours');
+        $deadline = \DateTime::createFromInterface($this->createdAt)->modify('+24 hours');
         $diff     = $now->diff($deadline);
         if ($diff->invert) return 0;
         return ($diff->h + $diff->days * 24);
