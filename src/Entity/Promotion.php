@@ -18,9 +18,8 @@ class Promotion
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
-        if (!isset($this->createdAt)) {
-            $this->createdAt = new \DateTime();
-        }
+        // createdAt is already initialized in constructor
+
     }
     // ── Constantes type d'offre ──────────────────────────────────────────────
     const OFFER_HEBERGEMENT = 'hebergement';

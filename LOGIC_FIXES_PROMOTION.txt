@@ -1,0 +1,80 @@
+================================================================================
+PREUVES DES CORRECTIONS LOGIQUES (BUG FIXES & TYPAGE RÉEL)
+================================================================================
+
+Ce document illustre les corrections de bugs de logique et les améliorations 
+de typage effectuées sur le module Promotion sans utiliser de commentaires.
+
+--------------------------------------------------------------------------------
+1. FICHIER : src/Controller/Promotion/PromotionFrontendController.php
+--------------------------------------------------------------------------------
+
+CAS A : Correction d'un bug de logique (Comparaison toujours fausse)
+
+AVANT :
+--------------------------------------------------
+$refId = $promo->getReferenceId();
+$refType = $promo->getReferenceId(); // <-- ERREUR : refId est un entier
+
+if ($refType === 'hebergement' && $refId) { // <-- Sera TOUJOURS faux (int === string)
+--------------------------------------------------
+
+APRÈS :
+--------------------------------------------------
+$refId = $promo->getReferenceId();
+$refType = $promo->getOfferType(); // <-- FIX : On utilise le type (string)
+
+if ($refType === 'hebergement' && $refId) { // <-- Fonctionne correctement
+--------------------------------------------------
+
+---
+
+CAS B : Validation du type Utilisateur (Narrowing)
+
+AVANT :
+--------------------------------------------------
+$user = $this->getUser();
+if (!$user) {
+    return $this->json(['success' => false, 'error' => 'Vous devez être connecté'], 401);
+}
+// PHPStan signale que $user (UserInterface) n'est pas forcément une entité Users.
+--------------------------------------------------
+
+APRÈS :
+--------------------------------------------------
+$user = $this->getUser();
+if (!$user instanceof \App\Entity\Users) {
+    return $this->json(['success' => false, 'error' => 'Vous devez être connecté avec un compte valide'], 401);
+}
+// Le type est maintenant garanti comme étant l'entité Users attendue.
+--------------------------------------------------
+
+--------------------------------------------------------------------------------
+2. FICHIER : src/Entity/Promotion.php
+--------------------------------------------------------------------------------
+
+CAS C : Suppression de code redondant (isset)
+
+AVANT :
+--------------------------------------------------
+#[ORM\PrePersist]
+public function onPrePersist(): void
+{
+    if (!isset($this->createdAt)) {
+        $this->createdAt = new \DateTime();
+    }
+}
+--------------------------------------------------
+
+APRÈS :
+--------------------------------------------------
+#[ORM\PrePersist]
+public function onPrePersist(): void
+{
+    // createdAt est déjà initialisé dans le constructeur
+}
+--------------------------------------------------
+
+================================================================================
+RÉSULTAT : Les erreurs de logique sont résolues et le code est plus robuste.
+================================================================================
