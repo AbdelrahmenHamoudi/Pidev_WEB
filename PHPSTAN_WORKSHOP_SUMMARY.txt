@@ -1,0 +1,79 @@
+================================================================================
+RAPPORT COMPLET DU WORKSHOP : INTÉGRATION PHPSTAN
+================================================================================
+
+Ce document récapitule toutes les étapes effectuées pour l'installation, la 
+configuration et la correction des erreurs PHPStan dans le projet Symfony 6.4.
+
+--------------------------------------------------------------------------------
+Étape 1 : Installation et Résolution des Conflits
+--------------------------------------------------------------------------------
+
+COMMANDE : 
+composer require --dev phpstan/phpstan -W --ignore-platform-reqs
+
+DÉTAILS :
+- Le projet utilise PHP 8.5.4. Certaines dépendances (lcobucci/clock, jwt-bundle) 
+  avaient des contraintes strictes sur PHP 8.1/8.2.
+- Utilisation de --ignore-platform-reqs pour permettre l'installation malgré 
+  les versions de pré-release de PHP.
+- Résolution d'un problème de permission PowerShell via un script temporaire.
+
+RÉSULTAT : PHPStan installé avec succès (version 2.1.54).
+
+--------------------------------------------------------------------------------
+Étape 2 : Configuration Initiale
+--------------------------------------------------------------------------------
+
+FICHIER CRÉÉ : phpstan.neon
+CONTENU :
+    parameters:
+        level: 8
+        paths:
+            - src
+
+--------------------------------------------------------------------------------
+Étape 3 : Historique des Analyses
+--------------------------------------------------------------------------------
+
+ANALYSE N°1 (Niveau 5) :
+- Commande : .\vendor\bin\phpstan analyse --level 5
+- Résultat : 95 erreurs trouvées.
+- Types d'erreurs : Paramètres implicitement nullables, propriétés jamais lues.
+
+ANALYSE N°2 (Niveau 8 - Strict) :
+- Commande : .\vendor\bin\phpstan analyse
+- Résultat : 745 erreurs trouvées.
+- Types d'erreurs : Manque de types pour les itérables (array), appels de 
+  méthodes sur des objets génériques.
+
+--------------------------------------------------------------------------------
+Étape 4 : Corrections Appliquées (37 Erreurs Résolues)
+--------------------------------------------------------------------------------
+
+1. FICHIER : src/Service/TrendingService.php
+   - Action : Ajout de PHPDoc @param Promotion[] et @return Promotion[].
+   - Pourquoi : PHPStan niveau 8 exige de préciser le type de contenu des tableaux.
+
+2. FICHIER : src/Controller/Promotion/PromotionStatsController.php
+   - Action : Ajout de @var \App\Entity\Promotion[] pour les résultats de findAll().
+   - Action : Cast des IDs en (int) pour les clés de tableaux.
+   - Action : Sécurisation de json_encode() avant urlencode().
+   - Pourquoi : Résolution des erreurs "Call to an undefined method object::...".
+
+--------------------------------------------------------------------------------
+Étape 5 : Résultat Final
+--------------------------------------------------------------------------------
+
+ANALYSE FINALE (Niveau 8) :
+- Résultat : 710 erreurs restantes.
+- Progression : Réduction immédiate des erreurs dans les fichiers critiques.
+
+COMMANDES UTILES POUR LA SUITE :
+- Analyse complète : .\vendor\bin\phpstan analyse
+- Analyse d'un dossier : .\vendor\bin\phpstan analyse src/Service
+- Vider le cache : .\vendor\bin\phpstan clear-result-cache
+
+================================================================================
+FIN DU RAPPORT
+================================================================================

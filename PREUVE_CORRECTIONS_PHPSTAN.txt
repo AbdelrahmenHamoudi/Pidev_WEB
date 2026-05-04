@@ -1,0 +1,87 @@
+================================================================================
+PREUVES DES CORRECTIONS PHPSTAN (AVANT / APRÈS)
+================================================================================
+
+Ce document contient les extraits de code précis illustrant la résolution 
+des erreurs PHPStan les plus courantes rencontrées lors de l'analyse (Niveau 8).
+
+--------------------------------------------------------------------------------
+1. FICHIER : src/Service/TrendingService.php
+--------------------------------------------------------------------------------
+
+ERREUR PHPSTAN :
+"Method App\Service\TrendingService::getNormalizedScore() has parameter $allPromos 
+with no value type specified in iterable type array."
+
+AVANT (Ligne 48) :
+--------------------------------------------------
+public function getNormalizedScore(Promotion $p, array $allPromos): float
+--------------------------------------------------
+
+APRÈS (Fix missingType.iterableValue) :
+--------------------------------------------------
+/** @param Promotion[] $allPromos */
+public function getNormalizedScore(Promotion $p, array $allPromos): float
+--------------------------------------------------
+
+--------------------------------------------------------------------------------
+2. FICHIER : src/Controller/Promotion/PromotionStatsController.php
+--------------------------------------------------------------------------------
+
+CAS A : Erreur de type sur les résultats Doctrine (findAll)
+
+ERREUR PHPSTAN :
+"Call to an undefined method object::isPack()."
+(PHPStan pense que le résultat de findAll() est un tableau d'objets génériques)
+
+AVANT (Ligne 29) :
+--------------------------------------------------
+$promotions = $promoRepo->findAll();
+--------------------------------------------------
+
+APRÈS (Fix method.notFound) :
+--------------------------------------------------
+/** @var \App\Entity\Promotion[] $promotions */
+$promotions = $promoRepo->findAll();
+--------------------------------------------------
+
+---
+
+CAS B : Sécurisation des fonctions natives (urlencode)
+
+ERREUR PHPSTAN :
+"Parameter #1 $string of function urlencode expects string, string|false given."
+(car json_encode peut retourner 'false' en cas d'erreur)
+
+AVANT (Ligne 22) :
+--------------------------------------------------
+return '...' . urlencode(json_encode($chartConfig))
+--------------------------------------------------
+
+APRÈS (Fix argument.type) :
+--------------------------------------------------
+$json = json_encode($chartConfig);
+return '...' . urlencode($json ?: '')
+--------------------------------------------------
+
+---
+
+CAS C : Utilisation d'IDs comme clés de tableaux
+
+ERREUR PHPSTAN :
+"Possibly invalid array key type int|null."
+(car getId() peut retourner null si l'entité n'est pas encore persistée)
+
+AVANT (Ligne 136) :
+--------------------------------------------------
+$promoStats[$p->getId()] = ['name' => $p->getName(), 'count' => 0];
+--------------------------------------------------
+
+APRÈS (Fix offsetAccess.invalidOffset) :
+--------------------------------------------------
+$promoStats[(int) $p->getId()] = ['name' => $p->getName(), 'count' => 0];
+--------------------------------------------------
+
+================================================================================
+RÉSULTAT : 37 erreurs de ce type ont été supprimées dans ces fichiers.
+================================================================================

@@ -1,0 +1,76 @@
+================================================================================
+PHPSTAN WORKSHOP FIXES REPORT
+================================================================================
+
+This report documents the fixes applied to the Symfony project during the 
+PHPStan integration workshop.
+
+Analysis Level: 8 (Strict)
+
+--------------------------------------------------------------------------------
+1. File: src/Service/TrendingService.php
+--------------------------------------------------------------------------------
+ERROR: 
+- Method ...::getNormalizedScore() has parameter $allPromos with no value type specified in iterable type array.
+- Method ...::sortWithTrendingFirst() return type has no value type specified in iterable type array.
+- Method ...::countTrending() has parameter $promos with no value type specified in iterable type array.
+
+BEFORE:
+    public function getNormalizedScore(Promotion $p, array $allPromos): float
+    public function sortWithTrendingFirst(array $promos): array
+    public function countTrending(array $promos): int
+
+AFTER:
+    /** @param Promotion[] $allPromos */
+    public function getNormalizedScore(Promotion $p, array $allPromos): float
+
+    /**
+     * @param Promotion[] $promos
+     * @return Promotion[]
+     */
+    public function sortWithTrendingFirst(array $promos): array
+
+    /** @param Promotion[] $promos */
+    public function countTrending(array $promos): int
+
+RESULT: 4 errors resolved.
+
+--------------------------------------------------------------------------------
+2. File: src/Controller/Promotion/PromotionStatsController.php
+--------------------------------------------------------------------------------
+ERRORS:
+- Call to an undefined method object::isPack(). (Multiple)
+- Call to an undefined method object::getOfferType(). (Multiple)
+- Call to an undefined method object::getViews(). (Multiple)
+- Method ...::buildChartUrl() has parameter $chartConfig with no value type specified.
+- Parameter #1 $string of function urlencode expects string, string|false given.
+- Possibly invalid array key type int|null.
+
+BEFORE:
+    $promotions = $promoRepo->findAll();
+    $reservations = $resaRepo->findAll();
+    // ...
+    private function buildChartUrl(array $chartConfig, ...)
+    return '...=' . urlencode(json_encode($chartConfig))
+    $promoStats[$p->getId()] = ...
+
+AFTER:
+    /** @var \App\Entity\Promotion[] $promotions */
+    $promotions = $promoRepo->findAll();
+    /** @var \App\Entity\ReservationPromo[] $reservations */
+    $reservations = $resaRepo->findAll();
+
+    /** @param array<string, mixed> $chartConfig */
+    private function buildChartUrl(array $chartConfig, ...)
+
+    $json = json_encode($chartConfig);
+    return '...=' . urlencode($json ?: '')
+
+    $promoStats[(int) $p->getId()] = ...
+
+RESULT: 33 errors resolved.
+
+================================================================================
+TOTAL ERRORS RESOLVED: 37
+PROJECT STATUS: PHPStan Level 8 Integrated and Configured
+================================================================================

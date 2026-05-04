@@ -45,6 +45,7 @@ class TrendingService
              + ($this->getNbReservations($p) * self::POIDS_RESA);
     }
 
+    /** @param Promotion[] $allPromos */
     public function getNormalizedScore(Promotion $p, array $allPromos): float
     {
         $max = 0.0;
@@ -56,7 +57,10 @@ class TrendingService
         return min(1.0, $this->getTrendingScore($p) / $max);
     }
 
-    /** @param Promotion[] $promos */
+    /**
+     * @param Promotion[] $promos
+     * @return Promotion[]
+     */
     public function sortWithTrendingFirst(array $promos): array
     {
         usort($promos, function (Promotion $a, Promotion $b) {
@@ -68,6 +72,7 @@ class TrendingService
         return $promos;
     }
 
+    /** @param Promotion[] $promos */
     public function countTrending(array $promos): int
     {
         return count(array_filter($promos, fn(Promotion $p) => $this->isTrending($p)));

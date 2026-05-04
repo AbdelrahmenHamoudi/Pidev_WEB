@@ -17,16 +17,20 @@ class PromotionStatsController extends AbstractController
      * QuickChart is 100% free, requires no API key, and returns chart images.
      * Documentation: https://quickchart.io/documentation/
      */
+    /** @param array<string, mixed> $chartConfig */
     private function buildChartUrl(array $chartConfig, int $width = 400, int $height = 300): string
     {
-        return 'https://quickchart.io/chart?c=' . urlencode(json_encode($chartConfig))
+        $json = json_encode($chartConfig);
+        return 'https://quickchart.io/chart?c=' . urlencode($json ?: '')
             . '&w=' . $width . '&h=' . $height . '&bkg=white&f=png';
     }
 
     #[Route('/admin/promotion/stats', name: 'app_admin_promotion_stats')]
     public function index(PromotionRepository $promoRepo, ReservationPromoRepository $resaRepo): Response
     {
+        /** @var \App\Entity\Promotion[] $promotions */
         $promotions = $promoRepo->findAll();
+        /** @var \App\Entity\ReservationPromo[] $reservations */
         $reservations = $resaRepo->findAll();
 
         // 1. Distribution by Type (Count)
@@ -41,6 +45,7 @@ class PromotionStatsController extends AbstractController
         // 2. Top Promotions (Reservations count)
         $promoStats = [];
         foreach ($promotions as $p) {
+            /** @var \App\Entity\ReservationPromo[] $resas */
             $resas = $resaRepo->findBy(['promotion' => $p]);
             $count = count(array_filter($resas, fn($r) => $r->getStatut() !== \App\Entity\ReservationPromo::STATUT_ANNULEE));
             $promoStats[] = [
@@ -114,7 +119,9 @@ class PromotionStatsController extends AbstractController
         ReservationPromoRepository $resaRepo,
         Api2PdfService $api2PdfService
     ): Response {
+        /** @var \App\Entity\Promotion[] $promotions */
         $promotions = $promoRepo->findAll();
+        /** @var \App\Entity\ReservationPromo[] $reservations */
         $reservations = $resaRepo->findAll();
 
         // Recompute stats (same as index)
@@ -126,11 +133,11 @@ class PromotionStatsController extends AbstractController
 
         $promoStats = [];
         foreach ($promotions as $p) {
-            $promoStats[$p->getId()] = ['name' => $p->getName(), 'count' => 0];
+            $promoStats[(int) $p->getId()] = ['name' => $p->getName(), 'count' => 0];
         }
         foreach ($reservations as $r) {
             if ($r->getPromotion() && $r->getStatut() !== 'ANNULEE') {
-                $id = $r->getPromotion()->getId();
+                $id = (int) $r->getPromotion()->getId();
                 if (isset($promoStats[$id])) {
                     $promoStats[$id]['count']++;
                 }
