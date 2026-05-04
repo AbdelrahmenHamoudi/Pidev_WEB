@@ -15,7 +15,7 @@ class TrajetManagerTest extends TestCase
         $this->manager = new TrajetManager();
     }
 
-    // ✅ Test 1 : Trajet valide
+    // ✅ Trajet valide
     public function testTrajetValide(): void
     {
         $trajet = new Trajet();
@@ -27,7 +27,7 @@ class TrajetManagerTest extends TestCase
         $this->assertTrue($this->manager->validate($trajet));
     }
 
-    // ❌ Test 2 : Point de départ manquant
+    // ❌ Point de départ manquant
     public function testTrajetSansDepart(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -41,7 +41,7 @@ class TrajetManagerTest extends TestCase
         $this->manager->validate($trajet);
     }
 
-    // ❌ Test 3 : Point d'arrivée manquant
+    // ❌ Point d'arrivée manquant
     public function testTrajetSansArrivee(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -55,7 +55,7 @@ class TrajetManagerTest extends TestCase
         $this->manager->validate($trajet);
     }
 
-    // ❌ Test 4 : Distance nulle
+    // ❌ Distance nulle
     public function testTrajetDistanceNulle(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -70,7 +70,7 @@ class TrajetManagerTest extends TestCase
         $this->manager->validate($trajet);
     }
 
-    // ❌ Test 5 : Distance négative
+    // ❌ Distance négative
     public function testTrajetDistanceNegative(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -85,7 +85,7 @@ class TrajetManagerTest extends TestCase
         $this->manager->validate($trajet);
     }
 
-    // ❌ Test 6 : Zéro personne
+    // ❌ Zéro personne
     public function testTrajetZeroPersonne(): void
     {
         $this->expectException(\InvalidArgumentException::class);

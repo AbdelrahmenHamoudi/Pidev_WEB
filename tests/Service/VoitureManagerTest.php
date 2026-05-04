@@ -15,7 +15,7 @@ class VoitureManagerTest extends TestCase
         $this->manager = new VoitureManager();
     }
 
-    // ✅ Test 1 : Voiture valide
+    // ✅ Voiture valide
     public function testVoitureValide(): void
     {
         $voiture = new Voiture();
@@ -28,7 +28,7 @@ class VoitureManagerTest extends TestCase
         $this->assertTrue($this->manager->validate($voiture));
     }
 
-    // ❌ Test 2 : Marque manquante
+    // ❌ Marque manquante
     public function testVoitureSansMarque(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -42,7 +42,7 @@ class VoitureManagerTest extends TestCase
         $this->manager->validate($voiture);
     }
 
-    // ❌ Test 3 : Immatriculation manquante
+    // ❌ Immatriculation manquante
     public function testVoitureSansImmatriculation(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -56,7 +56,7 @@ class VoitureManagerTest extends TestCase
         $this->manager->validate($voiture);
     }
 
-    // ❌ Test 4 : Prix KM invalide (zéro)
+    // ❌  Prix KM invalide (zéro)
     public function testVoiturePrixKMNul(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -71,7 +71,7 @@ class VoitureManagerTest extends TestCase
         $this->manager->validate($voiture);
     }
 
-    // ❌ Test 5 : Prix KM négatif
+    // ❌ Prix KM négatif
     public function testVoiturePrixKMNegatif(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -86,7 +86,7 @@ class VoitureManagerTest extends TestCase
         $this->manager->validate($voiture);
     }
 
-    // ❌ Test 6 : Nombre de places invalide
+    // ❌ Nombre de places invalide
     public function testVoiturePlacesInvalides(): void
     {
         $this->expectException(\InvalidArgumentException::class);
