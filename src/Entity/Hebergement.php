@@ -17,52 +17,52 @@ class Hebergement
     private int $id_hebergement;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $titre;
+    private ?string $titre = null;
 
     #[ORM\Column(type: "string", length: 255)]
-    private string $desc_hebergement;
+    private ?string $desc_hebergement = null;
 
     #[ORM\Column(type: "integer")]
-    private int $capacite;
+    private ?int $capacite = null;
 
     #[ORM\Column(type: "string", length: 100)]
-    private string $type_hebergement;
+    private ?string $type_hebergement = null;
 
     #[ORM\Column(type: "boolean")]
-    private bool $disponible_heberg;
+    private ?bool $disponible_heberg = null;
 
     #[ORM\Column(type: "string")]
-    private string $prixParNuit;
+    private ?string $prixParNuit = null;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $image = null;
 
-    public function getId_hebergement()
+    public function getId_hebergement(): int
     {
         return $this->id_hebergement;
     }
 
-    public function setId_hebergement($value)
+    public function setId_hebergement(int $value): void
     {
         $this->id_hebergement = $value;
     }
 
-    public function getTitre()
+    public function getTitre(): ?string
     {
         return $this->titre;
     }
 
-    public function setTitre($value)
+    public function setTitre(?string $value): void
     {
         $this->titre = $value;
     }
 
-    public function getDesc_hebergement()
+    public function getDesc_hebergement(): ?string
     {
         return $this->desc_hebergement;
     }
 
-    public function setDesc_hebergement($value)
+    public function setDesc_hebergement(?string $value): void
     {
         $this->desc_hebergement = $value;
     }
@@ -79,44 +79,49 @@ class Hebergement
         return $this;
     }
 
-    public function getCapacite()
+    public function getCapacite(): ?int
     {
         return $this->capacite;
     }
 
-    public function setCapacite($value)
+    public function setCapacite(?int $value): void
     {
         $this->capacite = $value;
     }
 
-    public function getType_hebergement()
+    public function getType_hebergement(): ?string
     {
         return $this->type_hebergement;
     }
 
-    public function setType_hebergement($value)
+    public function setType_hebergement(?string $value): void
     {
         $this->type_hebergement = $value;
     }
 
-    public function getDisponible_heberg()
+    public function getDisponible_heberg(): ?bool
     {
         return $this->disponible_heberg;
     }
 
-    public function setDisponible_heberg($value)
+    public function setDisponible_heberg(?bool $value): void
     {
         $this->disponible_heberg = $value;
     }
 
-    public function getPrixParNuit()
+    public function getPrixParNuit(): ?string
     {
         return $this->prixParNuit;
     }
 
-    public function setPrixParNuit($value)
+    public function setPrixParNuit(?string $value): void
     {
         $this->prixParNuit = $value;
+    }
+
+    public function getPrixParNuitNumeric(): float
+    {
+        return (float) str_replace(',', '.', $this->prixParNuit ?? '0');
     }
 
     public function getImage(): string
@@ -124,7 +129,7 @@ class Hebergement
         return $this->image ?? '';
     }
 
-    public function setImage($value): self
+    public function setImage(?string $value): self
     {
         $this->image = $value;
         return $this;
@@ -150,7 +155,7 @@ class Hebergement
         return $this->type_hebergement;
     }
 
-    public function setTypeHebergement($value): self
+    public function setTypeHebergement(?string $value): self
     {
         $this->type_hebergement = $value;
         return $this;
