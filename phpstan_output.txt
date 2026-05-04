@@ -1,0 +1,121 @@
+﻿ ------ --------------------------------------------------------------------------------------------------------------- 
+  Line   Controller\Promotion\PromotionFrontendController.php                                                           
+ ------ --------------------------------------------------------------------------------------------------------------- 
+  223    Result of && is always false.                                                                                  
+         ­ƒ¬¬  booleanAnd.alwaysFalse                                                                                     
+         ­ƒÆí  Because the type is coming from a PHPDoc, you can turn off this check by setting treatPhpDocTypesAsCertain  
+         : false in your phpstan.neon.                                                                                  
+  223    Strict comparison using === between int|null and 'hebergement' will always evaluate to false.                  
+         ­ƒ¬¬  identical.alwaysFalse                                                                                      
+         ­ƒÆí  Because the type is coming from a PHPDoc, you can turn off this check by setting treatPhpDocTypesAsCertain  
+         : false in your phpstan.neon.                                                                                  
+  232    Right side of && is always false.                                                                              
+         ­ƒ¬¬  booleanAnd.rightAlwaysFalse                                                                                
+         ­ƒÆí  Because the type is coming from a PHPDoc, you can turn off this check by setting treatPhpDocTypesAsCertain  
+         : false in your phpstan.neon.                                                                                  
+  232    Strict comparison using === between int|null and 'voiture' will always evaluate to false.                      
+         ­ƒ¬¬  identical.alwaysFalse                                                                                      
+         ­ƒÆí  Because the type is coming from a PHPDoc, you can turn off this check by setting treatPhpDocTypesAsCertain  
+         : false in your phpstan.neon.                                                                                  
+  241    Right side of && is always false.                                                                              
+         ­ƒ¬¬  booleanAnd.rightAlwaysFalse                                                                                
+         ­ƒÆí  Because the type is coming from a PHPDoc, you can turn off this check by setting treatPhpDocTypesAsCertain  
+         : false in your phpstan.neon.                                                                                  
+  241    Strict comparison using === between int|null and 'activite' will always evaluate to false.                     
+         ­ƒ¬¬  identical.alwaysFalse                                                                                      
+         ­ƒÆí  Because the type is coming from a PHPDoc, you can turn off this check by setting treatPhpDocTypesAsCertain  
+         : false in your phpstan.neon.                                                                                  
+  369    Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().                       
+         ­ƒ¬¬  method.notFound                                                                                            
+  373    Parameter #1 $user of method App\Service\ReservationPromoService::createPackReservation() expects              
+         App\Entity\Users, Symfony\Component\Security\Core\User\UserInterface given.                                    
+         ­ƒ¬¬  argument.type                                                                                              
+  380    Parameter #1 $user of method App\Service\ReservationPromoService::createHebergementReservation() expects       
+         App\Entity\Users, Symfony\Component\Security\Core\User\UserInterface given.                                    
+         ­ƒ¬¬  argument.type                                                                                              
+  387    Parameter #1 $user of method App\Service\ReservationPromoService::createVoitureReservation() expects           
+         App\Entity\Users, Symfony\Component\Security\Core\User\UserInterface given.                                    
+         ­ƒ¬¬  argument.type                                                                                              
+  397    Parameter #1 $user of method App\Service\ReservationPromoService::createActiviteReservation() expects          
+         App\Entity\Users, Symfony\Component\Security\Core\User\UserInterface given.                                    
+         ­ƒ¬¬  argument.type                                                                                              
+  451    Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().                       
+         ­ƒ¬¬  method.notFound                                                                                            
+  470    Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().                       
+         ­ƒ¬¬  method.notFound                                                                                            
+ ------ --------------------------------------------------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Controller\Promotion\PromotionStatsController.php                     
+ ------ ---------------------------------------------------------------------- 
+  54     Parameter #1 $array of function usort contains unresolvable type.     
+         ­ƒ¬¬  argument.unresolvableType                                         
+  54     Parameter #2 $callback of function usort contains unresolvable type.  
+         ­ƒ¬¬  argument.unresolvableType                                         
+  139    Parameter #1 $array of function usort contains unresolvable type.     
+         ­ƒ¬¬  argument.unresolvableType                                         
+  139    Parameter #2 $callback of function usort contains unresolvable type.  
+         ­ƒ¬¬  argument.unresolvableType                                         
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Controller\Promotion\ReservationController.php                         
+ ------ ----------------------------------------------------------------------- 
+  58     Call to an undefined method App\Entity\Reservation::getPromotion().    
+         ­ƒ¬¬  method.notFound                                                    
+  67     Call to an undefined method App\Entity\Reservation::getNbNuits().      
+         ­ƒ¬¬  method.notFound                                                    
+  68     Call to an undefined method App\Entity\Reservation::getNbPersonnes().  
+         ­ƒ¬¬  method.notFound                                                    
+  69     Call to an undefined method App\Entity\Reservation::getKilometrage().  
+         ­ƒ¬¬  method.notFound                                                    
+  98     Call to an undefined method App\Entity\Reservation::getPromotion().    
+         ­ƒ¬¬  method.notFound                                                    
+  176    Call to an undefined method App\Entity\Reservation::setDateDebut().    
+         ­ƒ¬¬  method.notFound                                                    
+  177    Call to an undefined method App\Entity\Reservation::setDateFin().      
+         ­ƒ¬¬  method.notFound                                                    
+  178    Call to an undefined method App\Entity\Reservation::setNbNuits().      
+         ­ƒ¬¬  method.notFound                                                    
+  192    Call to an undefined method App\Entity\Reservation::setDateDebut().    
+         ­ƒ¬¬  method.notFound                                                    
+  193    Call to an undefined method App\Entity\Reservation::setKilometrage().  
+         ­ƒ¬¬  method.notFound                                                    
+  207    Call to an undefined method App\Entity\Reservation::setDateDebut().    
+         ­ƒ¬¬  method.notFound                                                    
+  208    Call to an undefined method App\Entity\Reservation::setNbPersonnes().  
+         ­ƒ¬¬  method.notFound                                                    
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------------------------------------------------ 
+  Line   Entity\PromoCode.php                                                                                        
+ ------ ------------------------------------------------------------------------------------------------------------ 
+  16     Property App\Entity\PromoCode::$id (int|null) is never assigned int so it can be removed from the property  
+         type.                                                                                                       
+         ­ƒ¬¬  property.unusedType                                                                                     
+ ------ ------------------------------------------------------------------------------------------------------------ 
+
+ ------ ------------------------------------------------------------------------------------------------------------ 
+  Line   Entity\Promotion.php                                                                                        
+ ------ ------------------------------------------------------------------------------------------------------------ 
+  21     Property App\Entity\Promotion::$createdAt in isset() is not nullable nor uninitialized.                     
+         ­ƒ¬¬  isset.initializedProperty                                                                               
+  45     Property App\Entity\Promotion::$id (int|null) is never assigned int so it can be removed from the property  
+         type.                                                                                                       
+         ­ƒ¬¬  property.unusedType                                                                                     
+ ------ ------------------------------------------------------------------------------------------------------------ 
+
+ ------ ---------------------------------------------------------------------------------------------------------- 
+  Line   Entity\ReservationPromo.php                                                                               
+ ------ ---------------------------------------------------------------------------------------------------------- 
+  25     Property App\Entity\ReservationPromo::$id (int|null) is never assigned int so it can be removed from the  
+         property type.                                                                                            
+         ­ƒ¬¬  property.unusedType                                                                                   
+  136    Call to an undefined method DateTimeInterface::modify().                                                  
+         ­ƒ¬¬  method.notFound                                                                                       
+  147    Call to an undefined method DateTimeInterface::modify().                                                  
+         ­ƒ¬¬  method.notFound                                                                                       
+ ------ ---------------------------------------------------------------------------------------------------------- 
+
+ [ERROR] Found 35 errors                                                                                               
+
